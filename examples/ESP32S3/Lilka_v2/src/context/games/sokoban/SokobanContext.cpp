@@ -100,7 +100,7 @@ namespace sokoban
     _scrollbar->setPos(UI_WIDTH - SCROLLBAR_WIDTH, 0);
     _scrollbar->setBackColor(COLOR_MAIN_BACK);
 
-    for (uint8_t i{1}; i <= LEVEL_NUM; ++i)
+    for (uint8_t i{6}; i <= LEVEL_NUM; ++i)
     {
       MenuItem* lvl_item = WidgetCreator::getMenuItem(i);
       _lvl_menu->addItem(lvl_item);
