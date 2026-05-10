@@ -1,0 +1,62 @@
+/**
+ * @file graphics_config.h
+ * @brief Файл налаштувань графічного драйвера
+ * @details
+ */
+
+#pragma once
+
+#define UI_UPDATE_DELAY 25 // Затримка (мс) між фреймами
+
+#define GRAPHICS_ENABLED // Увімкнути підтримку графічного драйвера. Закоментуй, якщо в проєкті не використовується дисплей.
+// #define DIRECT_DRAWING       // Увімкнути пряме малювання на дисплей замість буферу. Закоментуй, для формування зображення через буфер.
+
+#ifdef GRAPHICS_ENABLED
+
+#ifndef DIRECT_DRAWING
+#define DOUBLE_BUFFERRING   // Подвійна буферизація. Працює тільки за наявності PSRAM. Інакше буде викликано рестарт МК
+#define SHOW_FPS            // Відображати значення FPS на дисплеї
+#define ENABLE_SCREENSHOTER // Увімкнути підтримку створення скриншотів. Тримай закоментованим, якщо не використовується
+#endif                      // #ifndef DIRECT_DRAWING
+
+//-----------------------------------------------------------------------------------------------------------------------------
+
+#define BUSS_FREQUENCY 80000000 // Частота шини дисплея.
+
+#define UI_WIDTH 240  // Ширина UI(канвасу).
+#define UI_HEIGHT 320 // Висота UI(канвасу).
+
+#define ROTATE_CANVAS false // Зазвичай не потрібно встановлювати в true. Можна спробувати, якщо нічого не допомогло.
+
+#define DISPLAY_WIDTH 240  // Ширина дисплея.
+#define DISPLAY_HEIGHT 320 // Висота дисплея.
+
+#define SPI_PORT HSPI // Порт, на якому працюватиме шина SPI дисплея.
+//
+#define TFT_MOSI 11 // sda.
+#define TFT_SCLK 12 // scl.
+#define TFT_MISO 13 // Навіть якщо на дисплеї відсутній цей пін, його не можна ніде використовувати для коректної роботи шини SPI.
+#define TFT_RST 17  // Якщо пін підключено RST мікроконтролера, вказати -1
+#define TFT_DC 18   //
+#define TFT_CS -1   // Якщо на шині SPI знаходиться тільки дисплей(що рекомендовано), вказати -1
+
+#define PIN_DISPLAY_BL 8         // Закоментуй, якщо відсутній пін управління підсвіткою дисплея.
+#define HAS_BL_PWM               // Закоментуй, якщо відсутнє управління яскравістю підсвітки дисплея.
+#define DISPLAY_BL_PWM_FREQ 3000 // Частота PWM підсвітки дисплея.
+#define DISPLAY_BL_PWM_RES 8     //
+
+#define DISPLAY_ROTATION 0 // Стартова орієнтація дисплея.
+
+#define IS_IPS_DISPLAY true // Тип матриці дисплея.
+#define INVERT_COLORS false // Чи потрібно інвертувати кольори пікселів.
+
+#define BUS_TYPE Arduino_ESP32SPI                                                        // Клас шини.
+#define IS_COMMON_BUS false                                                              // Парапор, який вказує чи є шина спільною для декількох пристроїв.
+#define BUS_PARAMS TFT_DC, TFT_CS, TFT_SCLK, TFT_MOSI, TFT_MISO, SPI_PORT, IS_COMMON_BUS // Параметри класу шини.
+
+#define DISP_DRIVER_TYPE Arduino_ST7789                                                             // Клас драйвера дисплея.
+#define DISP_DRIVER_PARAMS TFT_RST, DISPLAY_ROTATION, IS_IPS_DISPLAY, DISPLAY_WIDTH, DISPLAY_HEIGHT // Параметри класу драйвера дисплея БЕЗ адреси шини.
+
+#endif // #ifdef GRAPHICS_ENABLED
+
+//-----------------------------------------------------------------------------------------------------------------------------

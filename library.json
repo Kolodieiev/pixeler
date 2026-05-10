@@ -1,0 +1,23 @@
+{
+  "name": "pixeler",
+  "version": "1.0.0",
+  "description": "Graphics framework for ESP32/ESP32-S3/ESP32-P4 boards",
+  "keywords": ["esp32", "esp32s3", "esp32p4", "graphics", "display", "tft"],
+  "authors": [
+    {
+      "name": "Kolodieiev",
+      "url": "https://github.com/Kolodieiev"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kolodieiev/pixeler"
+  },
+  "license": "Apache-2.0",
+  "frameworks": ["arduino"],
+  "platforms": ["espressif32"],
+  "build": {
+    "srcDir": "src",
+    "includeDir": "src"
+  }
+}
