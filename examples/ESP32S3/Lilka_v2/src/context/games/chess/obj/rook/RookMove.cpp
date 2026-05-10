@@ -1,0 +1,11 @@
+#include "RookMove.h"
+
+#include "../IPiece.h"
+
+namespace chess
+{
+  std::vector<Position> RookMove::calcMoves(uint8_t x_pos, uint8_t y_pos, const Board& board) const
+  {
+    return calcSlidingMoves(x_pos, y_pos, board, {{0, 1}, {0, -1}, {1, 0}, {-1, 0}});
+  }
+}  // namespace chess

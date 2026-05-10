@@ -1,0 +1,15 @@
+*
+
+!partitions-s3.csv
+!platformio.ini
+
+!.gitignore
+!.clang-format
+!README.md
+!LICENSE
+
+!src/
+!src/**
+
+!scripts/
+!scripts/**

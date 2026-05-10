@@ -1,0 +1,33 @@
+BasedOnStyle: Google
+
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+
+NamespaceIndentation: All
+IndentCaseLabels: true
+
+AlignAfterOpenBracket: Align
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackArguments: true
+AllowAllArgumentsOnNextLine: true
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+BreakBeforeTernaryOperators: false
+
+AlignOperands: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+
+BreakBeforeBraces: Allman
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+AccessModifierOffset: -2
+DerivePointerAlignment: false
+PointerAlignment: Left
+SpaceBeforeParens: ControlStatements
+ColumnLimit: 0
