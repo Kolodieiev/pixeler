@@ -13,6 +13,9 @@
 !src/context/
 !src/context/**
 
+!schematics/
+!schematics/**
+
 !src/
 !src/**
 
