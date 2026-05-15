@@ -1307,12 +1307,19 @@ void Arduino_GFX::u8g2_font_decode_len(uint8_t len, uint8_t is_foreground, uint1
       y = _u8g2_target_y + ly;
 
       /* draw foreground and background (if required) */
-      if ((x <= _max_text_x) && (y <= _max_text_y))
+      if ((x <= _max_text_x) && (y <= _max_text_y) && (y >= _min_text_y))
       {
         curW = current;
         if ((x + curW - 1) > _max_text_x)
         {
           curW = _max_text_x - x + 1;
+        }
+        if (x < _min_text_x)
+        {
+          // Clip left margin, i.e. characters partially to the left of
+          // edge of the text bound
+          curW = max(0, (curW - (_min_text_x - x)));
+          x = _min_text_x;
         }
         if (is_foreground)
         {
@@ -1331,20 +1338,29 @@ void Arduino_GFX::u8g2_font_decode_len(uint8_t len, uint8_t is_foreground, uint1
       y = _u8g2_target_y + (ly * textsize_y);
 
       /* draw foreground and background (if required) */
-      if (((x + textsize_x - 1) <= _max_text_x) && ((y + textsize_y - 1) <= _max_text_y))
+      if (((x + textsize_x - 1) <= _max_text_x) && ((y + textsize_y - 1) <= _max_text_y) && (y + textsize_y - 1) >= _min_text_y)
       {
         curW = current * textsize_x;
         while ((x + curW - 1) > _max_text_x)
         {
           curW -= textsize_x;
         }
+        if (x < _min_text_x)
+        {
+          // Clip left margin, i.e. characters partially to the left of
+          // edge of the text bound
+          curW = max(0, (curW - (_min_text_x - x)));
+          x = _min_text_x;
+        }
         if (is_foreground)
         {
-          writeFillRect(x, y, curW - text_pixel_margin, textsize_y - text_pixel_margin, color);
+          writeFillRect(x, y, curW - text_pixel_margin,
+                        textsize_y - text_pixel_margin, color);
         }
         else if (bg != color)
         {
-          writeFillRect(x, y, curW - text_pixel_margin, textsize_y - text_pixel_margin, bg);
+          writeFillRect(x, y, curW - text_pixel_margin,
+                        textsize_y - text_pixel_margin, bg);
         }
       }
     }
