@@ -9,8 +9,8 @@ Arduino_ESP32DSIPanel::Arduino_ESP32DSIPanel(
     uint16_t vsync_pulse_width,
     uint16_t vsync_back_porch,
     uint16_t vsync_front_porch,
-    uint32_t bus_freq_mhz,
-    uint16_t lane_bit_rate,
+    float bus_freq_mhz,
+    float lane_bit_rate,
     soc_periph_mipi_dsi_phy_pllref_clk_src_t clock_source)
     : _hsync_pulse_width{hsync_pulse_width},
       _hsync_back_porch{hsync_back_porch},
@@ -18,7 +18,7 @@ Arduino_ESP32DSIPanel::Arduino_ESP32DSIPanel(
       _vsync_pulse_width{vsync_pulse_width},
       _vsync_back_porch{vsync_back_porch},
       _vsync_front_porch{vsync_front_porch},
-      _bus_freq_hz{static_cast<uint16_t>(bus_freq_mhz / 1000000u)},
+      _bus_freq_hz{bus_freq_mhz / 1000000},
       _lane_bit_rate{lane_bit_rate},
       _clock_source{clock_source}
 {

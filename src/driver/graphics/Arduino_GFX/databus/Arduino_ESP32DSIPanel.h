@@ -28,8 +28,8 @@ public:
       uint16_t vsync_pulse_width,
       uint16_t vsync_back_porch,
       uint16_t vsync_front_porch,
-      uint32_t bus_freq_mhz,
-      uint16_t lane_bit_rate,
+      float bus_freq_mhz,
+      float lane_bit_rate,
       soc_periph_mipi_dsi_phy_pllref_clk_src_t clock_source);
 
   bool begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* init_operations = NULL, size_t init_operations_len = GFX_NOT_DEFINED);
@@ -40,14 +40,14 @@ private:
   esp_lcd_panel_handle_t _panel_handle{nullptr};
   
   soc_periph_mipi_dsi_phy_pllref_clk_src_t _clock_source{MIPI_DSI_PHY_PLLREF_CLK_SRC_PLL_F20M};
+  float _lane_bit_rate;
+  float _bus_freq_hz;
   uint16_t _hsync_pulse_width;
   uint16_t _hsync_back_porch;
   uint16_t _hsync_front_porch;
   uint16_t _vsync_pulse_width;
   uint16_t _vsync_back_porch;
   uint16_t _vsync_front_porch;
-  uint16_t _lane_bit_rate;
-  uint16_t _bus_freq_hz;
 };
 
 #endif  // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32P4)
