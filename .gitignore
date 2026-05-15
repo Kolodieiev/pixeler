@@ -15,8 +15,8 @@
 !examples/
 !examples/**
 
-!doc/
-!doc/**
+!docs/
+!docs/**
 
 !mock/
 !mock/**
