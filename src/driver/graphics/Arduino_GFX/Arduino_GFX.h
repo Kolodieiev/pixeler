@@ -386,6 +386,11 @@ protected:
 
 protected:
 #if CONFIG_IDF_TARGET_ESP32P4
+  void initPPA();
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
+protected:
+#if CONFIG_IDF_TARGET_ESP32P4
   ppa_client_handle_t _ppa_fill{nullptr};
   ppa_client_handle_t _ppa_srm{nullptr};
 

@@ -50,6 +50,13 @@ Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : FRAMEBUFF_SIZE{static_cast<uint
   u8g2Font = NULL;
 
 #if CONFIG_IDF_TARGET_ESP32P4
+  initPPA();
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+}
+
+#if CONFIG_IDF_TARGET_ESP32P4
+void Arduino_GFX::initPPA()
+{
   ppa_client_config_t ppa_config = {
       .oper_type = PPA_OPERATION_FILL,
       .max_pending_trans_num = 1,
@@ -113,8 +120,8 @@ Arduino_GFX::Arduino_GFX(int16_t w, int16_t h) : FRAMEBUFF_SIZE{static_cast<uint
       .scale_y = 1.0f,
       .mode = PPA_TRANS_MODE_BLOCKING,
   };
-#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 }
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
 
 Arduino_GFX::~Arduino_GFX()
 {
