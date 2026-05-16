@@ -8,10 +8,8 @@
 !README.md
 !LICENSE
 
-!src/main.cpp
-
-!src/context/
-!src/context/**
+!bin/
+!bin/**
 
 !schematics/
 !schematics/**
