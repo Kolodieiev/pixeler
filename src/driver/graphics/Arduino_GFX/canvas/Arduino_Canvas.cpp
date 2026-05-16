@@ -1,6 +1,9 @@
 #pragma GCC optimize("O3")
 #include "Arduino_Canvas.h"
 
+#include <hal/cache_hal.h>
+#include <hal/cache_ll.h>
+
 #include "../Arduino_DataBus.h"
 #include "../Arduino_GFX.h"
 #include "graphics_config.h"
@@ -33,10 +36,12 @@ bool Arduino_Canvas::begin(int32_t speed)
   free(_framebuffer);
   _framebuffer = nullptr;
 
+  uint32_t buf_align = cache_hal_get_cache_line_size(CACHE_LL_LEVEL_EXT_MEM, CACHE_TYPE_DATA);
+
   if (psramInit())
-    _framebuffer = static_cast<uint16_t*>(heap_caps_aligned_alloc(64, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
+    _framebuffer = static_cast<uint16_t*>(heap_caps_aligned_alloc(buf_align, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
   else
-    _framebuffer = static_cast<uint16_t*>(aligned_alloc(64, FRAMEBUFF_SIZE));
+    _framebuffer = static_cast<uint16_t*>(aligned_alloc(buf_align, FRAMEBUFF_SIZE));
 
   if (!_framebuffer)
   {
@@ -53,7 +58,7 @@ bool Arduino_Canvas::begin(int32_t speed)
 
   free(_framebuffer2);
   _framebuffer2 = nullptr;
-  _framebuffer2 = static_cast<uint16_t*>(heap_caps_aligned_alloc(64, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
+  _framebuffer2 = static_cast<uint16_t*>(heap_caps_aligned_alloc(buf_align, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
 
   if (!_framebuffer2)
   {
