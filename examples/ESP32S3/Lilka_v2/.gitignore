@@ -11,8 +11,5 @@
 !src/
 !src/**
 
-!scripts/
-!scripts/**
-
 !bin/
 !bin/**
