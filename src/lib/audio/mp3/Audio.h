@@ -630,7 +630,7 @@ private:
   WiFiClientSecure clientsecure;
   WiFiClient* _client = nullptr;
 
-  SemaphoreHandle_t mutex_playAudioData;
+  SemaphoreHandle_t mutex_playAudioData{nullptr};
   TaskHandle_t m_audioTaskHandle = nullptr;
 
   std::vector<char*> m_playlistContent;  // m3u8 playlist buffer
@@ -751,7 +751,6 @@ private:
   char* m_lastHost = NULL;   // Store the last URL to a webstream
   char* m_lastM3U8host = NULL;
   char* m_playlistBuff = NULL;             // stores playlistdata
-  char* m_speechtxt = NULL;                // stores tts text
   const uint16_t m_plsBuffEntryLen = 256;  // length of each entry in playlistBuff
   filter_t m_filter[3];                    // digital filters
   int m_LFcount = 0;                       // Detection of end of header
@@ -826,7 +825,6 @@ private:
   bool m_f_chunked = false;            // Station provides chunked transfer
   bool m_f_firstmetabyte = false;      // True if first metabyte (counter)
   bool m_f_playing = false;            // valid mp3 stream recognized
-  bool m_f_tts = false;                // text to speech
   bool m_f_ogg = false;                // OGG stream
   bool m_f_forceMono = false;          // if true stereo -> mono
   bool m_f_rtsp = false;               // set if RTSP is used (m3u8 stream)

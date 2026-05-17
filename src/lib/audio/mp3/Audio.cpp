@@ -319,7 +319,6 @@ Audio::~Audio()
   x_ps_free(&m_outBuff);
   x_ps_free(&m_ibuff);
   x_ps_free(&m_lastM3U8host);
-  x_ps_free(&m_speechtxt);
 
   vSemaphoreDelete(mutex_playAudioData);
 
@@ -372,7 +371,6 @@ void Audio::setDefaults()
   _client = static_cast<WiFiClient*>(&client); /* default to *something* so that no NULL deref can happen */
   ts_parsePacket(0, 0, 0);                     // reset ts routine
   x_ps_free(&m_lastM3U8host);
-  x_ps_free(&m_speechtxt);
 
   log_i("buffers freed, free Heap: %lu bytes", (long unsigned int)ESP.getFreeHeap());
 
@@ -382,7 +380,6 @@ void Audio::setDefaults()
   m_f_playing = false;
   //    m_f_ssl = false;
   m_f_metadata = false;
-  m_f_tts = false;
   m_f_firstCall = true;         // InitSequence for processWebstream and processLocalFile
   m_f_firstCurTimeCall = true;  // InitSequence for computeAudioTime
   m_f_firstM3U8call = true;     // InitSequence for parsePlaylist_M3U8
@@ -4106,15 +4103,9 @@ void Audio::processWebFile()
       readID3V1Tag();
 
     stopSong();
-    if (m_f_tts)
-    {
-      log_i("End of speech \"%s\"", m_speechtxt);
-      x_ps_free(&m_speechtxt);
-    }
-    else
-    {
-      log_i("End of webstream: \"%s\"", m_lastHost);
-    }
+
+    log_i("End of webstream: \"%s\"", m_lastHost);
+
     return;
   }
   return;
