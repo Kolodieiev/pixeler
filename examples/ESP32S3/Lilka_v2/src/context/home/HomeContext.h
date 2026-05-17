@@ -28,8 +28,8 @@ private:
 
   Image* _batt_ico;
   Label* _batt_volt_lbl{nullptr};
-  unsigned long _upd_timer{0};
   ImageResource* _wall_res{nullptr};
+  unsigned long _upd_timer{0};
 
   void updateBattVoltage();
 };
