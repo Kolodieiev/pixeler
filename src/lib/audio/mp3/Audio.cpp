@@ -360,7 +360,8 @@ void Audio::setDefaults()
   mp3_decoder.freeBuffers();
   flac_decoder.freeBuffers();
   aac_decoder.freeBuffers();
-  memset(m_outBuff, 0, m_outbuffSize * sizeof(int16_t));  // Clear OutputBuffer
+  if (m_outBuff)
+    memset(m_outBuff, 0, m_outbuffSize * sizeof(int16_t));  // Clear OutputBuffer
   x_ps_free(&m_playlistBuff);
   vector_clear_and_shrink(m_playlistURL);
   vector_clear_and_shrink(m_playlistContent);
