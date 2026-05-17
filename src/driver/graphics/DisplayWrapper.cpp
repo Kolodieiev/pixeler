@@ -93,14 +93,14 @@ namespace pixeler
 
   void DisplayWrapper::setPPAState(bool state)
   {
-#ifdef GRAPHICS_ENABLED
+#if defined(GRAPHICS_ENABLED) && !defined(DIRECT_DRAWING) 
     _canvas.setPPAState(state);
 #endif  // #ifdef GRAPHICS_ENABLED
   }
 
   bool DisplayWrapper::isPPAEnabled() const
   {
-#ifdef GRAPHICS_ENABLED
+#if defined(GRAPHICS_ENABLED) && !defined(DIRECT_DRAWING) 
     return _canvas.isPPAEnabled();
 #else
     return false;
