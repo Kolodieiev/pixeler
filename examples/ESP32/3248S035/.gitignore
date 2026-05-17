@@ -8,13 +8,8 @@
 !README.md
 !LICENSE
 
-!src/main.cpp
-
-!src/context/
-!src/context/**
-
 !src/
 !src/**
 
-!src/config/
-!src/config/**
+!bin/
+!bin/**
