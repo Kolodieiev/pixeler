@@ -1,13 +1,13 @@
 #pragma once
 #pragma GCC optimize("O3")
 
-#include <HTTP_Method.h>
-#include <Uri.h>
 #include <WString.h>
 
 #include <vector>
 
+#include "./HTTP_Method.h"
 #include "./HttpTypes.h"
+#include "./Uri.h"
 
 namespace pixeler
 {

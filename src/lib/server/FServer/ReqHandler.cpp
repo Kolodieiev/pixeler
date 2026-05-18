@@ -3,12 +3,8 @@
 #include "./ReqHandler.h"
 
 #include <MD5Builder.h>
+#include <WString.h>
 #include <base64.h>
-
-#include "WString.h"
-#include "detail/mimetable.h"
-
-using namespace mime;
 
 namespace pixeler
 {

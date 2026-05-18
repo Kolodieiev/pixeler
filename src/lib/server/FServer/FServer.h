@@ -29,15 +29,9 @@
 #include "./HttpTypes.h"
 #include "./ReqHandler.h"
 #include "./setup.h"
-#include "FS.h"
 #include "HTTP_Method.h"
 #include "Network.h"
 #include "Uri.h"
-
-namespace fs
-{
-  class FS;
-}
 
 namespace pixeler
 {
@@ -138,8 +132,6 @@ namespace pixeler
     void enableDelay(boolean value);
     void enableCORS(boolean value = true);
     void enableCrossOrigin(boolean value = true);
-    typedef std::function<String(FS& fs, const String& fName)> ETagFunction;
-    void enableETag(bool enable, ETagFunction fn = nullptr);
 
     void setContentLength(const size_t contentLength);
     void sendHeader(const String& name, const String& value, bool first = false);
@@ -156,9 +148,6 @@ namespace pixeler
       _streamFileCore(file.size(), file.name(), contentType, code);
       return _currentClient.write(file);
     }
-
-    bool _eTagEnabled = false;
-    ETagFunction _eTagFunction = nullptr;
 
     static String responseCodeToString(int code);
 

@@ -24,9 +24,9 @@
 #include <esp32-hal-log.h>
 
 #include "./FServer.h"
+#include "./mimetable.h"
 #include "NetworkClient.h"
 #include "NetworkServer.h"
-#include "detail/mimetable.h"
 
 #ifndef FServer_MAX_POST_ARGS
 #define FServer_MAX_POST_ARGS 32

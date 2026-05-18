@@ -24,13 +24,12 @@
 #include "./FServer.h"
 
 #include <Arduino.h>
-#include <detail/mimetable.h>
 #include <esp32-hal-log.h>
 #include <libb64/cdecode.h>
 #include <libb64/cencode.h>
 
 #include "./FuncReqHandler.h"
-#include "FS.h"
+#include "./mimetable.h"
 #include "MD5Builder.h"
 #include "NetworkClient.h"
 #include "NetworkServer.h"
@@ -49,12 +48,12 @@ namespace pixeler
 {
   FServer::FServer(IPAddress addr, int port) : _server(addr, port)
   {
-    log_v("FServer::FServer(addr=%s, port=%d)", addr.toString().c_str(), port);
+    log_i("FServer::FServer(addr=%s, port=%d)", addr.toString().c_str(), port);
   }
 
   FServer::FServer(int port) : _server(port)
   {
-    log_v("FServer::FServer(port=%d)", port);
+    log_i("FServer::FServer(port=%d)", port);
   }
 
   FServer::~FServer()
@@ -397,12 +396,6 @@ namespace pixeler
   void FServer::enableCrossOrigin(boolean value)
   {
     enableCORS(value);
-  }
-
-  void FServer::enableETag(bool enable, ETagFunction fn)
-  {
-    _eTagEnabled = enable;
-    _eTagFunction = fn;
   }
 
   void FServer::chunkResponseBegin(const char* contentType)
