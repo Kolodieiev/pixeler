@@ -7,7 +7,6 @@
 #pragma GCC optimize("O3")
 #include <Arduino.h>
 #include <FFat.h>
-#include <FS.h>
 #include <NetworkClient.h>
 #include <NetworkClientSecure.h>
 #include <SD.h>
