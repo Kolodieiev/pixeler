@@ -93,14 +93,14 @@ namespace pixeler
 
   void DisplayWrapper::setPPAState(bool state)
   {
-#if defined(GRAPHICS_ENABLED) && !defined(DIRECT_DRAWING) 
+#if defined(GRAPHICS_ENABLED) && !defined(DIRECT_DRAWING)
     _canvas.setPPAState(state);
 #endif  // #ifdef GRAPHICS_ENABLED
   }
 
   bool DisplayWrapper::isPPAEnabled() const
   {
-#if defined(GRAPHICS_ENABLED) && !defined(DIRECT_DRAWING) 
+#if defined(GRAPHICS_ENABLED) && !defined(DIRECT_DRAWING)
     return _canvas.isPPAEnabled();
 #else
     return false;
@@ -413,7 +413,9 @@ namespace pixeler
     _output->setRotation(DISPLAY_ROTATION);
 
 #if ROTATE_CANVAS
+#ifndef DIRECT_DRAWING
     _canvas.setRotation(DISPLAY_ROTATION);
+#endif  // #ifndef DIRECT_DRAWING
 #endif  // #if ROTATE_CANVAS
 
     _sync_mutex = xSemaphoreCreateMutex();
