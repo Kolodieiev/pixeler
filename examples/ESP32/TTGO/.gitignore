@@ -1,0 +1,15 @@
+*
+
+!partitions.csv
+!platformio.ini
+
+!.gitignore
+!.clang-format
+!README.md
+!LICENSE
+
+!src/
+!src/**
+
+!bin/
+!bin/**
