@@ -18,23 +18,7 @@ const char STR_CONNECT_ERR[] = "Помилка з'єднання";
 
 WiFiContext::WiFiContext()
 {
-  if (!_fs.isMounted())
-  {
-    showSDErrTmpl();
-    return;
-  }
-
-  String wifi_power = SettingsManager::get(STR_PREF_WIFI_POWER);
-
-  if (wifi_power.isEmpty())
-  {
-    _wifi.setPower(WiFiManager::WIFI_POWER_MIN);
-  }
-  else
-  {
-    int power_val = std::atoi(wifi_power.c_str());
-    _wifi.setPower(static_cast<WiFiManager::WiFiPowerLevel>(power_val));
-  }
+  _wifi.setPower(WiFiManager::WIFI_POWER_MAX);
 
   showMainTmpl();
 }
@@ -50,55 +34,26 @@ bool WiFiContext::loop()
 
 void WiFiContext::update()
 {
-  // if (_input.isReleased(BtnID::BTN_UP))
-  // {
-  //   _input.lock(BtnID::BTN_UP, CLICK_LOCK);
-  //   up();
-  // }
-  // else if (_input.isReleased(BtnID::BTN_DOWN))
-  // {
-  //   _input.lock(BtnID::BTN_DOWN, CLICK_LOCK);
-  //   down();
-  // }
-  // else if (_input.isReleased(BtnID::BTN_LEFT))
-  // {
-  //   _input.lock(BtnID::BTN_LEFT, CLICK_LOCK);
-  //   left();
-  // }
-  // else if (_input.isReleased(BtnID::BTN_RIGHT))
-  // {
-  //   _input.lock(BtnID::BTN_RIGHT, CLICK_LOCK);
-  //   right();
-  // }
-  // else if (_input.isReleased(BtnID::BTN_OK))
-  // {
-  //   _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-  //   ok();
-  // }
-  // else if (_input.isPressed(BtnID::BTN_OK))
-  // {
-  //   _input.lock(BtnID::BTN_OK, PRESS_LOCK);
-
-  //   if (_mode == MODE_MAIN)
-  //     showContextMenuTmpl();
-  //   else if (_mode == MODE_ENTER_PWD)
-  //     savePressed();
-  // }
-  // else if (_input.isPressed(BtnID::BTN_UP))
-  // {
-  //   _input.lock(BtnID::BTN_UP, PRESS_LOCK);
-  //   changeKbCaps();
-  // }
-  // else if (_input.isReleased(BtnID::BTN_BACK))
-  // {
-  //   _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-  //   back();
-  // }
-  // else if (_input.isPressed(BtnID::BTN_BACK))
-  // {
-  //   _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
-  //   exitPressed();
-  // }
+  if (_input.isReleased(BtnID::BTN_OK))
+  {
+    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
+    down();
+  }
+  else if (_input.isReleased(BtnID::BTN_BACK))
+  {
+    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
+    up();
+  }
+  else if (_input.isPressed(BtnID::BTN_OK))
+  {
+    _input.lock(BtnID::BTN_OK, PRESS_LOCK);
+    ok();
+  }
+  else if (_input.isPressed(BtnID::BTN_BACK))
+  {
+    _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
+    back();
+  }
 }
 
 void WiFiContext::showSDErrTmpl()
@@ -250,7 +205,7 @@ void WiFiContext::ok()
 {
   if (_mode == MODE_ENTER_PWD)
   {
-    _pwd_txt->addChars(_keyboard->getCurrBtnTxt().c_str());
+    showMainTmpl();
   }
   else if (_mode == MODE_MAIN)
   {
@@ -321,7 +276,7 @@ void WiFiContext::back()
 {
   if (_mode == MODE_ENTER_PWD)
   {
-    _pwd_txt->removeLastChar();
+    showMainTmpl();
   }
   else if (_mode == MODE_SD_UNCONN || _mode == MODE_MAIN)
   {
