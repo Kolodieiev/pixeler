@@ -12,6 +12,6 @@ esptool --chip esp32 flash_id
 esptool --chip esp32 erase_flash 
 
 5. Відкрити термінал у поточному каталозі та виконати команду:
-python -m esptool --chip esp32 --baud 460800 --before default-reset --after hard-reset write-flash -z 0x0 pixeler4_3248S035.bin
+esptool --chip esp32 --baud 460800 --before default_reset --after hard_reset write_flash -z 0x0 pixeler4_3248S035.bin
 
 6. Дочекатися завантаження прошивки та автоматичного перезавантаження плати.
