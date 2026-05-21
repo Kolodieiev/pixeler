@@ -13,3 +13,6 @@
 
 !bin/
 !bin/**
+
+!schematics/
+!schematics/**
