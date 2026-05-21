@@ -1,17 +1,22 @@
-1. Виконати команду у терміналі: 
-sudo apt install esptool
+1. Встановити esptool
+sudo apt install pipx
+pipx ensurepath
+pipx install esptool
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+esptool version
 
 2. Підключити плату до ПК в режимі прошивки.
 
 3. Виконати команду у терміналі:
-esptool --chip esp32s3 flash_id
+esptool --chip esp32s3 flash-id
 
 та переконатися, що МК підключено і його пам'ять читається.
 
 4. Виконати команду у терміналі:
-esptool --chip esp32s3 erase_flash 
+esptool --chip esp32s3 erase-flash 
 
 5. Відкрити термінал у поточному каталозі та виконати команду:
-esptool --chip esp32s3 --baud 460800 --before default_reset --after hard_reset write_flash -z 0x0 pixeler_full.bin
+esptool --chip esp32s3 --baud 460800 --before default-reset --after hard-reset write-flash -z 0x0 pixeler_full.bin
 
 6. Дочекатися завантаження прошивки та автоматичного перезавантаження плати.
