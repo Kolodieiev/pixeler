@@ -10,3 +10,6 @@
 
 !src/
 !src/**
+
+!image/
+!image/**
