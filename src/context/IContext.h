@@ -11,6 +11,11 @@
 #pragma once
 #pragma GCC optimize("O3")
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+
+#include <functional>
+
 #include "../defines.h"
 #include "../driver/graphics/DisplayWrapper.h"
 #include "../driver/input/Input.h"
@@ -32,6 +37,23 @@ namespace pixeler
     virtual ~IContext() = 0;
     IContext(const IContext& rhs) = delete;
     IContext& operator=(const IContext& rhs) = delete;
+
+#ifdef GRAPHICS_ENABLED
+    /**
+     * @brief Додає задачу до черги виконання, яка буде викликана
+     * в потоці контексту під час наступного tick().
+     * Може викликатись з будь-якої FreeRTOS-задачі.
+     *
+     * @param task Функція без аргументів і повернення результату,
+     * яка повинна бути виконана в потоці UI.
+     * @param timeout_ms Максимальний час очікування(мілісекунд) вільного місця в черзі,
+     * за замовчуванням - не блокуючий виклик.
+     * @return true - якщо задачу успішно додано в чергу.
+     * @return false - якщо черга переповнена і час очікування вичерпано.
+     */
+    bool post(std::function<void()> task, unsigned long timeout_ms = 0);
+
+#endif  // #ifdef GRAPHICS_ENABLED
 
     /**
      * @brief Метод, що викликається для контексту кожен доступний тік.
@@ -142,7 +164,7 @@ namespace pixeler
 
     /**
      * @brief Прибирає віджет Notification з відображення у макеті.
-     * Пам'ять, яку займає об'єкт віджета не буде звільнено.
+     * Пам'ять, яку займає об'єкт віджета не буде звільнено автоматично.
      *
      */
     void hideNotification();
@@ -163,19 +185,22 @@ namespace pixeler
 
   private:
     void removeToast();
+    void processPostedTasks();
 
 #endif  // #ifdef GRAPHICS_ENABLED
 
   private:
 #ifdef GRAPHICS_ENABLED
+    TaskHandle_t _owner_task_handle{nullptr};
+    QueueHandle_t _task_queue{nullptr};
     SemaphoreHandle_t _layout_mutex{nullptr};
-
     IWidgetContainer* _layout{nullptr};
     Label* _toast_label{nullptr};
     Notification* _notification{nullptr};
     //
     unsigned long _toast_lifetime{0};
     unsigned long _toast_birthtime{0};
+    static constexpr size_t UI_TASK_QUEUE_DEPTH = 10;
 #endif  // #ifdef GRAPHICS_ENABLED
     unsigned long _upd_time{0};
 
