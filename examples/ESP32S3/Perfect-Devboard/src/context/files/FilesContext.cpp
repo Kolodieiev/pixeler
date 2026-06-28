@@ -78,7 +78,8 @@ FilesContext::FilesContext()
 
   createNotificationObj();
 
-  _fs.setTaskDoneHandler(taskDone, this);
+  _fs.onTaskDone(taskDoneHandler, this);
+  _fs.onCopyProgress(copyProgressHandler, this);
 
   indexCurDir();
   showFilesTmpl();
@@ -87,6 +88,9 @@ FilesContext::FilesContext()
 
 FilesContext::~FilesContext()
 {
+  _fs.onTaskDone(nullptr, nullptr);
+  _fs.onCopyProgress(nullptr, nullptr);
+
   delete _dir_img;
   delete _lua_img;
   delete _lua_context;
@@ -149,16 +153,16 @@ void FilesContext::showCopyingTmpl()
   _msg_lbl->setHeight(32);
   _msg_lbl->setPos(0, UI_HEIGHT / 2 - _msg_lbl->getHeight() - 2);
 
-  _task_progress = new ProgressBar(ID_PROGRESS);
-  layout->addWidget(_task_progress);
-  _task_progress->setBackColor(COLOR_BLACK);
-  _task_progress->setProgressColor(COLOR_ORANGE);
-  _task_progress->setBorderColor(COLOR_WHITE);
-  _task_progress->setMax(100);
-  _task_progress->setWidth(UI_WIDTH - 5 * 8);
-  _task_progress->setHeight(20);
-  _task_progress->setProgress(0);
-  _task_progress->setPos((UI_WIDTH - _task_progress->getWidth()) / 2, UI_HEIGHT / 2 + 2);
+  _task_progress_bar = new ProgressBar(ID_PROGRESS);
+  layout->addWidget(_task_progress_bar);
+  _task_progress_bar->setBackColor(COLOR_BLACK);
+  _task_progress_bar->setProgressColor(COLOR_ORANGE);
+  _task_progress_bar->setBorderColor(COLOR_WHITE);
+  _task_progress_bar->setMax(100);
+  _task_progress_bar->setWidth(UI_WIDTH - 5 * 8);
+  _task_progress_bar->setHeight(20);
+  _task_progress_bar->setProgress(0);
+  _task_progress_bar->setPos((UI_WIDTH - _task_progress_bar->getWidth()) / 2, UI_HEIGHT / 2 + 2);
 
   _mode = MODE_COPYING;
 
@@ -543,14 +547,9 @@ void FilesContext::pasteFile()
   else if (_has_copying_file)
   {
     if (!_fs.startCopyingFile(old_file_path.c_str(), new_file_path.c_str()))
-    {
       showResultToast(false);
-    }
     else
-    {
       showCopyingTmpl();
-      _task_runnning = true;
-    }
   }
 
   _has_moving_file = false;
@@ -567,14 +566,9 @@ void FilesContext::removeFile()
   filename += _files_list->getCurrItemText();
 
   if (!_fs.startRemoving(filename.c_str()))
-  {
     showResultToast(false);
-  }
   else
-  {
     showRemovingTmpl();
-    _task_runnning = true;
-  }
 }
 
 //-------------------------------------------------------------------------------------------
@@ -663,11 +657,6 @@ void FilesContext::update()
         upd_txt += upd_progress;
         _msg_lbl->setText(upd_txt);
       }
-      else if (_mode == MODE_COPYING)
-      {
-        _task_progress->setProgress(_fs.getCopyProgress());
-        _upd_msg_time = millis();
-      }
       else if (_mode == MODE_REMOVING)
       {
         upd_txt = STR_REMOVING;
@@ -677,17 +666,6 @@ void FilesContext::update()
 
       _upd_msg_time = millis();
     }
-  }
-  else if (_task_runnning && _task_done)
-  {
-    _task_runnning = false;
-    _task_done = false;
-
-    showResultToast(_task_done_result);
-
-    indexCurDir();
-    showFilesTmpl();
-    fillFilesTmpl();
   }
 }
 
@@ -926,16 +904,33 @@ void FilesContext::stopFileServer()
   free(_qr_img_buff);
 }
 
-void FilesContext::taskDoneHandler(bool result)
+void FilesContext::finishTaskState(bool result)
 {
-  _task_done = true;
-  _task_done_result = result;
+  showResultToast(result);
+
+  indexCurDir();
+  showFilesTmpl();
+  fillFilesTmpl();
 }
 
-void FilesContext::taskDone(bool result, void* arg)
+void FilesContext::taskDoneHandler(bool result, void* arg)
 {
   FilesContext* self = static_cast<FilesContext*>(arg);
-  self->taskDoneHandler(result);
+
+  self->post([self, result]()
+             { self->finishTaskState(result); }, 500);
+}
+
+void FilesContext::updCopyProgress(uint8_t progress)
+{
+  _task_progress_bar->setProgress(progress);
+}
+
+void FilesContext::copyProgressHandler(uint8_t progress, void* arg)
+{
+  FilesContext* self = static_cast<FilesContext*>(arg);
+  self->post([self, progress]()
+             { self->updCopyProgress(progress); }, 0);
 }
 
 //-------------------------------------------------------------------------------------------
