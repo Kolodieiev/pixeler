@@ -475,7 +475,7 @@ namespace pixeler
     if (result)
       log_i("Успішно видалено: %s", full_path.c_str());
 
-    taskDone(result);
+    invokeTaskDone(result);
   }
 
   bool FileManager::rmDirRecursively(const char* path, bool& was_mutex_taken, bool make_full)
@@ -723,6 +723,7 @@ namespace pixeler
       size_t byte_aval = file_size;
 
       _ts = millis();
+      uint8_t old_progress = 0;
       while (!_is_canceled && byte_aval > 0)
       {
         if (!was_mutex_taken)
@@ -746,6 +747,13 @@ namespace pixeler
         {
           xSemaphoreGive(_sd_mutex);
           was_mutex_taken = false;
+
+          if (old_progress != _copy_progress)
+          {
+            old_progress = _copy_progress;
+            invokeCopyProgressUpd(_copy_progress);
+          }
+
           delay(1);
           _ts = millis();
         }
@@ -787,7 +795,7 @@ namespace pixeler
         rmFileUnlocked(to.c_str());
       }
 
-      taskDone(false);
+      invokeTaskDone(false);
     }
     else
     {
@@ -796,7 +804,7 @@ namespace pixeler
       else
         log_i("Невдача копіювання: %s", from.c_str());
 
-      taskDone(result);
+      invokeTaskDone(result);
     }
   }
 
@@ -954,16 +962,23 @@ namespace pixeler
     return index(out_vec, dir_path, INDX_MODE_ALL, {});
   }
 
-  void FileManager::taskDone(bool result)
+  void FileManager::invokeTaskDone(bool result)
   {
     _is_working = false;
-
     _last_task_result = result;
 
-    if (_doneHandler)
-      _doneHandler(result, _doneArg);
+    if (_done_handler)
+      _done_handler(result, _done_arg);
 
     vTaskDelete(nullptr);
+  }
+
+  void FileManager::invokeCopyProgressUpd(uint8_t progress)
+  {
+    if (!_copy_progress_handler)
+      return;
+
+    _copy_progress_handler(progress, _copy_progress_arg);
   }
 
   void FileManager::cancel()
@@ -971,10 +986,16 @@ namespace pixeler
     _is_canceled = true;
   }
 
-  void FileManager::setTaskDoneHandler(TaskDoneHandler handler, void* arg)
+  void FileManager::onTaskDone(TaskDoneHandler handler, void* arg)
   {
-    _doneHandler = handler;
-    _doneArg = arg;
+    _done_handler = handler;
+    _done_arg = arg;
+  }
+
+  void FileManager::onCopyProgress(CopyProgressHandler handler, void* arg)
+  {
+    _copy_progress_handler = handler;
+    _copy_progress_arg = arg;
   }
 
   bool FileManager::isWorking() const

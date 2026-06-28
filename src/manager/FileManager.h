@@ -24,6 +24,7 @@ namespace pixeler
   {
   public:
     typedef std::function<void(bool result, void* arg)> TaskDoneHandler;
+    typedef std::function<void(uint8_t progress, void* arg)> CopyProgressHandler;
 
     /**
      * @brief Формує повний шлях до path, з урахуванням точки монтування.
@@ -307,7 +308,15 @@ namespace pixeler
      * @param handler Обробник події завершення операції.
      * @param arg Аргументи, які будуть повернуті до обробника.
      */
-    void setTaskDoneHandler(TaskDoneHandler handler, void* arg);
+    void onTaskDone(TaskDoneHandler handler, void* arg);
+
+    /**
+     * @brief Встановлює обробник події оновлення прогресу копіювання файла.
+     *
+     * @param handler Обробник події оновлення прогресу копіювання файла.
+     * @param arg Аргументи, які будуть повернуті до обробника.
+     */
+    void onCopyProgress(CopyProgressHandler handler, void* arg);
 
     /**
      * @brief Повертає стан прапору, який вказує на те, чи запущена в даний момент будь-яка із задач файлового менеджера.
@@ -380,7 +389,9 @@ namespace pixeler
     void rm();
     void copyFile();
     //
-    void taskDone(bool result);
+    void invokeTaskDone(bool result);
+    void invokeCopyProgressUpd(uint8_t progress);
+
     //
     static void rmTask(void* params);
     static void copyFileTask(void* params);
@@ -401,8 +412,12 @@ namespace pixeler
     String _copy_from_path;
     String _copy_to_path;
 
-    TaskDoneHandler _doneHandler{nullptr};
-    void* _doneArg{nullptr};
+    TaskDoneHandler _done_handler{nullptr};
+    void* _done_arg{nullptr};
+
+    CopyProgressHandler _copy_progress_handler{nullptr};
+    void* _copy_progress_arg{nullptr};
+
     SemaphoreHandle_t _sd_mutex{nullptr};
 
 #ifdef SD_TYPE_MMC
@@ -411,7 +426,7 @@ namespace pixeler
 
     unsigned long _ts{0};
 
-    const uint32_t TASK_SIZE{(1024 / 2) * 30};
+    static constexpr uint32_t TASK_SIZE{(1024 / 2) * 30};
 
     uint8_t _copy_progress{0};
 
