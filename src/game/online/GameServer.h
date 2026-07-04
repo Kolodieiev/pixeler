@@ -241,8 +241,8 @@ namespace pixeler
     void sendNameRespMsg(const ClientWrapper* cl_wrap, bool result);
     void sendBusyMsg(const ClientWrapper* cl_wrap);
     //
-    void callDisconnHandler(const ClientWrapper* cl_wrap);
-    void callClientConfirmHandler(const ClientWrapper* cl_wrap, ConfirmResultHandler result_handler);
+    void invokeDisconnHandler(const ClientWrapper* cl_wrap);
+    void invokeClientConfirmHandler(const ClientWrapper* cl_wrap, ConfirmResultHandler result_handler);
     //
     void handlePingClient();
     static void pingClientTask(void* arg);

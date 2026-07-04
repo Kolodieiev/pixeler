@@ -159,9 +159,9 @@ namespace pixeler
     void handlePing();
     void handleBusy();
     //
-    void callDataHandler(UdpPacket* packet);
-    void callConnectHandler();
-    void callDisconnHandler();
+    void invokeDataHandler(UdpPacket* packet);
+    void invokeConnectHandler();
+    void invokeDisconnHandler();
 
   protected:
     AsyncUDP _client;

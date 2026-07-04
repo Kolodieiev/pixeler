@@ -242,7 +242,7 @@ namespace pixeler
     return _is_busy;
   }
 
-  void WiFiManager::callConnDoneHandler()
+  void WiFiManager::invokeConnDoneHandler()
   {
     log_i("WiFi.status: %d", WiFi.status());
 
@@ -250,7 +250,7 @@ namespace pixeler
       _conn_done_handler(_conn_done_handler_arg, WiFi.status());
   }
 
-  void WiFiManager::callScanDoneHandler()
+  void WiFiManager::invokeScanDoneHandler()
   {
     if (_scan_done_handler)
       _scan_done_handler(_scan_done_handler_arg);
@@ -265,7 +265,7 @@ namespace pixeler
       case ARDUINO_EVENT_WIFI_SCAN_DONE:
         WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
         _wifi._is_busy = false;
-        _wifi.callScanDoneHandler();
+        _wifi.invokeScanDoneHandler();
         break;
       case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
       case ARDUINO_EVENT_WIFI_STA_GOT_IP:
@@ -279,7 +279,7 @@ namespace pixeler
             delay(50);
         }
         _wifi._is_busy = false;
-        _wifi.callConnDoneHandler();
+        _wifi.invokeConnDoneHandler();
         break;
       default:
         log_e("Unknown wifi event: %u", event);

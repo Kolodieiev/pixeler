@@ -180,7 +180,7 @@ namespace pixeler
     switch (packet->getType())
     {
       case UdpPacket::TYPE_DATA:
-        callDataHandler(packet);
+        invokeDataHandler(packet);
         break;
       case UdpPacket::TYPE_PING:
         handlePing();
@@ -251,7 +251,7 @@ namespace pixeler
     {
       log_e("Некоректний сервер");
       _status = STATUS_WRONG_SERVER;
-      callDisconnHandler();
+      invokeDisconnHandler();
       disconnect();
     }
     else
@@ -267,14 +267,14 @@ namespace pixeler
     {
       log_e("Помилка авторизації");
       _status = STATUS_WRONG_NAME;
-      callDisconnHandler();
+      invokeDisconnHandler();
       disconnect();
     }
     else
     {
       log_i("Авторизація успішна");
       _status = STATUS_CONNECTED;
-      callConnectHandler();
+      invokeConnectHandler();
     }
   }
 
@@ -292,7 +292,7 @@ namespace pixeler
   {
     log_e("Сервер зайнятий");
     _status = STATUS_SERVER_BUSY;
-    callDisconnHandler();
+    invokeDisconnHandler();
     disconnect();
   }
 
@@ -304,7 +304,7 @@ namespace pixeler
     {
       log_e("onTimeout");
       _status = STATUS_DISCONNECTED;
-      callDisconnHandler();
+      invokeDisconnHandler();
       disconnect();
     }
   }
@@ -324,13 +324,13 @@ namespace pixeler
 
 #pragma region call_handler
 
-  void GameClient::callDataHandler(UdpPacket* packet)
+  void GameClient::invokeDataHandler(UdpPacket* packet)
   {
     if (_server_data_handler)
       _server_data_handler(packet, _server_data_arg);
   }
 
-  void GameClient::callConnectHandler()
+  void GameClient::invokeConnectHandler()
   {
     if (_server_connected_handler)
     {
@@ -339,7 +339,7 @@ namespace pixeler
     }
   }
 
-  void GameClient::callDisconnHandler()
+  void GameClient::invokeDisconnHandler()
   {
     if (_server_disconn_handler)
     {

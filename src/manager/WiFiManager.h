@@ -23,6 +23,8 @@ namespace pixeler
   class WiFiManager
   {
   public:
+
+
     enum WiFiPowerLevel : uint8_t
     {
       WIFI_POWER_MIN = 0,
@@ -186,8 +188,8 @@ namespace pixeler
     WiFiManager& operator=(WiFiManager&&) = delete;
 
   private:
-    void callConnDoneHandler();
-    void callScanDoneHandler();
+    void invokeConnDoneHandler();
+    void invokeScanDoneHandler();
 
     static void onEvent(WiFiEvent_t event);
 

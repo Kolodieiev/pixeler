@@ -388,7 +388,7 @@ namespace pixeler
     _is_busy = true;
 
     client->setName(packet->getData());
-    callClientConfirmHandler(client, onConfirmationResult);
+    invokeClientConfirmHandler(client, onConfirmationResult);
   }
 
   void GameServer::handleData(ClientWrapper* client, UdpPacket* packet)
@@ -505,7 +505,7 @@ namespace pixeler
         if (it->second->isConfirmed())
         {
           --_cur_clients_size;
-          callDisconnHandler(it->second);
+          invokeDisconnHandler(it->second);
         }
         delete it->second;
         it = _clients.erase(it);
@@ -555,7 +555,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::callClientConfirmHandler(const ClientWrapper* client, ConfirmResultHandler result_handler)
+  void GameServer::invokeClientConfirmHandler(const ClientWrapper* client, ConfirmResultHandler result_handler)
   {
     if (!_client_confirm_handler)
     {
@@ -567,7 +567,7 @@ namespace pixeler
     _client_confirm_handler(client, result_handler, _client_confirm_arg);
   }
 
-  void GameServer::callDisconnHandler(const ClientWrapper* client)
+  void GameServer::invokeDisconnHandler(const ClientWrapper* client)
   {
     if (_client_disconn_handler)
       _client_disconn_handler(client, _client_disconn_arg);
