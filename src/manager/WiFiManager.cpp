@@ -66,13 +66,13 @@ namespace pixeler
     return result;
   }
 
-  void WiFiManager::setConnectDoneHandler(WiFiConnectDoneHandler handler, void* arg)
+  void WiFiManager::onConnectDone(WiFiConnectDoneHandler handler, void* arg)
   {
     _conn_done_handler = handler;
     _conn_done_handler_arg = arg;
   }
 
-  void WiFiManager::setScanDoneHandler(WiFiScanDoneHandler handler, void* arg)
+  void WiFiManager::onScanDone(WiFiScanDoneHandler handler, void* arg)
   {
     _scan_done_handler = handler;
     _scan_done_handler_arg = arg;

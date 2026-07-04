@@ -63,7 +63,7 @@ namespace pixeler
      * @param handler Асинхронний обробник події завершення спроби підключення до точки доступу.
      * @param args Аргументи, що будуть передані обробнику.
      */
-    void setConnectDoneHandler(WiFiConnectDoneHandler handler, void* arg);
+    void onConnectDone(WiFiConnectDoneHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник події, який буде викликано після завершення сканування точок WiFi.
@@ -71,7 +71,7 @@ namespace pixeler
      * @param handler Асинхронний обробник події завершення сканування.
      * @param args Аргументи, що будуть передані обробнику.
      */
-    void setScanDoneHandler(WiFiScanDoneHandler handler, void* arg);
+    void onScanDone(WiFiScanDoneHandler handler, void* arg);
 
     /**
      * @brief Налаштовує WiFi модуль та запускає сканування точок доступу.
