@@ -555,7 +555,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::callClientConfirmHandler(const ClientWrapper* cl_wrap, ConfirmResultHandler_t result_handler)
+  void GameServer::callClientConfirmHandler(const ClientWrapper* cl_wrap, ConfirmResultHandler result_handler)
   {
     if (!_client_confirm_handler)
     {
@@ -577,19 +577,19 @@ namespace pixeler
 
 #pragma region set_handler
 
-  void GameServer::onConfirmation(ClientConfirmHandler_t handler, void* arg)
+  void GameServer::onConfirmation(ClientConfirmHandler handler, void* arg)
   {
     _client_confirm_handler = handler;
     _client_confirm_arg = arg;
   }
 
-  void GameServer::onDisconnect(ClientDisconnHandler_t handler, void* arg)
+  void GameServer::onDisconnect(ClientDisconnHandler handler, void* arg)
   {
     _client_disconn_handler = handler;
     _client_disconn_arg = arg;
   }
 
-  void GameServer::onData(ClientDataHandler_t handler, void* arg)
+  void GameServer::onData(ClientDataHandler handler, void* arg)
   {
     _client_data_handler = handler;
     _client_data_arg = arg;

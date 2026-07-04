@@ -11,20 +11,20 @@ namespace pixeler
    * @brief Тип обробника, який може бути викликано клієнтом у разі втрати зв'язку з сервером.
    *
    */
-  typedef std::function<void(void* arg)> ServerDisconnHandler_t;
+  typedef std::function<void(void* arg)> ServerDisconnHandler;
 
   /**
    * @brief Тип обробника, який може бути викликано клієнтом після встановлення зв'язку з сервером.
    *
    */
-  typedef std::function<void(void* arg)> ServerConnectedHandler_t;
+  typedef std::function<void(void* arg)> ServerConnectedHandler;
 
   /**
    * @brief Тип обробника, який може бути викликано клієнтом після отримання пакета даних від сервера.
    * Об'єкт UdpPacket не потрібно видаляти самостійно.
    *
    */
-  typedef std::function<void(UdpPacket* packet, void* arg)> ServerDataHandler_t;
+  typedef std::function<void(UdpPacket* packet, void* arg)> ServerDataHandler;
 
   class GameClient
   {
@@ -124,7 +124,7 @@ namespace pixeler
      * @param data_handler Обробник події отримання даних.
      * @param arg Аргумент, який будуе передано обробнику.
      */
-    void onData(const ServerDataHandler_t data_handler, void* arg);
+    void onData(const ServerDataHandler data_handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після встановлення з'єднання з сервером.
@@ -132,7 +132,7 @@ namespace pixeler
      * @param conn_handler Обробник події встановлення з'єднання з сервером.
      * @param arg Аргумент, який будуе передано обробнику.
      */
-    void onConnect(const ServerConnectedHandler_t conn_handler, void* arg);
+    void onConnect(const ServerConnectedHandler conn_handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з сервером.
@@ -140,7 +140,7 @@ namespace pixeler
      * @param disconn_handler Обробник події втрати з'єднання з сервером.
      * @param arg Аргумент, який будуе передано обробнику.
      */
-    void onDisconnect(ServerDisconnHandler_t disconn_handler, void* arg);
+    void onDisconnect(ServerDisconnHandler disconn_handler, void* arg);
 
   protected:
     void sendHandshake();
@@ -168,9 +168,9 @@ namespace pixeler
 
     IPAddress _server_ip;
 
-    ServerConnectedHandler_t _server_connected_handler{nullptr};
-    ServerDisconnHandler_t _server_disconn_handler{nullptr};
-    ServerDataHandler_t _server_data_handler{nullptr};
+    ServerConnectedHandler _server_connected_handler{nullptr};
+    ServerDisconnHandler _server_disconn_handler{nullptr};
+    ServerDataHandler _server_data_handler{nullptr};
 
     String _name;
     String _server_id;

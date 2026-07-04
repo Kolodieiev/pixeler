@@ -23,13 +23,13 @@ namespace pixeler
      * @brief Тип функції-обробника, яку може бути викликано для завантаження наступної сторінки динамічного меню.
      *
      */
-    typedef std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)> NextItemsLoadHandler_t;
+    typedef std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)> NextItemsLoadHandler;
 
     /**
      * @brief Тип функції-обробника, яку може бути викликано для завантаження попередньої сторінки динамічного меню.
      *
      */
-    typedef std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)> PrevItemsLoadHandler_t;
+    typedef std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)> PrevItemsLoadHandler;
 
     explicit DynamicMenu(uint16_t widget_ID);
     virtual ~DynamicMenu() {}
@@ -91,7 +91,7 @@ namespace pixeler
      * @param handler Обробник.
      * @param arg Аргумент, що буде передано в обробник.
      */
-    void setOnNextItemsLoadHandler(NextItemsLoadHandler_t handler, void* arg);
+    void setOnNextItemsLoadHandler(NextItemsLoadHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано для завантаження попередньої частини віджетів для меню.
@@ -99,7 +99,7 @@ namespace pixeler
      * @param handler Обробник.
      * @param arg Аргумент, що буде передано в обробник.
      */
-    void setOnPrevItemsLoadHandler(PrevItemsLoadHandler_t handler, void* arg);
+    void setOnPrevItemsLoadHandler(PrevItemsLoadHandler handler, void* arg);
 
   protected:
     /**
@@ -111,8 +111,8 @@ namespace pixeler
 
   private:
   private:
-    NextItemsLoadHandler_t _next_items_load_handler{nullptr};
-    PrevItemsLoadHandler_t _prev_items_load_handler{nullptr};
+    NextItemsLoadHandler _next_items_load_handler{nullptr};
+    PrevItemsLoadHandler _prev_items_load_handler{nullptr};
 
     void* _next_items_load_arg{nullptr};
     void* _prev_items_load_arg{nullptr};
