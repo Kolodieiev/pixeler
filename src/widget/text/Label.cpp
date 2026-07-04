@@ -19,7 +19,7 @@ namespace pixeler
     clone->_is_multiline = _is_multiline;
     clone->_text_size = _text_size;
     clone->_text_color = _text_color;
-    clone->_font_ptr = _font_ptr;
+    clone->_font = _font;
     clone->_char_hgt = _char_hgt;
     clone->_h_padding = _h_padding;
     clone->_text_gravity = _text_gravity;
@@ -186,12 +186,12 @@ namespace pixeler
     _is_changed = true;
   }
 
-  void Label::setFont(const uint8_t* font_ptr)
+  void Label::setFont(const uint8_t* font)
   {
-    if (!font_ptr)
-      font_ptr = font_unifont;
+    if (!font)
+      font = font_unifont;
 
-    _font_ptr = font_ptr;
+    _font = font;
     _is_changed = true;
 
     updateHeight();
@@ -199,7 +199,7 @@ namespace pixeler
 
   const uint8_t* Label::getFont() const
   {
-    return _font_ptr;
+    return _font;
   }
 
   void Label::setGravity(Gravity gravity)
@@ -301,7 +301,7 @@ namespace pixeler
       byte_pos = charPosToByte(ch_str_p8, char_pos);
     }
 
-    _display.setFont(_font_ptr);
+    _display.setFont(_font);
     _display.setTextSize(_text_size);
     _display.calcTextBounds(_text.c_str() + byte_pos, 0, 0, x1, y1, w, h);
 
@@ -340,7 +340,7 @@ namespace pixeler
     int16_t x1;
     uint16_t w;
     _display.setTextSize(_text_size);
-    _display.setFont(_font_ptr);
+    _display.setFont(_font);
     _display.calcTextBounds("Йg", 0, 0, x1, _y_char_offset, w, _char_hgt);
 
     if (_char_hgt + RESERVE_PIX_HEIGHT >= _height)

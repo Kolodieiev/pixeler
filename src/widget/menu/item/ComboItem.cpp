@@ -19,8 +19,8 @@ namespace pixeler
     clone->setLbl(_label->clone(_label->getID()));
     clone->_range = _range;
     clone->_selected_pos = _selected_pos;
-    if (_img)
-      clone->setImg(_img->clone(_img->getID()));
+    if (_image)
+      clone->setImg(_image->clone(_image->getID()));
   }
 
   ComboItem* ComboItem::clone(uint16_t id) const

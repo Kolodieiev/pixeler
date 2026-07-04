@@ -52,9 +52,9 @@ namespace pixeler
      * ToggleSwitch буде видалено автоматично разом з віджетом.
      * Для кожного елемента списку повинен використовуватися власний ToggleSwitch.
      *
-     * @param togg_switch_ptr Вказівник на ToggleSwitch.
+     * @param toggle_switch Вказівник на ToggleSwitch.
      */
-    void setToggle(ToggleSwitch* togg_switch_ptr);
+    void setToggle(ToggleSwitch* toggle_switch);
 
     /**
      * @brief Повертає вказівник на ToggleSwitch, який присвоєно цьому елементу списку.

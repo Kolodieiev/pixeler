@@ -53,9 +53,9 @@ namespace pixeler
      * SpinBox буде видалено автоматично разом з віджетом.
      * Для кожного елемента списку повинен використовуватися власний SpinBox.
      *
-     * @param spinbox_ptr Вказівник на SpinBox.
+     * @param spinbox Вказівник на SpinBox.
      */
-    void setSpin(SpinBox* spinbox_ptr);
+    void setSpin(SpinBox* spinbox);
 
     /**
      * @brief Повертає вказівник на SpinBox, який присвоєно цьому елементу списку.

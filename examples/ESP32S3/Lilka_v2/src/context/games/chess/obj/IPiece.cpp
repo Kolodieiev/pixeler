@@ -9,7 +9,7 @@ namespace chess
       : IGameObject(id, type_id, game_scene, audio), _SPRITE_ARR{sprite_arr}, _movement{movement}
   {
     _sprite.has_img = true;
-    _sprite.img_ptr = _SPRITE_ARR[1];  // За замовченням білі
+    _sprite.img_data = _SPRITE_ARR[1];  // За замовченням білі
     _sprite.width = 26;
     _sprite.height = 26;
     _sprite.x_pivot = _sprite.width / 2;
@@ -48,9 +48,9 @@ namespace chess
     _is_white = state;
 
     if (_is_white)
-      _sprite.img_ptr = _SPRITE_ARR[1];
+      _sprite.img_data = _SPRITE_ARR[1];
     else
-      _sprite.img_ptr = _SPRITE_ARR[0];
+      _sprite.img_data = _SPRITE_ARR[0];
   }
 
   bool IPiece::isWhite() const

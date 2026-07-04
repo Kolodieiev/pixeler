@@ -55,12 +55,12 @@ namespace pixeler
     void setTransparency(bool state);
 
     /**
-     * @brief Встановлює вказівник на буффер із зображенням.
+     * @brief Встановлює вказівник на буффер з даними зображення.
      * Буфер не буде видалено разом із віджетом.
      *
-     * @param image_ptr Вказівник на буфер із зображенням.
+     * @param image_data Вказівник на буфер з даними зображення.
      */
-    void setSrc(const uint16_t* image_ptr);
+    void setSrc(const uint16_t* image_data);
 
   protected:
     /**
@@ -71,7 +71,7 @@ namespace pixeler
     virtual void copyTo(IWidget* widget) const override;
 
   private:
-    const uint16_t* _img_ptr{nullptr};
+    const uint16_t* _img_data{nullptr};
     bool _has_transparency{false};
   };
 

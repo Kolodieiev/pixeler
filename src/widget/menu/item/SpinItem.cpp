@@ -17,8 +17,8 @@ namespace pixeler
   {
     if (!_is_changed)
     {
-      if (_img)
-        _img->onDraw();
+      if (_image)
+        _image->onDraw();
       _label->onDraw();
       _spinbox->onDraw();
       return;
@@ -29,13 +29,13 @@ namespace pixeler
     clear();
 
     uint8_t img_width{0};
-    if (_img)
+    if (_image)
     {
-      _img->setParent(this);
-      img_width = _img->getWidth() + ITEM_PADDING;
-      _img->setPos(ITEM_PADDING, (_height - _img->getHeight()) * 0.5);
-      _img->setBackColor(_back_color);
-      _img->onDraw();
+      _image->setParent(this);
+      img_width = _image->getWidth() + ITEM_PADDING;
+      _image->setPos(ITEM_PADDING, (_height - _image->getHeight()) * 0.5);
+      _image->setBackColor(_back_color);
+      _image->onDraw();
     }
 
     _spinbox->setHeight(_spinbox->getCharHgt() + 4);
@@ -61,8 +61,8 @@ namespace pixeler
     SpinItem* clone = static_cast<SpinItem*>(widget);
     clone->setLbl(_label->clone(_label->getID()));
     clone->setSpin(_spinbox->clone(_spinbox->getID()));
-    if (_img)
-      clone->setImg(_img->clone(_img->getID()));
+    if (_image)
+      clone->setImg(_image->clone(_image->getID()));
   }
 
   SpinItem* SpinItem::clone(uint16_t id) const
@@ -80,19 +80,19 @@ namespace pixeler
     }
   }
 
-  void SpinItem::setSpin(SpinBox* spinbox_ptr)
+  void SpinItem::setSpin(SpinBox* spinbox)
   {
-    if (!spinbox_ptr)
+    if (!spinbox)
     {
       log_e("SpinBox не може бути null");
       esp_restart();
     }
 
-    if (spinbox_ptr == _spinbox)
+    if (spinbox == _spinbox)
       return;
 
     delete _spinbox;
-    _spinbox = spinbox_ptr;
+    _spinbox = spinbox;
 
     _is_changed = true;
 

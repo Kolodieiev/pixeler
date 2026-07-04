@@ -10,8 +10,8 @@ using namespace pixeler;
 int lua_progress_new(lua_State* L)
 {
   uint16_t id = luaL_checkinteger(L, 2);
-  ProgressBar** ret_wid_ptr = static_cast<ProgressBar**>(lua_newuserdata(L, sizeof(ProgressBar*)));
-  *ret_wid_ptr = new ProgressBar(id);
+  ProgressBar** widet = static_cast<ProgressBar**>(lua_newuserdata(L, sizeof(ProgressBar*)));
+  *widet = new ProgressBar(id);
   luaL_getmetatable(L, STR_TYPE_NAME_PROGRESS);
   lua_setmetatable(L, -2);
 

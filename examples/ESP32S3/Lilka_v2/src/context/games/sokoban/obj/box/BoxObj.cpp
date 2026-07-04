@@ -11,7 +11,7 @@ namespace sokoban
   BoxObj::BoxObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_BOX, game_scene, audio)
   {
     _layer = 1;  // Об'єкт повинен бути вище об'єктів точок щоб перекривати їх
-    _sprite.img_ptr = SPRITE_BOX;
+    _sprite.img_data = SPRITE_BOX;
     _sprite.has_img = true;
     _sprite.width = 32;
     _sprite.height = 32;
@@ -56,7 +56,7 @@ namespace sokoban
     if (!has_point)  // Якщо точку не знайдено значить далі або прохід або стіна.
     {
       _is_ok = false;
-      _sprite.img_ptr = SPRITE_BOX;
+      _sprite.img_data = SPRITE_BOX;
       // Перевіряємо чи не впираємося в стіну за ящиком
       if (!_scene.canPass(*this, x, y))
         return false;  // Якщо впираємося в стіну, рух продовжувати не можна
@@ -64,7 +64,7 @@ namespace sokoban
     else
     {
       _is_ok = true;                    // Підняти прапор, який вказує, що ящик встановлено в потрібному місці
-      _sprite.img_ptr = SPRITE_BOX_OK;  // Змінити спрайт об'єкта
+      _sprite.img_data = SPRITE_BOX_OK;  // Змінити спрайт об'єкта
     }
 
     // Якщо всі перевірки пройдено переміщуємо цей об'єкт ящика на нову плитку

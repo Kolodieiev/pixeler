@@ -11,7 +11,7 @@ namespace pixeler
   MenuItem::~MenuItem()
   {
     delete _label;
-    delete _img;
+    delete _image;
   }
 
   String MenuItem::getText() const
@@ -33,8 +33,8 @@ namespace pixeler
   {
     if (!_is_changed)
     {
-      if (_img)
-        _img->onDraw();
+      if (_image)
+        _image->onDraw();
       _label->onDraw();
       return;
     }
@@ -44,12 +44,12 @@ namespace pixeler
     clear();
 
     uint8_t img_width{0};
-    if (_img)
+    if (_image)
     {
-      img_width = _img->getWidth() + ITEM_PADDING;
-      _img->setPos(ITEM_PADDING, (_height - _img->getHeight()) * 0.5);
-      _img->setBackColor(_back_color);
-      _img->onDraw();
+      img_width = _image->getWidth() + ITEM_PADDING;
+      _image->setPos(ITEM_PADDING, (_height - _image->getHeight()) * 0.5);
+      _image->setBackColor(_back_color);
+      _image->onDraw();
     }
 
     _label->setHeight(_height - 2);
@@ -70,8 +70,8 @@ namespace pixeler
 
     MenuItem* clone = static_cast<MenuItem*>(widget);
     clone->setLbl(_label->clone(_label->getID()));
-    if (_img)
-      clone->setImg(_img->clone(_img->getID()));
+    if (_image)
+      clone->setImg(_image->clone(_image->getID()));
   }
 
   MenuItem* MenuItem::clone(uint16_t id) const
@@ -89,38 +89,38 @@ namespace pixeler
     }
   }
 
-  void MenuItem::setImg(Image* img_ptr)
+  void MenuItem::setImg(Image* image)
   {
-    if (img_ptr == _img)
+    if (image == _image)
       return;
 
-    delete _img;
-    _img = img_ptr;
+    delete _image;
+    _image = image;
 
-    if (_img)
-      _img->setParent(this);
+    if (_image)
+      _image->setParent(this);
 
     _is_changed = true;
   }
 
   Image* MenuItem::getImg() const
   {
-    return _img;
+    return _image;
   }
 
-  void MenuItem::setLbl(Label* lbl_ptr)
+  void MenuItem::setLbl(Label* label)
   {
-    if (!lbl_ptr)
+    if (!label)
     {
       log_e("Label не може бути null");
       esp_restart();
     }
 
-    if (lbl_ptr == _label)
+    if (label == _label)
       return;
 
     delete _label;
-    _label = lbl_ptr;
+    _label = label;
 
     _is_changed = true;
 

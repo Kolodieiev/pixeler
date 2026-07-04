@@ -95,9 +95,9 @@ namespace pixeler
     /**
      * @brief Встановлює вказівник на шрифт.
      *
-     * @param font_ptr Вказівник на існуючий шрифт.
+     * @param font Вказівник на існуючий шрифт.
      */
-    void setFont(const uint8_t* font_ptr);
+    void setFont(const uint8_t* font);
 
     /**
      * @brief Повертає вказівник на поточний шрифт.
@@ -253,7 +253,7 @@ namespace pixeler
 
     unsigned long _last_autoscroll_ts{0};
     Image* _back_img{nullptr};
-    const uint8_t* _font_ptr{font_unifont};
+    const uint8_t* _font{font_unifont};
 
     uint16_t _text_color{COLOR_WHITE};
     uint16_t _text_len{0};

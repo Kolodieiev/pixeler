@@ -151,7 +151,7 @@ namespace pixeler
      *
      * @param item Вказівник на віджет елемента списку.
      */
-    void addItem(MenuItem* item_ptr);
+    void addItem(MenuItem* item);
 
     /**
      * @brief Розраховує та повертає кількість елементів, що може відобразити меню одночасно за поточних розмір.

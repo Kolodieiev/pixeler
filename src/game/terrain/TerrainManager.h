@@ -67,14 +67,14 @@ namespace pixeler
      * @brief Встановлює вказівник на фонове зображення ігрового рівня.
      * Дані за вказівником не будуть видалені автоматично разом з ігровим рівнем.
      *
-     * @param img_ptr Вказівник на фонове зображення.
+     * @param img_data Вказівник на фонове зображення.
      * @param img_width Ширина зображення.
      * @param img_height Висота зображення.
      * @param back_color Колір фону навколо зображення.
      * @param x_offset Зміщення зліва.
      * @param y_offset Зміщення зверху.
      */
-    void setBackImg(const uint16_t* img_ptr, uint16_t img_width, uint16_t img_height, uint16_t back_color = COLOR_BLACK, uint16_t x_offset = 0, uint16_t y_offset = 0);
+    void setBackImg(const uint16_t* img_data, uint16_t img_width, uint16_t img_height, uint16_t back_color = COLOR_BLACK, uint16_t x_offset = 0, uint16_t y_offset = 0);
 
     /**
      * @brief Додає опис окремої плитки.

@@ -139,9 +139,9 @@ namespace pixeler
         return false;
     }
 
-    uint8_t* temp_ptr = static_cast<uint8_t*>(out_data_buff);
+    uint8_t* temp_data = static_cast<uint8_t*>(out_data_buff);
     for (uint8_t i = 0; i < data_size; ++i)
-      temp_ptr[i] = Wire.read();
+      temp_data[i] = Wire.read();
 
     return true;
   }
@@ -158,10 +158,10 @@ namespace pixeler
         return false;
     }
 
-    uint8_t* temp_ptr = static_cast<uint8_t*>(out_data_buff);
+    uint8_t* temp_data = static_cast<uint8_t*>(out_data_buff);
     uint16_t i = 0;
     while (Wire.available())
-      temp_ptr[i++] = Wire.read();
+      temp_data[i++] = Wire.read();
 
     return i == data_size;
   }

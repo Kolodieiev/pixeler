@@ -10,8 +10,8 @@ using namespace pixeler;
 int lua_toggle_switch_new(lua_State* L)
 {
   uint16_t id = luaL_checkinteger(L, 2);
-  ToggleSwitch** ret_wid_ptr = static_cast<ToggleSwitch**>(lua_newuserdata(L, sizeof(ToggleSwitch*)));
-  *ret_wid_ptr = new ToggleSwitch(id);
+  ToggleSwitch** widet = static_cast<ToggleSwitch**>(lua_newuserdata(L, sizeof(ToggleSwitch*)));
+  *widet = new ToggleSwitch(id);
   luaL_getmetatable(L, STR_TYPE_NAME_TOGGLE_SWITCH);
   lua_setmetatable(L, -2);
   return 1;

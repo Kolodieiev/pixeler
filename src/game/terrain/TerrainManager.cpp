@@ -151,18 +151,18 @@ namespace pixeler
                 bool old_state = _display.isPPAEnabled();
 
                 _display.setPPAState(true);
-                _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_ptr, _tile_side_len, _tile_side_len);
+                _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
                 _display.setPPAState(old_state);
               }
               else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
               {
-                _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_ptr, _tile_side_len, _tile_side_len);
+                _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
               }
             }
             else
             {
-              _display.drawBitmapTransp(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_ptr, _tile_side_len, _tile_side_len);
+              _display.drawBitmapTransp(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
             }
           }
 
@@ -175,9 +175,9 @@ namespace pixeler
     }
   }
 
-  void TerrainManager::setBackImg(const uint16_t* img_ptr, uint16_t img_width, uint16_t img_height, uint16_t back_color, uint16_t x_offset, uint16_t y_offset)
+  void TerrainManager::setBackImg(const uint16_t* img_data, uint16_t img_width, uint16_t img_height, uint16_t back_color, uint16_t x_offset, uint16_t y_offset)
   {
-    _back_img = img_ptr;
+    _back_img = img_data;
     _back_img_w = img_width;
     _back_img_h = img_height;
     _back_color = back_color;

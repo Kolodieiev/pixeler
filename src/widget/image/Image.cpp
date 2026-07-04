@@ -16,7 +16,7 @@ namespace pixeler
     IWidget::copyTo(widget);
 
     Image* clone = static_cast<Image*>(widget);
-    clone->_img_ptr = _img_ptr;
+    clone->_img_data = _img_data;
     clone->_has_transparency = _has_transparency;
   }
 
@@ -35,10 +35,10 @@ namespace pixeler
     }
   }
 
-  void Image::setSrc(const uint16_t* image_ptr)
+  void Image::setSrc(const uint16_t* image_data)
   {
     _is_changed = true;
-    _img_ptr = image_ptr;
+    _img_data = image_data;
   }
 
   Image::~Image()
@@ -67,7 +67,7 @@ namespace pixeler
       y_offset = _parent->getYPos();
     }
 
-    if (_img_ptr)
+    if (_img_data)
     {
       if (!_has_transparency)
       {
@@ -77,18 +77,18 @@ namespace pixeler
           bool old_state = _display.isPPAEnabled();
 
           _display.setPPAState(true);
-          _display.drawBitmap(_x_pos + x_offset, _y_pos + y_offset, _img_ptr, _width, _height);
+          _display.drawBitmap(_x_pos + x_offset, _y_pos + y_offset, _img_data, _width, _height);
           _display.setPPAState(old_state);
         }
         else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
         {
-          _display.drawBitmap(_x_pos + x_offset, _y_pos + y_offset, _img_ptr, _width, _height);
+          _display.drawBitmap(_x_pos + x_offset, _y_pos + y_offset, _img_data, _width, _height);
         }
       }
       else
       {
-        _display.drawBitmapTransp(_x_pos + x_offset, _y_pos + y_offset, _img_ptr, _width, _height);
+        _display.drawBitmapTransp(_x_pos + x_offset, _y_pos + y_offset, _img_data, _width, _height);
       }
     }
     else

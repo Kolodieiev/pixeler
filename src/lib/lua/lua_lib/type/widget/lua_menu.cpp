@@ -12,8 +12,8 @@ using namespace pixeler;
 int lua_menu_new(lua_State* L)
 {
   uint16_t id = luaL_checkinteger(L, 2);
-  FixedMenu** ret_wid_ptr = static_cast<FixedMenu**>(lua_newuserdata(L, sizeof(FixedMenu*)));
-  *ret_wid_ptr = new FixedMenu(id);
+  FixedMenu** widet = static_cast<FixedMenu**>(lua_newuserdata(L, sizeof(FixedMenu*)));
+  *widet = new FixedMenu(id);
   luaL_getmetatable(L, STR_TYPE_NAME_MENU);
   lua_setmetatable(L, -2);
   return 1;

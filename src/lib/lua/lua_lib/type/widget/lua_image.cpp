@@ -12,8 +12,8 @@ using namespace pixeler;
 int lua_image_new(lua_State* L)
 {
   uint16_t id = luaL_checkinteger(L, 2);
-  Image** ret_wid_ptr = static_cast<Image**>(lua_newuserdata(L, sizeof(Image*)));
-  *ret_wid_ptr = new Image(id);
+  Image** widet = static_cast<Image**>(lua_newuserdata(L, sizeof(Image*)));
+  *widet = new Image(id);
   luaL_getmetatable(L, STR_TYPE_NAME_IMAGE);
   lua_setmetatable(L, -2);
   return 1;

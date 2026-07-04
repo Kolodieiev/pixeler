@@ -130,9 +130,9 @@ namespace pixeler
     return _items_spacing;
   }
 
-  void IMenu::addItem(MenuItem* item_ptr)
+  void IMenu::addItem(MenuItem* item)
   {
-    addWidget(item_ptr);
+    addWidget(item);
   }
 
   uint16_t IMenu::getItemsPerPage() const

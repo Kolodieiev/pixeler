@@ -19,7 +19,7 @@ namespace pixeler
   {
     BodyOffsets rigid_offsets{};  // Опис зміщення жорсткого тіла об'єкта від країв його спрайту.
 
-    const uint16_t* img_ptr{nullptr};                      // Вказівник на массив із зображенням, якщо відсутня анімація
+    const uint16_t* img_data{nullptr};                      // Вказівник на массив із зображенням, якщо відсутня анімація
     std::vector<const uint16_t*>* animation_vec{nullptr};  // Вектор анімації
 
     uint16_t width{1};               // Ширина спрайту

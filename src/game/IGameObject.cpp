@@ -62,16 +62,16 @@ namespace pixeler
     }
     else if (_sprite.has_img)
     {
-      if (!_sprite.img_ptr)
+      if (!_sprite.img_data)
       {
         log_e("Не встановлено вказівник на зображення");
         esp_restart();
       }
 
       if (_sprite.angle == 0)
-        _display.drawBitmapTransp(_x_local, _y_local, _sprite.img_ptr, _sprite.width, _sprite.height);
+        _display.drawBitmapTransp(_x_local, _y_local, _sprite.img_data, _sprite.width, _sprite.height);
       else
-        _display.drawBitmapRotated(_x_local, _y_local, _sprite.img_ptr, _sprite.width, _sprite.height, _sprite.x_pivot, _sprite.y_pivot, _sprite.angle);
+        _display.drawBitmapRotated(_x_local, _y_local, _sprite.img_data, _sprite.width, _sprite.height, _sprite.x_pivot, _sprite.y_pivot, _sprite.angle);
     }
   }
 

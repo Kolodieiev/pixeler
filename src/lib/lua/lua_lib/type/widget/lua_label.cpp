@@ -13,8 +13,8 @@ using namespace pixeler;
 int lua_label_new(lua_State* L)
 {
   uint16_t id = luaL_checkinteger(L, 2);
-  Label** ret_wid_ptr = static_cast<Label**>(lua_newuserdata(L, sizeof(Label*)));
-  *ret_wid_ptr = new Label(id);
+  Label** widet = static_cast<Label**>(lua_newuserdata(L, sizeof(Label*)));
+  *widet = new Label(id);
   luaL_getmetatable(L, STR_TYPE_NAME_LABEL);
   lua_setmetatable(L, -2);
 

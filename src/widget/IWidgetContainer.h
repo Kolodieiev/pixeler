@@ -37,9 +37,9 @@ namespace pixeler
      * Віджет повинен мати уникальний ідентифікатор для цього контейнера.
      * Ідентифікатор віджета повинен бути більшим за 0.
      *
-     * @param widget_ptr Вказівник на віджет.
+     * @param widget Вказівник на віджет.
      */
-    void addWidget(IWidget* widget_ptr);
+    void addWidget(IWidget* widget);
 
     /**
      * @brief Видаляє віджет з контейнера і пам'яті за його ідентифікатором.

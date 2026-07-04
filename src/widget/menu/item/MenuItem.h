@@ -50,9 +50,9 @@ namespace pixeler
      * Image буде видалено автоматично разом з віджетом.
      * Для кожного елемента списку повинен використовуватися власний Image.
      *
-     * @param img Вказівник на Image.
+     * @param image Вказівник на Image.
      */
-    void setImg(Image* img_ptr);
+    void setImg(Image* image);
 
     /**
      * @brief Повертає вказівник на Image, який присвоєно цьому елементу списку.
@@ -67,9 +67,9 @@ namespace pixeler
      * Label буде видалено автоматично разом з віджетом.
      * Для кожного елемента списку повинен використовуватися власний Label.
      *
-     * @param lbl Вказівник на Label.
+     * @param label Вказівник на Label.
      */
-    void setLbl(Label* lbl_ptr);
+    void setLbl(Label* label);
 
     /**
      * @brief Повертає вказівник на Label, який присвоєно цьому елементу списку.
@@ -106,7 +106,7 @@ namespace pixeler
     using IWidget::setVisibility;
 
   protected:
-    Image* _img{nullptr};
+    Image* _image{nullptr};
     Label* _label{nullptr};
 
     const uint8_t ITEM_PADDING{5};

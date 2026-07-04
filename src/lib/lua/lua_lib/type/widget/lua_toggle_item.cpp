@@ -12,8 +12,8 @@ using namespace pixeler;
 int lua_toggle_item_new(lua_State* L)
 {
   uint16_t id = luaL_checkinteger(L, 2);
-  ToggleItem** ret_wid_ptr = static_cast<ToggleItem**>(lua_newuserdata(L, sizeof(ToggleItem*)));
-  *ret_wid_ptr = new ToggleItem(id);
+  ToggleItem** widet = static_cast<ToggleItem**>(lua_newuserdata(L, sizeof(ToggleItem*)));
+  *widet = new ToggleItem(id);
   luaL_getmetatable(L, STR_TYPE_NAME_TOGGLE_ITEM);
   lua_setmetatable(L, -2);
   return 1;

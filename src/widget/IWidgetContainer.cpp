@@ -10,15 +10,15 @@ namespace pixeler
     delWidgets();
   }
 
-  void IWidgetContainer::addWidget(IWidget* widget_ptr)
+  void IWidgetContainer::addWidget(IWidget* widget)
   {
-    if (!widget_ptr)
+    if (!widget)
     {
       log_e("Контейнер: %u. *IWidget не може бути NULL.", getID());
       esp_restart();
     }
 
-    uint16_t search_ID = widget_ptr->getID();
+    uint16_t search_ID = widget->getID();
 
     if (search_ID == 0)
     {
@@ -35,8 +35,8 @@ namespace pixeler
       }
     }
 
-    widget_ptr->setParent(this);
-    _widgets.push_back(widget_ptr);
+    widget->setParent(this);
+    _widgets.push_back(widget);
     _is_changed = true;
   }
 
@@ -59,11 +59,11 @@ namespace pixeler
 
   IWidget* IWidgetContainer::getWidgetByID(uint16_t widget_ID)
   {
-    for (auto& widget_ptr : _widgets)
+    for (auto& widget : _widgets)
     {
-      if (widget_ptr->getID() == widget_ID)
+      if (widget->getID() == widget_ID)
       {
-        return widget_ptr;
+        return widget;
       }
     }
 
@@ -96,8 +96,8 @@ namespace pixeler
 
   void IWidgetContainer::delWidgets()
   {
-    for (auto* widget_ptr : _widgets)
-      delete widget_ptr;
+    for (auto* widget : _widgets)
+      delete widget;
 
     _widgets.clear();
 
@@ -131,7 +131,7 @@ namespace pixeler
     IWidgetContainer* clone = static_cast<IWidgetContainer*>(widget);
     clone->_is_enabled = _is_enabled;
 
-    for (const auto& widget_ptr : _widgets)
-      clone->addWidget(widget_ptr->clone(widget_ptr->getID()));
+    for (const auto& widget : _widgets)
+      clone->addWidget(widget->clone(widget->getID()));
   }
 }  // namespace pixeler

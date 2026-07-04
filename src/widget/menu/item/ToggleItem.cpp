@@ -17,8 +17,8 @@ namespace pixeler
   {
     if (!_is_changed)
     {
-      if (_img)
-        _img->onDraw();
+      if (_image)
+        _image->onDraw();
       _label->onDraw();
       _toggle->onDraw();
       return;
@@ -29,13 +29,13 @@ namespace pixeler
     clear();
 
     uint8_t img_width{0};
-    if (_img)
+    if (_image)
     {
-      _img->setParent(this);
-      img_width = _img->getWidth() + ITEM_PADDING;
-      _img->setPos(ITEM_PADDING, (_height - _img->getHeight()) * 0.5);
-      _img->setBackColor(_back_color);
-      _img->onDraw();
+      _image->setParent(this);
+      img_width = _image->getWidth() + ITEM_PADDING;
+      _image->setPos(ITEM_PADDING, (_height - _image->getHeight()) * 0.5);
+      _image->setBackColor(_back_color);
+      _image->onDraw();
     }
 
     _toggle->setPos(_width - ITEM_PADDING - _toggle->getWidth(), (_height - _toggle->getHeight()) * 0.5);
@@ -60,8 +60,8 @@ namespace pixeler
     ToggleItem* clone = static_cast<ToggleItem*>(widget);
     clone->setLbl(_label->clone(_label->getID()));
     clone->setToggle(_toggle->clone(_toggle->getID()));
-    if (_img)
-      clone->setImg(_img->clone(_img->getID()));
+    if (_image)
+      clone->setImg(_image->clone(_image->getID()));
   }
 
   ToggleItem* ToggleItem::clone(uint16_t id) const
@@ -79,19 +79,19 @@ namespace pixeler
     }
   }
 
-  void ToggleItem::setToggle(ToggleSwitch* togg_switch_ptr)
+  void ToggleItem::setToggle(ToggleSwitch* toggle_switch)
   {
-    if (!togg_switch_ptr)
+    if (!toggle_switch)
     {
       log_e("ToggleSwitch не може бути null");
       esp_restart();
     }
 
-    if (togg_switch_ptr == _toggle)
+    if (toggle_switch == _toggle)
       return;
 
     delete _toggle;
-    _toggle = togg_switch_ptr;
+    _toggle = toggle_switch;
 
     _is_changed = true;
 
