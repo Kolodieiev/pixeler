@@ -284,8 +284,8 @@ void WiFiContext::back()
 {
   if (_mode == MODE_SD_UNCONN || _mode == MODE_MAIN)
   {
-    _wifi.setScanDoneHandler(nullptr, nullptr);
-    _wifi.setConnectDoneHandler(nullptr, nullptr);
+    _wifi.onScanDone(nullptr, nullptr);
+    _wifi.onConnectDone(nullptr, nullptr);
     openContextByID(ID_CONTEXT_MENU);
   }
   else if (_mode == MODE_CONTEXT_MENU)
@@ -453,7 +453,7 @@ void WiFiContext::exitPressed()
 
 void WiFiContext::loadNetsList()
 {
-  _wifi.setScanDoneHandler(scanDoneHandler, this);
+  _wifi.onScanDone(scanDoneHandler, this);
   if (!_wifi.startScan())
     showToast(STR_START_SCAN_ERR, TOAST_LENGTH_SHORT);
   else
@@ -520,7 +520,7 @@ void WiFiContext::connectToNet(const String& ssid)
   }
   else
   {
-    _wifi.setConnectDoneHandler(connDoneHandler, this);
+    _wifi.onConnectDone(connDoneHandler, this);
     if (!_wifi.tryConnectTo(ssid, wifi_pass))
       showToast(STR_FAIL, TOAST_LENGTH_SHORT);
     else
