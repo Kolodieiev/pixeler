@@ -10,36 +10,34 @@
 
 namespace pixeler
 {
-  class GameServer;
-
-  /**
-   * @brief Тип функції-обробника результату, яку буде надано сервером разом із запитом на авторизацію нового клієнта.
-   *
-   */
-  typedef std::function<void(const ClientWrapper* client, bool result, GameServer* server)> ConfirmResultHandler;
-
-  /**
-   * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
-   *
-   */
-  typedef std::function<void(const ClientWrapper* client, ConfirmResultHandler result_handler, void* arg)> ClientConfirmHandler;
-
-  /**
-   * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
-   *
-   */
-  typedef std::function<void(const ClientWrapper* client, void* arg)> ClientDisconnHandler;
-
-  /**
-   * @brief Тип обробника, який може бути викликано сервером у разі отримання пакету даних від одного із клієнтів.
-   * Не потрібно видаляти ClientWrapper* та UdpPacket*, ними керує сервер самостійно.
-   *
-   */
-  typedef std::function<void(const ClientWrapper* client, const UdpPacket* packet, void* arg)> ClientDataHandler;
-
   class GameServer
   {
   public:
+    /**
+     * @brief Тип функції-обробника результату, яку буде надано сервером разом із запитом на авторизацію нового клієнта.
+     *
+     */
+    using ConfirmResultHandler = std::function<void(const ClientWrapper* client, bool result, GameServer* server)>;
+
+    /**
+     * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
+     *
+     */
+    using ClientConfirmHandler = std::function<void(const ClientWrapper* client, ConfirmResultHandler result_handler, void* arg)>;
+
+    /**
+     * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
+     *
+     */
+    using ClientDisconnHandler = std::function<void(const ClientWrapper* client, void* arg)>;
+
+    /**
+     * @brief Тип обробника, який може бути викликано сервером у разі отримання пакету даних від одного із клієнтів.
+     * Не потрібно видаляти ClientWrapper* та UdpPacket*, ними керує сервер самостійно.
+     *
+     */
+    using ClientDataHandler = std::function<void(const ClientWrapper* client, const UdpPacket* packet, void* arg)>;
+
     GameServer();
     ~GameServer();
 

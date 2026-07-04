@@ -23,13 +23,13 @@ namespace pixeler
      * @brief Тип функції-обробника, яку може бути викликано для завантаження наступної сторінки динамічного меню.
      *
      */
-    typedef std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)> NextItemsLoadHandler;
+    using NextItemsLoadHandler = std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)>;
 
     /**
      * @brief Тип функції-обробника, яку може бути викликано для завантаження попередньої сторінки динамічного меню.
      *
      */
-    typedef std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)> PrevItemsLoadHandler;
+    using PrevItemsLoadHandler = std::function<void(std::vector<MenuItem*>& items, uint8_t size, uint16_t cur_id, void* arg)>;
 
     explicit DynamicMenu(uint16_t widget_ID);
     virtual ~DynamicMenu() {}

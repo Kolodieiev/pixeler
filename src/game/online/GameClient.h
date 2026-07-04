@@ -7,28 +7,28 @@
 
 namespace pixeler
 {
-  /**
-   * @brief Тип обробника, який може бути викликано клієнтом у разі втрати зв'язку з сервером.
-   *
-   */
-  typedef std::function<void(void* arg)> ServerDisconnHandler;
-
-  /**
-   * @brief Тип обробника, який може бути викликано клієнтом після встановлення зв'язку з сервером.
-   *
-   */
-  typedef std::function<void(void* arg)> ServerConnectedHandler;
-
-  /**
-   * @brief Тип обробника, який може бути викликано клієнтом після отримання пакета даних від сервера.
-   * Об'єкт UdpPacket не потрібно видаляти самостійно.
-   *
-   */
-  typedef std::function<void(UdpPacket* packet, void* arg)> ServerDataHandler;
-
   class GameClient
   {
   public:
+    /**
+     * @brief Тип обробника, який може бути викликано клієнтом у разі втрати зв'язку з сервером.
+     *
+     */
+    using ServerDisconnHandler = std::function<void(void* arg)>;
+
+    /**
+     * @brief Тип обробника, який може бути викликано клієнтом після встановлення зв'язку з сервером.
+     *
+     */
+    using ServerConnectedHandler = std::function<void(void* arg)>;
+
+    /**
+     * @brief Тип обробника, який може бути викликано клієнтом після отримання пакета даних від сервера.
+     * Об'єкт UdpPacket не потрібно видаляти самостійно.
+     *
+     */
+    using ServerDataHandler = std::function<void(UdpPacket* packet, void* arg)>;
+
     GameClient();
     ~GameClient();
 
