@@ -78,7 +78,7 @@ FilesContext::FilesContext()
 
   createNotificationObj();
 
-  _fs.setTaskDoneHandler(taskDone, this);
+  _fs.onTaskDone(taskDone, this);
 
   indexCurDir();
   showFilesTmpl();
