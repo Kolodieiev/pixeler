@@ -23,8 +23,8 @@ namespace pixeler
   class FileManager
   {
   public:
-    typedef std::function<void(bool result, void* arg)> TaskDoneHandler;
-    typedef std::function<void(uint8_t progress, void* arg)> CopyProgressHandler;
+    using TaskDoneHandler = std::function<void(bool result, void* arg)>;
+    using CopyProgressHandler = std::function<void(uint8_t progress, void* arg)>;
 
     /**
      * @brief Формує повний шлях до path, з урахуванням точки монтування.

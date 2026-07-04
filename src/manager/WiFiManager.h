@@ -17,13 +17,11 @@ namespace pixeler
 {
   const char STR_ROUTER_NOT_CONNECTED[] = "Не підключено до маршрутизатора";
 
-  typedef std::function<void(void* arg, wl_status_t conn_status)> WiFiConnectDoneHandler;
-  typedef std::function<void(void* arg)> WiFiScanDoneHandler;
-
   class WiFiManager
   {
   public:
-
+    using WiFiConnectDoneHandler = std::function<void(void* arg, wl_status_t conn_status)>;
+    using WiFiScanDoneHandler = std::function<void(void* arg)>;
 
     enum WiFiPowerLevel : uint8_t
     {
