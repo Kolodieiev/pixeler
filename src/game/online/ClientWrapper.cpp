@@ -19,11 +19,11 @@ namespace pixeler
     return strcmp(_name.c_str(), name) == 0;
   }
 
-  bool ClientWrapper::is(const ClientWrapper* cl_wrap) const
+  bool ClientWrapper::is(const ClientWrapper* client_wrap) const
   {
-    if (!cl_wrap)
+    if (!client_wrap)
       return false;
 
-    return _remote_ip == cl_wrap->_remote_ip;
+    return _remote_ip == client_wrap->_remote_ip;
   }
 }  // namespace pixeler

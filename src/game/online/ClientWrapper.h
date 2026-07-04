@@ -110,11 +110,11 @@ namespace pixeler
     /**
      * @brief Порівнює два об'єкта ClientWrapper на основі віддаленої ip-адреси клієнтів.
      *
-     * @param cl_wrap Вказівник на інший об'єкт ClientWrapper.
+     * @param client_wrap Вказівник на інший об'єкт ClientWrapper.
      * @return true - Якщо віддалені ip-адреси співпадають.
      * @return false - Інакше.
      */
-    bool is(const ClientWrapper* cl_wrap) const;
+    bool is(const ClientWrapper* client_wrap) const;
 
   protected:
     ClientWrapper() {}
