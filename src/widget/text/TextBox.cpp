@@ -65,6 +65,13 @@ namespace pixeler
     _is_changed = true;
   }
 
+  void TextBox::addChar(char ch)
+  {
+    _text += ch;
+    _text_len = calcRealStrLen(_text);
+    _is_changed = true;
+  }
+
   uint16_t TextBox::getFitStr(String& ret_str) const
   {
     uint16_t first_char_pos{1};

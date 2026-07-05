@@ -83,6 +83,13 @@ namespace pixeler
      */
     void addChars(const char* ch);
 
+    /**
+     * @brief Додає символ в кінець рядка текстового поля.
+     *
+     * @param ch
+     */
+    void addChar(char ch);
+
   protected:
     /**
      * @brief Копіює поля до іншого віджета.
