@@ -13,18 +13,41 @@
 #include <unordered_map>
 
 #include "Button.h"
+#include "defines.h"
 #include "external_input/ExtInput.h"
 #include "input_config.h"
-#include "defines.h"
 #ifdef TOUCHSCREEN_SUPPORT
 #include "ITouchscreen.h"
 #endif  // #ifdef TOUCHSCREEN_SUPPORT
+#ifdef KEYBOARD_SUPPORT
+#include "usb-host/EspUsbHost.h"
+#endif  // #ifdef KEYBOARD_SUPPORT
 
 namespace pixeler
 {
   class Input
   {
   public:
+#ifdef KEYBOARD_SUPPORT
+    using KeyPressedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
+    using KeyReleasedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
+
+    enum KeyCode : uint8_t
+    {
+      KEY_UP_ARROW = 0x52,
+      KEY_DOWN_ARROW = 0x51,
+      KEY_LEFT_ARROW = 0x50,
+      KEY_RIGHT_ARROW = 0x4F,
+      KEY_PRINT_SCREEN = 0x46,
+      KEY_ENTER = 0x28,
+      KEY_ENTER_KP = 0x58,
+      KEY_ESCAPE = 0x29,
+      KEY_BACKSPACE = 0x2A,
+      KEY_TAB = 0x2B,
+    };
+
+#endif  // #ifdef KEYBOARD_SUPPORT
+
     Input();
 
     /**
@@ -169,8 +192,41 @@ namespace pixeler
 
 #endif  // TOUCHSCREEN_SUPPORT
 
+#ifdef KEYBOARD_SUPPORT
+    /**
+     * @brief Встановлює обробник для події натискання клавіші на фізичній клавіатурі.
+     *
+     * @param handler Обробник події.
+     * @param arg Аргумент, який буде передано обробнику.
+     */
+    void onKeyPressed(const KeyPressedHandler handler, void* arg = nullptr);
+
+    /**
+     * @brief Встановлює обробник для події відтискання клавіші на фізичній клавіатурі.
+     *
+     * @param handler Обробник події.
+     * @param arg Аргумент, який буде передано обробнику.
+     */
+    void onKeyReleased(const KeyReleasedHandler handler, void* arg = nullptr);
+
+#endif  // #ifdef KEYBOARD_SUPPORT
+
   private:
+#ifdef KEYBOARD_SUPPORT
+    static void keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg);
+
+#endif  // #ifdef KEYBOARD_SUPPORT
+
     std::unordered_map<BtnID, Button> _buttons BUTTONS_TMPL;
+
+#ifdef KEYBOARD_SUPPORT
+    EspUsbHost _usb;
+    KeyPressedHandler _key_pressed_handler{nullptr};
+    void* _key_pressed_arg{nullptr};
+    KeyReleasedHandler _key_released_handler{nullptr};
+    void* _key_released_arg{nullptr};
+
+#endif  // #ifdef KEYBOARD_SUPPORT
 
 #ifdef EXT_INPUT
     ExtInput _ext_input;

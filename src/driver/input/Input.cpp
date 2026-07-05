@@ -15,7 +15,7 @@
 #include "./touch_driver/AXS15231B.h"
 #endif
 
-const char STR_UNKNOWN_PIN[] = "Незареєстрована віртуальна кнопка";
+static const char STR_UNKNOWN_PIN[] = "Незареєстрована віртуальна кнопка";
 
 namespace pixeler
 {
@@ -36,13 +36,37 @@ namespace pixeler
     _touchscreen->__begin();
     _touchscreen->setRotation(ITouchscreen::TOUCH_ROTATION);
 #endif  // TOUCHSCREEN_SUPPORT
+
+#ifdef KEYBOARD_SUPPORT
+    _usb.setKeyboardLayout(ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US);
+
+    _usb.onDeviceConnected([](const EspUsbHostDeviceInfo& device)
+                           { espUsbHostPrint(device); });
+
+    _usb.onDeviceDisconnected([](const EspUsbHostDeviceInfo& device)
+                              { espUsbHostPrint(device); });
+
+    _usb.onKeyboard(keyEventHandler, this);
+
+    const EspUsbHostConfig config{
+        .taskStackSize = 8 * 1024,
+        .taskPriority = 10,
+        .taskCore = 1,
+        .port = ESP_USB_HOST_PORT_DEFAULT};
+
+    if (!_usb.begin(config))
+      log_e("USB-host begin failed: %s", _usb.lastErrorName());
+    else
+      log_e("USB-host begin successfully");
+
+#endif  // #ifdef KEYBOARD_SUPPORT
   }
 
   void Input::__update()
   {
 #ifdef TOUCHSCREEN_SUPPORT
     _touchscreen->__update();
-#endif  // TOUCHSCREEN_SUPPORT
+#endif  // #ifdef TOUCHSCREEN_SUPPORT
 
 #ifdef EXT_INPUT
     _ext_input.update();
@@ -95,7 +119,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
     }
   }
 
@@ -111,7 +135,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
     }
   }
 
@@ -123,7 +147,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
       return false;
     }
   }
@@ -136,7 +160,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
       return false;
     }
   }
@@ -149,7 +173,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
       return false;
     }
   }
@@ -162,7 +186,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
     }
   }
 
@@ -203,6 +227,46 @@ namespace pixeler
   }
 
 #endif  // TOUCHSCREEN_SUPPORT
+
+#ifdef KEYBOARD_SUPPORT
+
+  void Input::onKeyPressed(const KeyPressedHandler handler, void* arg)
+  {
+    _key_pressed_handler = handler;
+    _key_pressed_arg = arg;
+  }
+
+  void Input::onKeyReleased(const KeyReleasedHandler handler, void* arg)
+  {
+    _key_released_handler = handler;
+    _key_released_arg = arg;
+  }
+
+  void Input::keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg)
+  {
+    Input* self = static_cast<Input*>(arg);
+
+    if (event.pressed)
+    {
+      if (self->_key_pressed_handler)
+      {
+        self->_key_pressed_handler(event, self->_key_pressed_arg);
+      }
+    }
+    else if (event.released)
+    {
+      if (self->_key_released_handler)
+      {
+        self->_key_released_handler(event, self->_key_released_arg);
+      }
+    }
+    else
+    {
+      log_e("Unknown usb-event");
+    }
+  }
+
+#endif  // KEYBOARD_SUPPORT
 
   Input _input;
 }  // namespace pixeler
