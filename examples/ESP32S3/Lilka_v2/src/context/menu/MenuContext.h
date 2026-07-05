@@ -17,6 +17,9 @@ protected:
   virtual void update() override;
 
 private:
+  static void keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg);
+
+private:
   enum Widget_ID : uint8_t
   {
     ID_MENU = 1,

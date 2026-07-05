@@ -147,10 +147,13 @@ MenuContext::MenuContext()
 
   _menu->setCurrFocusPos(_last_sel_item_pos);
   _scrollbar->setValue(_last_sel_item_pos);
+
+  _input.onKeyPressed(keyPressedHandler, this);
 }
 
 MenuContext::~MenuContext()
 {
+  _input.onKeyPressed(nullptr, nullptr);
 }
 
 bool MenuContext::loop()
@@ -180,6 +183,35 @@ void MenuContext::update()
     _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     _last_sel_item_pos = 0;
     openContextByID(ID_CONTEXT_HOME);
+  }
+}
+
+void MenuContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
+{
+  MenuContext* self = static_cast<MenuContext*>(arg);
+
+  switch (event.keycode)
+  {
+    case Input::KEY_UP_ARROW:
+      self->post([self]()
+                 { self->up(); });
+      return;
+
+    case Input::KEY_DOWN_ARROW:
+      self->post([self]()
+                 { self->down(); });
+      return;
+
+    case Input::KEY_ESCAPE:
+      self->post([self]()
+                 { 
+                  self->_last_sel_item_pos = 0;
+                  self->openContextByID(ID_CONTEXT_HOME); });
+      return;
+    case Input::KEY_ENTER:
+      self->post([self]()
+                 { self->ok(); });
+      return;
   }
 }
 

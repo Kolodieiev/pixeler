@@ -83,10 +83,14 @@ FilesContext::FilesContext()
   indexCurDir();
   showFilesTmpl();
   fillFilesTmpl();
+
+  _input.onKeyPressed(keyPressedHandler, this);
 }
 
 FilesContext::~FilesContext()
 {
+  _input.onKeyPressed(nullptr, nullptr);
+
   delete _dir_img;
   delete _lua_img;
   delete _lua_context;
@@ -1124,4 +1128,46 @@ void FilesContext::saveWallppSettings()
     showToast(STR_FAIL);
   else
     showToast(STR_SUCCESS);
+}
+
+void FilesContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
+{
+  FilesContext* self = static_cast<FilesContext*>(arg);
+
+  switch (event.keycode)
+  {
+    case Input::KEY_UP_ARROW:
+      self->post([self]()
+                 { self->up(); });
+      return;
+
+    case Input::KEY_DOWN_ARROW:
+      self->post([self]()
+                 { self->down(); });
+      return;
+
+    case Input::KEY_ESCAPE:
+    case Input::KEY_BACKSPACE:
+      self->post([self]()
+                 { self->back(); });
+      return;
+    case Input::KEY_ENTER:
+      self->post([self]()
+                 { self->ok(); });
+      return;
+  }
+
+  if (self->_mode == MODE_NEW_DIR_DIALOG || self->_mode == MODE_RENAME_DIALOG)
+  {
+    if (event.ascii >= 0x20 && event.ascii != 0x7F)
+    {
+      char single_char = (char)event.ascii;
+      self->post([self, single_char]()
+                 { self->_dialog_txt->addChar(single_char); });
+    }
+    else
+    {
+      log_e("Невідомий код клавіші: 0x%02X\n", event.keycode);
+    }
+  }
 }

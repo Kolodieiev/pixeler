@@ -133,6 +133,8 @@ private:
   void executeScript();
   void saveWallppSettings();
 
+  static void keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg);
+
 private:
   FileServer _server;
 
