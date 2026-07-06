@@ -18,7 +18,7 @@ HomeContext::HomeContext()
   {
     BmpLoader loader;
     _wall_res = loader.load(walpp_path.c_str());
-    
+
     if (_wall_res)
     {
       Image* wallpp_img = new Image(ID_WALLPAPER);
