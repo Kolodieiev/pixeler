@@ -1,4 +1,5 @@
 #include "EspUsbHostHid.h"
+#ifndef CONFIG_IDF_TARGET_ESP32
 
 #include "keymap/keymap_da_dk.h"
 #include "keymap/keymap_de_de.h"
@@ -24,20 +25,20 @@ uint8_t espUsbHostKeypadKeycodeToAscii(uint8_t keycode, bool numLock)
 {
   switch (keycode)
   {
-  case 0x54:
-    return '/';
-  case 0x55:
-    return '*';
-  case 0x56:
-    return '-';
-  case 0x57:
-    return '+';
-  case 0x58:
-    return '\r';
-  case 0x67:
-    return '=';
-  default:
-    break;
+    case 0x54:
+      return '/';
+    case 0x55:
+      return '*';
+    case 0x56:
+      return '-';
+    case 0x57:
+      return '+';
+    case 0x58:
+      return '\r';
+    case 0x67:
+      return '=';
+    default:
+      break;
   }
   if (!numLock)
   {
@@ -45,34 +46,34 @@ uint8_t espUsbHostKeypadKeycodeToAscii(uint8_t keycode, bool numLock)
   }
   switch (keycode)
   {
-  case 0x59:
-    return '1';
-  case 0x5a:
-    return '2';
-  case 0x5b:
-    return '3';
-  case 0x5c:
-    return '4';
-  case 0x5d:
-    return '5';
-  case 0x5e:
-    return '6';
-  case 0x5f:
-    return '7';
-  case 0x60:
-    return '8';
-  case 0x61:
-    return '9';
-  case 0x62:
-    return '0';
-  case 0x63:
-    return '.';
-  default:
-    return 0;
+    case 0x59:
+      return '1';
+    case 0x5a:
+      return '2';
+    case 0x5b:
+      return '3';
+    case 0x5c:
+      return '4';
+    case 0x5d:
+      return '5';
+    case 0x5e:
+      return '6';
+    case 0x5f:
+      return '7';
+    case 0x60:
+      return '8';
+    case 0x61:
+      return '9';
+    case 0x62:
+      return '0';
+    case 0x63:
+      return '.';
+    default:
+      return 0;
   }
 }
 
-bool espUsbHostIsBootKeyboardReportValid(const uint8_t *data, size_t length)
+bool espUsbHostIsBootKeyboardReportValid(const uint8_t* data, size_t length)
 {
   if (!data || length < ESP_USB_HOST_BOOT_KEYBOARD_REPORT_SIZE)
   {
@@ -109,72 +110,72 @@ uint8_t espUsbHostKeycodeToAscii(uint8_t keycode, uint8_t modifiers, EspUsbHostK
   const uint8_t (*table)[2];
   switch (layout)
   {
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_DA_DK:
-    table = KEYCODE_TO_ASCII_DA_DK;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_DE_DE:
-    table = KEYCODE_TO_ASCII_DE_DE;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_EN_GB:
-    table = KEYCODE_TO_ASCII_EN_GB;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_ES_ES:
-    table = KEYCODE_TO_ASCII_ES_ES;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_FI_FI:
-    table = KEYCODE_TO_ASCII_FI_FI;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_FR_CH:
-    table = KEYCODE_TO_ASCII_FR_CH;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_FR_FR:
-    table = KEYCODE_TO_ASCII_FR_FR;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_HU_HU:
-    table = KEYCODE_TO_ASCII_HU_HU;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_IT_IT:
-    table = KEYCODE_TO_ASCII_IT_IT;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_JA_JP:
-    table = KEYCODE_TO_ASCII_JA_JP;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_KO_KR:
-    table = KEYCODE_TO_ASCII_EN_US;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_NB_NO:
-    table = KEYCODE_TO_ASCII_NB_NO;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_NL_NL:
-    table = KEYCODE_TO_ASCII_NL_NL;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_PT_BR:
-    table = KEYCODE_TO_ASCII_PT_BR;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_PT_PT:
-    table = KEYCODE_TO_ASCII_PT_PT;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_SV_SE:
-    table = KEYCODE_TO_ASCII_SV_SE;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_ZH_CN:
-    table = KEYCODE_TO_ASCII_EN_US;
-    break;
-  case ESP_USB_HOST_KEYBOARD_LAYOUT_ZH_TW:
-    table = KEYCODE_TO_ASCII_EN_US;
-    break;
-  default:
-    table = KEYCODE_TO_ASCII_EN_US;
-    break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_DA_DK:
+      table = KEYCODE_TO_ASCII_DA_DK;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_DE_DE:
+      table = KEYCODE_TO_ASCII_DE_DE;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_EN_GB:
+      table = KEYCODE_TO_ASCII_EN_GB;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_ES_ES:
+      table = KEYCODE_TO_ASCII_ES_ES;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_FI_FI:
+      table = KEYCODE_TO_ASCII_FI_FI;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_FR_CH:
+      table = KEYCODE_TO_ASCII_FR_CH;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_FR_FR:
+      table = KEYCODE_TO_ASCII_FR_FR;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_HU_HU:
+      table = KEYCODE_TO_ASCII_HU_HU;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_IT_IT:
+      table = KEYCODE_TO_ASCII_IT_IT;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_JA_JP:
+      table = KEYCODE_TO_ASCII_JA_JP;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_KO_KR:
+      table = KEYCODE_TO_ASCII_EN_US;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_NB_NO:
+      table = KEYCODE_TO_ASCII_NB_NO;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_NL_NL:
+      table = KEYCODE_TO_ASCII_NL_NL;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_PT_BR:
+      table = KEYCODE_TO_ASCII_PT_BR;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_PT_PT:
+      table = KEYCODE_TO_ASCII_PT_PT;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_SV_SE:
+      table = KEYCODE_TO_ASCII_SV_SE;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_ZH_CN:
+      table = KEYCODE_TO_ASCII_EN_US;
+      break;
+    case ESP_USB_HOST_KEYBOARD_LAYOUT_ZH_TW:
+      table = KEYCODE_TO_ASCII_EN_US;
+      break;
+    default:
+      table = KEYCODE_TO_ASCII_EN_US;
+      break;
   }
   return table[keycode][effectiveShift];
 }
 
 bool espUsbHostParseBootMouseReport(uint8_t interfaceNumber,
-                                    const uint8_t *data,
+                                    const uint8_t* data,
                                     size_t length,
                                     uint8_t previousButtons,
-                                    EspUsbHostMouseEvent &event)
+                                    EspUsbHostMouseEvent& event)
 {
   if (!data || length < 3)
   {
@@ -194,10 +195,10 @@ bool espUsbHostParseBootMouseReport(uint8_t interfaceNumber,
 }
 
 bool espUsbHostParseConsumerControlReport(uint8_t interfaceNumber,
-                                          const uint8_t *data,
+                                          const uint8_t* data,
                                           size_t length,
                                           uint16_t previousUsage,
-                                          EspUsbHostConsumerControlEvent &event)
+                                          EspUsbHostConsumerControlEvent& event)
 {
   if (!data || length < 2)
   {
@@ -219,10 +220,10 @@ bool espUsbHostParseConsumerControlReport(uint8_t interfaceNumber,
 }
 
 bool espUsbHostParseGamepadReport(uint8_t interfaceNumber,
-                                  const uint8_t *data,
+                                  const uint8_t* data,
                                   size_t length,
-                                  const EspUsbHostGamepadPrevState &previous,
-                                  EspUsbHostGamepadEvent &event)
+                                  const EspUsbHostGamepadPrevState& previous,
+                                  EspUsbHostGamepadEvent& event)
 {
   if (!data || length == 0)
   {
@@ -248,9 +249,7 @@ bool espUsbHostParseGamepadReport(uint8_t interfaceNumber,
   event.changed = length != previous.reportLength;
   if (!event.changed)
   {
-    const size_t compareLength = length < ESP_USB_HOST_GAMEPAD_MAX_REPORT_BYTES
-                                     ? length
-                                     : ESP_USB_HOST_GAMEPAD_MAX_REPORT_BYTES;
+    const size_t compareLength = length < ESP_USB_HOST_GAMEPAD_MAX_REPORT_BYTES ? length : ESP_USB_HOST_GAMEPAD_MAX_REPORT_BYTES;
     if (memcmp(data, previous.reportData, compareLength) != 0)
     {
       event.changed = true;
@@ -260,10 +259,10 @@ bool espUsbHostParseGamepadReport(uint8_t interfaceNumber,
 }
 
 bool espUsbHostParseSystemControlReport(uint8_t interfaceNumber,
-                                        const uint8_t *data,
+                                        const uint8_t* data,
                                         size_t length,
                                         uint8_t previousUsage,
-                                        EspUsbHostSystemControlEvent &event)
+                                        EspUsbHostSystemControlEvent& event)
 {
   if (!data || length < 1)
   {
@@ -303,12 +302,12 @@ uint8_t espUsbHostBuildKeyboardLedReport(bool numLock, bool capsLock, bool scrol
 }
 
 size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
-                                     const EspUsbHostKeyboardReport &previousReport,
-                                     const EspUsbHostKeyboardReport &currentReport,
+                                     const EspUsbHostKeyboardReport& previousReport,
+                                     const EspUsbHostKeyboardReport& currentReport,
                                      EspUsbHostKeyboardLayout layout,
                                      bool capsLock,
                                      bool numLock,
-                                     EspUsbHostKeyboardEvent *events,
+                                     EspUsbHostKeyboardEvent* events,
                                      size_t maxEvents)
 {
   if (!events || maxEvents == 0)
@@ -317,8 +316,8 @@ size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
   }
 
   const uint8_t modifiers = currentReport.data[0];
-  const uint8_t *keys = currentReport.data + 2;
-  const uint8_t *lastKeys = previousReport.data + 2;
+  const uint8_t* keys = currentReport.data + 2;
+  const uint8_t* lastKeys = previousReport.data + 2;
   size_t eventCount = 0;
 
   for (int i = 0; i < 6 && eventCount < maxEvents; i++)
@@ -341,7 +340,7 @@ size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
 
     if (!existed)
     {
-      EspUsbHostKeyboardEvent &event = events[eventCount++];
+      EspUsbHostKeyboardEvent& event = events[eventCount++];
       event.interfaceNumber = interfaceNumber;
       event.pressed = true;
       event.released = false;
@@ -371,7 +370,7 @@ size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
 
     if (!stillPressed)
     {
-      EspUsbHostKeyboardEvent &event = events[eventCount++];
+      EspUsbHostKeyboardEvent& event = events[eventCount++];
       event.interfaceNumber = interfaceNumber;
       event.pressed = false;
       event.released = true;
@@ -383,3 +382,5 @@ size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
 
   return eventCount;
 }
+
+#endif  // #ifndef CONFIG_IDF_TARGET_ESP32

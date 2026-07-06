@@ -37,7 +37,7 @@ namespace pixeler
     _touchscreen->setRotation(ITouchscreen::TOUCH_ROTATION);
 #endif  // TOUCHSCREEN_SUPPORT
 
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     _usb.setKeyboardLayout(ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US);
 
     _usb.onDeviceConnected([](const EspUsbHostDeviceInfo& device)
@@ -59,7 +59,7 @@ namespace pixeler
     else
       log_e("USB-host begin successfully");
 
-#endif  // #ifdef KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
   }
 
   void Input::__update()
@@ -228,7 +228,7 @@ namespace pixeler
 
 #endif  // TOUCHSCREEN_SUPPORT
 
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
   void Input::onKeyPressed(const KeyPressedHandler handler, void* arg)
   {
@@ -266,7 +266,7 @@ namespace pixeler
     }
   }
 
-#endif  // KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
   Input _input;
 }  // namespace pixeler

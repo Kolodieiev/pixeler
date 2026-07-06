@@ -1,5 +1,8 @@
 #ifndef ESP_USB_HOST_H
 #define ESP_USB_HOST_H
+#include <sdkconfig.h>
+
+#ifndef CONFIG_IDF_TARGET_ESP32
 
 #include <Arduino.h>
 #include <FS.h>
@@ -1375,4 +1378,5 @@ private:
   portMUX_TYPE rxMux_ = portMUX_INITIALIZER_UNLOCKED;
 };
 
+#endif  // #ifndef CONFIG_IDF_TARGET_ESP32
 #endif

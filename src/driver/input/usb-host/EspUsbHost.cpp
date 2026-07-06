@@ -1,4 +1,5 @@
 #include "EspUsbHost.h"
+#ifndef CONFIG_IDF_TARGET_ESP32
 
 #include <math.h>
 #include <string.h>
@@ -7899,3 +7900,5 @@ size_t EspUsbHostCdcSerial::nextIndex(size_t index) const
   }
   return index;
 }
+
+#endif  // #ifndef CONFIG_IDF_TARGET_ESP32

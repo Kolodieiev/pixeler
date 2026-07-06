@@ -19,16 +19,16 @@
 #ifdef TOUCHSCREEN_SUPPORT
 #include "ITouchscreen.h"
 #endif  // #ifdef TOUCHSCREEN_SUPPORT
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 #include "usb-host/EspUsbHost.h"
-#endif  // #ifdef KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
 namespace pixeler
 {
   class Input
   {
   public:
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     using KeyPressedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
     using KeyReleasedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
 
@@ -46,7 +46,7 @@ namespace pixeler
       KEY_TAB = 0x2B,
     };
 
-#endif  // #ifdef KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
     Input();
 
@@ -192,7 +192,7 @@ namespace pixeler
 
 #endif  // TOUCHSCREEN_SUPPORT
 
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     /**
      * @brief Встановлює обробник для події натискання клавіші на фізичній клавіатурі.
      *
@@ -209,24 +209,24 @@ namespace pixeler
      */
     void onKeyReleased(const KeyReleasedHandler handler, void* arg = nullptr);
 
-#endif  // #ifdef KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
   private:
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     static void keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg);
 
-#endif  // #ifdef KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
     std::unordered_map<BtnID, Button> _buttons BUTTONS_TMPL;
 
-#ifdef KEYBOARD_SUPPORT
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     EspUsbHost _usb;
     KeyPressedHandler _key_pressed_handler{nullptr};
     void* _key_pressed_arg{nullptr};
     KeyReleasedHandler _key_released_handler{nullptr};
     void* _key_released_arg{nullptr};
 
-#endif  // #ifdef KEYBOARD_SUPPORT
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
 
 #ifdef EXT_INPUT
     ExtInput _ext_input;
