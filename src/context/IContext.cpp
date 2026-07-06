@@ -114,7 +114,7 @@ namespace pixeler
     auto* task_ptr = new std::function<void()>(std::move(task));
     if (xQueueSend(_task_queue, &task_ptr, pdMS_TO_TICKS(timeout_ms)) != pdTRUE)
     {
-      delete task_ptr;  
+      delete task_ptr;
       if (timeout_ms > 0)
         log_e("Post queue overflow, system may be stalled");
 
@@ -225,12 +225,12 @@ namespace pixeler
     xSemaphoreGive(_layout_mutex);
   }
 
-  bool IContext::takeLayoutMutex()
+  bool IContext::takeLayoutMutex() const
   {
     return xSemaphoreTake(_layout_mutex, portMAX_DELAY);
   }
 
-  void IContext::giveLayoutMutex()
+  void IContext::giveLayoutMutex() const
   {
     xSemaphoreGive(_layout_mutex);
   }

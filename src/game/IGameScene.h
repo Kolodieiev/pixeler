@@ -172,13 +172,13 @@ namespace pixeler
      * @brief Блокує мютекс доступу до ігрових об'єктів.
      *
      */
-    void takeLock();
+    void takeLock() const;
 
     /**
      * @brief Відпускає мютекс доступу до ігрових об'єктів.
      *
      */
-    void giveLock();
+    void giveLock() const;
 
     /**
      * @brief Піднімає прапор, який вказує, що поточний ігровий рівень повинен бути змінений.
@@ -193,14 +193,14 @@ namespace pixeler
      *
      * @return size_t
      */
-    size_t getObjsSize();
+    size_t getObjsSize() const;
 
     /**
      * @brief Записує усі об'єкти на сцені в DataStream
      *
      * @param ds Об'єкт DataStream, куди будуть серіалізовані об'єкти сцени.
      */
-    void serialize(DataStream& ds);
+    void serialize(DataStream& ds) const;
 
   protected:
     ResManager _res_manager;  // Менеджер ресурсів
@@ -211,11 +211,11 @@ namespace pixeler
     std::vector<IGameObject*> _game_objs;  // Список усіх ігрових об'єктів на сцені, які повинні взаємодіяти один з одним
 
   protected:
-    DataStream& _stored_objs;         // Контейнер для перенесення відбитків об'єктів до наступної сцени
-    SemaphoreHandle_t _obj_mutex;     // Мютекс для синхронізації доступу до об'єктів
-    IGameUI* _game_UI{nullptr};       // Шар ігрового UI. Тут можуть виводитися графічні елементи інтерфейса
-    IGameMenu* _game_menu{nullptr};   // Шар ігрового меню, якщо в ньому є необхідність
-    IGameObject* _main_obj{nullptr};  // Об'єкт, за яким завжди слідує камера
+    DataStream& _stored_objs;              // Контейнер для перенесення відбитків об'єктів до наступної сцени
+    mutable SemaphoreHandle_t _obj_mutex;  // Мютекс для синхронізації доступу до об'єктів
+    IGameUI* _game_UI{nullptr};            // Шар ігрового UI. Тут можуть виводитися графічні елементи інтерфейса
+    IGameMenu* _game_menu{nullptr};        // Шар ігрового меню, якщо в ньому є необхідність
+    IGameObject* _main_obj{nullptr};       // Об'єкт, за яким завжди слідує камера
 
   private:
     static uint32_t _obj_id_counter;  // Глобальний лічильник ідентифікаторів об'єктів.

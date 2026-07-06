@@ -14,7 +14,7 @@ namespace sokoban
   {
   }
 
-  void GhostObj::serialize(DataStream& ds)
+  void GhostObj::serialize(DataStream& ds) const
   {
   }
 

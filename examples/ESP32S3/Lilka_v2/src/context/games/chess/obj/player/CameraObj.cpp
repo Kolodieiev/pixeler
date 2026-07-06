@@ -17,7 +17,7 @@ namespace chess
   {
   }
 
-  void CameraObj::serialize(DataStream& ds)
+  void CameraObj::serialize(DataStream& ds) const
   {
   }
 

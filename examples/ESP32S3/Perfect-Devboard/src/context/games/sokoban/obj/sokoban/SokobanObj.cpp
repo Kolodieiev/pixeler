@@ -9,11 +9,11 @@ namespace sokoban
 {
   SokobanObj::SokobanObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_HERO, game_scene, audio)
   {
-    _layer = 1;                        // Об'єкт повинен бути вище об'єктів точок
+    _layer = 1;                         // Об'єкт повинен бути вище об'єктів точок
     _sprite.img_data = SPRITE_SOKOBAN;  // Встановити зображення спрайта
-    _sprite.has_img = true;            // Указати, що об'єкт може малювати свій спрайт
-    _sprite.width = 32;                // Ширина спрайта
-    _sprite.height = 32;               // Висота спрайта
+    _sprite.has_img = true;             // Указати, що об'єкт може малювати свій спрайт
+    _sprite.width = 32;                 // Ширина спрайта
+    _sprite.height = 32;                // Висота спрайта
 
     _sprite.pass_abillity_mask |= TILE_TYPE_GROUND;  // Маска типу прохідності ігрового об'єкта.
                                                      // Дозволяє обмежувати пересування об'єкта по певних видах плиток ігрової мапи
@@ -39,7 +39,7 @@ namespace sokoban
     }
   }
 
-  void SokobanObj::serialize(DataStream& ds)
+  void SokobanObj::serialize(DataStream& ds) const
   {
   }
 

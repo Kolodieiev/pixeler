@@ -134,12 +134,12 @@ namespace pixeler
     return _next_scene_ID;
   }
 
-  void IGameScene::takeLock()
+  void IGameScene::takeLock() const
   {
     xSemaphoreTake(_obj_mutex, portMAX_DELAY);
   }
 
-  void IGameScene::giveLock()
+  void IGameScene::giveLock() const
   {
     xSemaphoreGive(_obj_mutex);
   }
@@ -151,7 +151,7 @@ namespace pixeler
     _is_released = true;
   }
 
-  size_t IGameScene::getObjsSize()
+  size_t IGameScene::getObjsSize() const
   {
     size_t sum{0};
     takeLock();
@@ -161,7 +161,7 @@ namespace pixeler
     return sum;
   }
 
-  void IGameScene::serialize(DataStream& ds)
+  void IGameScene::serialize(DataStream& ds) const
   {
     takeLock();
     for (auto const& obj : _game_objs)

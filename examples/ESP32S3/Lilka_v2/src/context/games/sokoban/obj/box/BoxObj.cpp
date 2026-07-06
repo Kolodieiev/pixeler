@@ -22,7 +22,7 @@ namespace sokoban
   {
   }
 
-  void BoxObj::serialize(DataStream& ds)
+  void BoxObj::serialize(DataStream& ds) const
   {
   }
 
@@ -63,7 +63,7 @@ namespace sokoban
     }
     else
     {
-      _is_ok = true;                    // Підняти прапор, який вказує, що ящик встановлено в потрібному місці
+      _is_ok = true;                     // Підняти прапор, який вказує, що ящик встановлено в потрібному місці
       _sprite.img_data = SPRITE_BOX_OK;  // Змінити спрайт об'єкта
     }
 

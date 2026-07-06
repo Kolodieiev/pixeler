@@ -13,7 +13,7 @@ namespace chess
     virtual ~CameraObj();
 
     virtual void __update() override;
-    virtual void serialize(DataStream& ds) override;
+    virtual void serialize(DataStream& ds) const override;
     virtual void deserialize(DataStream& ds) override;
     virtual size_t getDataSize() const override;
 

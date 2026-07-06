@@ -19,7 +19,7 @@ namespace sokoban
   {
   }
 
-  void BoxPointObj::serialize(DataStream& ds)
+  void BoxPointObj::serialize(DataStream& ds) const
   {
   }
 

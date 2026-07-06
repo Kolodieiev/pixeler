@@ -30,7 +30,7 @@ namespace chess
   {
   }
 
-  void IPiece::serialize(DataStream& ds)
+  void IPiece::serialize(DataStream& ds) const
   {
   }
 

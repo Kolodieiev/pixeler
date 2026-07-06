@@ -43,7 +43,7 @@ namespace pixeler
      *
      * @param ds Об'єкт DataStream, куди буде серіалізовано дані.
      */
-    virtual void serialize(DataStream& ds) = 0;
+    virtual void serialize(DataStream& ds) const = 0;
 
     /**
      * @brief Десеріаізує об'єкт із DataStream
