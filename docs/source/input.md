@@ -281,3 +281,89 @@ uint16_t getTouchY() const;
 <br>
 
 Блокування обробки дотиків на сенсорному екрані потрібне з тієї ж причини, що і для кнопок. По-перше, щоб запобігти випадковому спрацюванню від легкого повторного дотика. По-друге, для скидання внутрішнього стану системи обробки вводу. Тому що вона не може визначити самостійно чи було оброблено останню подію вводу.
+
+## Ввід з клавіатури
+
+::: {note}
+Класична ESP32 не підтримує режим USB-Host, тому підключити до неї клавіатуру по USB неможливо. 
+:::
+
+Для додавання коду обробки вводу з фізичної клавіатури в файлі `config/input_config.h` необхідно розкоментувати або додати визначення `#define KEYBOARD_SUPPORT`.Після цього у класі `Input` стануть доступними методи для прив'язування обробників зворотніх викликів, в які будуть надходити дані про події клавіатури.
+
+```cpp
+/**
+ * @brief Встановлює обробник для події натискання клавіші на фізичній клавіатурі.
+ *
+ * @param handler Обробник події.
+ * @param arg Аргумент, який буде передано обробнику.
+ */
+void onKeyPressed(const KeyPressedHandler handler, void* arg = nullptr);
+
+/**
+ * @brief Встановлює обробник для події відтискання клавіші на фізичній клавіатурі.
+ *
+ * @param handler Обробник події.
+ * @param arg Аргумент, який буде передано обробнику.
+ */
+void onKeyReleased(const KeyReleasedHandler handler, void* arg = nullptr);
+```
+
+<br>
+
+Приклад використання
+
+```cpp
+FilesContext::FilesContext()
+{
+  // В конструкторі контексту або іншому місці додаємо обробник події натискання клавіш.
+  _input.onKeyPressed(keyPressedHandler, this);
+}
+
+FilesContext::~FilesContext()
+{
+  // В деструкторі обов'язково відписуємось від обробки події, якщо на неї було підписано.
+  _input.onKeyPressed(nullptr, nullptr);
+}
+
+void FilesContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
+{
+  FilesContext* self = static_cast<FilesContext*>(arg);
+
+  switch (event.keycode)
+  {
+    case Input::KEY_UP_ARROW:
+      self->post([self]()
+                 { self->up(); });
+      return;
+
+    case Input::KEY_DOWN_ARROW:
+      self->post([self]()
+                 { self->down(); });
+      return;
+
+    case Input::KEY_ESCAPE:
+    case Input::KEY_BACKSPACE:
+      self->post([self]()
+                 { self->back(); });
+      return;
+    case Input::KEY_ENTER:
+      self->post([self]()
+                 { self->ok(); });
+      return;
+  }
+
+  if (self->_mode == MODE_NEW_DIR_DIALOG || self->_mode == MODE_RENAME_DIALOG)
+  {
+    if (event.ascii >= 0x20 && event.ascii != 0x7F)
+    {
+      char single_char = (char)event.ascii;
+      self->post([self, single_char]()
+                 { self->_dialog_txt->addChar(single_char); });
+    }
+    else
+    {
+      log_e("Невідомий код клавіші: 0x%02X\n", event.keycode);
+    }
+  }
+}
+```
