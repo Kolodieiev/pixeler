@@ -41,19 +41,18 @@ namespace pixeler
 
     if (_is_touch)
     {
-#if defined(CONFIG_IDF_TARGET_ESP32S3)
-      _is_holded = touchRead(_btn_id) > BTN_TOUCH_TRESHOLD;
-#else
+#if defined(CONFIG_IDF_TARGET_ESP32)
       _is_holded = touchRead(_btn_id) < BTN_TOUCH_TRESHOLD;
+#else
+      _is_holded = touchRead(_btn_id) > BTN_TOUCH_TRESHOLD;
 #endif
     }
     else
     {
-      // TODO тест на esp32
-#if defined(CONFIG_IDF_TARGET_ESP32S3)
-      _is_holded = (_btn_id < 32) ? !((GPIO.in >> _btn_id) & 1) : !((GPIO.in1.val >> (_btn_id - 32)) & 1);
-#else
+#if defined(CONFIG_IDF_TARGET_ESP32)
       _is_holded = !gpio_get_level((gpio_num_t)_btn_id);
+#else
+      _is_holded = (_btn_id < 32) ? !((GPIO.in >> _btn_id) & 1) : !((GPIO.in1.val >> (_btn_id - 32)) & 1);
 #endif
     }
 
