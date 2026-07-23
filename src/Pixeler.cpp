@@ -1,10 +1,7 @@
 #include "Pixeler.h"
 
-#include "context_id_config.h"
-#include "cpu_config.h"
-#include "graphics_config.h"
 #include "context/IContext.h"
-#include "driver/graphics/DisplayWrapper.h"
+#include "graphics_config.h"
 #include "ui_config.h"
 
 namespace pixeler
