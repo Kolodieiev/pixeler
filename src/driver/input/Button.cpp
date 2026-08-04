@@ -49,10 +49,10 @@ namespace pixeler
     }
     else
     {
-#if defined(CONFIG_IDF_TARGET_ESP32)
-      _is_holded = !gpio_get_level((gpio_num_t)_btn_id);
-#else
+#if defined(CONFIG_IDF_TARGET_ESP32S3)
       _is_holded = (_btn_id < 32) ? !((GPIO.in >> _btn_id) & 1) : !((GPIO.in1.val >> (_btn_id - 32)) & 1);
+#else
+      _is_holded = !gpio_get_level((gpio_num_t)_btn_id);
 #endif
     }
 
