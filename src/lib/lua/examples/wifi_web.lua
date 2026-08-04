@@ -1,5 +1,5 @@
-local ssid = "YOUR_SSID"
-local pwd = "YOUR_PWD"
+local ssid<const> = "YOUR_SSID"
+local pwd<const> = "YOUR_PWD"
 
 -- 
 
@@ -14,8 +14,8 @@ local wifi_isnt_en_err<const> = "wifi не увімкнено"
 local server_resp_err<const> = "Сервер повернув помилку"
 
 -- 
-local server_get = "http://httpbin.org/get";
-local server_post = "http://httpbin.org/post";
+local server_get = "https://httpbun.com/get";
+local server_post = "https://httpbun.com/post";
 -- 
 
 function disableWifi()
@@ -140,7 +140,7 @@ function runTest()
             print("Помилка підключення до " .. ssid)
         else
             print("Підключено до " .. ssid)
-            print("Виділений IP: " .. wifi.getLocalIP())
+            print("Виділений IP: " .. wifi.getIP())
 
             mcu.delay(1)
 
