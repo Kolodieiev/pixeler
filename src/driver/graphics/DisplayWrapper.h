@@ -170,6 +170,32 @@ namespace pixeler
     void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
 
     /**
+     * @brief Малює трикутник без заповнення кольором на канвасі.
+     *
+     * @param x0 Координата 0-ї вершини.
+     * @param y0 Координата 0-ї вершини.
+     * @param x1 Координата 1-ї вершини.
+     * @param y1 Координата 1-ї вершини.
+     * @param x2 Координата 2-ї вершини.
+     * @param y2 Координата 2-ї вершини.
+     * @param color Колір ліній.
+     */
+    void drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+
+    /**
+     * @brief Малює трикутник з заповненням кольором на канвасі.
+     *
+     * @param x0 Координата 0-ї вершини.
+     * @param y0 Координата 0-ї вершини.
+     * @param x1 Координата 1-ї вершини.
+     * @param y1 Координата 1-ї вершини.
+     * @param x2 Координата 2-ї вершини.
+     * @param y2 Координата 2-ї вершини.
+     * @param color Колір заповнення.
+     */
+    void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+
+    /**
      * @brief Малює коло на канвасі.
      *
      * @param x X-координата центру кола.
