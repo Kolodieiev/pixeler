@@ -2,11 +2,13 @@
 #pragma GCC optimize("O3")
 
 #include "DataStream.h"
-#include "SpriteDescription.h"
 #include "defines.h"
 #include "driver/graphics/DisplayWrapper.h"
 #include "manager/ResManager.h"
 #include "sound/SfxPlayer.h"
+#include "sprite/PhysicsState.h"
+#include "sprite/SpriteState.h"
+#include "sprite/SpriteTemplate.h"
 #include "terrain/TileType.h"
 
 namespace pixeler
@@ -68,13 +70,6 @@ namespace pixeler
     uint16_t getTypeID() const;
 
     /**
-     * @brief Повертає вказівник на рядок з ім'ям об'єкта, якщо було задано. Інакше на порожій рядок.
-     *
-     * @return const char*
-     */
-    const char* getName() const;
-
-    /**
      * @brief Встановлює глобальну позицію об'єкта на ігровій сцені.
      *
      * @param x_pos Координата.
@@ -95,15 +90,6 @@ namespace pixeler
      * @return uint16_t
      */
     uint16_t getGlobalY() const;
-
-    /**
-     * @brief Повертає стан прапору, який вказує чи було об'єкт знищено в попередньому кадрі.
-     * Зазвичай використовується сценою для очищення мертвих об'єктів з ігрового рівня.
-     * Може бути використаний для запобігання взаємодії з потенційно мертвим об'єктом.
-     *
-     * @return true - Якщо об'єкт потенційно мертвий. false - Інакше.
-     */
-    bool isDestroyed() const;
 
   protected:
     /**
@@ -181,32 +167,61 @@ namespace pixeler
      */
     void stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w);
 
+    /**
+     * @brief Встановлює вектор анімації ігрового об'єкта,
+     * якщо її було зареєстровано з таким номером раніше для цього типу об'єкта.
+     * Інакше буде викликано скидання МК.
+     *
+     * @param anim_variant_ID Порядковий номер вектора анімації
+     */
+    void setAnimationVariant(uint8_t anim_variant_ID);
+
+    /**
+     * @brief Встановлює зображення спрайта ігрового об'єкта,
+     * якщо зображення з таким номером було зареєстровано раніше для цього типу об'єкта.
+     * Інакше буде викликано скидання МК.
+     *
+     * @param img_variant_ID Порядковий номер даних зображення
+     */
+    void setImgVariant(uint8_t img_variant_ID);
+
+    /**
+     * @brief Встановлює геометрію спрайта ігрового об'єкта,
+     * якщо її було зареєстровано з таким номером раніше для цього типу об'єкта.
+     * Інакше буде викликано скидання МК.
+     *
+     * @param geometry_variant_ID Порядковий номер варіанта геометрії спрайта
+     */
+    void setGeometryVariant(uint8_t geometry_variant_ID);
+
   private:
     friend class IGameScene;
 
   protected:
-    IGameScene& _scene;
-    SfxPlayer& _sfx_player;       // Плеєр звукових ефектів
-    SpriteDescription _sprite{};  // Об'єкт структури, яка описує спрайт об'єкта та його стани
-
-    String _name;  // Ім'я об'єкта, може не використовуватися
+    SpriteState _sprite{};   // Опис стану спрайта ігровго об'єкта
+    IGameScene& _scene;      // Ігрова сцена, в якій знаходиться об'єкт
+    SfxPlayer& _sfx_player;  // Плеєр звукових ефектів
 
   private:
-    int32_t _x_local{0};  // Координата X відносно дисплея
-    int32_t _y_local{0};  // Координата Y відносно дисплея
+    const SpriteGeometry* _geometry{nullptr};     // Вказівник на геометрію спрайта ігровго об'єкта
+    const SpriteTemplate* _sprite_tmpl{nullptr};  // Шаблон спрайта ігрового об'єкта
+    int32_t _x_local{0};                          // Координата X відносно дисплея
+    int32_t _y_local{0};                          // Координата Y відносно дисплея
 
   protected:
-    const uint32_t _obj_ID;  // Ідентифікатор об'єкта. Може не використовуватися в локальній грі.
+    const uint32_t _obj_ID;  // Ідентифікатор об'єкта
+
+    PhysicsState _physics{};  // Опис стану фізичних властивостей ігровго об'єкта
 
     uint16_t _x_global{0};  // Координата Х відносно ігрового рівня
     uint16_t _y_global{0};  // Координата Y відносно ігрового рівня
 
     const uint16_t _type_ID{0};  // Ідентифікатор типу об'єкта
-    uint16_t _trigger_ID{0};     // Ідентифіктор тригера. Може не використовуватися, якщо об'єкт не тригериться.
+    uint16_t _trigger_ID{0};     // Ідентифіктор тригера. Може не використовуватися, якщо об'єкт не тригериться
 
     uint8_t _layer{0};  // Шар сортування об'єкта по осі Z. Чим більше значення, тим вище шар
 
-    bool _is_triggered{false};  // Прапор спрацювання тригера об'єкта.  Може не використовуватися, якщо об'єкт не тригериться.
-    bool _is_destroyed{false};  // Прапор знищення об'єкта іншими об'єктами або сценою
+    bool _is_triggered{false};  // Прапор спрацювання тригера об'єкта.  Може не використовуватися, якщо об'єкт не тригериться
+    bool _is_alive{true};       // Прапор, що вказує на стан існування об'єкта
   };
 }  // namespace pixeler

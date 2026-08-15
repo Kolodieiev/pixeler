@@ -5,7 +5,8 @@
 
 #include "../../defines.h"
 #include "../../driver/graphics/DisplayWrapper.h"
-#include "../SpriteDescription.h"
+#include "../sprite/PhysicsState.h"
+#include "../sprite/SpriteGeometry.h"
 #include "Tile.h"
 
 namespace pixeler
@@ -101,9 +102,12 @@ namespace pixeler
      * @param tiles_w_num Кількість плиток в ширину.
      * @param tiles_h_num Кількість плиток у висоту.
      * @param tile_side_len Розмір сторони плитки. Плитки повинні мати квадратну форму.
-     * @param tiles_pos_templ Вказівник на масив, що містить шаблон ігрової сцени.
+     * @param tiles_pos_tmpl Вказівник на масив, що містить шаблон ігрової сцени.
      */
-    void build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_templ);
+    void build(uint16_t tiles_w_num,
+               uint16_t tiles_h_num,
+               uint16_t tile_side_len,
+               const uint16_t* tiles_pos_tmpl);
 
     /**
      * @brief Перевіряє, чи може об'єкт з вказаним спрайтом бути переміщеним в указані координати ігрового рівня.
@@ -112,10 +116,16 @@ namespace pixeler
      * @param y_from Y-координата точки, звідки повинне виконуватися переміщення.
      * @param x_to Х-координата точки, куди повинне виконуватися переміщення.
      * @param y_to Y-координата точки, куди повинне виконуватися переміщення.
-     * @param sprite Спрайт ігрового об'єкта.
+     * @param physics Стан фізичних фластивостей ігрового об'єкта.
+     * @param geometry Геометрія спрайта ігрового об'єкта.
      * @return true - Якщо об'єкт може бути переміщено в указані координатах ігрового рівня. false - інакше.
      */
-    bool canPass(uint16_t x_from, uint16_t y_from, uint16_t x_to, uint16_t y_to, const SpriteDescription& sprite) const;
+    bool canPass(uint16_t x_from,
+                 uint16_t y_from,
+                 uint16_t x_to,
+                 uint16_t y_to,
+                 const PhysicsState& physics,
+                 const SpriteGeometry& geometry) const;
 
     /**
      * @brief Повертає тип плитки у вказаних координатах.

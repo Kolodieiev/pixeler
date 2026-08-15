@@ -30,7 +30,7 @@ namespace pixeler
 
   void IGameScene::update()
   {
-    if (_is_paused)
+    if (_is_paused) [[unlikely]]
     {
       if (_game_menu)
         _game_menu->onDraw();
@@ -38,7 +38,7 @@ namespace pixeler
       return;
     }
 
-    if (!_main_obj)
+    if (!_main_obj) [[unlikely]]
     {
       log_e("Не встановлено головний ігровий об'єкт");
       esp_restart();
@@ -49,27 +49,35 @@ namespace pixeler
     _terrain.setCameraPos(_main_obj->_x_global, _main_obj->_y_global);
     _terrain.onDraw();
 
-    std::vector<IGameObject*> view_obj;
-    view_obj.reserve(_game_objs.size());
+    std::vector<IGameObject*> view_objs;
+    view_objs.reserve(_game_objs.size());
     IGameObject* obj;
 
-    for (auto it = _game_objs.begin(), last_it = _game_objs.end(); it != last_it;)
+    for (size_t i = 0; i < _game_objs.size(); ++i)
     {
-      obj = *it;
+      obj = _game_objs[i];
 
-      if (!obj->isDestroyed())
+      if (!obj->_is_alive) [[unlikely]]
       {
-        obj->__update();
+        delete obj;
+        _game_objs[i] = _game_objs.back();
+        _game_objs.pop_back();
+        continue;
+      }
 
-        if (obj->_is_triggered)
-        {
-          obj->_is_triggered = false;
-          giveLock();
-          onTriggered(obj->_trigger_ID);
-          takeLock();
-        }
+      obj->__update();
 
-        if (_terrain.isInView(obj->_x_global, obj->_y_global, obj->_sprite.width, obj->_sprite.height))
+      if (obj->_is_triggered) [[unlikely]]
+      {
+        obj->_is_triggered = false;
+        giveLock();
+        onTriggered(obj->_trigger_ID);
+        takeLock();
+      }
+
+      if (obj->_sprite.has_img || obj->_sprite.has_animation)
+      {
+        if (_terrain.isInView(obj->_x_global, obj->_y_global, obj->_geometry->width, obj->_geometry->height))
         {
           if (obj != _main_obj)
           {
@@ -92,26 +100,19 @@ namespace pixeler
             else
               _main_obj->_y_local = _terrain.VIEW_H + _main_obj->_y_global - _terrain.getHeight();
           }
-          view_obj.push_back(obj);
+          view_objs.push_back(obj);
         }
-
-        ++it;
-      }
-      else
-      {
-        delete obj;
-        it = _game_objs.erase(it);
       }
     }
 
-    std::sort(view_obj.begin(), view_obj.end(), [](IGameObject* a, IGameObject* b)
+    std::sort(view_objs.begin(), view_objs.end(), [](IGameObject* a, IGameObject* b)
               {
     if (a->_layer < b->_layer) 
         return true;
-    return a->_y_global + a->_sprite.height < b->_y_global + b->_sprite.height; });
+    return a->_y_global + a->_geometry->height < b->_y_global + b->_geometry->height; });
 
-    for (auto const& g_obj : view_obj)
-      g_obj->__onDraw();
+    for (auto const& game_obj : view_objs)
+      game_obj->__onDraw();
 
     giveLock();
 
@@ -151,7 +152,7 @@ namespace pixeler
     _is_released = true;
   }
 
-  size_t IGameScene::getObjsSize() const
+  size_t IGameScene::calcObjectsSize() const
   {
     size_t sum{0};
     takeLock();
@@ -161,7 +162,7 @@ namespace pixeler
     return sum;
   }
 
-  void IGameScene::serialize(DataStream& ds) const
+  void IGameScene::serializeObjects(DataStream& ds) const
   {
     takeLock();
     for (auto const& obj : _game_objs)
@@ -169,6 +170,32 @@ namespace pixeler
     giveLock();
 
     ds.flush();
+  }
+
+  const SpriteTemplate* IGameScene::registerSpriteTemplate(uint16_t type_ID, SpriteTemplate tmpl)
+  {
+    auto [it, inserted] = _sprite_templates.emplace(type_ID, tmpl);
+
+    if (!inserted)
+    {
+      log_e("Спроба повторної реєстрації шаблону спрайта для type_ID %u", type_ID);
+      esp_restart();
+    }
+
+    return &it->second;
+  }
+
+  const SpriteTemplate* IGameScene::getSpriteTemplate(uint16_t type_ID) const
+  {
+    auto it = _sprite_templates.find(type_ID);
+
+    if (it == _sprite_templates.end())
+    {
+      log_e("Не зареєстровано шаблон спрайта для type_ID %u", type_ID);
+      esp_restart();
+    }
+
+    return &it->second;
   }
 
   std::vector<IGameObject*> IGameScene::getObjByType(std::span<const uint16_t> type_ID, const IGameObject* exclude)
@@ -267,7 +294,7 @@ namespace pixeler
   {
     for (auto const& obj : _game_objs)
     {
-      if (obj != exclude && obj->_sprite.is_rigid && obj->hasIntersectWithPoint(x, y))
+      if (obj != exclude && obj->_physics.is_rigid && obj->hasIntersectWithPoint(x, y))
         return true;
     }
 
@@ -276,7 +303,7 @@ namespace pixeler
 
   bool IGameScene::canPass(const IGameObject& caller, uint16_t x_to, uint16_t y_to)
   {
-    return _terrain.canPass(caller._x_global, caller._y_global, x_to, y_to, caller._sprite);
+    return _terrain.canPass(caller._x_global, caller._y_global, x_to, y_to, caller._physics, *caller._geometry);
   }
 
   void IGameScene::addObject(IGameObject& obj)

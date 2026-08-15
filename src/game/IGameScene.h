@@ -13,6 +13,7 @@
 
 //
 #include "IGameObject.h"
+#include "sprite/SpriteTemplate.h"
 #include "terrain/TerrainLoader.h"
 #include "terrain/TerrainManager.h"
 #include "ui/IGameMenu.h"
@@ -159,6 +160,24 @@ namespace pixeler
       }
     }
 
+    /**
+     * @brief Реєструє шаблон спрайта для вказаного типу ігрового об'єкта.
+     * Викликається один раз при завантаженні рівня/сцени, до появи ігрових об'єктів цього типу.
+     *
+     * @param type_ID Ідентифікатор типу об'єкта
+     * @param tmpl Заповнений шаблон спрайта
+     * @return Адреса зареєстрованого шаблону. Викликає скидання МК, якщо шаблон для вказаного типу було зареєстровано раніше
+     */
+    const SpriteTemplate* registerSpriteTemplate(uint16_t type_ID, SpriteTemplate tmpl);
+
+    /**
+     * @brief Повертає шаблон спрайта за ідентифікатором типу об'єкта.
+     *
+     * @param type_ID Ідентифікатор типу об'єкта
+     * @return Адреса шаблону. Викликає скидання МК, якщо шаблон не було зареєстровано для вказаного типу
+     */
+    const SpriteTemplate* getSpriteTemplate(uint16_t type_ID) const;
+
   protected:
     /**
      * @brief Якщо не перевантажено, слугує заглушкою для тригерів об'єктів.
@@ -193,19 +212,21 @@ namespace pixeler
      *
      * @return size_t
      */
-    size_t getObjsSize() const;
+    size_t calcObjectsSize() const;
 
     /**
-     * @brief Записує усі об'єкти на сцені в DataStream
+     * @brief Записує усі об'єкти на сцені в DataStream.
      *
-     * @param ds Об'єкт DataStream, куди будуть серіалізовані об'єкти сцени.
+     * @param ds Об'єкт DataStream, куди будуть серіалізовані об'єкти сцени
      */
-    void serialize(DataStream& ds) const;
+    void serializeObjects(DataStream& ds) const;
 
   protected:
-    ResManager _res_manager;  // Менеджер ресурсів
     TerrainManager _terrain;  // Самий нижній шар сцени
     SfxPlayer _sfx_player;    // Плеєр звукових ефектів
+    ResManager _res_manager;  // Менеджер ресурсів
+  private:
+    std::unordered_map<uint16_t, SpriteTemplate> _sprite_templates;  // Мапа зв'язування шаблонів спрайтів з типами ігрових об'єктів
 
   private:
     std::vector<IGameObject*> _game_objs;  // Список усіх ігрових об'єктів на сцені, які повинні взаємодіяти один з одним

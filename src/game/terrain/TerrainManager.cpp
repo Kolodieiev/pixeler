@@ -185,9 +185,9 @@ namespace pixeler
     _back_img_y_off = y_offset;
   }
 
-  void TerrainManager::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_templ)
+  void TerrainManager::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_tmpl)
   {
-    if (tiles_w_num == 0 || tiles_h_num == 0 || tile_side_len == 0 || !tiles_pos_templ)
+    if (tiles_w_num == 0 || tiles_h_num == 0 || tile_side_len == 0 || !tiles_pos_tmpl)
     {
       log_e("Некоректні параметри");
       esp_restart();
@@ -201,7 +201,7 @@ namespace pixeler
 
     if (!psramInit())
     {
-      log_e("Відсутня память PSRAM");
+      log_e("Відсутня PSRAM");
       esp_restart();
     }
 
@@ -246,95 +246,100 @@ namespace pixeler
     {
       for (uint16_t j{0}; j < _tile_x_num; ++j)
       {
-        uint16_t sprite_id = tiles_pos_templ[build_pos];
+        uint16_t sprite_id = tiles_pos_tmpl[build_pos];
         _terrain[i][j] = _tile_descr.at(sprite_id);
         ++build_pos;
       }
     }
   }
 
-  bool TerrainManager::canPass(uint16_t x_from, uint16_t y_from, uint16_t x_to, uint16_t y_to, const SpriteDescription& sprite) const
+  bool TerrainManager::canPass(uint16_t x_from,
+                               uint16_t y_from,
+                               uint16_t x_to,
+                               uint16_t y_to,
+                               const PhysicsState& physics,
+                               const SpriteGeometry& geometry) const
   {
     if (x_to > _terrain_w || y_to > _terrain_h || !_terrain)
       return false;
 
-    if (!sprite.is_rigid)
+    if (!physics.is_rigid)
       return true;
 
     if (y_to < y_from)  // UP
     {
-      uint16_t tile_y_pos = coordToTilePos(y_to + sprite.rigid_offsets.top);  // y верхнього краю тіла
+      uint16_t tile_y_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // y верхнього краю тіла
       if (tile_y_pos >= _tile_y_num)
         return false;
 
-      uint16_t tile_x_main_pos = coordToTilePos(x_to + sprite.rigid_offsets.left);  // х лівого краю тіла
+      uint16_t tile_x_main_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х лівого краю тіла
       if (tile_x_main_pos >= _tile_x_num)
         return false;
 
-      if (_terrain[tile_y_pos][tile_x_main_pos]->_type & sprite.pass_abillity_mask)  // чи проходить лівий кут тіла
+      if (_terrain[tile_y_pos][tile_x_main_pos]->_type & physics.pass_ability_mask)  // чи проходить лівий кут тіла
       {
-        uint16_t tile_x_side_pos = coordToTilePos(x_to + sprite.width - sprite.rigid_offsets.right - 1);  // х правого краю
+        uint16_t tile_x_side_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // х правого краю
         if (tile_x_side_pos >= _tile_x_num)
           return false;
 
-        return _terrain[tile_y_pos][tile_x_side_pos]->_type & sprite.pass_abillity_mask;  // якщо правий проходить, то тіло проходить
+        return _terrain[tile_y_pos][tile_x_side_pos]->_type & physics.pass_ability_mask;  // якщо правий проходить, то тіло проходить
       }
     }
     else if (y_to > y_from)  // DOWN
     {
-      uint16_t tile_y_pos = coordToTilePos(y_to + sprite.height - sprite.rigid_offsets.bottom - 1);  // y куди повинна стати нижня сторона тіла
+      uint16_t tile_y_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // y куди повинна стати нижня сторона тіла
       if (tile_y_pos >= _tile_y_num)
         return false;
 
-      uint16_t tile_x_main_pos = coordToTilePos(x_to + sprite.rigid_offsets.left);  // х лівого краю
+      uint16_t tile_x_main_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х лівого краю
       if (tile_x_main_pos >= _tile_x_num)
         return false;
 
-      if (_terrain[tile_y_pos][tile_x_main_pos]->_type & sprite.pass_abillity_mask)
+      if (_terrain[tile_y_pos][tile_x_main_pos]->_type & physics.pass_ability_mask)
       {
-        uint16_t tile_x_side_pos = coordToTilePos(x_to + sprite.width - sprite.rigid_offsets.right - 1);  // х правого краю
+        uint16_t tile_x_side_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // х правого краю
         if (tile_x_side_pos >= _tile_x_num)
           return false;
 
-        return _terrain[tile_y_pos][tile_x_side_pos]->_type & sprite.pass_abillity_mask;
+        return _terrain[tile_y_pos][tile_x_side_pos]->_type & physics.pass_ability_mask;
       }
     }
     else if (x_to < x_from)  // LEFT
     {
-      uint16_t tile_x_pos = coordToTilePos(x_to + sprite.rigid_offsets.left);  // х куди стане ліва сторона тіла
+      uint16_t tile_x_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х куди стане ліва сторона тіла
       if (tile_x_pos >= _tile_x_num)
         return false;
 
-      uint16_t tile_y_main_pos = coordToTilePos(y_to + sprite.rigid_offsets.top);  // у верхнього краю
+      uint16_t tile_y_main_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // у верхнього краю
       if (tile_y_main_pos >= _tile_y_num)
         return false;
 
-      if (_terrain[tile_y_main_pos][tile_x_pos]->_type & sprite.pass_abillity_mask)
+      if (_terrain[tile_y_main_pos][tile_x_pos]->_type & physics.pass_ability_mask)
       {
-        uint16_t tile_y_side_pos = coordToTilePos(y_to + sprite.height - sprite.rigid_offsets.bottom - 1);  // у нижнього краю
+        uint16_t tile_y_side_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // у нижнього краю
         if (tile_y_side_pos >= _tile_y_num)
           return false;
 
-        return _terrain[tile_y_side_pos][tile_x_pos]->_type & sprite.pass_abillity_mask;
+        return _terrain[tile_y_side_pos][tile_x_pos]->_type & physics.pass_ability_mask;
       }
     }
     else if (x_to > x_from)  // RIGHT
     {
-      uint16_t tile_x_pos = coordToTilePos(x_to + sprite.width - sprite.rigid_offsets.right - 1);  // права сторона тіла
+      uint16_t tile_x_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // права сторона тіла
       if (tile_x_pos >= _tile_x_num)
         return false;
 
-      uint16_t tile_y_main_pos = coordToTilePos(y_to + sprite.rigid_offsets.top);  // у верхнього краю
+      uint16_t tile_y_main_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // у верхнього краю
       if (tile_y_main_pos >= _tile_y_num)
         return false;
 
-      if (_terrain[tile_y_main_pos][tile_x_pos]->_type & sprite.pass_abillity_mask)
+      if (_terrain[tile_y_main_pos][tile_x_pos]->_type & physics.pass_ability_mask)
       {
-        uint16_t tile_y_side_pos = coordToTilePos(y_to + sprite.height - sprite.rigid_offsets.bottom - 1);  // у нижнього краю
+        uint16_t tile_y_side_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // у нижнього краю
         if (tile_y_side_pos >= _tile_y_num)
           return false;
 
-        return _terrain[tile_y_side_pos][tile_x_pos]->_type & sprite.pass_abillity_mask;
+        return _terrain[tile_y_side_pos][tile_x_pos]->_type & physics.pass_ability_mask;
       }
     }
 
