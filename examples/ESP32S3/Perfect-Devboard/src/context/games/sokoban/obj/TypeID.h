@@ -10,6 +10,6 @@ namespace sokoban
     TYPE_NONE = 0,
     TYPE_HERO,
     TYPE_BOX,
-    TYPE_BOX_POINT
+    TYPE_BOX_DOCK
   };
 }

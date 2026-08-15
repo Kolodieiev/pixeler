@@ -7,7 +7,7 @@ namespace sokoban
 {
   GhostObj::GhostObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_NONE, game_scene, audio)
   {
-    _sprite.is_rigid = false;  // Вимикаємо тверде тіло для нашого привида, щоб він міг проходити крізь стіни
+    
   }
 
   void GhostObj::__update()

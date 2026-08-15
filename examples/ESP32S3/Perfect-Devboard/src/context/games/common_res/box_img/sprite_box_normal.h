@@ -4,7 +4,7 @@
 // 32, // Height of image
 // 32, // Width of image
 
-const unsigned short SPRITE_BOX[1024] = {
+const unsigned short SPRITE_BOX_NORMAL[1024] = {
     0x838B,
     0x940D,
     0x8BCC,

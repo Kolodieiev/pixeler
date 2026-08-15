@@ -4,7 +4,7 @@
 // 32, // Height of image
 // 32, // Width of image
 
-const unsigned short SPRITE_BOX_POIN[1024] = {
+const unsigned short SPRITE_BOX_DOCK[1024] = {
     0xF81F,
     0xF81F,
     0xF81F,

@@ -29,9 +29,10 @@ namespace chess
       GAME_MODE_SERVER,
     };
 
-    void buildTerrain();   // Завантажити ігровий рівень
-    void createMainObj();  // Створюємо об'єкт прив'язки камери
-    void prepareBoard();   // Розмістити шахи на стартові позиції
+    void buildTerrain();      // Завантажити ігровий рівень
+    void createMainObj();     // Створюємо об'єкт прив'язки камери
+    void prepareBoard();      // Розмістити шахи на стартові позиції
+    void createSpiteTmpls();  // Згенерувати спрайтові шаблони для ігрових об'єктів
     //
     void moveCursorUp();
     void moveCursorDown();

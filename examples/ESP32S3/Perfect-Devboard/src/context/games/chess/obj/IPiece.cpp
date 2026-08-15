@@ -5,15 +5,15 @@
 
 namespace chess
 {
-  IPiece::IPiece(uint32_t id, IGameScene& game_scene, SfxPlayer& audio, uint16_t type_id, const unsigned short* const sprite_arr[], IMoveStrategy* movement)
-      : IGameObject(id, type_id, game_scene, audio), _SPRITE_ARR{sprite_arr}, _movement{movement}
+  static const uint8_t VARIANT_BLACK = 0;
+  static const uint8_t VARIANT_WHITE = 1;
+
+  IPiece::IPiece(uint32_t id, IGameScene& game_scene, SfxPlayer& audio, uint16_t type_id, IMoveStrategy* movement)
+      : IGameObject(id, type_id, game_scene, audio), _movement{movement}
   {
     _sprite.has_img = true;
-    _sprite.img_data = _SPRITE_ARR[1];  // За замовченням білі
-    _sprite.width = 26;
-    _sprite.height = 26;
-    _sprite.x_pivot = _sprite.width / 2;
-    _sprite.y_pivot = _sprite.height / 2;
+    setImgVariant(VARIANT_WHITE);
+    setGeometryVariant(0);
   }
 
   IPiece::~IPiece()
@@ -48,9 +48,9 @@ namespace chess
     _is_white = state;
 
     if (_is_white)
-      _sprite.img_data = _SPRITE_ARR[1];
+      setImgVariant(VARIANT_WHITE);
     else
-      _sprite.img_data = _SPRITE_ARR[0];
+      setImgVariant(VARIANT_BLACK);
   }
 
   bool IPiece::isWhite() const
@@ -60,7 +60,7 @@ namespace chess
 
   void IPiece::destroy()
   {
-    _is_destroyed = true;
+    _is_alive = false;
   }
 
   void IPiece::rotateSprite(int16_t angle)

@@ -4,7 +4,7 @@
 // 32, // Height of image
 // 32, // Width of image
 
-const unsigned short SPRITE_BOX_OK[1024] = {
+const unsigned short SPRITE_BOX_DOCKED[1024] = {
     0x4163,
     0x49A3,
     0x4183,

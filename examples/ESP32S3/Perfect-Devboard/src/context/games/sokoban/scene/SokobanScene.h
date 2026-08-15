@@ -30,17 +30,12 @@ namespace sokoban
     uint8_t _level{0};
     bool _is_ghost_selected{true};  // Прапор, що допомогає розпізнати, який об'єкт зараз обрано головним.
 
-    // Завантажити ігровий рівень
-    void buildTerrain();
-    // Створити об'єкт привида
-    void createGhost();
-    // Створити об'єкт комірника
-    void createSokoban();
-    // Створити об'єкти ящиків
-    void createBoxes();
-    // Створити об'єкти ключових точок, на яких повинні бути встановлені ящики
-    void createBoxPoints();
-    // Завантажити звукові ресурси
-    void loadFX();
+    void createSpiteTmpls();  // Згенерувати спрайтові шаблони для ігрових об'єктів
+    void buildTerrain();      // Завантажити ігровий рівень
+    void createGhost();       // Створити об'єкт привида
+    void createSokoban();     // Створити об'єкт комірника
+    void createBoxes();       // Створити об'єкти ящиків
+    void createBoxPoints();   // Створити об'єкти ключових точок, на яких повинні бути встановлені ящики
+    void loadFX();            // Завантажити звукові ресурси
   };
 }  // namespace sokoban

@@ -13,7 +13,7 @@ namespace chess
   class IPiece : public IGameObject
   {
   public:
-    IPiece(uint32_t id, IGameScene& game_scene, SfxPlayer& audio, uint16_t type_id, const unsigned short* const sprite_arr[], IMoveStrategy* movement);
+    IPiece(uint32_t id, IGameScene& game_scene, SfxPlayer& audio, uint16_t type_id, IMoveStrategy* movement);
     virtual ~IPiece() = 0;
     std::vector<Position> getPossibleMoves(const Board& board) const;
 
@@ -31,7 +31,6 @@ namespace chess
   protected:
     // Потрібно лишити protected щоб пішак міг змінити поля
     //
-    const unsigned short* const* _SPRITE_ARR{nullptr};
     IMoveStrategy* _movement{nullptr};
     //
 

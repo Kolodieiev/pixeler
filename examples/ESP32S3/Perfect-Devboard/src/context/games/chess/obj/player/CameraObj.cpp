@@ -6,7 +6,6 @@ namespace chess
 {
   CameraObj::CameraObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_PLAYER, game_scene, audio)
   {
-    _sprite.is_rigid = false;
   }
 
   CameraObj::~CameraObj()

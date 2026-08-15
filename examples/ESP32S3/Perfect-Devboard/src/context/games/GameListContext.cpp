@@ -1,7 +1,8 @@
+#include "GameListContext.h"
+
 #include "../WidgetCreator.h"
 #include "./icons/chess_ico.h"
 #include "./icons/sokoban_ico.h"
-#include "GameListContext.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/MenuItem.h"
 
