@@ -52,6 +52,7 @@ namespace chess
     bool isSquareAttacked(uint16_t square_x, uint16_t square_y, bool is_white_piece) const;
     void findAvailableMove();
     void checkInsufficientMaterial();
+    void destroyPiece(uint16_t y_pos, uint16_t x_pos);
 
     void dumpBoard();
 
