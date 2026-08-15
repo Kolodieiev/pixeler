@@ -57,7 +57,7 @@ namespace pixeler
     {
       obj = _game_objs[i];
 
-      if (!obj->_is_alive) [[unlikely]]
+      if (!obj->_is_alive)
       {
         delete obj;
         _game_objs[i] = _game_objs.back();
