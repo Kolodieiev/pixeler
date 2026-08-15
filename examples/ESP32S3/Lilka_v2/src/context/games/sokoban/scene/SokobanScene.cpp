@@ -1,7 +1,12 @@
 #include "SokobanScene.h"
 
+#include "../../common_res/box_img/sprite_box_docked.h"
+#include "../../common_res/box_img/sprite_box_normal.h"
 #include "../SceneID.h"
 #include "../obj/TriggerID.h"
+#include "../obj/TypeID.h"
+#include "../obj/box_point/res/sprite_box_point.h"
+#include "../obj/sokoban/res/sprite/sprite_sokoban.h"
 
 // Підключити шаблон мапи рівня
 #include "../map/template/map_scene_0_2.h"
@@ -532,16 +537,12 @@ namespace sokoban
   {
     _level = --lvl;
 
+    createSpiteTmpls();
     buildTerrain();
-
     createGhost();
-
     createSokoban();
-
     createBoxes();
-
     createBoxPoints();
-
     loadFX();
 
     // _sfx_player.init();     // Ініціалізувати драйвер аудіо
@@ -645,6 +646,34 @@ namespace sokoban
       else
         _is_finished = true;
     }
+  }
+
+  void SokobanScene::createSpiteTmpls()
+  {
+    SpriteGeometry sprite_geometry{
+        .rigid_offsets{},
+        .width = 32,
+        .height = sprite_geometry.width,
+    };
+
+    SpriteTemplate none_tmpl{};
+    registerSpriteTemplate(TYPE_NONE, none_tmpl);
+    //
+    SpriteTemplate box_tmpl{};
+    box_tmpl.img_variants.push_back(SPRITE_BOX_NORMAL);
+    box_tmpl.img_variants.push_back(SPRITE_BOX_DOCKED);
+    box_tmpl.geometry_variants.push_back(sprite_geometry);
+    registerSpriteTemplate(TYPE_BOX, box_tmpl);
+    //
+    SpriteTemplate box_dock_tmpl{};
+    box_dock_tmpl.img_variants.push_back(SPRITE_BOX_DOCK);
+    box_dock_tmpl.geometry_variants.push_back(sprite_geometry);
+    registerSpriteTemplate(TYPE_BOX_DOCK, box_dock_tmpl);
+    //
+    SpriteTemplate hero_tmpl{};
+    hero_tmpl.img_variants.push_back(SPRITE_SOKOBAN);
+    hero_tmpl.geometry_variants.push_back(sprite_geometry);
+    registerSpriteTemplate(TYPE_HERO, hero_tmpl);
   }
 
   void SokobanScene::buildTerrain()

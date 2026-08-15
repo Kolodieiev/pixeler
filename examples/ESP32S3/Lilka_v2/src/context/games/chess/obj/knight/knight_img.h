@@ -97,6 +97,4 @@ namespace chess
       0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  // 0x02A0 (672) pixels
       0xF81F, 0xF81F, 0xF81F, 0xF81F                                                                                                   // 0x02A4 (676) pixels
   };
-
-  static constexpr const unsigned short* KNIGHT_SPRITES[]{SPRITE_KNIGHT_BLACK, SPRITE_KNIGHT_WHITE};
 }  // namespace chess

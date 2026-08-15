@@ -316,6 +316,24 @@ namespace chess
       _is_stalemate = true;
   }
 
+  void Board::destroyPiece(uint16_t y_pos, uint16_t x_pos)
+  {
+    IPiece* piece = _board[y_pos][x_pos];
+    
+    for (size_t i = 0; i < _pieces.size(); ++i)
+    {
+      if (_pieces[i] == piece)
+      {
+        _pieces[i] = _pieces.back();
+        _pieces.pop_back();
+        break;
+      }
+    }
+
+    piece->destroy();
+    _board[y_pos][x_pos] = nullptr;
+  }
+
   const IPiece* Board::getPieceAt(uint8_t grid_x, uint8_t grid_y) const
   {
     return _board[grid_y][grid_x];
@@ -398,8 +416,7 @@ namespace chess
     bool _has_castling{false};
     if (piece->getTypeID() == TYPE_PAWN && x_from != x_to && _board[y_to][x_to] == nullptr)  // Взяття на льоту
     {
-      _board[y_from][x_to]->destroy();
-      _board[y_from][x_to] = nullptr;
+      destroyPiece(y_from, x_to);
     }
     else if (piece->getTypeID() == TYPE_KING && __builtin_abs(static_cast<int>(x_to) - static_cast<int>(x_from)) > 1)  // Рокіровка
     {
@@ -431,7 +448,7 @@ namespace chess
     }
     else if (_board[y_to][x_to])  // Звичайне взяття
     {
-      _board[y_to][x_to]->destroy();
+      destroyPiece(y_to, x_to);
     }
 
     if (!_has_castling)

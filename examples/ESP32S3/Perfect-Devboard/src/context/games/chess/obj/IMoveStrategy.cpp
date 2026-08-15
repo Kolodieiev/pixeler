@@ -1,7 +1,6 @@
 #include "IMoveStrategy.h"
 
 #include "IPiece.h"
-#include "util/mem_util.h"
 
 namespace chess
 {

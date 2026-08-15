@@ -2,13 +2,14 @@
 
 #include "../TypeID.h"
 #include "../queen/QueenMove.h"
-#include "../queen/queen_img.h"
 #include "PawnMove.h"
-#include "pawn_img.h"
 
 namespace chess
 {
-  PawnObj::PawnObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_PAWN, PAWN_SPRITES, new PawnMove())
+  static const uint8_t VARIANT_QUEEN_BLACK = 2;
+  static const uint8_t VARIANT_QUEEN_WHITE = 3;
+
+  PawnObj::PawnObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_PAWN, new PawnMove())
   {
   }
 
@@ -19,12 +20,14 @@ namespace chess
   void PawnObj::turnIntoQueen()
   {
     _is_queen = true;
-    
+
     delete _movement;
     _movement = new QueenMove();
 
-    _SPRITE_ARR = QUEEN_SPRITES;
-    setIsWhite(isWhite());
+    if (isWhite())
+      setImgVariant(VARIANT_QUEEN_WHITE);
+    else
+      setImgVariant(VARIANT_QUEEN_BLACK);
   }
 
   bool PawnObj::isQueen() const

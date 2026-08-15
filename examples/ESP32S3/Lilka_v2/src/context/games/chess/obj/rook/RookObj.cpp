@@ -6,7 +6,7 @@
 
 namespace chess
 {
-  RookObj::RookObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_ROOK, ROOK_SPRITES, new RookMove())
+  RookObj::RookObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_ROOK, new RookMove())
   {
   }
 

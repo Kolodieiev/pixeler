@@ -1,21 +1,22 @@
 #include "BoxObj.h"
 
-#include "../../../common_res/box_img/sprite_box.h"
-#include "../../../common_res/box_img/sprite_box_ok.h"
 #include "../../ResID.h"
 #include "../TypeID.h"
 #include "game/IGameScene.h"
 
 namespace sokoban
 {
+  static const uint8_t VARIANT_BOX_NORMAL = 0;
+  static const uint8_t VARIANT_BOX_DOCKED = 1;
+
   BoxObj::BoxObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_BOX, game_scene, audio)
   {
     _layer = 1;  // Об'єкт повинен бути вище об'єктів точок щоб перекривати їх
-    _sprite.img_data = SPRITE_BOX;
     _sprite.has_img = true;
-    _sprite.width = 32;
-    _sprite.height = 32;
-    _sprite.pass_abillity_mask = TILE_TYPE_GROUND;
+    setImgVariant(VARIANT_BOX_NORMAL);
+    setGeometryVariant(0);
+    _physics.pass_ability_mask = TILE_TYPE_GROUND;
+    _physics.is_rigid = true;
   }
 
   void BoxObj::__update()
@@ -39,7 +40,7 @@ namespace sokoban
   {
     bool has_point = false;  // Прапор який вказує, чи маємо ключову точку в координатах переміщення
 
-    const std::array types = {(uint16_t)TYPE_BOX, (uint16_t)TYPE_BOX_POINT};
+    const std::array types = {(uint16_t)TYPE_BOX, (uint16_t)TYPE_BOX_DOCK};
 
     // Вибрати об'єкти ящиків та ключових точок на плитці куди повинен бути встановлений ящик
     std::vector<IGameObject*> objs = _scene.getObjByTypeAt(types, x, y, this);
@@ -49,22 +50,22 @@ namespace sokoban
       if ((*it)->getTypeID() == TYPE_BOX)  // Якщо знайдено об'єкт ящика, рух продовжувати не можна
         return false;
 
-      if ((*it)->getTypeID() == TYPE_BOX_POINT)  // Якщо об'єкт належить до типу BoxPointObj
-        has_point = true;                        // Підіймаємо прапор, але не перериваємо цикл, щоб переконатися у відсутності ящика
+      if ((*it)->getTypeID() == TYPE_BOX_DOCK)  // Якщо об'єкт належить до типу BoxPointObj
+        has_point = true;                       // Підіймаємо прапор, але не перериваємо цикл, щоб переконатися у відсутності ящика
     }
 
     if (!has_point)  // Якщо точку не знайдено значить далі або прохід або стіна.
     {
       _is_ok = false;
-      _sprite.img_data = SPRITE_BOX;
+      setImgVariant(VARIANT_BOX_NORMAL);
       // Перевіряємо чи не впираємося в стіну за ящиком
       if (!_scene.canPass(*this, x, y))
         return false;  // Якщо впираємося в стіну, рух продовжувати не можна
     }
     else
     {
-      _is_ok = true;                     // Підняти прапор, який вказує, що ящик встановлено в потрібному місці
-      _sprite.img_data = SPRITE_BOX_OK;  // Змінити спрайт об'єкта
+      _is_ok = true;                      // Підняти прапор, який вказує, що ящик встановлено в потрібному місці
+      setImgVariant(VARIANT_BOX_DOCKED);  // Змінити спрайт об'єкта
     }
 
     // Якщо всі перевірки пройдено переміщуємо цей об'єкт ящика на нову плитку
