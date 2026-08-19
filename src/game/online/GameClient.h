@@ -2,8 +2,8 @@
 #pragma GCC optimize("O3")
 #include <AsyncUDP.h>
 
-#include "../../defines.h"
 #include "UdpPacket.h"
+#include "defines.h"
 
 namespace pixeler
 {
@@ -118,7 +118,7 @@ namespace pixeler
      * @brief Встановлює обробник, який буде викликано після встановлення з'єднання з сервером.
      *
      * @param conn_handler Обробник події встановлення з'єднання з сервером.
-     * @param arg Аргумент, який будуе передано обробнику.
+     * @param arg Аргумент, який буде передано обробнику.
      */
     void onConnect(const ServerConnectedHandler conn_handler, void* arg);
 
@@ -175,10 +175,6 @@ namespace pixeler
     void* _server_data_arg{nullptr};
 
     unsigned long _last_act_time{0};
-
-    const uint16_t SERVER_PORT = 777;
-    const uint16_t CLIENT_PORT = 777;
-    const uint16_t PACKET_QUEUE_SIZE = 6;
 
     ClientStatus _status{STATUS_DISCONNECTED};
 

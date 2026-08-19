@@ -4,9 +4,9 @@
 
 #include <unordered_map>
 
-#include "../../defines.h"
 #include "ClientWrapper.h"
 #include "UdpPacket.h"
+#include "defines.h"
 
 namespace pixeler
 {
@@ -198,6 +198,7 @@ namespace pixeler
      * @return const char*
      */
     const char* getServerIP() const;
+
     /**
      * @brief Повертає ім'я сервера.
      *
@@ -255,9 +256,6 @@ namespace pixeler
     void* _client_confirm_arg{nullptr};
     void* _client_disconn_arg{nullptr};
     void* _client_data_arg{nullptr};
-
-    const uint16_t SERVER_PORT = 777;
-    const uint16_t PACKET_QUEUE_SIZE = 30;
 
     uint8_t _max_connection{1};
     uint8_t _cur_clients_size{0};

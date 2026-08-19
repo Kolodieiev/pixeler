@@ -5,6 +5,15 @@
 
 namespace pixeler
 {
+
+#ifndef GAME_SERVER_PORT
+#define GAME_SERVER_PORT 777
+#endif  // #ifndef GAME_SERVER_PORT
+
+#ifndef SERVER_PACKS_QUEUE_SIZE
+#define SERVER_PACKS_QUEUE_SIZE 30
+#endif  // #ifndef SERVER_PACKS_QUEUE_SIZE
+
   GameServer::GameServer()
   {
     // Виправлення помилки assert failed: tcpip_api_call (Invalid mbox)
@@ -61,7 +70,7 @@ namespace pixeler
     _server_name = server_name;
 
     _server.onPacket(onPacket, this);
-    _server.listen(SERVER_PORT);
+    _server.listen(GAME_SERVER_PORT);
 
     _client_mutex = xSemaphoreCreateMutex();
     _udp_mutex = xSemaphoreCreateMutex();
@@ -78,7 +87,7 @@ namespace pixeler
       esp_restart();
     }
 
-    _packet_queue = xQueueCreate(PACKET_QUEUE_SIZE, sizeof(UdpPacket*));
+    _packet_queue = xQueueCreate(SERVER_PACKS_QUEUE_SIZE, sizeof(UdpPacket*));
 
     if (!_packet_queue)
     {
