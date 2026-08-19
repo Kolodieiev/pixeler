@@ -226,7 +226,7 @@ namespace pixeler
     sendBroadcast(pack);
   }
 
-  void GameServer::sendPacket(const ClientWrapper* client, const UdpPacket& packet)
+  void GameServer::sendPacket(const ClientSession* client, const UdpPacket& packet)
   {
     if (!client)
       return;
@@ -238,7 +238,7 @@ namespace pixeler
 
   void GameServer::sendPacket(IPAddress remote_ip, const UdpPacket& packet)
   {
-    const ClientWrapper* client = findClient(remote_ip);
+    const ClientSession* client = findClient(remote_ip);
     sendPacket(client, packet);
   }
 
@@ -252,7 +252,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::removeClient(const ClientWrapper* client)
+  void GameServer::removeClient(const ClientSession* client)
   {
     if (!client)
       return;
@@ -297,7 +297,7 @@ namespace pixeler
     xSemaphoreGive(_client_mutex);
   }
 
-  ClientWrapper* GameServer::findClient(const IPAddress remote_ip) const
+  ClientSession* GameServer::findClient(const IPAddress remote_ip) const
   {
     uint32_t cl_ip = remote_ip;
     if (cl_ip == 0)
@@ -317,12 +317,12 @@ namespace pixeler
     return it->second;
   }
 
-  ClientWrapper* GameServer::findClient(const ClientWrapper* client) const
+  ClientSession* GameServer::findClient(const ClientSession* client) const
   {
     return findClient(client->getIP());
   }
 
-  ClientWrapper* GameServer::findClient(const char* name) const
+  ClientSession* GameServer::findClient(const char* name) const
   {
     xSemaphoreTake(_client_mutex, portMAX_DELAY);
 
@@ -339,7 +339,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::sendNameRespMsg(const ClientWrapper* client, bool result)
+  void GameServer::sendNameRespMsg(const ClientSession* client, bool result)
   {
     uint8_t resp = 0;
 
@@ -360,7 +360,7 @@ namespace pixeler
     sendPacket(client, packet);
   }
 
-  void GameServer::sendBusyMsg(const ClientWrapper* client)
+  void GameServer::sendBusyMsg(const ClientSession* client)
   {
     log_i("Сервер зайнятий");
 
@@ -390,7 +390,7 @@ namespace pixeler
     _server.writeTo(resp_msg.raw(), resp_msg.length(), packet->getRemoteIP(), packet->getRemotePort());
   }
 
-  void GameServer::handleName(ClientWrapper* client, const UdpPacket* packet)
+  void GameServer::handleName(ClientSession* client, const UdpPacket* packet)
   {
     log_i("Запит авторизації");
 
@@ -415,7 +415,7 @@ namespace pixeler
     invokeClientConfirmHandler(client, onConfirmationResult);
   }
 
-  void GameServer::handleData(ClientWrapper* client, UdpPacket* packet)
+  void GameServer::handleData(ClientSession* client, UdpPacket* packet)
   {
     if (!_client_data_handler)
       return;
@@ -431,7 +431,7 @@ namespace pixeler
   void GameServer::handlePacket(UdpPacket* packet)
   {
     UdpPacket::PacketType type = packet->getType();
-    ClientWrapper* client = findClient(packet->getRemoteIP());
+    ClientSession* client = findClient(packet->getRemoteIP());
 
     if (client)
     {
@@ -461,7 +461,7 @@ namespace pixeler
       log_i("Клієнт приєднався");
 
       xSemaphoreTake(_client_mutex, portMAX_DELAY);
-      _clients.emplace(packet->getRemoteIP(), new ClientWrapper{packet->getRemoteIP(), packet->getRemotePort()});
+      _clients.emplace(packet->getRemoteIP(), new ClientSession{packet->getRemoteIP(), packet->getRemotePort()});
       xSemaphoreGive(_client_mutex);
 
       if (type == UdpPacket::TYPE_HANDSHAKE)
@@ -554,13 +554,13 @@ namespace pixeler
     }
   }
 
-  void GameServer::handleNameConfirm(const ClientWrapper* client, bool result)
+  void GameServer::handleNameConfirm(const ClientSession* client, bool result)
   {
     _is_busy = false;
 
     if (findClient(client))
     {
-      ClientWrapper* wrap = const_cast<ClientWrapper*>(client);
+      ClientSession* wrap = const_cast<ClientSession*>(client);
       wrap->confirm();
 
       sendNameRespMsg(client, result);
@@ -572,14 +572,14 @@ namespace pixeler
     }
   }
 
-  void GameServer::onConfirmationResult(const ClientWrapper* client, bool result, GameServer* server)
+  void GameServer::onConfirmationResult(const ClientSession* client, bool result, GameServer* server)
   {
     server->handleNameConfirm(client, result);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::invokeClientConfirmHandler(const ClientWrapper* client, ConfirmResultHandler result_handler)
+  void GameServer::invokeClientConfirmHandler(const ClientSession* client, ConfirmResultHandler result_handler)
   {
     if (!_client_confirm_handler)
     {
@@ -591,7 +591,7 @@ namespace pixeler
     _client_confirm_handler(client, result_handler, _client_confirm_arg);
   }
 
-  void GameServer::invokeDisconnHandler(const ClientWrapper* client)
+  void GameServer::invokeDisconnHandler(const ClientSession* client)
   {
     if (_client_disconn_handler)
       _client_disconn_handler(client, _client_disconn_arg);
@@ -619,7 +619,7 @@ namespace pixeler
     _client_data_arg = arg;
   }
 
-  const std::unordered_map<uint32_t, ClientWrapper*>* GameServer::getClients() const
+  const std::unordered_map<uint32_t, ClientSession*>* GameServer::getClients() const
   {
     return &_clients;
   }

@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-#include "ClientWrapper.h"
+#include "ClientSession.h"
 #include "UdpPacket.h"
 #include "defines.h"
 
@@ -17,26 +17,26 @@ namespace pixeler
      * @brief Тип функції-обробника результату, яку буде надано сервером разом із запитом на авторизацію нового клієнта.
      *
      */
-    using ConfirmResultHandler = std::function<void(const ClientWrapper* client, bool result, GameServer* server)>;
+    using ConfirmResultHandler = std::function<void(const ClientSession* client, bool result, GameServer* server)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
      *
      */
-    using ClientConfirmHandler = std::function<void(const ClientWrapper* client, ConfirmResultHandler result_handler, void* arg)>;
+    using ClientConfirmHandler = std::function<void(const ClientSession* client, ConfirmResultHandler result_handler, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
      *
      */
-    using ClientDisconnHandler = std::function<void(const ClientWrapper* client, void* arg)>;
+    using ClientDisconnHandler = std::function<void(const ClientSession* client, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання пакету даних від одного із клієнтів.
-     * Не потрібно видаляти ClientWrapper* та UdpPacket*, ними керує сервер самостійно.
+     * Не потрібно видаляти ClientSession* та UdpPacket*, ними керує сервер самостійно.
      *
      */
-    using ClientDataHandler = std::function<void(const ClientWrapper* client, const UdpPacket* packet, void* arg)>;
+    using ClientDataHandler = std::function<void(const ClientSession* client, const UdpPacket* packet, void* arg)>;
 
     GameServer();
     ~GameServer();
@@ -98,23 +98,23 @@ namespace pixeler
     bool isFull() const;
 
     /**
-     * @brief Видаляє клієнта з сервера за вказівним на його локальну обгортку.
+     * @brief Видаляє клієнта з сервера за вказаною сесією.
      *
-     * @param cl_wrap Вказівник на обгортку клієнта.
+     * @param session Вказівник на сесію клієнта
      */
-    void removeClient(const ClientWrapper* cl_wrap);
+    void removeClient(const ClientSession* session);
 
     /**
-     * @brief Видаляє клієнта з сервера за його ім'ям.
+     * @brief Видаляє клієнта з сервера за вказаним ім'ям.
      *
-     * @param client_name Рядок, що містить ім'я клієнта.
+     * @param client_name Рядок, що містить ім'я клієнта
      */
     void removeClient(const char* client_name);
 
     /**
-     * @brief Видаляє клієнта з сервера за його віддаленою ip-адресою.
+     * @brief Видаляє клієнта з сервера за вказаною віддаленою ip-адресою.
      *
-     * @param remote_ip Віддалена ip-адреса клієнта.
+     * @param remote_ip Віддалена ip-адреса клієнта
      */
     void removeClient(IPAddress remote_ip);
 
@@ -135,12 +135,12 @@ namespace pixeler
     void sendBroadcast(UdpPacket::PacketType type, const void* data, size_t data_size);
 
     /**
-     * @brief Надсилає пакет на віддалену ip-адресу, що міститься в ClientWrapper *.
+     * @brief Надсилає пакет на віддалену ip-адресу за вказаною сесією клієнта.
      *
-     * @param cl_wrap Вказівник на обгортку клієнта.
-     * @param packet Пакет, що буде надіслано клієнту.
+     * @param session Вказівник на сесію
+     * @param packet Пакет, що буде надіслано клієнту
      */
-    void sendPacket(const ClientWrapper* cl_wrap, const UdpPacket& packet);
+    void sendPacket(const ClientSession* session, const UdpPacket& packet);
 
     /**
      * @brief Надсилає пакет на віддалену ip-адресу.
@@ -188,9 +188,9 @@ namespace pixeler
      * @brief Повертає вказівник на список клієнтів.
      * Під час взаємодії зі списком, асинхронність не забезпечується.
      *
-     * @return const std::unordered_map<uint32_t, ClientWrapper *>*
+     * @return const std::unordered_map<uint32_t, ClientSession *>*
      */
-    const std::unordered_map<uint32_t, ClientWrapper*>* getClients() const;
+    const std::unordered_map<uint32_t, ClientSession*>* getClients() const;
 
     /**
      * @brief Повертає локальну ip-адресу сервера.
@@ -207,9 +207,9 @@ namespace pixeler
     const char* getName() const;
 
   protected:
-    ClientWrapper* findClient(const IPAddress remote_ip) const;
-    ClientWrapper* findClient(const ClientWrapper* cl_wrap) const;
-    ClientWrapper* findClient(const char* name) const;
+    ClientSession* findClient(const IPAddress remote_ip) const;
+    ClientSession* findClient(const ClientSession* session) const;
+    ClientSession* findClient(const char* name) const;
     //
     void handlePacket(UdpPacket* packet);
     static void packetHandlerTask(void* arg);
@@ -217,25 +217,25 @@ namespace pixeler
     static void onPacket(void* arg, AsyncUDPPacket& packet);
     //
     void handleHandshake(const UdpPacket* packet);
-    void handleName(ClientWrapper* cl_wrap, const UdpPacket* packet);
-    void handleData(ClientWrapper* cl_wrap, UdpPacket* packet);
+    void handleName(ClientSession* session, const UdpPacket* packet);
+    void handleData(ClientSession* session, UdpPacket* packet);
     //
-    void sendNameRespMsg(const ClientWrapper* cl_wrap, bool result);
-    void sendBusyMsg(const ClientWrapper* cl_wrap);
+    void sendNameRespMsg(const ClientSession* session, bool result);
+    void sendBusyMsg(const ClientSession* session);
     //
-    void invokeDisconnHandler(const ClientWrapper* cl_wrap);
-    void invokeClientConfirmHandler(const ClientWrapper* cl_wrap, ConfirmResultHandler result_handler);
+    void invokeDisconnHandler(const ClientSession* session);
+    void invokeClientConfirmHandler(const ClientSession* session, ConfirmResultHandler result_handler);
     //
     void handlePingClient();
     static void pingClientTask(void* arg);
     //
-    void handleNameConfirm(const ClientWrapper* cl_wrap, bool result);
-    static void onConfirmationResult(const ClientWrapper* cl_wrap, bool result, GameServer* server);
+    void handleNameConfirm(const ClientSession* session, bool result);
+    static void onConfirmationResult(const ClientSession* session, bool result, GameServer* server);
     //
   protected:
     AsyncUDP _server;
 
-    std::unordered_map<uint32_t, ClientWrapper*> _clients;
+    std::unordered_map<uint32_t, ClientSession*> _clients;
 
     ClientConfirmHandler _client_confirm_handler{nullptr};
     ClientDisconnHandler _client_disconn_handler{nullptr};

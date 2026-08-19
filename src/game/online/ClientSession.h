@@ -7,7 +7,7 @@
 
 namespace pixeler
 {
-  class ClientWrapper
+  class ClientSession
   {
   public:
     /**
@@ -16,7 +16,7 @@ namespace pixeler
      * @param remote_ip Віддалена ip-адреса клієнта.
      * @param port Порт клієнта.
      */
-    ClientWrapper(IPAddress remote_ip, uint16_t port);
+    ClientSession(IPAddress remote_ip, uint16_t port);
 
     /**
      * @brief Повертає віддалену ip-адресу клієнта.
@@ -55,7 +55,7 @@ namespace pixeler
     /**
      * @brief Повертає поточний стан з'єднаня з клієнтом.
      *
-     * @return true - Якщо клієнт відповів на ping-пакет на протязі останніх 3 сек.
+     * @return true - Якщо клієнт відповів на ping-пакет протягом останніх 3 сек.
      * @return false - Інакше.
      */
     bool isConnected() const;
@@ -84,16 +84,16 @@ namespace pixeler
     bool hasName(const char* name) const;
 
     /**
-     * @brief Порівнює два об'єкта ClientWrapper на основі віддаленої ip-адреси клієнтів.
+     * @brief Порівнює два об'єкта ClientSession на основі віддаленої ip-адреси клієнтів.
      *
-     * @param client_wrap Вказівник на інший об'єкт ClientWrapper.
+     * @param session Вказівник на інший об'єкт ClientSession.
      * @return true - Якщо віддалені ip-адреси співпадають.
      * @return false - Інакше.
      */
-    bool is(const ClientWrapper* client_wrap) const;
+    bool is(const ClientSession* session) const;
 
   protected:
-    ClientWrapper() {}
+    ClientSession() {}
 
   protected:
     IPAddress _remote_ip;
