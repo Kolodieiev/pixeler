@@ -16,11 +16,11 @@ namespace pixeler
      */
     enum PacketType : uint8_t
     {
-      TYPE_DATA = 0,   // Пакет для обміну даними.
-      TYPE_PING,       // Пакет для перевірки стану з'єднання.
       TYPE_HANDSHAKE,  // Пакет для розпізнавання сервера.
-      TYPE_NAME,       // Пакет з іменем клієнта.
+      TYPE_PING,       // Пакет для перевірки стану з'єднання.
       TYPE_BUSY,       // Пакет, що вказує на зайнятість сервера.
+      TYPE_DATA,       // Пакет для обміну даними.
+      TYPE_NAME,       // Пакет з іменем клієнта.
     };
 
     /**
@@ -42,20 +42,14 @@ namespace pixeler
      *
      * @param type Тип пакета.
      */
-    void setType(PacketType type)
-    {
-      _buffer[0] = type;
-    }
+    void setType(PacketType type);
 
     /**
      * @brief Повертає тип пакета.
      *
      * @return PacketType
      */
-    PacketType getType() const
-    {
-      return static_cast<PacketType>(_buffer[0]);
-    }
+    PacketType getType() const;
 
     /**
      * @brief Повертає вказівник із заданим зміщенням на дані пакета.
@@ -73,10 +67,7 @@ namespace pixeler
      *
      * @return size_t
      */
-    size_t dataLen() const
-    {
-      return _size - 1;
-    }
+    size_t dataLen() const;
 
     /**
      * @brief Виводить дані пакета до UART.
@@ -94,10 +85,7 @@ namespace pixeler
      *
      * @return IPAddress
      */
-    IPAddress getRemoteIP() const
-    {
-      return _remote_ip;
-    }
+    IPAddress getRemoteIP() const;
 
     /**
      * @brief Повертає порт, з якого було отримано цей пакет.
@@ -105,10 +93,7 @@ namespace pixeler
      *
      * @return uint16_t
      */
-    uint16_t getRemotePort() const
-    {
-      return _port;
-    }
+    uint16_t getRemotePort() const;
 
     /**
      * @brief Порівнює побайтово дані з заданої позиції.
@@ -136,10 +121,7 @@ namespace pixeler
      * Дані в буфері залишаються без змін.
      *
      */
-    void resetDataCaret()
-    {
-      _index = 1;
-    }
+    void resetDataCaret();
 
     /**
      * @brief Повертає поточну позицію каретки в буфері відносно секції даних.

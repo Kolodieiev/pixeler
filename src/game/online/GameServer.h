@@ -46,10 +46,7 @@ namespace pixeler
      *
      * @param id Ідентифікатор сервера.
      */
-    void setServerID(const char* id)
-    {
-      _server_id = id;
-    };
+    void setServerID(const char* id);
 
     /**
      * @brief Запускає сервер з вказаними параметрами.
@@ -90,10 +87,7 @@ namespace pixeler
      * @return true - Якщо авторизація відкрита.
      * @return false - Інакше.
      */
-    bool isOpen() const
-    {
-      return _is_open;
-    }
+    bool isOpen() const;
 
     /**
      * @brief Повертає значення, яке вказує чи заповнено усі слоти сервера.
@@ -101,10 +95,7 @@ namespace pixeler
      * @return true - Якщо усі слоти заповнено клієнтами.
      * @return false - Якщо ще лишаються вільні слоти.
      */
-    bool isFull() const
-    {
-      return _max_connection == _cur_clients_size;
-    }
+    bool isFull() const;
 
     /**
      * @brief Видаляє клієнта з сервера за вказівним на його локальну обгортку.
@@ -199,30 +190,20 @@ namespace pixeler
      *
      * @return const std::unordered_map<uint32_t, ClientWrapper *>*
      */
-    const std::unordered_map<uint32_t, ClientWrapper*>* getClients() const
-    {
-      return &_clients;
-    }
+    const std::unordered_map<uint32_t, ClientWrapper*>* getClients() const;
 
     /**
      * @brief Повертає локальну ip-адресу сервера.
      *
      * @return const char*
      */
-    const char* getServerIP() const
-    {
-      return _server_ip.c_str();
-    }
-
+    const char* getServerIP() const;
     /**
      * @brief Повертає ім'я сервера.
      *
      * @return const char*
      */
-    const char* getName() const
-    {
-      return _server_name.c_str();
-    }
+    const char* getName() const;
 
   protected:
     ClientWrapper* findClient(const IPAddress remote_ip) const;

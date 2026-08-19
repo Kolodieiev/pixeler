@@ -17,6 +17,21 @@ namespace pixeler
     disconnect();
   }
 
+  void GameClient::setName(const char* name)
+  {
+    _name = name;
+  }
+
+  const char* GameClient::getName() const
+  {
+    return _name.c_str();
+  }
+
+  void GameClient::setServerID(const char* id)
+  {
+    _server_id = id;
+  }
+
   bool GameClient::connect(const char* host_ip)
   {
     if (_name.isEmpty())
@@ -147,6 +162,11 @@ namespace pixeler
     pack.setType(type);
     pack.write(data, data_size);
     sendPacket(pack);
+  }
+
+  GameClient::ClientStatus GameClient::getStatus() const
+  {
+    return _status;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------

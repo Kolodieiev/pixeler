@@ -17,6 +17,11 @@ namespace pixeler
     stop();
   }
 
+  void GameServer::setServerID(const char* id)
+  {
+    _server_id = id;
+  }
+
   // ------------------------------------------------------------------------------------------------------------------------------
 
   bool GameServer::begin(const char* server_name, const char* pwd, bool is_local, uint8_t max_connection, uint8_t wifi_chan)
@@ -180,6 +185,16 @@ namespace pixeler
     }
     xSemaphoreGive(_client_mutex);
     log_i("Сервер закрито");
+  }
+
+  bool GameServer::isOpen() const
+  {
+    return _is_open;
+  }
+
+  bool GameServer::isFull() const
+  {
+    return _max_connection == _cur_clients_size;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -595,5 +610,19 @@ namespace pixeler
     _client_data_arg = arg;
   }
 
+  const std::unordered_map<uint32_t, ClientWrapper*>* GameServer::getClients() const
+  {
+    return &_clients;
+  }
+
+  const char* GameServer::getServerIP() const
+  {
+    return _server_ip.c_str();
+  }
+
+  const char* GameServer::getName() const
+  {
+    return _server_name.c_str();
+  }
 #pragma endregion set_handler
 }  // namespace pixeler

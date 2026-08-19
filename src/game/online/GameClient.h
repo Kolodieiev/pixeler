@@ -28,14 +28,11 @@ namespace pixeler
      *
      */
     using ServerDataHandler = std::function<void(UdpPacket* packet, void* arg)>;
-
-    GameClient();
-    ~GameClient();
-
     /**
      * @brief Перечислення, що містить значення станів клієнта.
      *
      */
+
     enum ClientStatus : uint8_t
     {
       STATUS_IDLE = 0,      // В очікуванні.
@@ -46,35 +43,29 @@ namespace pixeler
       STATUS_SERVER_BUSY,   // Сервер зайнятий обробкою інших запитів.
     };
 
+    GameClient();
+    ~GameClient();
+
     /**
      * @brief Встановлює ім'я клієнта.
      *
      * @param name Ім'я клієнта.
      */
-    void setName(const char* name)
-    {
-      _name = name;
-    }
+    void setName(const char* name);
 
     /**
      * @brief Повертає вказівник на поточне ім'я клієнта.
      *
      * @return const char*
      */
-    const char* getName() const
-    {
-      return _name.c_str();
-    }
+    const char* getName() const;
 
     /**
      * @brief Встановлює ідентифікатор сервера, до якого очікується підключення.
      *
      * @param id Ідентифікатор сервера.
      */
-    void setServerID(const char* id)
-    {
-      _server_id = id;
-    }
+    void setServerID(const char* id);
 
     /**
      * @brief Запускає процедуру підключення до сервера.
@@ -113,10 +104,7 @@ namespace pixeler
      *
      * @return ClientStatus
      */
-    ClientStatus getStatus() const
-    {
-      return _status;
-    }
+    ClientStatus getStatus() const;
 
     /**
      * @brief Встановлює обробник, який буде викликано після отримання пакету даних від сервера.

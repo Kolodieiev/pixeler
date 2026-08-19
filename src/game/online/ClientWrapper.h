@@ -16,39 +16,27 @@ namespace pixeler
      * @param remote_ip Віддалена ip-адреса клієнта.
      * @param port Порт клієнта.
      */
-    ClientWrapper(IPAddress remote_ip, uint16_t port) : _remote_ip{remote_ip}, _port{port}
-    {
-      _last_act_time = millis();
-    }
+    ClientWrapper(IPAddress remote_ip, uint16_t port);
 
     /**
      * @brief Повертає віддалену ip-адресу клієнта.
      *
      * @return IPAddress
      */
-    IPAddress getIP() const
-    {
-      return _remote_ip;
-    }
+    IPAddress getIP() const;
 
     /**
      * @brief Повертає порт клієнта.
      *
      * @return uint16_t
      */
-    uint16_t getPort() const
-    {
-      return _port;
-    }
+    uint16_t getPort() const;
 
     /**
      * @brief Встановлює прапор, який вказує, що клієнта було авторизовано на сервері.
      *
      */
-    void confirm()
-    {
-      _is_confirmed = true;
-    }
+    void confirm();
 
     /**
      * @brief Повертає стан прапору, який вказує чи було клієнта авторизовано на сервері.
@@ -56,19 +44,13 @@ namespace pixeler
      * @return true - Якщо клієнт авторизований на сервері.
      * @return false - Інакше.
      */
-    bool isConfirmed() const
-    {
-      return _is_confirmed;
-    }
+    bool isConfirmed() const;
 
     /**
      * @brief Продовжує час з'єднання з цим клієнтом.
      *
      */
-    void prolong()
-    {
-      _last_act_time = millis();
-    }
+    void prolong();
 
     /**
      * @brief Повертає поточний стан з'єднаня з клієнтом.
@@ -76,10 +58,7 @@ namespace pixeler
      * @return true - Якщо клієнт відповів на ping-пакет на протязі останніх 3 сек.
      * @return false - Інакше.
      */
-    bool isConnected() const
-    {
-      return millis() - _last_act_time < 3000;
-    }
+    bool isConnected() const;
 
     /**
      * @brief Встановлює ім'я клієнта.
@@ -93,10 +72,7 @@ namespace pixeler
      *
      * @return const char*
      */
-    const char* getName() const
-    {
-      return _name.c_str();
-    }
+    const char* getName() const;
 
     /**
      * @brief Порівнює ім'я клієнта з переданим рядком.

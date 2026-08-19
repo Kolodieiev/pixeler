@@ -28,6 +28,16 @@ namespace pixeler
     _index = 1;
   }
 
+  void UdpPacket::setType(PacketType type)
+  {
+    _buffer[0] = type;
+  }
+
+  UdpPacket::PacketType UdpPacket::getType() const
+  {
+    return static_cast<PacketType>(_buffer[0]);
+  }
+
   const char* UdpPacket::getData(uint16_t data_pos) const
   {
     if (data_pos >= _size)
@@ -37,6 +47,11 @@ namespace pixeler
     }
 
     return (const char*)&_buffer[1 + data_pos];
+  }
+
+  size_t UdpPacket::dataLen() const
+  {
+    return _size - 1;
   }
 
   void UdpPacket::printToLog(bool char_like) const
@@ -55,6 +70,16 @@ namespace pixeler
       for (size_t i = 1; i < _size; ++i)
         log_i("%#04x", _buffer[i]);
     }
+  }
+
+  IPAddress UdpPacket::getRemoteIP() const
+  {
+    return _remote_ip;
+  }
+
+  uint16_t UdpPacket::getRemotePort() const
+  {
+    return _port;
   }
 
   bool UdpPacket::isDataEquals(const void* data, size_t start_pos, size_t data_len) const
@@ -86,6 +111,11 @@ namespace pixeler
     memcpy(out, _buffer + start_pos, len);
 
     return len;
+  }
+
+  void UdpPacket::resetDataCaret()
+  {
+    _index = 1;
   }
 
   size_t UdpPacket::getDataIndex() const
