@@ -3,11 +3,11 @@
 #include <cmath>
 #include <unordered_map>
 
-#include "../../defines.h"
 #include "../../driver/graphics/DisplayWrapper.h"
 #include "../sprite/PhysicsState.h"
 #include "../sprite/SpriteGeometry.h"
 #include "Tile.h"
+#include "defines.h"
 
 namespace pixeler
 {

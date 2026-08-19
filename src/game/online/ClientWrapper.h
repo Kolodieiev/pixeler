@@ -2,8 +2,8 @@
 #pragma GCC optimize("O3")
 #include <IPAddress.h>
 
-#include "../../defines.h"
 #include "UdpPacket.h"
+#include "defines.h"
 
 namespace pixeler
 {

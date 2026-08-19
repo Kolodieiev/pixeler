@@ -2,8 +2,8 @@
 #pragma GCC optimize("O3")
 #include <AsyncUDP.h>
 
-#include "../../defines.h"
 #include "../DataStream.h"
+#include "defines.h"
 
 namespace pixeler
 {

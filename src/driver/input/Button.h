@@ -7,7 +7,7 @@
 
 #pragma once
 #pragma GCC optimize("O3")
-#include "../../defines.h"
+#include "defines.h"
 
 namespace pixeler
 {

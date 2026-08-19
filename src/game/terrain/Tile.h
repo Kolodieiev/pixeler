@@ -1,6 +1,6 @@
 #pragma once
-#include "../../defines.h"
 #include "TileType.h"
+#include "defines.h"
 
 namespace pixeler
 {
