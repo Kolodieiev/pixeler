@@ -7,6 +7,8 @@
 
 namespace pixeler
 {
+  class GameServer;
+
   class ClientSession
   {
   public:
@@ -33,39 +35,12 @@ namespace pixeler
     uint16_t getPort() const;
 
     /**
-     * @brief Встановлює прапор, який вказує, що клієнта було авторизовано на сервері.
-     *
-     */
-    void confirm();
-
-    /**
-     * @brief Повертає стан прапору, який вказує чи було клієнта авторизовано на сервері.
-     *
-     * @return true - Якщо клієнт авторизований на сервері.
-     * @return false - Інакше.
-     */
-    bool isConfirmed() const;
-
-    /**
-     * @brief Продовжує час з'єднання з цим клієнтом.
-     *
-     */
-    void prolong();
-
-    /**
      * @brief Повертає поточний стан з'єднаня з клієнтом.
      *
      * @return true - Якщо клієнт відповів на ping-пакет протягом останніх 3 сек.
      * @return false - Інакше.
      */
     bool isConnected() const;
-
-    /**
-     * @brief Встановлює ім'я клієнта.
-     *
-     * @param name
-     */
-    void setName(const char* name);
 
     /**
      * @brief Повертає ім'я клієнта.
@@ -91,6 +66,36 @@ namespace pixeler
      * @return false - Інакше.
      */
     bool is(const ClientSession* session) const;
+
+  private:
+    friend class GameServer;
+
+    /**
+     * @brief Встановлює прапор, який вказує, що клієнта було авторизовано на сервері.
+     *
+     */
+    void confirm();
+
+    /**
+     * @brief Повертає стан прапору, який вказує чи було клієнта авторизовано на сервері.
+     *
+     * @return true - Якщо клієнт авторизований на сервері.
+     * @return false - Інакше.
+     */
+    bool isConfirmed() const;
+
+    /**
+     * @brief Продовжує час з'єднання з цим клієнтом.
+     *
+     */
+    void prolong();
+
+    /**
+     * @brief Встановлює ім'я клієнта.
+     *
+     * @param name
+     */
+    void setName(const char* name);
 
   protected:
     ClientSession() {}
