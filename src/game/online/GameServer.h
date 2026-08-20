@@ -123,7 +123,7 @@ namespace pixeler
      *
      * @param packet Пакет, що буде надіслано усім клієнтам.
      */
-    void sendBroadcast(UdpPacket& packet);
+    void sendBroadcast(const UdpPacket& packet);
 
     /**
      * @brief Формує та надсилає пакет усім підключеним клієнтам.

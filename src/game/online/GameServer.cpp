@@ -208,7 +208,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::sendBroadcast(UdpPacket& packet)
+  void GameServer::sendBroadcast(const UdpPacket& packet)
   {
     xSemaphoreTake(_client_mutex, portMAX_DELAY);
 
