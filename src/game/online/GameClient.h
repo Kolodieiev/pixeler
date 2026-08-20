@@ -14,13 +14,13 @@ namespace pixeler
      * @brief Тип обробника, який може бути викликано клієнтом у разі втрати зв'язку з сервером.
      *
      */
-    using ServerDisconnHandler = std::function<void(void* arg)>;
+    using ServerDisconnectHandler = std::function<void(void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано клієнтом після встановлення зв'язку з сервером.
      *
      */
-    using ServerConnectedHandler = std::function<void(void* arg)>;
+    using ServerConnectHandler = std::function<void(void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано клієнтом після отримання пакета даних від сервера.
@@ -28,11 +28,11 @@ namespace pixeler
      *
      */
     using ServerDataHandler = std::function<void(UdpPacket* packet, void* arg)>;
+
     /**
      * @brief Перечислення, що містить значення станів клієнта.
      *
      */
-
     enum ClientStatus : uint8_t
     {
       STATUS_IDLE = 0,      // В очікуванні.
@@ -120,7 +120,7 @@ namespace pixeler
      * @param conn_handler Обробник події встановлення з'єднання з сервером.
      * @param arg Аргумент, який буде передано обробнику.
      */
-    void onConnect(const ServerConnectedHandler conn_handler, void* arg);
+    void onConnect(const ServerConnectHandler conn_handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з сервером.
@@ -128,7 +128,7 @@ namespace pixeler
      * @param disconn_handler Обробник події втрати з'єднання з сервером.
      * @param arg Аргумент, який будуе передано обробнику.
      */
-    void onDisconnect(ServerDisconnHandler disconn_handler, void* arg);
+    void onDisconnect(ServerDisconnectHandler disconn_handler, void* arg);
 
   protected:
     void sendHandshake();
@@ -156,8 +156,8 @@ namespace pixeler
 
     IPAddress _server_ip;
 
-    ServerConnectedHandler _server_connected_handler{nullptr};
-    ServerDisconnHandler _server_disconn_handler{nullptr};
+    ServerConnectHandler _server_connected_handler{nullptr};
+    ServerDisconnectHandler _server_disconn_handler{nullptr};
     ServerDataHandler _server_data_handler{nullptr};
 
     String _name;

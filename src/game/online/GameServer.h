@@ -17,19 +17,19 @@ namespace pixeler
      * @brief Тип функції-обробника результату, яку буде надано сервером разом із запитом на авторизацію нового клієнта.
      *
      */
-    using ConfirmResultHandler = std::function<void(const ClientSession* client, bool result, GameServer* server)>;
+    using ConfirmationResultHandler = std::function<void(const ClientSession* client, bool result, GameServer* server)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
      *
      */
-    using ClientConfirmHandler = std::function<void(const ClientSession* client, ConfirmResultHandler result_handler, void* arg)>;
+    using ClientConfirmationHandler = std::function<void(const ClientSession* client, ConfirmationResultHandler result_handler, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
      *
      */
-    using ClientDisconnHandler = std::function<void(const ClientSession* client, void* arg)>;
+    using ClientDisconnectHandler = std::function<void(const ClientSession* client, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання пакету даних від одного із клієнтів.
@@ -166,7 +166,7 @@ namespace pixeler
      * @param handler Обробник, що буде викликано у разі настання події.
      * @param arg Аргумент, який буде передано обробнику.
      */
-    void onConfirmation(ClientConfirmHandler handler, void* arg);
+    void onConfirmation(ClientConfirmationHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з будь-яким із авторизованих клієнтів.
@@ -174,7 +174,7 @@ namespace pixeler
      * @param handler Обробник, що буде викликано у разі настання події.
      * @param arg Аргумент, який буде передано обробнику.
      */
-    void onDisconnect(ClientDisconnHandler handler, void* arg);
+    void onDisconnect(ClientDisconnectHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після отримання пакету даних від будь-якого із авторизованих клієнтів.
@@ -224,7 +224,7 @@ namespace pixeler
     void sendBusyMsg(const ClientSession* session);
     //
     void invokeDisconnHandler(const ClientSession* session);
-    void invokeClientConfirmHandler(const ClientSession* session, ConfirmResultHandler result_handler);
+    void invokeClientConfirmHandler(const ClientSession* session, ConfirmationResultHandler result_handler);
     //
     void handlePingClient();
     static void pingClientTask(void* arg);
@@ -237,8 +237,8 @@ namespace pixeler
 
     std::unordered_map<uint32_t, ClientSession*> _clients;
 
-    ClientConfirmHandler _client_confirm_handler{nullptr};
-    ClientDisconnHandler _client_disconn_handler{nullptr};
+    ClientConfirmationHandler _client_confirm_handler{nullptr};
+    ClientDisconnectHandler _client_disconn_handler{nullptr};
     ClientDataHandler _client_data_handler{nullptr};
 
     String _server_name;

@@ -392,13 +392,13 @@ namespace pixeler
     _server_data_arg = arg;
   }
 
-  void GameClient::onConnect(const ServerConnectedHandler conn_handler, void* arg)
+  void GameClient::onConnect(const ServerConnectHandler conn_handler, void* arg)
   {
     _server_connected_handler = conn_handler;
     _server_connected_arg = arg;
   }
 
-  void GameClient::onDisconnect(const ServerDisconnHandler disconn_handler, void* arg)
+  void GameClient::onDisconnect(const ServerDisconnectHandler disconn_handler, void* arg)
   {
     _server_disconn_handler = disconn_handler;
     _server_disconn_arg = arg;
