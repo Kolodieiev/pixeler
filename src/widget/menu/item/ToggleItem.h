@@ -76,7 +76,7 @@ namespace pixeler
     void toggle();
 
     /**
-     * @brief Повертає значення прапору, що вказує на поточний стан ToggleSwitch.
+     * @brief Повертає значення прапора, що вказує на поточний стан ToggleSwitch.
      *
      * @return true - Якщо ToggleSwitch знаходиться у стані "Ввімкнений".
      * @return false - Якщо ToggleSwitch знаходиться у стані "Вимкнений"

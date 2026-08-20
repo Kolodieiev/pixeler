@@ -82,7 +82,7 @@ namespace pixeler
     size_t write(const int16_t* buffer, size_t buff_len, bool only_left_chan = false);
 
     /**
-     * @brief Повертає значення прапору, який вказує на стан ініціалізації I2S-каналу аудіовиходу.
+     * @brief Повертає значення прапора, який вказує на стан ініціалізації I2S-каналу аудіовиходу.
      *
      * @return true - Якщо канал було успішно ініціалізовано.
      * @return false - Інакше.
