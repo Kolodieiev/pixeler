@@ -334,7 +334,7 @@ namespace pixeler
   {
     if (millis() - _last_act_time > 3000)
     {
-      log_e("onTimeout");
+      log_e("З'єднання з сервером втрачено");
       _status = STATUS_DISCONNECTED;
       invokeDisconnHandler();
       disconnect();
