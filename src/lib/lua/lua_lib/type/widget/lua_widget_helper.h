@@ -4,11 +4,11 @@
 
 /**
  * @brief Перевіряє, чи належить об'єкт з вказаною позицією на стеку до вказаного типу.
- * Викликає luaL_error, якщо тип не співпадає.
+ * Викликає luaL_error, якщо типи не збігаються.
  *
  * @param L Lua
- * @param index Позиція об'єкта на стеку.
- * @param type_name Ім'я типу.
- * @return void* - Якщо об'єкт належить до типу. Інакше - nullptr.
+ * @param index Позиція об'єкта на стеку
+ * @param type_name Ім'я типу
+ * @return void* - якщо об'єкт належить до типу. nullptr - інакше
  */
 void* lua_check_instance(lua_State* L, int index, const char* type_name);

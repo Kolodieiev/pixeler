@@ -29,9 +29,8 @@ namespace pixeler
     /**
      * @brief Перевіряє, чи має ресурс вказане ім'я.
      *
-     * @param name Рядок, з яким буде порівнюватись ім'я ресурсу.
-     * @return true - Якщо імена співпадають.
-     * @return false - Інакше.
+     * @param name Рядок, з яким буде порівнюватись ім'я ресурсу
+     * @return true - якщо імена збігаються. false - інакше
      */
     bool hasName(const char* name) const;
 
