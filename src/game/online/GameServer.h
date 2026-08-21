@@ -17,51 +17,43 @@ namespace pixeler
      * @brief Тип функції-обробника результату, яку буде надано сервером разом із запитом на авторизацію нового клієнта.
      *
      */
-    using ConfirmationResultHandler = std::function<void(const ClientSession* client, bool result, GameServer* server)>;
+    using ConfirmationResultHandler = std::function<void(const String name, bool result, GameServer* server)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
      *
      */
-    using ClientConfirmationHandler = std::function<void(const ClientSession* client, ConfirmationResultHandler result_handler, void* arg)>;
+    using ClientConfirmationHandler = std::function<void(const String name, ConfirmationResultHandler result_handler, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
      *
      */
-    using ClientDisconnectHandler = std::function<void(const ClientSession* client, void* arg)>;
+    using ClientDisconnectHandler = std::function<void(const String name, void* arg)>;
 
     /**
-     * @brief Тип обробника, який може бути викликано сервером у разі отримання пакету даних від одного із клієнтів.
-     * Не потрібно видаляти ClientSession* та UdpPacket*, ними керує сервер самостійно.
+     * @brief Тип обробника, який може бути викликано сервером у разі отримання пакета даних від одного із клієнтів.
      *
      */
-    using ClientDataHandler = std::function<void(const ClientSession* client, const UdpPacket* packet, void* arg)>;
+    using ClientDataHandler = std::function<void(const ClientSession& client, const UdpPacket& packet, void* arg)>;
 
     GameServer();
     ~GameServer();
-
-    /**
-     * @brief Встановлє ідентифікатор сервера.
-     *
-     * @param id Ідентифікатор сервера.
-     */
-    void setServerID(const char* id);
 
     /**
      * @brief Запускає сервер з вказаними параметрами.
      * Самостійно вмикає WiFi модуль, якщо is_local == true.
      * Інакше очікує, що з'єднання з точкою доступу вже встановлено.
      *
-     * @param server_name Ім'я сервера, яке буде встановлено в якості імені точки доступу.
-     * @param pwd Пароль точки доступу.
-     * @param is_local Встановлює прапор, який вказує, чи буде сервер запущено на власній точці доступу, чи в мережі іншого маршрутизатораю
-     * @param max_connection Максимальна кількість клієнтів.
-     * @param wifi_chan Канал WiFi.
-     * @return true - Якщо сервер успішно запущено.
-     * @return false - Інакше.
+     * @param game_ID Ідентифікатор сервера гри
+     * @param server_name Ім'я сервера, яке буде встановлено як ім'я точки доступу
+     * @param pwd Пароль точки доступу
+     * @param is_local Встановлює прапор, який вказує, чи буде сервер запущено на власній точці доступу(true), або ж в мережі іншого маршрутизатора(false)
+     * @param max_connection Максимальна кількість клієнтів
+     * @param wifi_chan Канал WiFi
+     * @return true - Якщо сервер успішно запущено. false - інакше
      */
-    bool begin(const char* server_name, const char* pwd, bool is_local = true, uint8_t max_connection = 1, uint8_t wifi_chan = 6);
+    bool begin(const String& game_ID, const String& server_name, const String& pwd, bool is_local = true, uint8_t max_connection = 1, uint8_t wifi_chan = 6);
 
     /**
      * @brief Скидає всі обробники подій, зупиняє сервер, звільняє ресурси та вимикає WiFi модуль.
@@ -84,25 +76,17 @@ namespace pixeler
     /**
      * @brief Повертає значення прапора, який вказує на поточний стан можливості авторизації клієнтів на сервері.
      *
-     * @return true - Якщо авторизація відкрита.
-     * @return false - Інакше.
+     * @return true - Якщо авторизація відкрита. false - інакше
      */
     bool isOpen() const;
 
     /**
      * @brief Повертає значення, яке вказує чи заповнено усі слоти сервера.
      *
-     * @return true - Якщо усі слоти заповнено клієнтами.
-     * @return false - Якщо ще лишаються вільні слоти.
+     * @return true - Якщо усі слоти заповнено клієнтами
+     * @return false - Якщо лишаються вільні слоти
      */
     bool isFull() const;
-
-    /**
-     * @brief Видаляє клієнта з сервера за вказаною сесією.
-     *
-     * @param session Вказівник на сесію клієнта
-     */
-    void removeClient(const ClientSession* session);
 
     /**
      * @brief Видаляє клієнта з сервера за вказаним ім'ям.
@@ -121,66 +105,58 @@ namespace pixeler
     /**
      * @brief Надсилає пакет усім підключеним клієнтам.
      *
-     * @param packet Пакет, що буде надіслано усім клієнтам.
+     * @param packet Пакет, що буде надіслано усім клієнтам
      */
     void sendBroadcast(const UdpPacket& packet);
 
     /**
      * @brief Формує та надсилає пакет усім підключеним клієнтам.
      *
-     * @param type Тип пакета.
-     * @param data Дані, що будуть додані до пакета.
-     * @param data_size Розмір даних.
+     * @param type Тип пакета
+     * @param data Дані, що будуть додані до пакета
+     * @param data_size Розмір даних
      */
     void sendBroadcast(UdpPacket::PacketType type, const void* data, size_t data_size);
 
     /**
-     * @brief Надсилає пакет на віддалену ip-адресу за вказаною сесією клієнта.
+     * @brief Надсилає пакет за вказаною сесією клієнта.
      *
-     * @param session Вказівник на сесію
+     * @param client Вказівник на клієнтську сесію
      * @param packet Пакет, що буде надіслано клієнту
      */
-    void sendPacket(const ClientSession* session, const UdpPacket& packet);
+    void sendPacket(const ClientSession& client, const UdpPacket& packet);
 
     /**
-     * @brief Надсилає пакет на віддалену ip-адресу.
+     * @brief Формує та надсилає пакет за вказаною сесією клієнта.
      *
-     * @param remote_ip Віддалена ip-адреса клієнта.
-     * @param packet Пакет, що буде надіслано клієнту.
+     * @param client Вказівник на клієнтську сесію
+     * @param type Тип пакета
+     * @param data Дані, що будуть додані до пакета
+     * @param data_size Розмір даних
      */
-    void sendPacket(const IPAddress remote_ip, const UdpPacket& packet);
-
-    /**
-     * @brief Формує та надсилає пакет на віддалену ip-адресу.
-     *
-     * @param remote_ip Віддалена ip-адреса клієнта.
-     * @param type Тип пакета.
-     * @param data Дані, що будуть додані до пакета.
-     * @param data_size Розмір даних.
-     */
-    void send(IPAddress remote_ip, UdpPacket::PacketType type, const void* data, size_t data_size);
+    void sendPacket(const ClientSession& client, UdpPacket::PacketType type, const void* data, size_t data_size);
 
     /**
      * @brief Встановлює обробник, який буде викликано коли з'явиться новий запит на авторизацію клієнта.
      *
-     * @param handler Обробник, що буде викликано у разі настання події.
-     * @param arg Аргумент, який буде передано обробнику.
+     * @param handler Обробник, що буде викликано у разі настання події
+     * @param arg Аргумент, який буде передано обробнику
      */
     void onConfirmation(ClientConfirmationHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з будь-яким із авторизованих клієнтів.
      *
-     * @param handler Обробник, що буде викликано у разі настання події.
-     * @param arg Аргумент, який буде передано обробнику.
+     * @param handler Обробник, що буде викликано у разі настання події
+     * @param arg Аргумент, який буде передано обробнику
      */
     void onDisconnect(ClientDisconnectHandler handler, void* arg);
 
     /**
-     * @brief Встановлює обробник, який буде викликано після отримання пакету даних від будь-якого із авторизованих клієнтів.
+     * @brief Встановлює обробник, який буде викликано після отримання пакета даних від будь-якого із авторизованих клієнтів.
      *
-     * @param handler Обробник, що буде викликано у разі настання події.
-     * @param arg Аргумент, який буде передано обробнику.
+     * @param handler Обробник, що буде викликано у разі настання події
+     * @param arg Аргумент, який буде передано обробнику
      */
     void onData(ClientDataHandler handler, void* arg);
 
@@ -188,9 +164,9 @@ namespace pixeler
      * @brief Повертає вказівник на список клієнтів.
      * Під час взаємодії зі списком, асинхронність не забезпечується.
      *
-     * @return const std::unordered_map<uint32_t, ClientSession *>*
+     * @return const std::unordered_map<uint32_t, ClientSession>*
      */
-    const std::unordered_map<uint32_t, ClientSession*>* getClients() const;
+    const std::unordered_map<uint32_t, ClientSession>* getClients() const;
 
     /**
      * @brief Повертає локальну ip-адресу сервера.
@@ -207,42 +183,45 @@ namespace pixeler
     const char* getName() const;
 
   protected:
-    ClientSession* findClient(const IPAddress remote_ip) const;
-    ClientSession* findClient(const ClientSession* session) const;
-    ClientSession* findClient(const char* name) const;
+    ClientSession* findClient(IPAddress remote_ip);
+    ClientSession* findClient(const char* name);
+
+    const ClientSession* findClient(IPAddress remote_ip) const;
+    const ClientSession* findClient(const char* name) const;
     //
-    void handlePacket(UdpPacket* packet);
+    void handlePacket(const UdpPacket& packet);
     static void packetHandlerTask(void* arg);
     //
     static void onPacket(void* arg, AsyncUDPPacket& packet);
     //
-    void handleHandshake(const UdpPacket* packet);
-    void handleName(ClientSession* session, const UdpPacket* packet);
-    void handleData(ClientSession* session, UdpPacket* packet);
+    void handleHandshake(const UdpPacket& packet);
+    void handleName(ClientSession& client, const UdpPacket& packet);
+    void handleData(const ClientSession& client, const UdpPacket& packet);
     //
-    void sendNameRespMsg(const ClientSession* session, bool result);
-    void sendBusyMsg(const ClientSession* session);
+    void sendNameRespMsg(const ClientSession& client, bool result);
+    void sendNameIncorrectMsg(const ClientSession& client);
+    void sendBusyMsg(const ClientSession& client);
     //
-    void invokeDisconnHandler(const ClientSession* session);
-    void invokeClientConfirmHandler(const ClientSession* session, ConfirmationResultHandler result_handler);
+    void invokeDisconnectHandler(const ClientSession& client);
+    void invokeConfirmationHandler(const ClientSession& client, ConfirmationResultHandler result_handler);
     //
-    void handlePingClient();
-    static void pingClientTask(void* arg);
+    void pingClients();
+    static void pingClientsTask(void* arg);
     //
-    void handleNameConfirm(const ClientSession* session, bool result);
-    static void onConfirmationResult(const ClientSession* session, bool result, GameServer* server);
+    void handleNameConfirm(const String name, bool result);
+    static void onConfirmationResult(const String name, bool result, GameServer* server);
     //
   protected:
     AsyncUDP _server;
 
-    std::unordered_map<uint32_t, ClientSession*> _clients;
+    std::unordered_map<uint32_t, ClientSession> _clients;
 
-    ClientConfirmationHandler _client_confirm_handler{nullptr};
-    ClientDisconnectHandler _client_disconn_handler{nullptr};
-    ClientDataHandler _client_data_handler{nullptr};
+    ClientConfirmationHandler _confirmation_handler{nullptr};
+    ClientDisconnectHandler _disconnect_handler{nullptr};
+    ClientDataHandler _data_handler{nullptr};
 
     String _server_name;
-    String _server_id;
+    String _game_id;
     String _server_ip;
 
     TaskHandle_t _ping_task_handler{nullptr};
@@ -253,12 +232,12 @@ namespace pixeler
 
     QueueHandle_t _packet_queue{nullptr};
 
-    void* _client_confirm_arg{nullptr};
-    void* _client_disconn_arg{nullptr};
-    void* _client_data_arg{nullptr};
+    void* _confirmation_arg{nullptr};
+    void* _disconnect_arg{nullptr};
+    void* _data_arg{nullptr};
 
     uint8_t _max_connection{1};
-    uint8_t _cur_clients_size{0};
+    uint8_t _confirmed_clients_num{0};
 
     bool _is_freed{true};
     bool _is_open{false};
