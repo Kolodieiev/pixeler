@@ -13,15 +13,15 @@ namespace pixeler
   {
   public:
     /**
-     * @brief Створює новий об'єкт.
+     * @brief Створює новий об'єкт сесії клієнта.
      *
-     * @param remote_ip Віддалена ip-адреса клієнта.
-     * @param port Порт клієнта.
+     * @param remote_IP Віддалена IP-адреса клієнта
+     * @param port Порт клієнта
      */
-    ClientSession(IPAddress remote_ip, uint16_t port);
+    ClientSession(IPAddress remote_IP, uint16_t port);
 
     /**
-     * @brief Повертає віддалену ip-адресу клієнта.
+     * @brief Повертає віддалену IP-адресу клієнта.
      *
      * @return IPAddress
      */
@@ -35,73 +35,69 @@ namespace pixeler
     uint16_t getPort() const;
 
     /**
-     * @brief Повертає поточний стан з'єднаня з клієнтом.
+     * @brief Повертає поточний стан підключення.
      *
-     * @return true - Якщо клієнт відповів на ping-пакет протягом останніх 3 сек.
-     * @return false - Інакше.
+     * @return true - якщо клієнт відповів на ping-пакет протягом останніх 3 сек. false - інакше
      */
     bool isConnected() const;
 
     /**
      * @brief Повертає ім'я клієнта.
      *
-     * @return const char*
+     * @return String
      */
-    const char* getName() const;
+    String getName() const;
 
     /**
      * @brief Порівнює ім'я клієнта з переданим рядком.
      *
-     * @param name Рядок, з яким буде порівняно ім'я клієнта.
-     * @return true - Якщо рядок побайтово ідентичний з ім'ям клієнта.
-     * @return false - Інакше.
+     * @param name Рядок, з яким буде порівняно ім'я клієнта
+     * @return true - якщо рядок побайтово ідентичний з ім'ям клієнта. false - інакше
      */
-    bool hasName(const char* name) const;
+    bool hasName(const String& name) const;
 
     /**
-     * @brief Порівнює два об'єкта ClientSession на основі віддаленої ip-адреси клієнтів.
+     * @brief Порівнює два об'єкта ClientSession на основі віддаленої IP-адреси клієнтів.
      *
-     * @param session Вказівник на інший об'єкт ClientSession.
-     * @return true - Якщо віддалені ip-адреси співпадають.
-     * @return false - Інакше.
+     * @param session Адреса ClientSession
+     * @return true - якщо віддалені IP-адреси збігаються. false - інакше
      */
-    bool is(const ClientSession* session) const;
+    bool is(const ClientSession& session) const;
 
   private:
     friend class GameServer;
 
     /**
-     * @brief Встановлює прапор, який вказує, що клієнта було авторизовано на сервері.
+     * @brief Встановлює прапор, який вказує, що клієнта з цією сесією було авторизовано на сервері.
      *
      */
     void confirm();
 
     /**
-     * @brief Повертає стан прапора, який вказує чи було клієнта авторизовано на сервері.
+     * @brief Повертає стан прапора, який вказує чи було авторизовано клієнта з цією сесією на сервері.
      *
-     * @return true - Якщо клієнт авторизований на сервері.
-     * @return false - Інакше.
+     * @return true - якщо клієнт авторизований на сервері. false - інакше
      */
     bool isConfirmed() const;
 
     /**
-     * @brief Продовжує час з'єднання з цим клієнтом.
+     * @brief Продовжує підключення сесії.
      *
      */
     void prolong();
 
     /**
-     * @brief Встановлює ім'я клієнта.
+     * @brief Встановлює ім'я клієнта з цією сесією.
      *
      * @param name
      */
-    void setName(const char* name);
+    void setName(const String& name);
 
   protected:
     ClientSession() {}
 
   protected:
-    IPAddress _remote_ip;
+    IPAddress _remote_IP;
     String _name;
     unsigned long _last_act_time{0};
     uint16_t _port{0};

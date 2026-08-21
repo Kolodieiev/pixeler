@@ -38,32 +38,29 @@ namespace pixeler
     return millis() - _last_act_time < 3000;
   }
 
-  void ClientSession::setName(const char* name)
+  void ClientSession::setName(const String& name)
   {
-    if (name)
-      _name = name;
-    else
-      log_e("Ім'я клієнта не може бути null");
+    if (name.isEmpty()) [[unlikely]]
+    {
+      log_e("Ім'я клієнта не може бути порожнім");
+      return;
+    }
+
+    _name = name;
   }
 
-  const char* ClientSession::getName() const
+  String ClientSession::getName() const
   {
-    return _name.c_str();
+    return _name;
   }
 
-  bool ClientSession::hasName(const char* name) const
+  bool ClientSession::hasName(const String& name) const
   {
-    if (!name)
-      return false;
-
-    return strcmp(_name.c_str(), name) == 0;
+    return _name.equals(name);
   }
 
-  bool ClientSession::is(const ClientSession* session) const
+  bool ClientSession::is(const ClientSession& session) const
   {
-    if (!session)
-      return false;
-
-    return _remote_ip == session->_remote_ip;
+    return _remote_ip == session._remote_ip;
   }
 }  // namespace pixeler
