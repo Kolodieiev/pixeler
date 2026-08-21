@@ -3,14 +3,14 @@
 
 namespace pixeler
 {
-  ClientSession::ClientSession(IPAddress remote_ip, uint16_t port) : _remote_ip{remote_ip}, _port{port}
+  ClientSession::ClientSession(IPAddress remote_ip, uint16_t port) : _remote_IP{remote_ip}, _port{port}
   {
     _last_act_time = millis();
   }
 
   IPAddress ClientSession::getIP() const
   {
-    return _remote_ip;
+    return _remote_IP;
   }
 
   uint16_t ClientSession::getPort() const
@@ -61,6 +61,6 @@ namespace pixeler
 
   bool ClientSession::is(const ClientSession& session) const
   {
-    return _remote_ip == session._remote_ip;
+    return _remote_IP == session._remote_IP;
   }
 }  // namespace pixeler
