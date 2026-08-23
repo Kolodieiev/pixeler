@@ -207,6 +207,7 @@ namespace pixeler
     ContextID _next_context_ID{0};
 
     bool _is_released{false};
+    bool _is_alive{true};
   };
 
 }  // namespace pixeler

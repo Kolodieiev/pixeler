@@ -90,6 +90,8 @@ namespace pixeler
 
   IContext::~IContext()
   {
+    _is_alive = false;
+
     std::function<void()>* task = nullptr;
     while (xQueueReceive(_task_queue, &task, 0) == pdTRUE)
       delete task;
@@ -104,6 +106,12 @@ namespace pixeler
 
   bool IContext::post(std::function<void()> task, unsigned long timeout_ms)
   {
+    if (!_is_alive) [[unlikely]]
+    {
+      log_e("Спроба виконати post в мертвому контексті");
+      esp_restart();
+    }
+
     if (xTaskGetCurrentTaskHandle() == _owner_task_handle)
     {
       task();
@@ -116,7 +124,7 @@ namespace pixeler
     {
       delete task_ptr;
       if (timeout_ms > 0)
-        log_e("Post queue overflow, system may be stalled");
+        log_e("Черга post переповнена, система може працювати нестабільно");
 
       return false;
     }
