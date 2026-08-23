@@ -443,7 +443,7 @@ namespace pixeler
     {
       if (type == UdpPacket::TYPE_HANDSHAKE)
       {
-        log_i("Приєднався клієнт з IP: %s", packet->getRemoteIP().toString());
+        log_i("Приєднався клієнт з IP: %s", packet.getRemoteIP().toString());
 
         xSemaphoreTake(_client_mutex, portMAX_DELAY);
         _clients.try_emplace(packet.getRemoteIP(), packet.getRemoteIP(), packet.getRemotePort());
