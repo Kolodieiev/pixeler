@@ -628,7 +628,7 @@ void espUsbHostPrint(const EspUsbHostKeyboardEvent& event, Print& out)
   const char displayChar = (event.ascii >= 0x20 && event.ascii != 0x7F) ? static_cast<char>(event.ascii) : '.';
 
   out.printf("keyboard: [%s] address=%u iface=%u keycode=0x%02x ascii=0x%02x(%c) modifiers=",
-             event.pressed ? "press  " : "openContext",
+             event.pressed ? "press  " : "release",
              event.address,
              event.interfaceNumber,
              event.keycode,
@@ -6123,7 +6123,7 @@ void EspUsbHost::handleKeyboard(EndpointState& endpoint, const uint8_t* data, si
     events[i].reportData = data;
     events[i].reportLength = length;
     ESP_LOGD(TAG, "Keyboard %s iface=%u keycode=0x%02x ascii=0x%02x modifiers=0x%02x caps=%d num=%d scroll=%d",
-             events[i].pressed ? "press" : "openContext",
+             events[i].pressed ? "press" : "release",
              events[i].interfaceNumber,
              events[i].keycode,
              events[i].ascii,
