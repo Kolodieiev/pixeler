@@ -44,11 +44,11 @@ namespace pixeler
      * Може викликатись з будь-якої FreeRTOS-задачі.
      *
      * @param task Функція без аргументів і повернення результату,
-     * яка повинна бути виконана в потоці UI.
+     * яка повинна бути виконана в потоці UI
      * @param timeout_ms Максимальний час очікування(мілісекунд) вільного місця в черзі,
-     * за замовчуванням - не блокуючий виклик.
-     * @return true - якщо задачу успішно додано в чергу.
-     * @return false - якщо черга переповнена і час очікування вичерпано.
+     * за замовчуванням - неблокуючий виклик
+     * @return true - якщо задачу успішно додано в чергу
+     * @return false - якщо черга переповнена і час очікування вичерпано
      */
     bool post(std::function<void()> task, unsigned long timeout_ms = 0);
 
@@ -61,6 +61,15 @@ namespace pixeler
     void tick();
 
     /**
+     * @brief Перемикає поточний контекст в режим керування субконтекстом.
+     * Субконтекст змінює контекст так само як і звичайний контекст.
+     * Для повернення з режиму субконтексту, той мусить передати nullptr замість вказівника на наступний екзмепляр контексту.
+     *
+     * @param subcontext Вказівник на наступний контекст
+     */
+    void openSubContext(IContext* subcontext);
+
+    /**
      * @brief Віддає вказівник на об'єкт контексту, який повинен викликатися наступним.
      *
      * @return IContext*
@@ -70,8 +79,7 @@ namespace pixeler
     /**
      * @brief Повертає значення прапора, який вказує на те, чи повинен бути звільнений цей контекст.
      *
-     * @return true - якщо контекст повинен бути звільнений.
-     * @return false - якщо контекст повинен бути активним.
+     * @return true - якщо контекст повинен бути звільнений. false - якщо контекст повинен бути активним.
      */
     bool isReleased() const;
 
@@ -115,7 +123,7 @@ namespace pixeler
     /**
      * @brief Встановлює віджет, який буде слугувати макетом GUI для поточного контексту. Віджет буде автоматично видалений разом з контекстом.
      *
-     * @param layout Вказівник на віджет макету.
+     * @param layout Вказівник на віджет макету
      */
     void setLayout(IWidgetContainer* layout);
 
@@ -130,15 +138,15 @@ namespace pixeler
      * @brief Виводить коротке повідомлення-підказку в межах поточного контексту.
      * Повідомлення буде автоматично видалене, після спливання вказаного часу або в разі припиннення існування контексту, в якому воно було створене.
      *
-     * @param msg_txt Текст повідомлення.
-     * @param duration Тривалість відображення повідомлення.
+     * @param msg_txt Текст повідомлення
+     * @param duration Тривалість відображення повідомлення
      */
     void showToast(const char* msg_txt, unsigned long duration = TOAST_LENGTH_SHORT);
 
     /**
      * @brief Повертає х-координату, на якій віджет буде встановлено по центру відносно екрану.
      *
-     * @param widget Вказівник на віджет.
+     * @param widget Вказівник на віджет
      * @return uint16_t
      */
     uint16_t getCenterX(const IWidget* widget) const;
@@ -146,7 +154,7 @@ namespace pixeler
     /**
      * @brief Повертає y-координату, на якій віджет буде встановлено по центру відносно екрану.
      *
-     * @param widget Вказівник на віджет.
+     * @param widget Вказівник на віджет
      * @return uint16_t
      */
     uint16_t getCenterY(const IWidget* widget) const;
@@ -154,7 +162,7 @@ namespace pixeler
     /**
      * @brief Відображає віджет Notification для поточного макету.
      *
-     * @param notification Вказівник на віджет.
+     * @param notification Вказівник на віджет
      */
     void showNotification(Notification* notification);
 
@@ -168,8 +176,7 @@ namespace pixeler
     /**
      * @brief Віддає м'ютекс шаблону тій задачі, яка викликає цей метод.
      *
-     * @return true - Якщо мютекс отримано.
-     * @return false - Інакше.
+     * @return true - Якщо мютекс отримано. false - Інакше
      */
     bool takeLayoutMutex() const;
 
@@ -180,6 +187,7 @@ namespace pixeler
     void giveLayoutMutex() const;
 
   private:
+    void tickSubContext();
     void removeToast();
     void processPostedTasks();
 
@@ -187,6 +195,7 @@ namespace pixeler
 
   private:
     IContext* _next_context{nullptr};
+    IContext* _subcontext{nullptr};
 
 #ifdef GRAPHICS_ENABLED
     TaskHandle_t _owner_task_handle{nullptr};
