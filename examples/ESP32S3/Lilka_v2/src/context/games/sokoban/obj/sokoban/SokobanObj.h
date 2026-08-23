@@ -1,16 +1,16 @@
 #pragma once
 
 #include "../box/BoxObj.h"
-#include "game/IGameObject.h"
+#include "game/2D/IGameObject2D.h"
 
 using namespace pixeler;
 
 namespace sokoban
 {
-  class SokobanObj : public IGameObject
+  class SokobanObj : public IGameObject2D
   {
   public:
-    SokobanObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    SokobanObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~SokobanObj() {}
 
     virtual void __update() override;

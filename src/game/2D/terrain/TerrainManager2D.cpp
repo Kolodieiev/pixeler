@@ -1,35 +1,35 @@
 #pragma GCC optimize("O3")
-#include "TerrainManager.h"
+#include "TerrainManager2D.h"
 
 namespace pixeler
 {
-  TerrainManager::~TerrainManager()
+  TerrainManager2D::~TerrainManager2D()
   {
     freeMem();
     freeTilesDescriptionData();
   }
 
-  uint16_t TerrainManager::getWidth() const
+  uint16_t TerrainManager2D::getWidth() const
   {
     return _terrain_w;
   }
 
-  uint16_t TerrainManager::getHeight() const
+  uint16_t TerrainManager2D::getHeight() const
   {
     return _terrain_h;
   }
 
-  uint16_t TerrainManager::getViewX() const
+  uint16_t TerrainManager2D::getViewX() const
   {
     return _view_x;
   }
 
-  uint16_t TerrainManager::getViewY() const
+  uint16_t TerrainManager2D::getViewY() const
   {
     return _view_y;
   }
 
-  void TerrainManager::freeMem()
+  void TerrainManager2D::freeMem()
   {
     if (!_terrain)
       return;
@@ -41,7 +41,7 @@ namespace pixeler
     _terrain = nullptr;
   }
 
-  void TerrainManager::freeTilesDescriptionData()
+  void TerrainManager2D::freeTilesDescriptionData()
   {
     for (auto it = _tile_descr.begin(), last_it = _tile_descr.end(); it != last_it; ++it)
       delete it->second;
@@ -49,7 +49,7 @@ namespace pixeler
     _tile_descr.clear();
   }
 
-  void TerrainManager::setCameraPos(uint16_t x, uint16_t y)
+  void TerrainManager2D::setCameraPos(uint16_t x, uint16_t y)
   {
     // X
     if (x < HALF_VIEW_W)
@@ -68,7 +68,7 @@ namespace pixeler
       _view_y = _terrain_h - VIEW_H;
   }
 
-  uint16_t TerrainManager::coordToTilePos(uint16_t coord) const
+  uint16_t TerrainManager2D::coordToTilePos(uint16_t coord) const
   {
     float temp_float_div = (float)coord / _tile_side_len;
     uint16_t rounded_div = round(temp_float_div);
@@ -79,7 +79,7 @@ namespace pixeler
     return rounded_div;
   }
 
-  void TerrainManager::onDraw() const
+  void TerrainManager2D::onDraw() const
   {
     if (_back_img)
     {
@@ -175,7 +175,7 @@ namespace pixeler
     }
   }
 
-  void TerrainManager::setBackImg(const uint16_t* img_data, uint16_t img_width, uint16_t img_height, uint16_t back_color, uint16_t x_offset, uint16_t y_offset)
+  void TerrainManager2D::setBackImg(const uint16_t* img_data, uint16_t img_width, uint16_t img_height, uint16_t back_color, uint16_t x_offset, uint16_t y_offset)
   {
     _back_img = img_data;
     _back_img_w = img_width;
@@ -185,7 +185,7 @@ namespace pixeler
     _back_img_y_off = y_offset;
   }
 
-  void TerrainManager::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_tmpl)
+  void TerrainManager2D::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_tmpl)
   {
     if (tiles_w_num == 0 || tiles_h_num == 0 || tile_side_len == 0 || !tiles_pos_tmpl)
     {
@@ -253,12 +253,12 @@ namespace pixeler
     }
   }
 
-  bool TerrainManager::canPass(uint16_t x_from,
-                               uint16_t y_from,
-                               uint16_t x_to,
-                               uint16_t y_to,
-                               const PhysicsState& physics,
-                               const SpriteGeometry& geometry) const
+  bool TerrainManager2D::canPass(uint16_t x_from,
+                                 uint16_t y_from,
+                                 uint16_t x_to,
+                                 uint16_t y_to,
+                                 const PhysicsState& physics,
+                                 const SpriteGeometry& geometry) const
   {
     if (x_to > _terrain_w || y_to > _terrain_h || !_terrain)
       return false;
@@ -346,7 +346,7 @@ namespace pixeler
     return false;
   }
 
-  TileType TerrainManager::getTileType(uint16_t x, uint16_t y) const
+  TileType TerrainManager2D::getTileType(uint16_t x, uint16_t y) const
   {
     if (x > _terrain_w || y > _terrain_h || !_terrain)
       return TILE_TYPE_NONE;
@@ -356,7 +356,7 @@ namespace pixeler
     return _terrain[tile_y_pos][tile_x_pos]->_type;
   }
 
-  bool TerrainManager::isInView(uint16_t x_pos, uint16_t y_pos, uint16_t sprite_w, uint16_t sprite_h) const
+  bool TerrainManager2D::isInView(uint16_t x_pos, uint16_t y_pos, uint16_t sprite_w, uint16_t sprite_h) const
   {
     if (x_pos + sprite_w < _view_x || y_pos + sprite_h < _view_y || x_pos > _view_x + VIEW_W || y_pos > _view_y + VIEW_H)
       return false;
@@ -364,7 +364,7 @@ namespace pixeler
     return true;
   }
 
-  void TerrainManager::addTileDesc(uint16_t sprite_id, TileType type, const uint16_t* sprite_src)
+  void TerrainManager2D::addTileDesc(uint16_t sprite_id, TileType type, const uint16_t* sprite_src)
   {
     try
     {
@@ -378,7 +378,7 @@ namespace pixeler
     }
   }
 
-  void TerrainManager::clearTilesDesc()
+  void TerrainManager2D::clearTilesDesc()
   {
     freeTilesDescriptionData();
   }

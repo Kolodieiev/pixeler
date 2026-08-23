@@ -8,8 +8,8 @@ namespace chess
   static const uint8_t VARIANT_BLACK = 0;
   static const uint8_t VARIANT_WHITE = 1;
 
-  IPiece::IPiece(uint32_t id, IGameScene& game_scene, SfxPlayer& audio, uint16_t type_id, IMoveStrategy* movement)
-      : IGameObject(id, type_id, game_scene, audio), _movement{movement}
+  IPiece::IPiece(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio, uint16_t type_id, IMoveStrategy* movement)
+      : IGameObject2D(id, type_id, game_scene, audio), _movement{movement}
   {
     _sprite.has_img = true;
     setImgVariant(VARIANT_WHITE);

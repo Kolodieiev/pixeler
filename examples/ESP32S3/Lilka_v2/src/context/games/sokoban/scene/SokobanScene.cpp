@@ -533,7 +533,7 @@ namespace sokoban
           POINT_POS_70};
 
   SokobanScene::SokobanScene(DataStream& stored_objs, bool is_loaded, uint8_t lvl)
-      : IGameScene(stored_objs)
+      : IGameScene2D(stored_objs)
   {
     _level = --lvl;
 
@@ -558,7 +558,7 @@ namespace sokoban
 
   void SokobanScene::update()
   {
-    IGameObject::MovingDirection direction = IGameObject::DIRECTION_NONE;
+    IGameObject2D::MovingDirection direction = IGameObject2D::DIRECTION_NONE;
 
     if (_input.isPressed(BtnID::BTN_OK))
     {
@@ -586,22 +586,22 @@ namespace sokoban
       if (_input.isHolded(BtnID::BTN_UP))  // Оброблюємо тільки утримання кнопок
       {
         _input.lock(BtnID::BTN_UP, 30);
-        direction = IGameObject::DIRECTION_UP;
+        direction = IGameObject2D::DIRECTION_UP;
       }
       else if (_input.isHolded(BtnID::BTN_DOWN))
       {
         _input.lock(BtnID::BTN_DOWN, 30);
-        direction = IGameObject::DIRECTION_DOWN;
+        direction = IGameObject2D::DIRECTION_DOWN;
       }
       else if (_input.isHolded(BtnID::BTN_RIGHT))
       {
         _input.lock(BtnID::BTN_RIGHT, 30);
-        direction = IGameObject::DIRECTION_RIGHT;
+        direction = IGameObject2D::DIRECTION_RIGHT;
       }
       else if (_input.isHolded(BtnID::BTN_LEFT))
       {
         _input.lock(BtnID::BTN_LEFT, 30);
-        direction = IGameObject::DIRECTION_LEFT;
+        direction = IGameObject2D::DIRECTION_LEFT;
       }
 
       _ghost->move(direction);
@@ -613,28 +613,28 @@ namespace sokoban
       if (_input.isReleased(BtnID::BTN_UP))  // Оброблюємо тільки відпусканя кнопок
       {
         _input.lock(BtnID::BTN_UP, 100);  // Блокуємо кнопку на 200мс, щоб запобігти випадковим зайвим натисканням
-        direction = IGameObject::DIRECTION_UP;
+        direction = IGameObject2D::DIRECTION_UP;
       }
       else if (_input.isReleased(BtnID::BTN_DOWN))
       {
         _input.lock(BtnID::BTN_DOWN, 100);
-        direction = IGameObject::DIRECTION_DOWN;
+        direction = IGameObject2D::DIRECTION_DOWN;
       }
       else if (_input.isReleased(BtnID::BTN_RIGHT))
       {
         _input.lock(BtnID::BTN_RIGHT, 100);
-        direction = IGameObject::DIRECTION_RIGHT;
+        direction = IGameObject2D::DIRECTION_RIGHT;
       }
       else if (_input.isReleased(BtnID::BTN_LEFT))
       {
         _input.lock(BtnID::BTN_LEFT, 100);
-        direction = IGameObject::DIRECTION_LEFT;
+        direction = IGameObject2D::DIRECTION_LEFT;
       }
 
       _sokoban->move(direction);
     }
 
-    IGameScene::update();  // Необхідно обов'язково перевикликати метод кожен кадр у базовму класі. Інакше сцена не буде перемальовуватися.
+    IGameScene2D::update();  // Необхідно обов'язково перевикликати метод кожен кадр у базовму класі. Інакше сцена не буде перемальовуватися.
   }
 
   void SokobanScene::onTriggered(uint16_t id)

@@ -9,7 +9,7 @@ namespace chess
   class KnightObj : public IPiece
   {
   public:
-    KnightObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    KnightObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~KnightObj();
 
   private:

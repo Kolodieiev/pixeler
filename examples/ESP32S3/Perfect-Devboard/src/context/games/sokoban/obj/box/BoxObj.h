@@ -1,15 +1,15 @@
 #pragma once
 
-#include "game/IGameObject.h"
+#include "game/2D/IGameObject2D.h"
 
 using namespace pixeler;
 
 namespace sokoban
 {
-  class BoxObj : public IGameObject
+  class BoxObj : public IGameObject2D
   {
   public:
-    BoxObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    BoxObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~BoxObj() {}
     virtual void __update() override;
     virtual void serialize(DataStream& ds) const override;

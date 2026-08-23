@@ -10,7 +10,7 @@ namespace chess
   class RookObj : public IPiece, public ICastlable
   {
   public:
-    RookObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    RookObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~RookObj();
 
   private:

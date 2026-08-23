@@ -1,13 +1,13 @@
 #pragma GCC optimize("O3")
-#include "IGameObject.h"
+#include "IGameObject2D.h"
 
 #include <cmath>
 
-#include "IGameScene.h"
+#include "IGameScene2D.h"
 
 namespace pixeler
 {
-  IGameObject::IGameObject(uint32_t id, uint16_t type_id, IGameScene& game_scene, SfxPlayer& audio)
+  IGameObject2D::IGameObject2D(uint32_t id, uint16_t type_id, IGameScene2D& game_scene, SfxPlayer& audio)
       : _obj_ID{id},
         _type_ID{type_id},
         _scene{game_scene},
@@ -16,21 +16,21 @@ namespace pixeler
     _sprite_tmpl = _scene.getSpriteTemplate(_type_ID);
   }
 
-  IGameObject::~IGameObject()
+  IGameObject2D::~IGameObject2D()
   {
   }
 
-  uint32_t IGameObject::getID() const
+  uint32_t IGameObject2D::getID() const
   {
     return _obj_ID;
   }
 
-  uint16_t IGameObject::getTypeID() const
+  uint16_t IGameObject2D::getTypeID() const
   {
     return _type_ID;
   }
 
-  void IGameObject::__onDraw()
+  void IGameObject2D::__onDraw()
   {
     if (_sprite.has_animation)
     {
@@ -95,23 +95,23 @@ namespace pixeler
     }
   }
 
-  void IGameObject::setPos(uint16_t x_pos, uint16_t y_pos)
+  void IGameObject2D::setPos(uint16_t x_pos, uint16_t y_pos)
   {
     _x_global = x_pos;
     _y_global = y_pos;
   }
 
-  uint16_t IGameObject::getGlobalX() const
+  uint16_t IGameObject2D::getGlobalX() const
   {
     return _x_global;
   }
 
-  uint16_t IGameObject::getGlobalY() const
+  uint16_t IGameObject2D::getGlobalY() const
   {
     return _y_global;
   }
 
-  uint16_t IGameObject::calcAngleToPoint(uint16_t x, uint16_t y)
+  uint16_t IGameObject2D::calcAngleToPoint(uint16_t x, uint16_t y)
   {
     int16_t azimut = atan2(y - _y_global - _geometry->y_pivot, x - _x_global - _geometry->x_pivot) * 180 / PI;
     if (azimut < 0)
@@ -119,7 +119,7 @@ namespace pixeler
     return azimut + 90;
   }
 
-  uint16_t IGameObject::calcDistToPoint(uint16_t x, uint16_t y)
+  uint16_t IGameObject2D::calcDistToPoint(uint16_t x, uint16_t y)
   {
     uint16_t a = __builtin_abs(_x_global + _geometry->x_pivot - x);
     uint16_t b = __builtin_abs(_y_global + _geometry->y_pivot - y);
@@ -127,7 +127,7 @@ namespace pixeler
     return sqrt((a * a) + (b * b));
   }
 
-  void IGameObject::stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w)
+  void IGameObject2D::stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w)
   {
     if (_x_global == x_to && _y_global == y_to)
       return;
@@ -186,7 +186,7 @@ namespace pixeler
     }
   }
 
-  void IGameObject::setAnimationVariant(uint8_t anim_variant_ID)
+  void IGameObject2D::setAnimationVariant(uint8_t anim_variant_ID)
   {
     if (_sprite_tmpl->animation_variants.size() <= anim_variant_ID) [[unlikely]]
     {
@@ -198,7 +198,7 @@ namespace pixeler
     _sprite.resetAnimation();
   }
 
-  void IGameObject::setImgVariant(uint8_t img_variant_ID)
+  void IGameObject2D::setImgVariant(uint8_t img_variant_ID)
   {
     if (_sprite_tmpl->img_variants.size() <= img_variant_ID) [[unlikely]]
     {
@@ -209,7 +209,7 @@ namespace pixeler
     _sprite.image = _sprite_tmpl->img_variants[img_variant_ID];
   }
 
-  void IGameObject::setGeometryVariant(uint8_t geometry_variant_ID)
+  void IGameObject2D::setGeometryVariant(uint8_t geometry_variant_ID)
   {
     if (_sprite_tmpl->geometry_variants.size() <= geometry_variant_ID) [[unlikely]]
     {
@@ -221,7 +221,7 @@ namespace pixeler
   }
 
   bool
-  IGameObject::hasIntersectWithPoint(uint16_t x, uint16_t y, bool rigid_only) const
+  IGameObject2D::hasIntersectWithPoint(uint16_t x, uint16_t y, bool rigid_only) const
   {
     if (rigid_only)
     {
@@ -240,7 +240,7 @@ namespace pixeler
          y <= _y_global + _geometry->height - 1);
   }
 
-  bool IGameObject::hasIntersectWithCircle(uint16_t x_mid, uint16_t y_mid, uint16_t radius, bool rigid_only) const
+  bool IGameObject2D::hasIntersectWithCircle(uint16_t x_mid, uint16_t y_mid, uint16_t radius, bool rigid_only) const
   {
     if (rigid_only && !_physics.is_rigid)
       return false;
@@ -275,7 +275,7 @@ namespace pixeler
     return (dx * dx + dy * dy) <= (static_cast<int32_t>(radius) * radius);
   }
 
-  bool IGameObject::hasIntersectWithRect(uint16_t x_start, uint16_t y_start, uint16_t rect_width, uint16_t rect_height, bool rigid_only) const
+  bool IGameObject2D::hasIntersectWithRect(uint16_t x_start, uint16_t y_start, uint16_t rect_width, uint16_t rect_height, bool rigid_only) const
   {
     if (rigid_only)
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/IGameObject.h"
+#include "game/2D/IGameObject2D.h"
 #include "game/ui/IGameUI.h"
 
 using namespace pixeler;

@@ -4,7 +4,7 @@
 
 namespace sokoban
 {
-  BoxPointObj::BoxPointObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_BOX_DOCK, game_scene, audio)
+  BoxPointObj::BoxPointObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IGameObject2D(id, TYPE_BOX_DOCK, game_scene, audio)
   {
     _sprite.has_img = true;
     setImgVariant(0);

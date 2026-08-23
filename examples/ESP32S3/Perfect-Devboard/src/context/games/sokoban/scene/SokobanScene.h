@@ -2,13 +2,13 @@
 
 #include "../obj/ghost/GhostObj.h"
 #include "../obj/sokoban/SokobanObj.h"
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 
 using namespace pixeler;
 
 namespace sokoban
 {
-  class SokobanScene : public IGameScene
+  class SokobanScene : public IGameScene2D
   {
   public:
     explicit SokobanScene(DataStream& stored_objs, bool is_loaded = false, uint8_t lvl = 1);

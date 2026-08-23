@@ -4,7 +4,7 @@
 
 namespace chess
 {
-  CameraObj::CameraObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_PLAYER, game_scene, audio)
+  CameraObj::CameraObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IGameObject2D(id, TYPE_PLAYER, game_scene, audio)
   {
   }
 

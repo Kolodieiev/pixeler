@@ -9,7 +9,7 @@ namespace chess
   static const uint8_t VARIANT_QUEEN_BLACK = 2;
   static const uint8_t VARIANT_QUEEN_WHITE = 3;
 
-  PawnObj::PawnObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_PAWN, new PawnMove())
+  PawnObj::PawnObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_PAWN, new PawnMove())
   {
   }
 

@@ -5,7 +5,7 @@
 
 namespace chess
 {
-  KingObj::KingObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_KING, new KingMove())
+  KingObj::KingObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IPiece(id, game_scene, audio, TYPE_KING, new KingMove())
   {
   }
 

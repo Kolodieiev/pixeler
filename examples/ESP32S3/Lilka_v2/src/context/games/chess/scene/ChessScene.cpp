@@ -30,7 +30,7 @@ namespace chess
   static const uint16_t BOARD_SQUARE_SZ = 28;
   static const uint16_t BOARD_PIECE_SZ = 26;
 
-  ChessScene::ChessScene(DataStream& stored_objs, uint8_t players_num) : IGameScene(stored_objs),
+  ChessScene::ChessScene(DataStream& stored_objs, uint8_t players_num) : IGameScene2D(stored_objs),
                                                                          _GAME_MODE{players_num > 1 ? GAME_MODE_TWO_PL : GAME_MODE_ONE_PL},
                                                                          _board{0, BOARD_IMG_GLOB_OFF,
                                                                                 BOARD_IMG_OFF_X,
@@ -109,7 +109,7 @@ namespace chess
       clearCurrSelect();
     }
 
-    IGameScene::update();
+    IGameScene2D::update();
 
     // Малюємо курсор після оновлення сцени, щоб фон не перемальовував його
     if (_is_piece_selected)

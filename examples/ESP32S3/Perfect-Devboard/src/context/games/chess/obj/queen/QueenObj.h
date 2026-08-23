@@ -9,7 +9,7 @@ namespace chess
   class QueenObj : public IPiece
   {
   public:
-    QueenObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    QueenObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~QueenObj();
 
   private:

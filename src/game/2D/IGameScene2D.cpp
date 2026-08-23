@@ -1,12 +1,12 @@
-#include "IGameScene.h"
+#include "IGameScene2D.h"
 #pragma GCC optimize("O3")
 #include <algorithm>
 
 namespace pixeler
 {
-  uint32_t IGameScene::_obj_id_counter = 0;
+  uint32_t IGameScene2D::_obj_id_counter = 0;
 
-  IGameScene::IGameScene(DataStream& stored_objs) : _terrain{TerrainManager()},
+  IGameScene2D::IGameScene2D(DataStream& stored_objs) : _terrain{TerrainManager2D()},
                                                     _stored_objs{stored_objs},
                                                     _obj_mutex{xSemaphoreCreateMutex()}
   {
@@ -19,7 +19,7 @@ namespace pixeler
     _obj_id_counter = 0;
   }
 
-  IGameScene::~IGameScene()
+  IGameScene2D::~IGameScene2D()
   {
     for (auto const& obj : _game_objs)
       delete obj;
@@ -28,7 +28,7 @@ namespace pixeler
     delete _game_menu;
   }
 
-  void IGameScene::update()
+  void IGameScene2D::update()
   {
     if (_is_paused) [[unlikely]]
     {
@@ -49,9 +49,9 @@ namespace pixeler
     _terrain.setCameraPos(_main_obj->_x_global, _main_obj->_y_global);
     _terrain.onDraw();
 
-    std::vector<IGameObject*> view_objs;
+    std::vector<IGameObject2D*> view_objs;
     view_objs.reserve(_game_objs.size());
-    IGameObject* obj;
+    IGameObject2D* obj;
 
     for (size_t i = 0; i < _game_objs.size(); ++i)
     {
@@ -105,7 +105,7 @@ namespace pixeler
       }
     }
 
-    std::sort(view_objs.begin(), view_objs.end(), [](IGameObject* a, IGameObject* b)
+    std::sort(view_objs.begin(), view_objs.end(), [](IGameObject2D* a, IGameObject2D* b)
               {
     if (a->_layer < b->_layer) 
         return true;
@@ -120,39 +120,39 @@ namespace pixeler
       _game_UI->onDraw();
   }
 
-  bool IGameScene::isFinished() const
+  bool IGameScene2D::isFinished() const
   {
     return _is_finished;
   }
 
-  bool IGameScene::isReleased() const
+  bool IGameScene2D::isReleased() const
   {
     return _is_released;
   }
 
-  uint8_t IGameScene::getNextSceneID() const
+  uint8_t IGameScene2D::getNextSceneID() const
   {
     return _next_scene_ID;
   }
 
-  void IGameScene::takeLock() const
+  void IGameScene2D::takeLock() const
   {
     xSemaphoreTake(_obj_mutex, portMAX_DELAY);
   }
 
-  void IGameScene::giveLock() const
+  void IGameScene2D::giveLock() const
   {
     xSemaphoreGive(_obj_mutex);
   }
 
-  void IGameScene::openSceneByID(uint16_t scene_ID)
+  void IGameScene2D::openSceneByID(uint16_t scene_ID)
   {
     _input.reset();
     _next_scene_ID = scene_ID;
     _is_released = true;
   }
 
-  size_t IGameScene::calcObjectsSize() const
+  size_t IGameScene2D::calcObjectsSize() const
   {
     size_t sum{0};
     takeLock();
@@ -162,7 +162,7 @@ namespace pixeler
     return sum;
   }
 
-  void IGameScene::serializeObjects(DataStream& ds) const
+  void IGameScene2D::serializeObjects(DataStream& ds) const
   {
     takeLock();
     for (auto const& obj : _game_objs)
@@ -172,7 +172,7 @@ namespace pixeler
     ds.flush();
   }
 
-  const SpriteTemplate* IGameScene::registerSpriteTemplate(uint16_t type_ID, SpriteTemplate tmpl)
+  const SpriteTemplate* IGameScene2D::registerSpriteTemplate(uint16_t type_ID, SpriteTemplate tmpl)
   {
     auto [it, inserted] = _sprite_templates.emplace(type_ID, tmpl);
 
@@ -185,7 +185,7 @@ namespace pixeler
     return &it->second;
   }
 
-  const SpriteTemplate* IGameScene::getSpriteTemplate(uint16_t type_ID) const
+  const SpriteTemplate* IGameScene2D::getSpriteTemplate(uint16_t type_ID) const
   {
     auto it = _sprite_templates.find(type_ID);
 
@@ -198,9 +198,9 @@ namespace pixeler
     return &it->second;
   }
 
-  std::vector<IGameObject*> IGameScene::getObjByType(std::span<const uint16_t> type_ID, const IGameObject* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByType(std::span<const uint16_t> type_ID, const IGameObject2D* exclude)
   {
-    std::vector<IGameObject*> ret_objs;
+    std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
     for (auto const& obj : _game_objs)
@@ -221,9 +221,9 @@ namespace pixeler
     return ret_objs;
   }
 
-  std::vector<IGameObject*> IGameScene::getObjByTypeAt(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, const IGameObject* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeAt(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, const IGameObject2D* exclude)
   {
-    std::vector<IGameObject*> ret_objs;
+    std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
     for (auto const& obj : _game_objs)
@@ -244,9 +244,9 @@ namespace pixeler
     return ret_objs;
   }
 
-  std::vector<IGameObject*> IGameScene::getObjByTypeInRect(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, uint16_t width, uint16_t height, const IGameObject* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeInRect(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, uint16_t width, uint16_t height, const IGameObject2D* exclude)
   {
-    std::vector<IGameObject*> ret_objs;
+    std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
     for (auto const& obj : _game_objs)
@@ -267,9 +267,9 @@ namespace pixeler
     return ret_objs;
   }
 
-  std::vector<IGameObject*> IGameScene::getObjByTypeInCircle(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, uint16_t radius, const IGameObject* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeInCircle(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, uint16_t radius, const IGameObject2D* exclude)
   {
-    std::vector<IGameObject*> ret_objs;
+    std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
     for (auto const& obj : _game_objs)
@@ -290,7 +290,7 @@ namespace pixeler
     return ret_objs;
   }
 
-  bool IGameScene::hasCollisionAt(uint16_t x, uint16_t y, const IGameObject* exclude)
+  bool IGameScene2D::hasCollisionAt(uint16_t x, uint16_t y, const IGameObject2D* exclude)
   {
     for (auto const& obj : _game_objs)
     {
@@ -301,17 +301,17 @@ namespace pixeler
     return false;
   }
 
-  bool IGameScene::canPass(const IGameObject& caller, uint16_t x_to, uint16_t y_to)
+  bool IGameScene2D::canPass(const IGameObject2D& caller, uint16_t x_to, uint16_t y_to)
   {
     return _terrain.canPass(caller._x_global, caller._y_global, x_to, y_to, caller._physics, *caller._geometry);
   }
 
-  void IGameScene::addObject(IGameObject& obj)
+  void IGameScene2D::addObject(IGameObject2D& obj)
   {
     _game_objs.emplace_back(&obj);
   }
 
-  void IGameScene::onTriggered(uint16_t trigg_id)
+  void IGameScene2D::onTriggered(uint16_t trigg_id)
   {
     log_i("Викликано тригер: %u", trigg_id);
   }

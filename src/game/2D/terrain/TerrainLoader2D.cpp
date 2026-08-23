@@ -1,11 +1,11 @@
 #pragma GCC optimize("O3")
-#include "TerrainLoader.h"
+#include "TerrainLoader2D.h"
 
 #include "manager/FileManager.h"
 
 namespace pixeler
 {
-  TileType TerrainLoader::textToTileType(const char* str, int start, int end)
+  TileType TerrainLoader2D::textToTileType(const char* str, int start, int end)
   {
     int len = end - start;
 
@@ -33,16 +33,16 @@ namespace pixeler
     return TILE_TYPE_NONE;
   }
 
-  TerrainLoader::TerrainLoader()
+  TerrainLoader2D::TerrainLoader2D()
   {
   }
 
-  TerrainLoader::~TerrainLoader()
+  TerrainLoader2D::~TerrainLoader2D()
   {
     clearTerrainData();
   }
 
-  TileType TerrainLoader::getTileTypeByID(uint16_t tile_id)
+  TileType TerrainLoader2D::getTileTypeByID(uint16_t tile_id)
   {
     const auto tile_it = _tile_type_data.find(tile_id);
 
@@ -55,7 +55,7 @@ namespace pixeler
     return tile_it->second;
   }
 
-  const uint16_t* TerrainLoader::getBmpDataByID(uint16_t tile_id)
+  const uint16_t* TerrainLoader2D::getBmpDataByID(uint16_t tile_id)
   {
     const auto bmp_data_it = _terr_bmp_data.find(tile_id);
 
@@ -69,7 +69,7 @@ namespace pixeler
     return static_cast<const uint16_t*>(_res_manager.getResByID(res_id)->getData());
   }
 
-  void TerrainLoader::clearTerrainData()
+  void TerrainLoader2D::clearTerrainData()
   {
     free(_terrain_tmpl);
     _terrain_tmpl = nullptr;
@@ -87,7 +87,7 @@ namespace pixeler
     _is_terrain_loaded = false;
   }
 
-  void TerrainLoader::buildTerrain(TerrainManager& terrain, uint16_t tile_side_len)
+  void TerrainLoader2D::buildTerrain(TerrainManager2D& terrain, uint16_t tile_side_len)
   {
     if (!_is_terrain_loaded)
     {
@@ -109,7 +109,7 @@ namespace pixeler
     terrain.build(_terrain_width, _terrain_height, tile_side_len, _terrain_tmpl);  // Побудувати мапу на основі даних шаблону
   }
 
-  bool TerrainLoader::loadTerrain(const char* terr_csv_path, const char* tile_type_path, const char* bmp_dir_path)
+  bool TerrainLoader2D::loadTerrain(const char* terr_csv_path, const char* tile_type_path, const char* bmp_dir_path)
   {
     clearTerrainData();
 
@@ -126,7 +126,7 @@ namespace pixeler
     return _is_terrain_loaded;
   }
 
-  String TerrainLoader::loadFile(const char* path)
+  String TerrainLoader2D::loadFile(const char* path)
   {
     if (!psramInit())
     {
@@ -164,7 +164,7 @@ namespace pixeler
     return ret_str;
   }
 
-  bool TerrainLoader::loadTerrainTmpl(const char* terr_csv_path)
+  bool TerrainLoader2D::loadTerrainTmpl(const char* terr_csv_path)
   {
     String content = loadFile(terr_csv_path);
     if (content.isEmpty())
@@ -237,7 +237,7 @@ namespace pixeler
     return true;
   }
 
-  bool TerrainLoader::loadTileTypeInfo(const char* tile_type_path)
+  bool TerrainLoader2D::loadTileTypeInfo(const char* tile_type_path)
   {
     String content = loadFile(tile_type_path);
     if (content.isEmpty())
@@ -307,7 +307,7 @@ namespace pixeler
     return true;
   }
 
-  bool TerrainLoader::loadBmps(const char* bmp_dir_path)
+  bool TerrainLoader2D::loadBmps(const char* bmp_dir_path)
   {
     uint16_t terrain_size = _terrain_width * _terrain_height;
 

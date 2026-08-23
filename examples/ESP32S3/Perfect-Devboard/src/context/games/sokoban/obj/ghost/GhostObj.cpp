@@ -1,11 +1,11 @@
 #include "GhostObj.h"
 
 #include "../TypeID.h"
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 
 namespace sokoban
 {
-  GhostObj::GhostObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_NONE, game_scene, audio)
+  GhostObj::GhostObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IGameObject2D(id, TYPE_NONE, game_scene, audio)
   {
     
   }

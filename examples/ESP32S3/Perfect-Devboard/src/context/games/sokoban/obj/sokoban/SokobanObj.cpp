@@ -2,11 +2,11 @@
 
 #include "../TriggerID.h"
 #include "../TypeID.h"
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 
 namespace sokoban
 {
-  SokobanObj::SokobanObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_HERO, game_scene, audio)
+  SokobanObj::SokobanObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IGameObject2D(id, TYPE_HERO, game_scene, audio)
   {
     _layer = 1;              // Об'єкт повинен бути вище об'єктів точок
     _sprite.has_img = true;  // Указати, що об'єкт може малювати свій спрайт
@@ -56,7 +56,7 @@ namespace sokoban
     // Якщо перевизначено, тут можна відрисувати все, що НЕ стосується спрайта об'єкта.
     // Наприклад, полоску XP над ним.
 
-    IGameObject::__onDraw();  // Необхідно обов'язково викликати бітьківський метод для відрисовки спрайту чи анімації.
+    IGameObject2D::__onDraw();  // Необхідно обов'язково викликати бітьківський метод для відрисовки спрайту чи анімації.
   }
 
   void SokobanObj::move(MovingDirection direction)
@@ -84,7 +84,7 @@ namespace sokoban
     const std::array types = {(uint16_t)TYPE_BOX};
 
     // Шукаємо ящик на плитці в напрямку руху
-    std::vector<IGameObject*> objs = _scene.getObjByTypeAt(types, x, y, this);
+    std::vector<IGameObject2D*> objs = _scene.getObjByTypeAt(types, x, y, this);
 
     if (!objs.empty())
     {

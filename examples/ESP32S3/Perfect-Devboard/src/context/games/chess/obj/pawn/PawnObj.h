@@ -9,7 +9,7 @@ namespace chess
   class PawnObj : public IPiece
   {
   public:
-    PawnObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    PawnObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~PawnObj();
 
     void turnIntoQueen();

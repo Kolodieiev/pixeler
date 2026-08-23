@@ -10,7 +10,7 @@ namespace chess
   class KingObj : public IPiece, public ICastlable
   {
   public:
-    KingObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    KingObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~KingObj();
 
   private:

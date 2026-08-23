@@ -9,7 +9,7 @@ namespace chess
   class BishopObj : public IPiece
   {
   public:
-    BishopObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio);
+    BishopObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio);
     virtual ~BishopObj();
 
   private:

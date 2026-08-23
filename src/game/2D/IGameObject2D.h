@@ -1,11 +1,11 @@
 #pragma once
 #pragma GCC optimize("O3")
 
-#include "DataStream.h"
+#include "../DataStream.h"
+#include "../sound/SfxPlayer.h"
 #include "defines.h"
 #include "driver/graphics/DisplayWrapper.h"
 #include "manager/ResManager.h"
-#include "sound/SfxPlayer.h"
 #include "sprite/PhysicsState.h"
 #include "sprite/SpriteState.h"
 #include "sprite/SpriteTemplate.h"
@@ -13,9 +13,9 @@
 
 namespace pixeler
 {
-  class IGameScene;
+  class IGameScene2D;
 
-  class IGameObject
+  class IGameObject2D
   {
   public:
     enum MovingDirection : uint8_t
@@ -27,11 +27,11 @@ namespace pixeler
       DIRECTION_RIGHT
     };
 
-    IGameObject(const IGameObject& rhs) = delete;
-    IGameObject& operator=(const IGameObject& rhs) = delete;
+    IGameObject2D(const IGameObject2D& rhs) = delete;
+    IGameObject2D& operator=(const IGameObject2D& rhs) = delete;
 
-    IGameObject(uint32_t id, uint16_t type_id, IGameScene& game_scene, SfxPlayer& audio);
-    virtual ~IGameObject() = 0;
+    IGameObject2D(uint32_t id, uint16_t type_id, IGameScene2D& game_scene, SfxPlayer& audio);
+    virtual ~IGameObject2D() = 0;
 
     /**
      * @brief Повертає реальний розмір даних об'єкта, які будуть серіалізовані.
@@ -195,11 +195,11 @@ namespace pixeler
     void setGeometryVariant(uint8_t geometry_variant_ID);
 
   private:
-    friend class IGameScene;
+    friend class IGameScene2D;
 
   protected:
     SpriteState _sprite{};   // Опис стану спрайта ігровго об'єкта
-    IGameScene& _scene;      // Ігрова сцена, в якій знаходиться об'єкт
+    IGameScene2D& _scene;    // Ігрова сцена, в якій знаходиться об'єкт
     SfxPlayer& _sfx_player;  // Плеєр звукових ефектів
 
   private:

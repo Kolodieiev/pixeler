@@ -3,31 +3,31 @@
 #include <cmath>
 #include <unordered_map>
 
-#include "../../driver/graphics/DisplayWrapper.h"
 #include "../sprite/PhysicsState.h"
 #include "../sprite/SpriteGeometry.h"
 #include "Tile.h"
 #include "defines.h"
+#include "driver/graphics/DisplayWrapper.h"
 
 namespace pixeler
 {
-  class TerrainManager
+  class TerrainManager2D
   {
   public:
 //
 #ifdef GRAPHICS_ENABLED
-    TerrainManager() : VIEW_W{UI_WIDTH},
-                       VIEW_H{UI_HEIGHT},
-                       HALF_VIEW_W{static_cast<uint16_t>(UI_WIDTH * 0.5f)},
-                       HALF_VIEW_H{static_cast<uint16_t>(UI_HEIGHT * 0.5f)} {}
+    TerrainManager2D() : VIEW_W{UI_WIDTH},
+                         VIEW_H{UI_HEIGHT},
+                         HALF_VIEW_W{static_cast<uint16_t>(UI_WIDTH * 0.5f)},
+                         HALF_VIEW_H{static_cast<uint16_t>(UI_HEIGHT * 0.5f)} {}
 #else
     // Заглушка, щоб не видаляти рушій, якщо графіку вимкнуто
-    TerrainManager() : VIEW_W{10},
-                       VIEW_H{10},
-                       HALF_VIEW_W{static_cast<uint16_t>(5)},
-                       HALF_VIEW_H{static_cast<uint16_t>(5)} {}
+    TerrainManager2D() : VIEW_W{10},
+                         VIEW_H{10},
+                         HALF_VIEW_W{static_cast<uint16_t>(5)},
+                         HALF_VIEW_H{static_cast<uint16_t>(5)} {}
 #endif  // #ifdef GRAPHICS_ENABLED
-    ~TerrainManager();
+    ~TerrainManager2D();
 
     /**
      * @brief Повертає ширину ігрового рівня в пікселях.

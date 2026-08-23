@@ -2,14 +2,14 @@
 
 #include "../../ResID.h"
 #include "../TypeID.h"
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 
 namespace sokoban
 {
   static const uint8_t VARIANT_BOX_NORMAL = 0;
   static const uint8_t VARIANT_BOX_DOCKED = 1;
 
-  BoxObj::BoxObj(uint32_t id, IGameScene& game_scene, SfxPlayer& audio) : IGameObject(id, TYPE_BOX, game_scene, audio)
+  BoxObj::BoxObj(uint32_t id, IGameScene2D& game_scene, SfxPlayer& audio) : IGameObject2D(id, TYPE_BOX, game_scene, audio)
   {
     _layer = 1;  // Об'єкт повинен бути вище об'єктів точок щоб перекривати їх
     _sprite.has_img = true;
@@ -43,7 +43,7 @@ namespace sokoban
     const std::array types = {(uint16_t)TYPE_BOX, (uint16_t)TYPE_BOX_DOCK};
 
     // Вибрати об'єкти ящиків та ключових точок на плитці куди повинен бути встановлений ящик
-    std::vector<IGameObject*> objs = _scene.getObjByTypeAt(types, x, y, this);
+    std::vector<IGameObject2D*> objs = _scene.getObjByTypeAt(types, x, y, this);
 
     for (auto it = objs.begin(), last_it = objs.end(); it != last_it; ++it)
     {

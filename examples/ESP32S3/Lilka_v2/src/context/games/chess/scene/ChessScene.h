@@ -2,14 +2,14 @@
 
 #include "../obj/Board.h"
 #include "../obj/player/CameraObj.h"
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 #include "widget/text/Label.h"
 
 using namespace pixeler;
 
 namespace chess
 {
-  class ChessScene : public IGameScene
+  class ChessScene : public IGameScene2D
   {
   public:
     explicit ChessScene(DataStream& stored_objs, uint8_t players_num = 1);

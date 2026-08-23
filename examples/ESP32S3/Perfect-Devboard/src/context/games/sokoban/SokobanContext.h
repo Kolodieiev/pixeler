@@ -2,7 +2,7 @@
 //
 #include "game/DataStream.h"
 //
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 #include "context/IContext.h"
 #include "widget/menu/FixedMenu.h"
 #include "widget/scrollbar/ScrollBar.h"
@@ -35,7 +35,7 @@ namespace sokoban
 
     FixedMenu* _lvl_menu{nullptr};
     ScrollBar* _scrollbar{nullptr};
-    IGameScene* _scene{nullptr};
+    IGameScene2D* _scene{nullptr};
 
     uint8_t _prev_lvl{1};
 

@@ -3,7 +3,7 @@
 #include "game/DataStream.h"
 //
 #include "context/IContext.h"
-#include "game/IGameScene.h"
+#include "game/2D/IGameScene2D.h"
 #include "widget/menu/FixedMenu.h"
 
 using namespace pixeler;
@@ -125,7 +125,7 @@ namespace chess
     String _serv_pwd;
 
     DataStream _stored_objs{10};  // Об'єкт для перенесення даних між сценами
-    IGameScene* _scene{nullptr};
+    IGameScene2D* _scene{nullptr};
 
     Mode _mode{MODE_MAIN};  // Поточний режим контекста(стан)
   };
