@@ -58,6 +58,7 @@ namespace chess
       GAME_MODE_CLIENT,
       GAME_MODE_SERVER,
     };
+
     //---------------------------------------------------------------
     void loadPrefs();  // Завантаження налаштувань гри
     //---------------------------------------------------------------
@@ -67,44 +68,46 @@ namespace chess
     //---------------------------------------------------------------
 
     void showMainTmpl();  // Головне меню
+    void procMainMenu();  // Обробка вводу головного меню
 
     // Клієнт
 
-    void showWifiScanTmpl();     // Показати сканування точок доступа для клієнта
-    void showWifiListTmpl();     // Показати список точок доступа для клієнта
-    void showConnDialogTmpl();   // Показати діалог підключення до AP
-    void showConnToApTmpl();     // Показати підключення до точки доступу
+    void showWifiScanTmpl();  // Показати сканування точок доступа для клієнта
+    void procWifiScan();      // Обробка відміни сканування
+
+    void showWifiListTmpl();  // Показати список точок доступа для клієнта
+    void procWifiList();      // Вибір точки доступу та підключення
+
+    void showConnToApTmpl();  // Показати підключення до точки доступу
+    void procConnectToAp();   // Обробка відміни підключення до AP
+
     void showClientLobbyTmpl();  // Показати клієнтське лобі
+    void procClientLobby();      // Вихід з клієнтського лобі
 
     // Сервер
 
-    void showNewClientConnTmpl();  // Показати повідомлення про підключення клієнта
-    void showServerCtxTmpl();      // Показати контекстне меню сервера
-    void showServerLobbyTmpl();    // Показати ігрове лобі сервера
+    void showClientConfirmTmpl();   // Показати повідомлення про підключення клієнта
+    void procClientConfirmation();  // Прийняти або відхилити клієнта
+
+    void showServerContextTmpl();  // Показати контекстне меню сервера
+    void procLobbyContext();       // Обробка серверного меню
+
+    void showServerLobbyTmpl();  // Показати ігрове лобі сервера
+    void procServerLobby();      // Вибір клієнта зі списку
 
     // Налаштування
 
-    void showPrefsTmpl();                                              // Показати головне вікно налаштувань
-    void showPrefsNickTmpl();                                          // Показати вікно налаштувань нікнейма
-    void showPrefsServNameTmpl();                                      // Показати вікно налаштувань серверного імені
-    void showPrefsServPwdTmpl();                                       // Показати вікно налаштувань серверного пароля
+    void showPrefsTmpl();  // Показати головне вікно налаштувань
+    void procPrefMenu();   // Вибір пункту налаштувань
+
+    void showConnDialogTmpl();                                         // Показати діалог підключення до AP
+    void showDialogNicknameTmpl();                                     // Показати вікно налаштувань нікнейма
+    void showDialogServNameTmpl();                                     // Показати вікно налаштувань серверного імені
+    void showDialogServPwdTmpl();                                      // Показати вікно налаштувань серверного пароля
     void addDialog(const String& title_txt, const String& start_txt);  // Додати до layout діалог вводу
-    //---------------------------------------------------------------
+    void procDialog();                                                 // Обробка вводу діалогового вікна
 
     void updateGame();
-    //
-    void procKbMain();         // Вибір режиму(головне меню)
-    void procKbWifiScan();     // Обробка відміни сканування
-    void procKbWifiList();     // Вибір точки доступу та підключення
-    void procKbConnToAp();     // Обробка відміни підключення до AP
-    void procKbClientLobby();  // Вихід з клієнтського лобі
-    //
-    void procKbClientConfirm();  // Прийняти або відхилити клієнта
-    void procKbCtxtLobby();      // Обробка серверного меню
-    void procKbServerLobby();    // Вибір клієнта зі списку
-    //
-    void procKbPrefMain();    // Вибір пункту налаштувань
-    void procKbPrefDialog();  // Обробка вводу діалогового вікна
 
     //---------------------------------------------------------------
 
@@ -113,8 +116,8 @@ namespace chess
     String _serv_ssid;
     String _serv_pwd;
 
-    DataStream _stored_objs{10};                             // Об'єкт для перенесення даних між сценами
-    StateHandler _current_state{&ChessContext::procKbMain};  // Змінна для збереження методу, який відповідає за обробку поточного стану контексту
+    DataStream _stored_objs{10};                               // Об'єкт для перенесення даних між сценами
+    StateHandler _current_state{&ChessContext::procMainMenu};  // Змінна для збереження методу, який відповідає за обробку поточного стану контекста
     IGameScene2D* _scene{nullptr};
 
     PrefDialogID _dialog_id{DIALOG_ID_NICK};

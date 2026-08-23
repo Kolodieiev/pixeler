@@ -125,7 +125,7 @@ namespace chess
 
   void ChessContext::showMainTmpl()
   {
-    _current_state = &ChessContext::procKbMain;
+    _current_state = &ChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -176,7 +176,7 @@ namespace chess
 
   void ChessContext::showPrefsTmpl()
   {
-    _current_state = &ChessContext::procKbPrefMain;
+    _current_state = &ChessContext::procPrefMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -211,19 +211,19 @@ namespace chess
     serv_pwd_item->setLbl(serv_pwd_lbl);
   }
 
-  void ChessContext::showPrefsNickTmpl()
+  void ChessContext::showDialogNicknameTmpl()
   {
     _dialog_id = DIALOG_ID_NICK;
     addDialog(STR_NICKNAME, _client_nick);
   }
 
-  void ChessContext::showPrefsServNameTmpl()
+  void ChessContext::showDialogServNameTmpl()
   {
     _dialog_id = DIALOG_ID_SERV_NAME;
     addDialog(STR_SERV_NAME, _serv_ssid);
   }
 
-  void ChessContext::showPrefsServPwdTmpl()
+  void ChessContext::showDialogServPwdTmpl()
   {
     _dialog_id = DIALOG_ID_SERV_PWD;
     addDialog(STR_SERV_PWD, _serv_pwd);
@@ -231,7 +231,7 @@ namespace chess
 
   void ChessContext::addDialog(const String& title_txt, const String& start_txt)
   {
-    _current_state = &ChessContext::procKbPrefDialog;
+    _current_state = &ChessContext::procDialog;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -265,15 +265,15 @@ namespace chess
 
   void ChessContext::showConnDialogTmpl()
   {
-    _current_state = &ChessContext::procKbPrefDialog;
+    _current_state = &ChessContext::procDialog;
     addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
   }
 
-  void ChessContext::showNewClientConnTmpl()  // TODO
+  void ChessContext::showClientConfirmTmpl()  // TODO
   {
   }
 
-  void ChessContext::showServerCtxTmpl()
+  void ChessContext::showServerContextTmpl()
   {
   }
 
@@ -300,7 +300,7 @@ namespace chess
   //----------------------------------------------------------------------------------------------------------
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessContext::procKbMain()
+  void ChessContext::procMainMenu()
   {
     FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
 
@@ -349,7 +349,7 @@ namespace chess
     }
   }
 
-  void ChessContext::procKbPrefMain()
+  void ChessContext::procPrefMenu()
   {
     FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
 
@@ -371,15 +371,15 @@ namespace chess
       switch (id)
       {
         case ID_ITEM_NICK:
-          showPrefsNickTmpl();
+          showDialogNicknameTmpl();
           break;
 
         case ID_ITEM_SERV_NAME:
-          showPrefsServNameTmpl();
+          showDialogServNameTmpl();
           break;
 
         case ID_ITEM_SERV_PWD:
-          showPrefsServPwdTmpl();
+          showDialogServPwdTmpl();
           break;
       }
     }
@@ -390,7 +390,7 @@ namespace chess
     }
   }
 
-  void ChessContext::procKbPrefDialog()
+  void ChessContext::procDialog()
   {
     Keyboard* keyboard = getLayout()->getWidgetByID(ID_DIALOG_KB)->castTo<Keyboard>();
     TextBox* dialog_txt = getLayout()->getWidgetByID(ID_DIALOG_TEXT)->castTo<TextBox>();
@@ -473,31 +473,31 @@ namespace chess
     }
   }
 
-  void ChessContext::procKbWifiScan()  // TODO
+  void ChessContext::procWifiScan()  // TODO
   {
   }
 
-  void ChessContext::procKbWifiList()
+  void ChessContext::procWifiList()
   {
   }
 
-  void ChessContext::procKbClientLobby()
+  void ChessContext::procClientLobby()
   {
   }
 
-  void ChessContext::procKbConnToAp()
+  void ChessContext::procConnectToAp()
   {
   }
 
-  void ChessContext::procKbServerLobby()
+  void ChessContext::procServerLobby()
   {
   }
 
-  void ChessContext::procKbCtxtLobby()
+  void ChessContext::procLobbyContext()
   {
   }
 
-  void ChessContext::procKbClientConfirm()
+  void ChessContext::procClientConfirmation()
   {
   }
 
