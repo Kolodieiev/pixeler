@@ -2,8 +2,8 @@
 
 #include "../../WidgetCreator.h"
 #include "manager/SettingsManager.h"
-#include "widget/text/TextBox.h"
 #include "scene/ChessScene.h"
+#include "widget/text/TextBox.h"
 
 static const char STR_CHESS_GAME_DIR[] = "chess";
 
@@ -61,55 +61,7 @@ namespace chess
 
   void ChessContext::update()
   {
-    switch (_mode)
-    {
-      case MODE_GAME:
-        updateGame();
-        break;
-
-      case MODE_MAIN:
-        procKbMain();
-        break;
-
-      case MODE_WIFI_SCAN:
-        procKbWifiScan();
-        break;
-
-      case MODE_WIFI_LIST:
-        procKbWifiList();
-        break;
-
-      case MODE_CONN_TO_AP:
-        procKbConnToAp();
-        break;
-
-      case MODE_CLIENT_LOBBY:
-        procKbClientLobby();
-        break;
-
-      case MODE_SERVER_LOBBY:
-        procKbServerLobby();
-        break;
-
-      case MODE_LOBBY_CTXT_MENU:
-        procKbCtxtLobby();
-        break;
-
-      case MODE_CLIENT_CONFIRM:
-        procKbClientConfirm();
-        break;
-
-      case MODE_PREF_MAIN:
-        procKbPrefMain();
-        break;
-
-      case MODE_CONN_DIALOG:
-      case MODE_PREF_NICK:
-      case MODE_PREF_SERV_NAME:
-      case MODE_PREF_SERV_PWD:
-        procKbPrefDialog();
-        break;
-    }
+    (this->*_current_state)();
   }
 
   //----------------------------------------------------------------------------------------------------------
@@ -125,7 +77,8 @@ namespace chess
 
   void ChessContext::startGame(GameMode mode)
   {
-    _mode = MODE_GAME;
+    _current_state = &ChessContext::updateGame;
+
     getLayout()->delWidgets();
     switch (mode)
     {  // TODO
@@ -172,7 +125,7 @@ namespace chess
 
   void ChessContext::showMainTmpl()
   {
-    _mode = MODE_MAIN;
+    _current_state = &ChessContext::procKbMain;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -223,7 +176,7 @@ namespace chess
 
   void ChessContext::showPrefsTmpl()
   {
-    _mode = MODE_PREF_MAIN;
+    _current_state = &ChessContext::procKbPrefMain;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -260,24 +213,26 @@ namespace chess
 
   void ChessContext::showPrefsNickTmpl()
   {
-    _mode = MODE_PREF_NICK;
+    _dialog_id = DIALOG_ID_NICK;
     addDialog(STR_NICKNAME, _client_nick);
   }
 
   void ChessContext::showPrefsServNameTmpl()
   {
-    _mode = MODE_PREF_SERV_NAME;
+    _dialog_id = DIALOG_ID_SERV_NAME;
     addDialog(STR_SERV_NAME, _serv_ssid);
   }
 
   void ChessContext::showPrefsServPwdTmpl()
   {
-    _mode = MODE_PREF_SERV_PWD;
+    _dialog_id = DIALOG_ID_SERV_PWD;
     addDialog(STR_SERV_PWD, _serv_pwd);
   }
 
   void ChessContext::addDialog(const String& title_txt, const String& start_txt)
   {
+    _current_state = &ChessContext::procKbPrefDialog;
+
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
 
@@ -310,7 +265,7 @@ namespace chess
 
   void ChessContext::showConnDialogTmpl()
   {
-    _mode = MODE_CONN_DIALOG;
+    _current_state = &ChessContext::procKbPrefDialog;
     addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
   }
 
@@ -366,9 +321,9 @@ namespace chess
 
       switch (id)
       {
-        // case ID_ITEM_ONE_PLAYER: // TODO
-        //   startGame(GAME_MODE_ONE_PL);
-        //   break;
+        case ID_ITEM_ONE_PLAYER:
+          startGame(GAME_MODE_ONE_PL);
+          break;
 
         case ID_ITEM_TWO_PLAYERS:
           startGame(GAME_MODE_TWO_PL);
@@ -476,25 +431,25 @@ namespace chess
 
       bool save_pref_result{false};
 
-      switch (_mode)
+      switch (_dialog_id)
       {
-        case MODE_CONN_DIALOG:  // Якщо в режимі підключення до сервера
+        case DIALOG_ID_SERVER_CONN:  // Якщо в режимі підключення до сервера
           _serv_pwd = dialog_txt->getText();
           SettingsManager::set(STR_PREF_SERVER_PWD, _serv_pwd.c_str(), STR_CHESS_GAME_DIR);
           showConnToApTmpl();
           return;
 
-        case MODE_PREF_NICK:
+        case DIALOG_ID_NICK:
           _client_nick = dialog_txt->getText();
           save_pref_result = SettingsManager::set(STR_PREF_NICKNAME, _client_nick.c_str(), STR_CHESS_GAME_DIR);
           break;
 
-        case MODE_PREF_SERV_NAME:
+        case DIALOG_ID_SERV_NAME:
           _serv_ssid = dialog_txt->getText();
           save_pref_result = SettingsManager::set(STR_PREF_SERVER_SSID, _serv_ssid.c_str(), STR_CHESS_GAME_DIR);
           break;
 
-        case MODE_PREF_SERV_PWD:
+        case DIALOG_ID_SERV_PWD:
           _serv_pwd = dialog_txt->getText();
           save_pref_result = SettingsManager::set(STR_PREF_SERVER_PWD, _serv_pwd.c_str(), STR_CHESS_GAME_DIR);
           break;
@@ -511,10 +466,10 @@ namespace chess
     {
       _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
 
-      if (_mode == MODE_CONN_DIALOG)  // Якщо в режимі підключення до сервера
-        showWifiScanTmpl();           // Пароль не введено. Повторно запускаємо сканування
+      if (_dialog_id == DIALOG_ID_SERVER_CONN)  // Якщо в режимі підключення до сервера
+        showWifiScanTmpl();                     // Пароль не введено. Повторно запускаємо сканування
       else
-        showPrefsTmpl();
+        showPrefsTmpl();  // Повертаємось до вікна налаштувань
     }
   }
 

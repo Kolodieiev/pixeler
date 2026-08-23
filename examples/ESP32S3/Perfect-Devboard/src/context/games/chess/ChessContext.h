@@ -21,6 +21,8 @@ namespace chess
     virtual void update() override;
 
   private:
+    using StateHandler = void (ChessContext::*)();
+
     enum Widget_ID : uint8_t
     {
       ID_MAIN_MENU = 1,
@@ -41,25 +43,12 @@ namespace chess
       ID_ITEM_SERV_PWD
     };
 
-    enum Mode : uint8_t
+    enum PrefDialogID : uint8_t
     {
-      MODE_MAIN = 1,  // Головне меню
-      MODE_GAME,      // Режим гри
-      //
-      MODE_WIFI_SCAN,     // Сканування точок доступу
-      MODE_WIFI_LIST,     // Відображення результату сканування
-      MODE_CONN_DIALOG,   // Діалог підключення до точки доступу
-      MODE_CONN_TO_AP,    // Вікно підключення до точки доступу
-      MODE_CLIENT_LOBBY,  // Клієнтське лобі
-      //
-      MODE_SERVER_LOBBY,     // Серверне лобі
-      MODE_LOBBY_CTXT_MENU,  // Контекстне меню серверного лобі
-      MODE_CLIENT_CONFIRM,   // Діалог підключення клієнта
-      //
-      MODE_PREF_MAIN,       // Головне вікно налаштувань
-      MODE_PREF_NICK,       // Діалог ігрового імені
-      MODE_PREF_SERV_NAME,  // Діалог серверного імені
-      MODE_PREF_SERV_PWD,   // Даілог серверного пароля
+      DIALOG_ID_NICK = 0,
+      DIALOG_ID_SERV_NAME,
+      DIALOG_ID_SERV_PWD,
+      DIALOG_ID_SERVER_CONN,
     };
 
     enum GameMode : uint8_t
@@ -124,9 +113,10 @@ namespace chess
     String _serv_ssid;
     String _serv_pwd;
 
-    DataStream _stored_objs{10};  // Об'єкт для перенесення даних між сценами
+    DataStream _stored_objs{10};                             // Об'єкт для перенесення даних між сценами
+    StateHandler _current_state{&ChessContext::procKbMain};  // Змінна для збереження методу, який відповідає за обробку поточного стану контексту
     IGameScene2D* _scene{nullptr};
 
-    Mode _mode{MODE_MAIN};  // Поточний режим контекста(стан)
+    PrefDialogID _dialog_id{DIALOG_ID_NICK};
   };
 }  // namespace chess
