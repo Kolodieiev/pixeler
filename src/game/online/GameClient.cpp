@@ -131,7 +131,7 @@ namespace pixeler
     if (_packet_queue)
     {
       UdpPacket* packet{nullptr};
-      while (xQueueReceive(_packet_queue, &packet, portMAX_DELAY) == pdPASS)
+      while (xQueueReceive(_packet_queue, &packet, 0) == pdPASS)
         delete packet;
 
       vQueueDelete(_packet_queue);
