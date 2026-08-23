@@ -120,16 +120,22 @@ namespace pixeler
 
       return false;
     }
+
     return true;
   }
 
   void IContext::processPostedTasks()
   {
     std::function<void()>* task = nullptr;
+    uint32_t processed_count{0};
+
     while (xQueueReceive(_task_queue, &task, 0) == pdTRUE)
     {
       (*task)();
       delete task;
+
+      if ((++processed_count & 15) == 0)
+        delay(1);
     }
   }
 
