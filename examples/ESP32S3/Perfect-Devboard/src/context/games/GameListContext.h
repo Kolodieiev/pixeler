@@ -24,6 +24,12 @@ private:
     ID_SCROLLBAR,
   };
 
+  enum ItemID : uint8_t
+  {
+    ID_ITEM_SOKOBAN = 1,
+    ID_ITEM_CHESS,
+  };
+
   void up();
   void down();
 

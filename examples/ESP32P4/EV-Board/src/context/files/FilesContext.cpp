@@ -8,6 +8,7 @@
 #include "../WidgetCreator.h"
 #include "./res/folder.h"
 #include "./res/lua.h"
+#include "context/menu/MenuContext.h"
 #include "widget/menu/item/MenuItem.h"
 #include "widget/menu/item/ToggleItem.h"
 #include "widget/progress/ProgressBar.h"
@@ -608,7 +609,7 @@ void FilesContext::update()
   if (_mode == MODE_SD_UNCONN)
   {
     if (swipe == ITouchscreen::SWIPE_L)
-      openContextByID(ID_CONTEXT_MENU);
+      openContext(new MenuContext());
 
     return;
   }
@@ -866,7 +867,7 @@ void FilesContext::openPrevlevel()
   }
   else
   {
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
 }
 

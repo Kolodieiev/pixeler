@@ -1,6 +1,7 @@
 #include "ChessContext.h"
 
 #include "../../WidgetCreator.h"
+#include "context/games/GameListContext.h"
 #include "manager/SettingsManager.h"
 #include "scene/ChessScene.h"
 #include "widget/text/TextBox.h"
@@ -121,7 +122,8 @@ namespace chess
   }
 
   //----------------------------------------------------------------------------------------------------------
-  //----------------------------------------------------------------------------------------------------------
+
+#pragma region MAIN_MENU
 
   void ChessContext::showMainTmpl()
   {
@@ -174,6 +176,59 @@ namespace chess
     prefs_item->setLbl(prefs_lbl);
   }
 
+  void ChessContext::procMainMenu()
+  {
+    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
+
+    if (_input.isHolded(BtnID::BTN_UP))
+    {
+      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
+      menu->focusUp();
+    }
+    else if (_input.isHolded(BtnID::BTN_DOWN))
+    {
+      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
+      menu->focusDown();
+    }
+    else if (_input.isReleased(BtnID::BTN_OK))
+    {
+      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
+      uint16_t id = menu->getCurrItemID();
+
+      switch (id)
+      {
+        case ID_ITEM_ONE_PLAYER:
+          startGame(GAME_MODE_ONE_PL);
+          break;
+
+        case ID_ITEM_TWO_PLAYERS:
+          startGame(GAME_MODE_TWO_PL);
+          break;
+
+        case ID_ITEM_CLIENT:
+          showClientLobbyTmpl();
+          break;
+
+        case ID_ITEM_SERVER:
+          showServerLobbyTmpl();
+          break;
+
+        case ID_ITEM_PREFS:
+          showPrefsTmpl();
+          break;
+      }
+    }
+    else if (_input.isReleased(BtnID::BTN_BACK))
+    {
+      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
+      openContext(new GameListContext());
+    }
+  }
+
+#pragma endregion  // MAIN_MENU
+
+  //----------------------------------------------------------------------------------------------------------
+
   void ChessContext::showPrefsTmpl()
   {
     _current_state = &ChessContext::procPrefMenu;
@@ -210,6 +265,49 @@ namespace chess
     Label* serv_pwd_lbl = WidgetCreator::getItemLabel(STR_SERV_PWD, font_10x20);
     serv_pwd_item->setLbl(serv_pwd_lbl);
   }
+
+  void ChessContext::procPrefMenu()
+  {
+    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
+
+    if (_input.isHolded(BtnID::BTN_UP))
+    {
+      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
+      menu->focusUp();
+    }
+    else if (_input.isHolded(BtnID::BTN_DOWN))
+    {
+      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
+      menu->focusDown();
+    }
+    else if (_input.isReleased(BtnID::BTN_OK))
+    {
+      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
+      uint16_t id = menu->getCurrItemID();
+
+      switch (id)
+      {
+        case ID_ITEM_NICK:
+          showDialogNicknameTmpl();
+          break;
+
+        case ID_ITEM_SERV_NAME:
+          showDialogServNameTmpl();
+          break;
+
+        case ID_ITEM_SERV_PWD:
+          showDialogServPwdTmpl();
+          break;
+      }
+    }
+    else if (_input.isReleased(BtnID::BTN_BACK))
+    {
+      _input.lock(BtnID::BTN_BACK, HOLD_LOCK);
+      showMainTmpl();
+    }
+  }
+
+#pragma region DIALOG
 
   void ChessContext::showDialogNicknameTmpl()
   {
@@ -261,133 +359,6 @@ namespace chess
     Keyboard* keyboard = WidgetCreator::getStandardEnKeyboard(ID_DIALOG_KB);
     layout->addWidget(keyboard);
     keyboard->setPos(0, dialog_txt->getYPos() + dialog_txt->getHeight() + 5);
-  }
-
-  void ChessContext::showConnDialogTmpl()
-  {
-    _current_state = &ChessContext::procDialog;
-    addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
-  }
-
-  void ChessContext::showClientConfirmTmpl()  // TODO
-  {
-  }
-
-  void ChessContext::showServerContextTmpl()
-  {
-  }
-
-  void ChessContext::showServerLobbyTmpl()
-  {
-  }
-
-  void ChessContext::showWifiScanTmpl()
-  {
-  }
-
-  void ChessContext::showWifiListTmpl()
-  {
-  }
-
-  void ChessContext::showConnToApTmpl()
-  {
-  }
-
-  void ChessContext::showClientLobbyTmpl()
-  {
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::procMainMenu()
-  {
-    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
-
-    if (_input.isHolded(BtnID::BTN_UP))
-    {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
-      menu->focusUp();
-    }
-    else if (_input.isHolded(BtnID::BTN_DOWN))
-    {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
-      menu->focusDown();
-    }
-    else if (_input.isReleased(BtnID::BTN_OK))
-    {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-      uint16_t id = menu->getCurrItemID();
-
-      switch (id)
-      {
-        case ID_ITEM_ONE_PLAYER:
-          startGame(GAME_MODE_ONE_PL);
-          break;
-
-        case ID_ITEM_TWO_PLAYERS:
-          startGame(GAME_MODE_TWO_PL);
-          break;
-
-        case ID_ITEM_CLIENT:
-          showClientLobbyTmpl();
-          break;
-
-        case ID_ITEM_SERVER:
-          showServerLobbyTmpl();
-          break;
-
-        case ID_ITEM_PREFS:
-          showPrefsTmpl();
-          break;
-      }
-    }
-    else if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-      openContextByID(ID_CONTEXT_GAMES);
-    }
-  }
-
-  void ChessContext::procPrefMenu()
-  {
-    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
-
-    if (_input.isHolded(BtnID::BTN_UP))
-    {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
-      menu->focusUp();
-    }
-    else if (_input.isHolded(BtnID::BTN_DOWN))
-    {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
-      menu->focusDown();
-    }
-    else if (_input.isReleased(BtnID::BTN_OK))
-    {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-      uint16_t id = menu->getCurrItemID();
-
-      switch (id)
-      {
-        case ID_ITEM_NICK:
-          showDialogNicknameTmpl();
-          break;
-
-        case ID_ITEM_SERV_NAME:
-          showDialogServNameTmpl();
-          break;
-
-        case ID_ITEM_SERV_PWD:
-          showDialogServPwdTmpl();
-          break;
-      }
-    }
-    else if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      _input.lock(BtnID::BTN_BACK, HOLD_LOCK);
-      showMainTmpl();
-    }
   }
 
   void ChessContext::procDialog()
@@ -473,6 +444,48 @@ namespace chess
     }
   }
 
+#pragma endregion  // DIALOG
+
+  void ChessContext::showConnDialogTmpl()
+  {
+    _current_state = &ChessContext::procDialog;
+    addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
+  }
+
+  void ChessContext::showClientConfirmTmpl()  // TODO
+  {
+  }
+
+  void ChessContext::showServerContextTmpl()
+  {
+  }
+
+  void ChessContext::showServerLobbyTmpl()
+  {
+  }
+
+  void ChessContext::showConnToApTmpl()
+  {
+  }
+
+  void ChessContext::showClientLobbyTmpl()
+  {
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
+  void ChessContext::showWifiScanTmpl()
+  {
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
+  void ChessContext::showWifiListTmpl()
+  {
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
   void ChessContext::procWifiScan()  // TODO
   {
   }
@@ -501,7 +514,6 @@ namespace chess
   {
   }
 
-  //----------------------------------------------------------------------------------------------------------
   //----------------------------------------------------------------------------------------------------------
 
 }  // namespace chess

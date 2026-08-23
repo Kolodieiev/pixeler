@@ -2,19 +2,20 @@
 //
 #include "../WidgetCreator.h"
 #include "./res/ico_connect.h"
+#include "context/menu/MenuContext.h"
 #include "manager/SettingsManager.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/ToggleItem.h"
 #include "widget/toggle/ToggleSwitch.h"
 
-const char STR_TRANSMITTER_STATE[] = "Стан модуля WiFi";
-const char STR_START_SCAN[] = "Розпочато скануваня";
-const char STR_START_SCAN_ERR[] = "Помилка сканування";
-const char STR_WIFI_BUSY[] = "Модуль зайнятий";
-const char STR_DISCONNECT[] = "Від'єднaтися";
-const char STR_FORGET[] = "Забути";
-const char STR_CONNECTING[] = "З'єднання...";
-const char STR_CONNECT_ERR[] = "Помилка з'єднання";
+static const char STR_TRANSMITTER_STATE[] = "Стан модуля WiFi";
+static const char STR_START_SCAN[] = "Розпочато скануваня";
+static const char STR_START_SCAN_ERR[] = "Помилка сканування";
+static const char STR_WIFI_BUSY[] = "Модуль зайнятий";
+static const char STR_DISCONNECT[] = "Від'єднaтися";
+static const char STR_FORGET[] = "Забути";
+static const char STR_CONNECTING[] = "З'єднання...";
+static const char STR_CONNECT_ERR[] = "Помилка з'єднання";
 
 WiFiContext::WiFiContext()
 {
@@ -328,7 +329,7 @@ void WiFiContext::back()
   {
     _wifi.onScanDone(nullptr, nullptr);
     _wifi.onConnectDone(nullptr, nullptr);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
   else if (_mode == MODE_CONTEXT_MENU)
   {

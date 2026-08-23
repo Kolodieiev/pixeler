@@ -51,9 +51,11 @@ namespace pixeler
     }
   }
 
-  ContextID IContext::getNextContextID() const
+  IContext* IContext::takeNextContext()
   {
-    return _next_context_ID;
+    IContext* context = _next_context;
+    _next_context = nullptr;
+    return context;
   }
 
   bool IContext::isReleased() const
@@ -61,16 +63,11 @@ namespace pixeler
     return _is_released;
   }
 
-  void IContext::openContextByID(ContextID context_ID)
+  void IContext::openContext(IContext* context)
   {
     _input.reset();
-    _next_context_ID = context_ID;
+    _next_context = context;
     _is_released = true;
-  }
-
-  void IContext::release()
-  {
-    openContextByID(static_cast<ContextID>(0));
   }
 
 #ifndef GRAPHICS_ENABLED
@@ -151,7 +148,7 @@ namespace pixeler
   {
     if (!layout)
     {
-      log_e("Спроба встановити NULL-layout.");
+      log_e("Спроба встановити NULL-layout");
       esp_restart();
     }
 

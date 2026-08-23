@@ -3,16 +3,18 @@
 #include "../WidgetCreator.h"
 #include "./icons/chess_ico.h"
 #include "./icons/sokoban_ico.h"
+#include "context/games/chess/ChessContext.h"
+#include "context/games/sokoban/SokobanContext.h"
+#include "context/menu/MenuContext.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/MenuItem.h"
 
-const char STR_SOKOBAN_ITEM[] = "Комірник";
-const char STR_CHESS_ITEM[] = "Шахи";
+static const char STR_SOKOBAN_ITEM[] = "Комірник";
+static const char STR_CHESS_ITEM[] = "Шахи";
 
 GameListContext::GameListContext()
 {
   //------ Налаштування зовнішнього вигляду віджетів
-
   //
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
@@ -32,7 +34,7 @@ GameListContext::GameListContext()
 
   //
 
-  MenuItem* sokoban_item = WidgetCreator::getMenuItem(ID_CONTEXT_SOKOBAN);
+  MenuItem* sokoban_item = WidgetCreator::getMenuItem(ID_ITEM_SOKOBAN);
   _menu->addItem(sokoban_item);
 
   Image* soko_img = new Image(1);
@@ -49,7 +51,7 @@ GameListContext::GameListContext()
 
   //
 
-  MenuItem* chess_item = WidgetCreator::getMenuItem(ID_CONTEXT_CHESS);
+  MenuItem* chess_item = WidgetCreator::getMenuItem(ID_ITEM_CHESS);
   _menu->addItem(chess_item);
 
   Image* chess_img = new Image(1);
@@ -91,12 +93,29 @@ void GameListContext::update()
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
   else if (_input.isReleased(BtnID::BTN_OK))
   {
     _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-    openContextByID((ContextID)_menu->getCurrItemID());
+
+    uint16_t id = _menu->getCurrItemID();
+    IContext* context{nullptr};
+    switch (id)
+    {
+      case ID_ITEM_SOKOBAN:
+        context = new sokoban::SokobanContext();
+        break;
+      case ID_ITEM_CHESS:
+        context = new chess::ChessContext();
+        break;
+      default:
+        log_e("Невідомий ідентифікатор контексту");
+        break;
+    }
+
+    if (context)
+      openContext(context);
   }
 }
 

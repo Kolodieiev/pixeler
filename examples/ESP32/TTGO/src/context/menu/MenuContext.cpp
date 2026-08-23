@@ -3,6 +3,7 @@
 #include "../WidgetCreator.h"
 #include "./res/headphones.h"
 #include "./res/wifi_ico.h"
+#include "context/wifi/WiFiContext.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/MenuItem.h"
 
@@ -37,7 +38,7 @@ MenuContext::MenuContext()
   _scrollbar->setBackColor(COLOR_MAIN_BACK);
 
   // Музика
-  MenuItem* mp3_item = WidgetCreator::getMenuItem(ID_CONTEXT_MP3);
+  MenuItem* mp3_item = WidgetCreator::getMenuItem(ID_ITEM_MP3);
   _menu->addItem(mp3_item);
 
   Image* mp3_img = new Image(1);
@@ -51,7 +52,7 @@ MenuContext::MenuContext()
   mp3_item->setLbl(mp3_lbl);
 
   // WiFi
-  MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_CONTEXT_WIFI);
+  MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_ITEM_WIFI);
   _menu->addItem(wifi_item);
 
   Image* wifi_img = new Image(1);
@@ -115,5 +116,20 @@ void MenuContext::ok()
 {
   uint16_t id = _menu->getCurrItemID();
   _last_sel_item_pos = _menu->getCurrFocusPos();
-  openContextByID((ContextID)id);
+
+  IContext* context{nullptr};
+
+  switch (id)
+  {
+    case ID_ITEM_WIFI:
+      context = new WiFiContext();
+      break;
+
+    default:
+      log_e("Невідомий ідентифікатор контексту");
+      break;
+  }
+
+  if (context)
+    openContext(context);
 }

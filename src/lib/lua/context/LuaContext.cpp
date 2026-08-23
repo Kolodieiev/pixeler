@@ -319,7 +319,7 @@ namespace pixeler
       if (callLuaFunction(STR_UPDATE_NAME) != LUA_OK)
       {
         luaErrToMsg();
-        release();
+        openContext(nullptr);
       }
     }
   }
@@ -344,7 +344,7 @@ namespace pixeler
 
   int LuaContext::lua_context_exit(lua_State* L)
   {
-    _self->release();
+    _self->openContext(nullptr);
     return 0;
   }
 

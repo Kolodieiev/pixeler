@@ -1,6 +1,7 @@
 #include "SplashContext.h"
 
 #include "../WidgetCreator.h"
+#include "context/home/HomeContext.h"
 #include "lib/neo_pixel/Adafruit_NeoPixel.h"
 #include "manager/FileManager.h"
 #include "manager/SettingsManager.h"
@@ -60,7 +61,7 @@ void SplashContext::update()
 {
   if (millis() - _start_time > SHOW_INIT_TIME)
   {
-    openContextByID(ContextID::ID_CONTEXT_HOME);
+    openContext(new HomeContext());
   }
 }
 

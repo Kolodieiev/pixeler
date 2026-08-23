@@ -2,14 +2,16 @@
 
 #include "../WidgetCreator.h"
 #include "Update.h"
+#include "context/menu/MenuContext.h"
 #include "manager/FileManager.h"
 #include "manager/file/FileStream.h"
 
 const char STR_FIRMWARE_FN[] = "/firmware.bin";
 const char STR_UPDATE_FIRMWARE[] = "Оновлення прошивки";
 
-extern "C" bool verifyRollbackLater() {
-    return true;
+extern "C" bool verifyRollbackLater()
+{
+  return true;
 }
 
 FirmwareContext::FirmwareContext()
@@ -71,7 +73,7 @@ void FirmwareContext::update()
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _input.lock(BtnID::BTN_BACK, 500);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
 }
 

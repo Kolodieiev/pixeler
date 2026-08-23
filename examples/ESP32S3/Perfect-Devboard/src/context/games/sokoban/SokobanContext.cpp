@@ -2,6 +2,7 @@
 //
 #include "../../WidgetCreator.h"
 #include "./SceneID.h"
+#include "context/games/GameListContext.h"
 #include "scene/SokobanScene.h"
 
 #define MENU_ITEMS_NUM 10u
@@ -57,7 +58,7 @@ namespace sokoban
       if (_input.isReleased(BtnID::BTN_BACK))
       {
         _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-        openContextByID(ID_CONTEXT_GAMES);
+        openContext(new GameListContext());
       }
       else if (_input.isHolded(BtnID::BTN_UP))
       {

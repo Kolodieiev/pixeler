@@ -20,10 +20,21 @@ private:
   static void keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg);
 
 private:
-  enum Widget_ID : uint8_t
+  enum WidgetID : uint8_t
   {
     ID_MENU = 1,
     ID_SCROLLBAR,
+  };
+
+  enum ItemID : uint8_t
+  {
+    ID_ITEM_FILES = 1,
+    ID_ITEM_MP3,
+    ID_ITEM_GAMES,
+    ID_ITEM_READER,
+    ID_ITEM_WIFI,
+    ID_ITEM_PREF_SEL,
+    ID_ITEM_FIRMWARE,
   };
 
   FixedMenu* _menu;

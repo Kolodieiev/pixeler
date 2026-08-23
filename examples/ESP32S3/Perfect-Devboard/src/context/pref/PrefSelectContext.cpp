@@ -5,6 +5,7 @@
 #include "widget/toggle/ToggleSwitch.h"
 //
 #include "bright/PrefBrightContext.h"
+#include "context/menu/MenuContext.h"
 #include "file_server/PrefFileServerContext.h"
 #include "manager/SettingsManager.h"
 #include "wifi_power/PrefWiFiPowerContext.h"
@@ -173,7 +174,7 @@ void PrefSelectContext::update()
     if (_input.isReleased(BtnID::BTN_BACK))
     {
       _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-      openContextByID(ID_CONTEXT_MENU);
+      openContext(new MenuContext());
     }
 
     return;
@@ -187,7 +188,7 @@ void PrefSelectContext::update()
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {

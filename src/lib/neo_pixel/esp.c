@@ -67,7 +67,7 @@ void espShow(uint8_t pin, uint8_t* pixels, uint32_t numBytes, boolean is800KHz)
     }
     else if (requiredSize == 0)
     {
-      // To release RMT resources (RMT channels and led_data), call
+      // To openContext RMT resources (RMT channels and led_data), call
       //  .updateLength(0) to set number of pixels/bytes to zero,
       //  then call .show() to invoke this code and free resources.
       free(led_data);

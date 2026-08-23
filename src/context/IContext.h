@@ -22,7 +22,6 @@
 #include "../widget/IWidgetContainer.h"
 #include "../widget/notification/Notification.h"
 #include "../widget/text/Label.h"
-#include "context_id_config.h"
 #include "cpu_config.h"
 
 namespace pixeler
@@ -62,11 +61,11 @@ namespace pixeler
     void tick();
 
     /**
-     * @brief Повертає ідентифікатор контексту, який було встановлено методом openContextByID.
+     * @brief Віддає вказівник на об'єкт контексту, який повинен викликатися наступним.
      *
-     * @return ContextID - унікальний ідентифікатор дисплея.
+     * @return IContext*
      */
-    ContextID getNextContextID() const;
+    IContext* takeNextContext();
 
     /**
      * @brief Повертає значення прапора, який вказує на те, чи повинен бути звільнений цей контекст.
@@ -101,18 +100,15 @@ namespace pixeler
     virtual bool loop() = 0;
 
     /**
-     * @brief Встановлює стан поточного контексту в такий, що повинен бути звільнений.
-     * Також встановлює ідентифікатор контексту, в який повинен виконатися перехід.
+     * @brief Встановлює стан поточного контексту в такий, що повинен бути звільнений наступного тіку.
+     * Також встановлює об'єкт контексту, в який повинен виконатися перехід.
      *
-     * @param context_ID
-     */
-    void openContextByID(ContextID context_ID);
-
-    /**
-     * @brief Встановлює стан поточного контексту в такий, що повинен бути звільнений.
+     * @param context Адреса об'єкта контексту, який створено оператором new, або nullptr.
+     * Переданий nullptr з субконтексту означатиме вихід з цього режима.
+     * Переданий nullptr в контексті першого рівня призведе до перезавантаження прошивки
      *
      */
-    void release();
+    void openContext(IContext* context);
 
 #ifdef GRAPHICS_ENABLED
 
@@ -190,6 +186,8 @@ namespace pixeler
 #endif  // #ifdef GRAPHICS_ENABLED
 
   private:
+    IContext* _next_context{nullptr};
+
 #ifdef GRAPHICS_ENABLED
     TaskHandle_t _owner_task_handle{nullptr};
     QueueHandle_t _task_queue{nullptr};
@@ -203,8 +201,6 @@ namespace pixeler
     static constexpr size_t UI_TASK_QUEUE_DEPTH = 10;
 #endif  // #ifdef GRAPHICS_ENABLED
     unsigned long _upd_time{0};
-
-    ContextID _next_context_ID{0};
 
     bool _is_released{false};
     bool _is_alive{true};

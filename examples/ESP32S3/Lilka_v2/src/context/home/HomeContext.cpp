@@ -2,6 +2,7 @@
 
 #include "../WidgetCreator.h"
 #include "../resources/ico/battery.h"
+#include "context/menu/MenuContext.h"
 #include "manager/SettingsManager.h"
 #include "util/batt_util.h"
 
@@ -66,7 +67,7 @@ void HomeContext::update()
   if (_input.isReleased(BtnID::BTN_OK))
   {
     _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
 
   if (millis() - _upd_timer > UPD_DISPLAY_INTERVAL_MS)

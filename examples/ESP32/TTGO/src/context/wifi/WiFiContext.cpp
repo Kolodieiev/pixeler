@@ -2,6 +2,7 @@
 //
 #include "../WidgetCreator.h"
 #include "./res/ico_connect.h"
+#include "context/menu/MenuContext.h"
 #include "manager/SettingsManager.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/ToggleItem.h"
@@ -282,7 +283,7 @@ void WiFiContext::back()
   {
     _wifi.onScanDone(nullptr, nullptr);
     _wifi.onConnectDone(nullptr, nullptr);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
   else if (_mode == MODE_CONTEXT_MENU)
   {

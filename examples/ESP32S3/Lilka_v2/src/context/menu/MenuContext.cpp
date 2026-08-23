@@ -8,6 +8,15 @@
 #include "./res/sd.h"
 #include "./res/settings.h"
 #include "./res/wifi_ico.h"
+#include "context/files/FilesContext.h"
+#include "context/firmware/FirmwareContext.h"
+#include "context/games/GameListContext.h"
+#include "context/home/HomeContext.h"
+#include "context/menu/MenuContext.h"
+#include "context/mp3/Mp3Context.h"
+#include "context/pref/PrefSelectContext.h"
+#include "context/reader/ReaderContext.h"
+#include "context/wifi/WiFiContext.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/MenuItem.h"
 
@@ -46,7 +55,7 @@ MenuContext::MenuContext()
   _scrollbar->setBackColor(COLOR_MAIN_BACK);
 
   // Файли
-  MenuItem* files_item = WidgetCreator::getMenuItem(ID_CONTEXT_FILES);
+  MenuItem* files_item = WidgetCreator::getMenuItem(ID_ITEM_FILES);
   _menu->addItem(files_item);
 
   Image* files_img = new Image(1);
@@ -60,7 +69,7 @@ MenuContext::MenuContext()
   files_item->setLbl(files_lbl);
 
   // Музика
-  MenuItem* mp3_item = WidgetCreator::getMenuItem(ID_CONTEXT_MP3);
+  MenuItem* mp3_item = WidgetCreator::getMenuItem(ID_ITEM_MP3);
   _menu->addItem(mp3_item);
 
   Image* mp3_img = new Image(1);
@@ -74,7 +83,7 @@ MenuContext::MenuContext()
   mp3_item->setLbl(mp3_lbl);
 
   // Ігри
-  MenuItem* game_item = WidgetCreator::getMenuItem(ID_CONTEXT_GAMES);
+  MenuItem* game_item = WidgetCreator::getMenuItem(ID_ITEM_GAMES);
   _menu->addItem(game_item);
 
   Image* game_img = new Image(1);
@@ -88,7 +97,7 @@ MenuContext::MenuContext()
   game_item->setLbl(game_lbl);
 
   // Читалка
-  MenuItem* read_item = WidgetCreator::getMenuItem(ID_CONTEXT_READER);
+  MenuItem* read_item = WidgetCreator::getMenuItem(ID_ITEM_READER);
   _menu->addItem(read_item);
 
   Image* read_img = new Image(1);
@@ -102,7 +111,7 @@ MenuContext::MenuContext()
   read_item->setLbl(read_lbl);
 
   // WiFi
-  MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_CONTEXT_WIFI);
+  MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_ITEM_WIFI);
   _menu->addItem(wifi_item);
 
   Image* wifi_img = new Image(1);
@@ -116,7 +125,7 @@ MenuContext::MenuContext()
   wifi_item->setLbl(wifi_lbl);
 
   // Налаштування
-  MenuItem* pref_item = WidgetCreator::getMenuItem(ID_CONTEXT_PREF_SEL);
+  MenuItem* pref_item = WidgetCreator::getMenuItem(ID_ITEM_PREF_SEL);
   _menu->addItem(pref_item);
 
   Image* pref_img = new Image(1);
@@ -130,7 +139,7 @@ MenuContext::MenuContext()
   pref_item->setLbl(pref_lbl);
 
   // Прошивка
-  MenuItem* firm_item = WidgetCreator::getMenuItem(ID_CONTEXT_FIRMWARE);
+  MenuItem* firm_item = WidgetCreator::getMenuItem(ID_ITEM_FIRMWARE);
   _menu->addItem(firm_item);
 
   Image* firm_img = new Image(1);
@@ -182,7 +191,7 @@ void MenuContext::update()
   {
     _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     _last_sel_item_pos = 0;
-    openContextByID(ID_CONTEXT_HOME);
+    openContext(new HomeContext());
   }
 }
 
@@ -206,7 +215,7 @@ void MenuContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* 
       self->post([self]()
                  { 
                   self->_last_sel_item_pos = 0;
-                  self->openContextByID(ID_CONTEXT_HOME); });
+                  self->openContext(new HomeContext()); });
       return;
     case Input::KEY_ENTER:
       self->post([self]()
@@ -231,5 +240,37 @@ void MenuContext::ok()
 {
   uint16_t id = _menu->getCurrItemID();
   _last_sel_item_pos = _menu->getCurrFocusPos();
-  openContextByID((ContextID)id);
+
+  IContext* context{nullptr};
+
+  switch (id)
+  {
+    case ID_ITEM_FILES:
+      context = new FilesContext();
+      break;
+    case ID_ITEM_MP3:
+      context = new Mp3Context();
+      break;
+    case ID_ITEM_GAMES:
+      context = new GameListContext();
+      break;
+    case ID_ITEM_READER:
+      context = new ReaderContext();
+      break;
+    case ID_ITEM_WIFI:
+      context = new WiFiContext();
+      break;
+    case ID_ITEM_PREF_SEL:
+      context = new PrefSelectContext();
+      break;
+    case ID_ITEM_FIRMWARE:
+      context = new FirmwareContext();
+      break;
+    default:
+      log_e("Невідомий ідентифікатор контексту: %u", id);
+      break;
+  }
+
+  if (context)
+    openContext(context);
 }

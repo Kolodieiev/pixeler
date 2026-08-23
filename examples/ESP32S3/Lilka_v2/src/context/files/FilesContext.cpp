@@ -8,6 +8,7 @@
 #include "../WidgetCreator.h"
 #include "./res/folder.h"
 #include "./res/lua.h"
+#include "context/menu/MenuContext.h"
 #include "widget/menu/item/MenuItem.h"
 #include "widget/menu/item/ToggleItem.h"
 #include "widget/progress/ProgressBar.h"
@@ -591,7 +592,7 @@ void FilesContext::update()
     if (_input.isReleased(BtnID::BTN_BACK))
     {
       _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-      openContextByID(ID_CONTEXT_MENU);
+      openContext(new MenuContext());
     }
 
     return;
@@ -610,7 +611,7 @@ void FilesContext::update()
     _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
 
     if (_mode == MODE_NAVIGATION)
-      openContextByID(ID_CONTEXT_MENU);
+      openContext(new MenuContext());
     else if (_mode == MODE_NEW_DIR_DIALOG || _mode == MODE_RENAME_DIALOG)
       hideDialog();
   }
@@ -859,7 +860,7 @@ void FilesContext::openPrevlevel()
   }
   else
   {
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
 }
 

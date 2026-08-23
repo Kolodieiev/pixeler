@@ -32,17 +32,16 @@ namespace pixeler
       }
       else
       {
-        ContextID next_context_id = context->getNextContextID();
-        delete context;
+        IContext* next_context = context->takeNextContext();
 
-        const auto it = _context_id_map.find(next_context_id);
-        if (it == _context_id_map.end())
+        if (!next_context) [[unlikely]]
         {
-          log_e("Невідомий ідентифікатор контексту: %u", next_context_id);
+          log_e("Контекст першого рівня не може бути null");
           esp_restart();
         }
-
-        context = it->second();
+        
+        delete context;
+        context = next_context;
       }
 
       if (millis() - ts > WDT_GUARD_TIME)

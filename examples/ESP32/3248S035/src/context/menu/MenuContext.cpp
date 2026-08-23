@@ -8,6 +8,9 @@
 #include "./res/sd.h"
 #include "./res/settings.h"
 #include "./res/wifi_ico.h"
+#include "context/files/FilesContext.h"
+#include "context/home/HomeContext.h"
+#include "context/wifi/WiFiContext.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/MenuItem.h"
 
@@ -47,7 +50,7 @@ MenuContext::MenuContext()
   _scrollbar->setBackColor(COLOR_MAIN_BACK);
 
   // Файли
-  MenuItem* files_item = WidgetCreator::getMenuItem(ID_CONTEXT_FILES);
+  MenuItem* files_item = WidgetCreator::getMenuItem(ID_ITEM_FILES);
   _menu->addItem(files_item);
 
   Image* files_img = new Image(1);
@@ -61,7 +64,7 @@ MenuContext::MenuContext()
   files_item->setLbl(files_lbl);
 
   // WiFi
-  MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_CONTEXT_WIFI);
+  MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_ITEM_WIFI);
   _menu->addItem(wifi_item);
 
   Image* wifi_img = new Image(1);
@@ -97,7 +100,7 @@ void MenuContext::update()
   if (swipe == ITouchscreen::SWIPE_L)
   {
     _last_page_pos = 0;
-    openContextByID(ID_CONTEXT_HOME);
+    openContext(new HomeContext());
   }
   else if (swipe == ITouchscreen::SWIPE_U)
   {
@@ -140,8 +143,21 @@ void MenuContext::ok()
 
   uint16_t item_id = menu_item->getID();
 
-  if (item_id != ID_CONTEXT_FILES && item_id != ID_CONTEXT_WIFI)
-    return;
+  IContext* context{nullptr};
 
-  openContextByID((ContextID)item_id);
+  switch (item_id)
+  {
+    case ID_ITEM_FILES:
+      context = new FilesContext();
+      break;
+    case ID_ITEM_WIFI:
+      context = new WiFiContext();
+      break;
+    default:
+      log_e("Невідомий ідентифікатор контексту");
+      break;
+  }
+
+  if (context)
+    openContext(context);
 }

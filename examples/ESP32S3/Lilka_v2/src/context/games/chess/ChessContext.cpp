@@ -1,9 +1,10 @@
 #include "ChessContext.h"
 
 #include "../../WidgetCreator.h"
+#include "context/games/GameListContext.h"
 #include "manager/SettingsManager.h"
-#include "widget/text/TextBox.h"
 #include "scene/ChessScene.h"
+#include "widget/text/TextBox.h"
 
 static const char STR_CHESS_GAME_DIR[] = "chess";
 
@@ -61,55 +62,7 @@ namespace chess
 
   void ChessContext::update()
   {
-    switch (_mode)
-    {
-      case MODE_GAME:
-        updateGame();
-        break;
-
-      case MODE_MAIN:
-        procKbMain();
-        break;
-
-      case MODE_WIFI_SCAN:
-        procKbWifiScan();
-        break;
-
-      case MODE_WIFI_LIST:
-        procKbWifiList();
-        break;
-
-      case MODE_CONN_TO_AP:
-        procKbConnToAp();
-        break;
-
-      case MODE_CLIENT_LOBBY:
-        procKbClientLobby();
-        break;
-
-      case MODE_SERVER_LOBBY:
-        procKbServerLobby();
-        break;
-
-      case MODE_LOBBY_CTXT_MENU:
-        procKbCtxtLobby();
-        break;
-
-      case MODE_CLIENT_CONFIRM:
-        procKbClientConfirm();
-        break;
-
-      case MODE_PREF_MAIN:
-        procKbPrefMain();
-        break;
-
-      case MODE_CONN_DIALOG:
-      case MODE_PREF_NICK:
-      case MODE_PREF_SERV_NAME:
-      case MODE_PREF_SERV_PWD:
-        procKbPrefDialog();
-        break;
-    }
+    (this->*_current_state)();
   }
 
   //----------------------------------------------------------------------------------------------------------
@@ -125,7 +78,8 @@ namespace chess
 
   void ChessContext::startGame(GameMode mode)
   {
-    _mode = MODE_GAME;
+    _current_state = &ChessContext::updateGame;
+
     getLayout()->delWidgets();
     switch (mode)
     {  // TODO
@@ -168,11 +122,12 @@ namespace chess
   }
 
   //----------------------------------------------------------------------------------------------------------
-  //----------------------------------------------------------------------------------------------------------
+
+#pragma region MAIN_MENU
 
   void ChessContext::showMainTmpl()
   {
-    _mode = MODE_MAIN;
+    _current_state = &ChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -221,9 +176,62 @@ namespace chess
     prefs_item->setLbl(prefs_lbl);
   }
 
+  void ChessContext::procMainMenu()
+  {
+    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
+
+    if (_input.isHolded(BtnID::BTN_UP))
+    {
+      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
+      menu->focusUp();
+    }
+    else if (_input.isHolded(BtnID::BTN_DOWN))
+    {
+      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
+      menu->focusDown();
+    }
+    else if (_input.isReleased(BtnID::BTN_OK))
+    {
+      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
+      uint16_t id = menu->getCurrItemID();
+
+      switch (id)
+      {
+        case ID_ITEM_ONE_PLAYER:
+          startGame(GAME_MODE_ONE_PL);
+          break;
+
+        case ID_ITEM_TWO_PLAYERS:
+          startGame(GAME_MODE_TWO_PL);
+          break;
+
+        case ID_ITEM_CLIENT:
+          showClientLobbyTmpl();
+          break;
+
+        case ID_ITEM_SERVER:
+          showServerLobbyTmpl();
+          break;
+
+        case ID_ITEM_PREFS:
+          showPrefsTmpl();
+          break;
+      }
+    }
+    else if (_input.isReleased(BtnID::BTN_BACK))
+    {
+      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
+      openContext(new GameListContext());
+    }
+  }
+
+#pragma endregion  // MAIN_MENU
+
+  //----------------------------------------------------------------------------------------------------------
+
   void ChessContext::showPrefsTmpl()
   {
-    _mode = MODE_PREF_MAIN;
+    _current_state = &ChessContext::procPrefMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -258,26 +266,71 @@ namespace chess
     serv_pwd_item->setLbl(serv_pwd_lbl);
   }
 
-  void ChessContext::showPrefsNickTmpl()
+  void ChessContext::procPrefMenu()
   {
-    _mode = MODE_PREF_NICK;
+    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
+
+    if (_input.isHolded(BtnID::BTN_UP))
+    {
+      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
+      menu->focusUp();
+    }
+    else if (_input.isHolded(BtnID::BTN_DOWN))
+    {
+      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
+      menu->focusDown();
+    }
+    else if (_input.isReleased(BtnID::BTN_OK))
+    {
+      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
+      uint16_t id = menu->getCurrItemID();
+
+      switch (id)
+      {
+        case ID_ITEM_NICK:
+          showDialogNicknameTmpl();
+          break;
+
+        case ID_ITEM_SERV_NAME:
+          showDialogServNameTmpl();
+          break;
+
+        case ID_ITEM_SERV_PWD:
+          showDialogServPwdTmpl();
+          break;
+      }
+    }
+    else if (_input.isReleased(BtnID::BTN_BACK))
+    {
+      _input.lock(BtnID::BTN_BACK, HOLD_LOCK);
+      showMainTmpl();
+    }
+  }
+
+#pragma region DIALOG
+
+  void ChessContext::showDialogNicknameTmpl()
+  {
+    _dialog_id = DIALOG_ID_NICK;
     addDialog(STR_NICKNAME, _client_nick);
   }
 
-  void ChessContext::showPrefsServNameTmpl()
+  void ChessContext::showDialogServNameTmpl()
   {
-    _mode = MODE_PREF_SERV_NAME;
+    _dialog_id = DIALOG_ID_SERV_NAME;
     addDialog(STR_SERV_NAME, _serv_ssid);
   }
 
-  void ChessContext::showPrefsServPwdTmpl()
+  void ChessContext::showDialogServPwdTmpl()
   {
-    _mode = MODE_PREF_SERV_PWD;
+    _dialog_id = DIALOG_ID_SERV_PWD;
     addDialog(STR_SERV_PWD, _serv_pwd);
   }
 
   void ChessContext::addDialog(const String& title_txt, const String& start_txt)
   {
+    _current_state = &ChessContext::procDialog;
+
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
 
@@ -308,134 +361,7 @@ namespace chess
     keyboard->setPos(0, dialog_txt->getYPos() + dialog_txt->getHeight() + 5);
   }
 
-  void ChessContext::showConnDialogTmpl()
-  {
-    _mode = MODE_CONN_DIALOG;
-    addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
-  }
-
-  void ChessContext::showNewClientConnTmpl()  // TODO
-  {
-  }
-
-  void ChessContext::showServerCtxTmpl()
-  {
-  }
-
-  void ChessContext::showServerLobbyTmpl()
-  {
-  }
-
-  void ChessContext::showWifiScanTmpl()
-  {
-  }
-
-  void ChessContext::showWifiListTmpl()
-  {
-  }
-
-  void ChessContext::showConnToApTmpl()
-  {
-  }
-
-  void ChessContext::showClientLobbyTmpl()
-  {
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::procKbMain()
-  {
-    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
-
-    if (_input.isHolded(BtnID::BTN_UP))
-    {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
-      menu->focusUp();
-    }
-    else if (_input.isHolded(BtnID::BTN_DOWN))
-    {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
-      menu->focusDown();
-    }
-    else if (_input.isReleased(BtnID::BTN_OK))
-    {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-      uint16_t id = menu->getCurrItemID();
-
-      switch (id)
-      {
-        // case ID_ITEM_ONE_PLAYER: // TODO
-        //   startGame(GAME_MODE_ONE_PL);
-        //   break;
-
-        case ID_ITEM_TWO_PLAYERS:
-          startGame(GAME_MODE_TWO_PL);
-          break;
-
-        case ID_ITEM_CLIENT:
-          showClientLobbyTmpl();
-          break;
-
-        case ID_ITEM_SERVER:
-          showServerLobbyTmpl();
-          break;
-
-        case ID_ITEM_PREFS:
-          showPrefsTmpl();
-          break;
-      }
-    }
-    else if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-      openContextByID(ID_CONTEXT_GAMES);
-    }
-  }
-
-  void ChessContext::procKbPrefMain()
-  {
-    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
-
-    if (_input.isHolded(BtnID::BTN_UP))
-    {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
-      menu->focusUp();
-    }
-    else if (_input.isHolded(BtnID::BTN_DOWN))
-    {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
-      menu->focusDown();
-    }
-    else if (_input.isReleased(BtnID::BTN_OK))
-    {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-      uint16_t id = menu->getCurrItemID();
-
-      switch (id)
-      {
-        case ID_ITEM_NICK:
-          showPrefsNickTmpl();
-          break;
-
-        case ID_ITEM_SERV_NAME:
-          showPrefsServNameTmpl();
-          break;
-
-        case ID_ITEM_SERV_PWD:
-          showPrefsServPwdTmpl();
-          break;
-      }
-    }
-    else if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      _input.lock(BtnID::BTN_BACK, HOLD_LOCK);
-      showMainTmpl();
-    }
-  }
-
-  void ChessContext::procKbPrefDialog()
+  void ChessContext::procDialog()
   {
     Keyboard* keyboard = getLayout()->getWidgetByID(ID_DIALOG_KB)->castTo<Keyboard>();
     TextBox* dialog_txt = getLayout()->getWidgetByID(ID_DIALOG_TEXT)->castTo<TextBox>();
@@ -476,25 +402,25 @@ namespace chess
 
       bool save_pref_result{false};
 
-      switch (_mode)
+      switch (_dialog_id)
       {
-        case MODE_CONN_DIALOG:  // Якщо в режимі підключення до сервера
+        case DIALOG_ID_SERVER_CONN:  // Якщо в режимі підключення до сервера
           _serv_pwd = dialog_txt->getText();
           SettingsManager::set(STR_PREF_SERVER_PWD, _serv_pwd.c_str(), STR_CHESS_GAME_DIR);
           showConnToApTmpl();
           return;
 
-        case MODE_PREF_NICK:
+        case DIALOG_ID_NICK:
           _client_nick = dialog_txt->getText();
           save_pref_result = SettingsManager::set(STR_PREF_NICKNAME, _client_nick.c_str(), STR_CHESS_GAME_DIR);
           break;
 
-        case MODE_PREF_SERV_NAME:
+        case DIALOG_ID_SERV_NAME:
           _serv_ssid = dialog_txt->getText();
           save_pref_result = SettingsManager::set(STR_PREF_SERVER_SSID, _serv_ssid.c_str(), STR_CHESS_GAME_DIR);
           break;
 
-        case MODE_PREF_SERV_PWD:
+        case DIALOG_ID_SERV_PWD:
           _serv_pwd = dialog_txt->getText();
           save_pref_result = SettingsManager::set(STR_PREF_SERVER_PWD, _serv_pwd.c_str(), STR_CHESS_GAME_DIR);
           break;
@@ -511,42 +437,83 @@ namespace chess
     {
       _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
 
-      if (_mode == MODE_CONN_DIALOG)  // Якщо в режимі підключення до сервера
-        showWifiScanTmpl();           // Пароль не введено. Повторно запускаємо сканування
+      if (_dialog_id == DIALOG_ID_SERVER_CONN)  // Якщо в режимі підключення до сервера
+        showWifiScanTmpl();                     // Пароль не введено. Повторно запускаємо сканування
       else
-        showPrefsTmpl();
+        showPrefsTmpl();  // Повертаємось до вікна налаштувань
     }
   }
 
-  void ChessContext::procKbWifiScan()  // TODO
+#pragma endregion  // DIALOG
+
+  void ChessContext::showConnDialogTmpl()
+  {
+    _current_state = &ChessContext::procDialog;
+    addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
+  }
+
+  void ChessContext::showClientConfirmTmpl()  // TODO
   {
   }
 
-  void ChessContext::procKbWifiList()
+  void ChessContext::showServerContextTmpl()
   {
   }
 
-  void ChessContext::procKbClientLobby()
+  void ChessContext::showServerLobbyTmpl()
   {
   }
 
-  void ChessContext::procKbConnToAp()
+  void ChessContext::showConnToApTmpl()
   {
   }
 
-  void ChessContext::procKbServerLobby()
-  {
-  }
-
-  void ChessContext::procKbCtxtLobby()
-  {
-  }
-
-  void ChessContext::procKbClientConfirm()
+  void ChessContext::showClientLobbyTmpl()
   {
   }
 
   //----------------------------------------------------------------------------------------------------------
+
+  void ChessContext::showWifiScanTmpl()
+  {
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
+  void ChessContext::showWifiListTmpl()
+  {
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
+  void ChessContext::procWifiScan()  // TODO
+  {
+  }
+
+  void ChessContext::procWifiList()
+  {
+  }
+
+  void ChessContext::procClientLobby()
+  {
+  }
+
+  void ChessContext::procConnectToAp()
+  {
+  }
+
+  void ChessContext::procServerLobby()
+  {
+  }
+
+  void ChessContext::procLobbyContext()
+  {
+  }
+
+  void ChessContext::procClientConfirmation()
+  {
+  }
+
   //----------------------------------------------------------------------------------------------------------
 
 }  // namespace chess

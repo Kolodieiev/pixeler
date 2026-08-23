@@ -2,6 +2,7 @@
 
 #include "../WidgetCreator.h"
 #include "Update.h"
+#include "context/menu/MenuContext.h"
 #include "manager/FileManager.h"
 #include "manager/file/FileStream.h"
 
@@ -72,7 +73,7 @@ void FirmwareContext::update()
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _input.lock(BtnID::BTN_BACK, 500);
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
 }
 

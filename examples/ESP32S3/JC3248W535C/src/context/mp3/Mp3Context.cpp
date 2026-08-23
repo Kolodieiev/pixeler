@@ -7,6 +7,7 @@
 #include "./res/play.h"
 #include "./res/rewind.h"
 #include "./res/speaker.h"
+#include "context/menu/MenuContext.h"
 
 #define UPD_TRACK_INF_INTERVAL 1000UL
 #define UPD_TIME_INTERVAL 10000UL
@@ -399,7 +400,7 @@ void Mp3Context::update()
   {
     if (swipe == ITouchscreen::SWIPE_L)
     {
-      openContextByID(ID_CONTEXT_MENU);
+      openContext(new MenuContext());
     }
 
     return;
@@ -898,7 +899,7 @@ void Mp3Context::back()
 {
   if (_mode == MODE_PLST_SEL)
   {
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
   else if (_mode == MODE_TRACK_SEL)
   {

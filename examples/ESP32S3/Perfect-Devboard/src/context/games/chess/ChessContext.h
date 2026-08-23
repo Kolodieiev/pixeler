@@ -117,7 +117,7 @@ namespace chess
     String _serv_pwd;
 
     DataStream _stored_objs{10};                               // Об'єкт для перенесення даних між сценами
-    StateHandler _current_state{&ChessContext::procMainMenu};  // Змінна для збереження методу, який відповідає за обробку поточного стану контекста
+    StateHandler _current_state{&ChessContext::procMainMenu};  // Змінна для збереження методу, який відповідає за обробку поточного стану контексту
     IGameScene2D* _scene{nullptr};
 
     PrefDialogID _dialog_id{DIALOG_ID_NICK};

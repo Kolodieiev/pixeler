@@ -2,6 +2,7 @@
 #include "ReaderContext.h"
 
 #include "../WidgetCreator.h"
+#include "context/menu/MenuContext.h"
 
 static const char STR_BOOK_DIR_PREF[] = "bookdir";
 static const char STR_BOOK_NAME_PREF[] = "bookname";
@@ -357,7 +358,7 @@ void ReaderContext::back()
 {
   if (_mode == MODE_BOOK_DIR_SEL)
   {
-    openContextByID(ID_CONTEXT_MENU);
+    openContext(new MenuContext());
   }
   else if (_mode == MODE_BOOK_SEL)
   {
@@ -484,7 +485,7 @@ void ReaderContext::update()
     if (_input.isReleased(BtnID::BTN_BACK))
     {
       _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-      openContextByID(ID_CONTEXT_MENU);
+      openContext(new MenuContext());
     }
 
     return;

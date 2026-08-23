@@ -1,6 +1,8 @@
 #include "SplashContext.h"
 
 #include "../WidgetCreator.h"
+#include "context/home/HomeContext.h"
+#include "context/menu/MenuContext.h"
 #include "manager/FileManager.h"
 #include "manager/SettingsManager.h"
 #include "manager/WiFiManager.h"
@@ -63,7 +65,7 @@ void SplashContext::update()
       }
     }
 
-    openContextByID(ContextID::ID_CONTEXT_HOME);
+    openContext(new HomeContext());
   }
 }
 
