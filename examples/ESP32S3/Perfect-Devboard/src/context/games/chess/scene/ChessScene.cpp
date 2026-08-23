@@ -38,6 +38,7 @@ namespace chess
                                                                                 BOARD_SQUARE_SZ, BOARD_PIECE_SZ},
                                                                          _cur_y{BOARD_IMG_GLOB_OFF}
   {
+    // TODO one player mode
     _msg_lbl = new Label(1);
     _msg_lbl->setWidth(UI_WIDTH);
     _msg_lbl->setAlign(IWidget::ALIGN_CENTER);
