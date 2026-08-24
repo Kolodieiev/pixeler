@@ -36,10 +36,10 @@ namespace pixeler
 
         if (!next_context) [[unlikely]]
         {
-          log_e("Контекст першого рівня не може бути null");
+          log_e("Наступний контекст першого рівня не може бути null");
           esp_restart();
         }
-        
+
         delete context;
         context = next_context;
       }
