@@ -61,15 +61,6 @@ namespace pixeler
     void tick();
 
     /**
-     * @brief Перемикає поточний контекст в режим керування субконтекстом.
-     * Субконтекст змінює контекст так само як і звичайний контекст.
-     * Для повернення з режиму субконтексту, той мусить передати nullptr замість вказівника на наступний екзмепляр контексту.
-     *
-     * @param subcontext Вказівник на наступний контекст
-     */
-    void openSubContext(IContext* subcontext);
-
-    /**
      * @brief Віддає вказівник на об'єкт контексту, який повинен викликатися наступним.
      *
      * @return IContext*
@@ -79,14 +70,14 @@ namespace pixeler
     /**
      * @brief Повертає значення прапора, який вказує на те, чи повинен бути звільнений цей контекст.
      *
-     * @return true - якщо контекст повинен бути звільнений. false - якщо контекст повинен бути активним.
+     * @return true - якщо контекст повинен бути звільнений. false - якщо контекст повинен бути активним
      */
     bool isReleased() const;
 
   protected:
     /**
      * @brief Прапор, який дозволяє повністю вимкнути відрисовку GUI.
-     * true - віджети будуть відмальовуватися. false - перерисовка віджетів буде пропущена.
+     * true - віджети будуть відмальовуватися. false - перерисовка віджетів буде пропущена
      *
      */
     bool _gui_enabled{true};
@@ -102,8 +93,7 @@ namespace pixeler
      * @brief Викликається з максимальною частотою, яка доступна для поточного контексту, без прив'язки до GUI.
      * Повинен бути обов'язково реалізований в кожному контексті.
      *
-     * @return true - Якщо контекст контролює ввід та малювання.
-     * @return false - Інакше.
+     * @return true - Якщо контекст контролює ввід та малювання. false - Інакше
      */
     virtual bool loop() = 0;
 
@@ -117,6 +107,13 @@ namespace pixeler
      *
      */
     void openContext(IContext* context);
+
+    /**
+     * @brief Встановлює стан поточного контексту в такий, що повинен бути звільнений наступного тіку.
+     * Виклик цього методу в контексті першого рівня призведе до перезавантаження прошивки.
+     *
+     */
+    void releaseContext();
 
 #ifdef GRAPHICS_ENABLED
 
@@ -187,7 +184,6 @@ namespace pixeler
     void giveLayoutMutex() const;
 
   private:
-    void tickSubContext();
     void removeToast();
     void processPostedTasks();
 
@@ -195,7 +191,6 @@ namespace pixeler
 
   private:
     IContext* _next_context{nullptr};
-    IContext* _subcontext{nullptr};
 
 #ifdef GRAPHICS_ENABLED
     TaskHandle_t _owner_task_handle{nullptr};

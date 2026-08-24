@@ -12,12 +12,6 @@ namespace pixeler
     processPostedTasks();
 #endif  // #ifdef GRAPHICS_ENABLED
 
-    if (_subcontext)
-    {
-      tickSubContext();
-      return;
-    }
-
     if (loop())
     {
       if ((millis() - _upd_time) > UI_UPDATE_DELAY)
@@ -57,24 +51,6 @@ namespace pixeler
     }
   }
 
-  void IContext::openSubContext(IContext* subcontext)
-  {
-    _subcontext = subcontext;
-  }
-
-  void IContext::tickSubContext()
-  {
-    if (!_subcontext->isReleased())
-    {
-      _subcontext->tick();
-      return;
-    }
-
-    IContext* next_context = _subcontext->takeNextContext();
-    delete _subcontext;
-    _subcontext = next_context;
-  }
-
   IContext* IContext::takeNextContext()
   {
     IContext* context = _next_context;
@@ -92,6 +68,11 @@ namespace pixeler
     _input.reset();
     _next_context = context;
     _is_released = true;
+  }
+
+  void IContext::releaseContext()
+  {
+    openContext(nullptr);
   }
 
 #ifndef GRAPHICS_ENABLED
