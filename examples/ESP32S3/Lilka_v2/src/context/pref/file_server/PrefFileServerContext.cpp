@@ -166,7 +166,7 @@ void PrefFileServerContext::okPressed()
   if (_mode == MODE_MAIN)
   {
     saveSettings();
-    openContext(nullptr);
+    releaseContext();
   }
   else if (_mode == MODE_DIALOG)
     hideDialog();
@@ -188,7 +188,7 @@ void PrefFileServerContext::keyboardClickHandler()
 void PrefFileServerContext::back()
 {
   if (_mode == MODE_MAIN)
-    openContext(nullptr);
+    releaseContext();
   else if (_mode == MODE_DIALOG)
     _dialog_txt->removeLastChar();
 }
@@ -196,7 +196,7 @@ void PrefFileServerContext::back()
 void PrefFileServerContext::backPressed()
 {
   if (_mode == MODE_MAIN)
-    openContext(nullptr);
+    releaseContext();
   else
     hideDialog();
 }

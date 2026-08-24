@@ -79,7 +79,7 @@ void PrefWiFiPowerContext::update()
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
-    openContext(nullptr);
+    releaseContext();
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {

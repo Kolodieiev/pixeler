@@ -44,14 +44,14 @@ void PrefBrightContext::update()
     _input.lock(BtnID::BTN_OK, CLICK_LOCK);
 
     SettingsManager::set(STR_PREF_BRIGHT, String(_progress->getProgress()).c_str());
-    openContext(nullptr);
+    releaseContext();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
 
     _display.setBrightness(_old_bright);
-    openContext(nullptr);
+    releaseContext();
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {
