@@ -14,7 +14,7 @@ namespace sokoban
 {
   SokobanContext::SokobanContext()
   {
-    setCpuFrequency(FREQ_BALANCED);
+    setCpuFrequency(FREQ_MAX);
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
