@@ -7,6 +7,8 @@
 
 HomeContext::HomeContext() : _strip{LED_COUNT, LED_DATA_PIN, NEO_GRB + NEO_KHZ800}
 {
+  setCpuFrequency(FREQ_BALANCED);
+
   _fs.mount();
 
   _strip.setBrightness(50);

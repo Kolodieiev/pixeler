@@ -56,7 +56,8 @@ bool FilesContext::loop()
 
 FilesContext::FilesContext()
 {
-  setCpuFrequencyMhz(MAX_CPU_FREQ_MHZ);
+  setCpuFrequency(FREQ_MAX);
+
   _dir_img = new Image(1);
   _dir_img->setTransparency(true);
   _dir_img->setWidth(16);
@@ -91,7 +92,6 @@ FilesContext::~FilesContext()
   delete _lua_img;
   delete _lua_context;
   delete _notification;
-  setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
 }
 
 //-------------------------------------------------------------------------------------------

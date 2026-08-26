@@ -16,6 +16,8 @@ uint8_t MenuContext::_last_sel_item_pos;
 
 MenuContext::MenuContext()
 {
+  setCpuFrequency(FREQ_MIN);
+  
   _display.enableBackLight();
   //
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();

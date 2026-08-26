@@ -63,6 +63,11 @@ namespace pixeler
     return _is_released;
   }
 
+  void IContext::setCpuFrequency(CpuFrequency frequency)
+  {
+    setCpuFrequencyMhz(frequency);
+  }
+
   void IContext::openContext(IContext* context)
   {
     _input.reset();

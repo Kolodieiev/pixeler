@@ -48,7 +48,7 @@ void Mp3Context::savePref()
 
 Mp3Context::Mp3Context()
 {
-  setCpuFrequencyMhz(BALANCED_CPU_FREQ_MHZ);
+  setCpuFrequency(FREQ_BALANCED);
 
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
@@ -105,8 +105,6 @@ Mp3Context::~Mp3Context()
     ccpu_cmd_data[1] = CH_PIN_LORA_PWR;
     _ccpu.sendCmd(ccpu_cmd_data, sizeof(ccpu_cmd_data), 2);
   }
-
-  setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
 }
 
 //-------------------------------------------------------------------------------------------

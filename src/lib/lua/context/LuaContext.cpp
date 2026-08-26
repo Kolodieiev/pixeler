@@ -140,7 +140,7 @@ namespace pixeler
 
     _notification = new Notification(1);
 #endif
-    setCpuFrequencyMhz(MAX_CPU_FREQ_MHZ);
+    setCpuFrequency(FREQ_MAX);
     _self = this;
   }
 
@@ -156,7 +156,6 @@ namespace pixeler
       delete _managed_widgets[i];
 
     log_i("%s", STR_LUA_STOP);
-    setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
   }
 
   bool LuaContext::initLua()

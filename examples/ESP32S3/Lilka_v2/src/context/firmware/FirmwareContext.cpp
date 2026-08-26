@@ -16,6 +16,8 @@ extern "C" bool verifyRollbackLater()
 
 FirmwareContext::FirmwareContext()
 {
+  setCpuFrequency(FREQ_MAX);
+
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
 

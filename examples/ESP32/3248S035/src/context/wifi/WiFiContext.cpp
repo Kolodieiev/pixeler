@@ -21,6 +21,8 @@ const char STR_WIFI_SUBDIR[] = "wifi";
 
 WiFiContext::WiFiContext()
 {
+  setCpuFrequency(FREQ_MAX);
+
   if (!_fs.isMounted())
   {
     showSDErrTmpl();

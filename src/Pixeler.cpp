@@ -13,8 +13,6 @@ namespace pixeler
 
   void Pixeler::pixelerContextTask(void* params)
   {
-    setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
-
     _input.__init();
 
 #ifdef GRAPHICS_ENABLED

@@ -14,6 +14,8 @@ static const char STR_CHESS_ITEM[] = "Шахи";
 
 GameListContext::GameListContext()
 {
+  setCpuFrequency(FREQ_MIN);
+
   //------ Налаштування зовнішнього вигляду віджетів
   //
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();

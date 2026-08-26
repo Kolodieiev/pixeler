@@ -35,6 +35,7 @@ uint8_t MenuContext::_last_sel_item_pos;
 
 MenuContext::MenuContext()
 {
+  setCpuFrequency(FREQ_MIN);
   //
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);

@@ -91,7 +91,7 @@ void PrefFileServerContext::showDialogTmpl()
   layout->delWidgets();
   layout->setBackColor(COLOR_BLACK);
 
-    _dialog_txt = new TextBox(ID_TXT_DIALOG);
+  _dialog_txt = new TextBox(ID_TXT_DIALOG);
   layout->addWidget(_dialog_txt);
   _dialog_txt->setHPadding(5);
   _dialog_txt->setWidth(UI_WIDTH - 10);

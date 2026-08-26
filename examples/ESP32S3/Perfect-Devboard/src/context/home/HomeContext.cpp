@@ -10,6 +10,8 @@
 
 HomeContext::HomeContext()
 {
+  setCpuFrequency(FREQ_MIN);
+
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
 

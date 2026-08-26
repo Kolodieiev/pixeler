@@ -41,7 +41,7 @@ namespace chess
 
   ChessContext::ChessContext()
   {
-    setCpuFrequencyMhz(BALANCED_CPU_FREQ_MHZ);
+    setCpuFrequency(FREQ_BALANCED);
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
     showMainTmpl();
@@ -50,7 +50,6 @@ namespace chess
 
   ChessContext::~ChessContext()
   {
-    setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
   }
 
   //----------------------------------------------------------------------------------------------------------

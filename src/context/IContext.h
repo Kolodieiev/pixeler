@@ -75,6 +75,23 @@ namespace pixeler
     bool isReleased() const;
 
   protected:
+    enum CpuFrequency : uint16_t
+    {
+      FREQ_MIN = BASE_CPU_FREQ_MHZ,
+      FREQ_BALANCED = BALANCED_CPU_FREQ_MHZ,
+      FREQ_MAX = MAX_CPU_FREQ_MHZ
+    };
+
+  protected:
+    /**
+     * @brief Встановлює робочу частоту ядер МК.
+     * Рекомендується встановлювати мінімально можливу робочу частоту в кожному контексті,
+     * для економії енергії акумулятора.
+     *
+     * @param frequency Може мати значення FREQ_MIN, FREQ_BALANCED, FREQ_MAX
+     */
+    void setCpuFrequency(CpuFrequency frequency);
+
     /**
      * @brief Прапор, який дозволяє повністю вимкнути відрисовку GUI.
      * true - віджети будуть відмальовуватися. false - перерисовка віджетів буде пропущена

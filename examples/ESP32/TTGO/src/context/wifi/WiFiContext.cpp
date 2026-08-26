@@ -19,6 +19,8 @@ const char STR_CONNECT_ERR[] = "Помилка з'єднання";
 
 WiFiContext::WiFiContext()
 {
+  setCpuFrequency(FREQ_MAX);
+
   _wifi.setPower(WiFiManager::WIFI_POWER_MAX);
 
   showMainTmpl();

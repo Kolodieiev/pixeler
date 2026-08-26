@@ -19,6 +19,8 @@ static const char STR_CONNECT_ERR[] = "Помилка з'єднання";
 
 WiFiContext::WiFiContext()
 {
+  setCpuFrequency(FREQ_MAX);
+
   if (!_fs.isMounted())
   {
     showSDErrTmpl();

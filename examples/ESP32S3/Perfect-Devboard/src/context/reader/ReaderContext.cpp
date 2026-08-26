@@ -495,7 +495,6 @@ ReaderContext::ReaderContext()
 
 ReaderContext::~ReaderContext()
 {
-  setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
 }
 
 void ReaderContext::update()
@@ -666,7 +665,7 @@ void ReaderContext::updateReadProgress()
 
 void ReaderContext::loadBookPage(bool is_back_read, bool is_first_read)
 {
-  setCpuFrequencyMhz(MAX_CPU_FREQ_MHZ);
+  setCpuFrequency(FREQ_MAX);
   String book_path = getBookPath(_dirname.c_str(), _book_name.c_str());
 
   if (!is_back_read)
@@ -693,14 +692,14 @@ void ReaderContext::loadBookPage(bool is_back_read, bool is_first_read)
 
   _page->setText(_bytes_buff);
   updateReadProgress();
-  setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
+  setCpuFrequency(FREQ_MIN);
 }
 
 void ReaderContext::createBookPagesTask(void* params)
 {
   ReaderContext* self = static_cast<ReaderContext*>(params);
 
-  setCpuFrequencyMhz(MAX_CPU_FREQ_MHZ);
+  self->setCpuFrequency(FREQ_MAX);
 
   self->_pages.clear();
   self->_pages.reserve(200);
@@ -738,7 +737,7 @@ void ReaderContext::createBookPagesTask(void* params)
   _fs.closeFile(file);
   self->_pages.shrink_to_fit();
 
-  setCpuFrequencyMhz(BASE_CPU_FREQ_MHZ);
+  self->setCpuFrequency(FREQ_MIN);
   self->_is_book_loading = false;
   vTaskDelete(NULL);
 }

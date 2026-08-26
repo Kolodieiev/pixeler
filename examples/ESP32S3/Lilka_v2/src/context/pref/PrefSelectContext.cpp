@@ -27,6 +27,8 @@ void PrefSelectContext::showSDErrTmpl()
 
 PrefSelectContext::PrefSelectContext()
 {
+  setCpuFrequency(FREQ_MIN);
+  
   if (!_fs.isMounted())
   {
     showSDErrTmpl();
