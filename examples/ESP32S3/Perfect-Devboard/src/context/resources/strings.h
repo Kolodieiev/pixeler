@@ -91,6 +91,8 @@ const char STR_PREF_NICKNAME[] = "nickname";
 const char STR_PREF_SERVER_SSID[] = "serverssid";
 const char STR_PREF_SERVER_PWD[] = "serverpwd";
 
+//
+
 const char STR_MODE_ONE_PL[] = "Один гравець";
 const char STR_MODE_TWO_PL[] = "Два гравці";
 const char STR_MODE_CLIENT[] = "Клієнт";
@@ -103,3 +105,7 @@ const char STR_SERV_PWD[] = "Пароль до сервера";
 const char STR_EMPTY_BAT[] = "0.00";
 //
 const char STR_WALLPP_FILENAME[] = "wallpp";
+
+//
+
+const char STR_CHESS_GAME_DIR[] = "chess";
