@@ -8,10 +8,10 @@
 namespace pixeler
 {
   IGameObject2D::IGameObject2D(uint32_t id, uint16_t type_id, IGameScene2D& game_scene, SfxPlayer& audio)
-      : _obj_ID{id},
-        _type_ID{type_id},
-        _scene{game_scene},
-        _sfx_player{audio}
+      : _scene{game_scene},
+        _sfx_player{audio},
+        _obj_ID{id},
+        _type_ID{type_id}
   {
     _sprite_tmpl = _scene.getSpriteTemplate(_type_ID);
   }

@@ -57,7 +57,7 @@ namespace pixeler
        * @param d Список залежностей (Імен інших типів).
        * @param f Функція-ініціалізатор типу.
        */
-      LuaCustomType(const char* n, std::vector<const char*> d, InitLuaTypeFunc f) : name(n), deps(d), initializer(f) {}
+      LuaCustomType(const char* n, std::vector<const char*> d, InitLuaTypeFunc f) : deps(d), name(n), initializer(f) {}
     } LuaCustomType;
 
     static void* luAlloc(void* ud, void* ptr, size_t osize, size_t nsize);

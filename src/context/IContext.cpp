@@ -85,8 +85,8 @@ namespace pixeler
   IContext::~IContext() {}
 #else  // GRAPHICS_ENABLED
 
-  IContext::IContext() : _layout_mutex{xSemaphoreCreateMutex()},
-                         _task_queue{xQueueCreate(UI_TASK_QUEUE_DEPTH, sizeof(std::function<void()>*))},
+  IContext::IContext() : _task_queue{xQueueCreate(UI_TASK_QUEUE_DEPTH, sizeof(std::function<void()>*))},
+                         _layout_mutex{xSemaphoreCreateMutex()},
                          _layout{new EmptyLayout(1)}
   {
     _owner_task_handle = xTaskGetCurrentTaskHandle();

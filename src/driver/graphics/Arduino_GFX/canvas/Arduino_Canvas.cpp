@@ -15,7 +15,12 @@ Arduino_Canvas::Arduino_Canvas(
     int16_t output_x,
     int16_t output_y,
     uint8_t r)
-    : Arduino_GFX(w, h), _output(output), _output_x(output_x), _output_y(output_y), MAX_X{static_cast<uint16_t>(WIDTH - 1)}, MAX_Y{static_cast<uint16_t>(HEIGHT - 1)}
+    : Arduino_GFX(w, h),
+      _output(output),
+      _output_x(output_x),
+      _output_y(output_y),
+      MAX_X{static_cast<uint16_t>(w - 1)},
+      MAX_Y{static_cast<uint16_t>(h - 1)}
 {
   setRotation(r);
 }
