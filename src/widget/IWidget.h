@@ -89,11 +89,11 @@ namespace pixeler
 
     /**
      * @brief Якщо можливо, приводить об'єкт до відповідного типу.
-     * Є сенс викликати для *IWidget.
+     * Є сенс викликати для IWidget*.
+     * Якщо приведення неможливе, викликає перезавантаження прошивки.
      *
-     * @tparam T Тип, до якого потрібно привести віджет.
-     * @return T* - Вказівник на віджет, якщо приведення можливе.
-     * @return nullptr - Інакше.
+     * @tparam T Тип, до якого потрібно привести віджет
+     * @return T* - Вказівник на віджет, якщо приведення можливе
      */
     template <typename T>
     T* castTo();
@@ -432,21 +432,21 @@ namespace pixeler
 
   /**
    * @brief Якщо можливо, приводить об'єкт до відповідного типу.
-   * Є сенс викликати для *IWidget.
+   * Є сенс викликати для IWidget*.
+   * Якщо приведення неможливе, викликає перезавантаження прошивки.
    *
-   * @tparam T Тип, до якого потрібно привести віджет.
-   * @return T* - Вказівник на віджет, якщо приведення можливе.
-   * @return nullptr - Інакше.
+   * @tparam T Тип, до якого потрібно привести віджет
+   * @return T* - Вказівник на віджет, якщо приведення можливе
    */
   template <typename T>
   inline T* IWidget::castTo()
   {
-    if (_type_ID == T::getTypeID())
-      return static_cast<T*>(this);
-    else
+    if (_type_ID != T::getTypeID()) [[unlikely]]
     {
-      log_e("Некоректне приведення типу %u до %u", T::getTypeID(), _type_ID);
-      return nullptr;
+      log_e("Неможливо привести тип віджета %u до %u", _type_ID, T::getTypeID());
+      esp_restart();
     }
+
+    return static_cast<T*>(this);
   }
 }  // namespace pixeler
