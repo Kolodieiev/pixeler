@@ -398,38 +398,21 @@ void Mp3Context::update()
   if (_mode == MODE_SD_UNCONN)
   {
     if (swipe == ITouchscreen::SWIPE_L)
-    {
       openContext(new MenuContext());
-    }
 
     return;
   }
 
   if (swipe == ITouchscreen::SWIPE_L)
-  {
-    _input.lock(CLICK_LOCK);
     back();
-  }
   else if (swipe == ITouchscreen::SWIPE_U)
-  {
-    _input.lock(CLICK_LOCK);
     up();
-  }
   else if (swipe == ITouchscreen::SWIPE_D)
-  {
-    _input.lock(CLICK_LOCK);
     down();
-  }
   else if (_input.isPressed())
-  {
-    _input.lock(PRESS_LOCK);
     okPressed();
-  }
   else if (_input.isReleased())
-  {
-    _input.lock(CLICK_LOCK);
     click();
-  }
 
   if (_mode == MODE_AUDIO_PLAY)
   {

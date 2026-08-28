@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IChessGameContext.h"
+#include "game/online/GameServer.h"
 
 namespace chess
 {
@@ -15,8 +16,11 @@ namespace chess
     virtual void update() override;
 
   private:
-    void showServerLobbyTmpl();  // Показати ігрове лобі сервера
-    void procServerLobby();      // Вибір клієнта зі списку
+    void showLobbyTmpl();  // Показати ігрове лобі сервера
+    void procLobbyKb();    // Обробка клавіш ігрового лобі
+
+    void showContextMenuTmpl();  // Показати контекстне меню ігрового лобі сервера
+    void procContextMenuKb();    // Обробка клавіш контекстного меню ігрового лобі
 
     void showClientConfirmTmpl();   // Показати повідомлення про підключення клієнта
     void procClientConfirmation();  // Прийняти або відхилити клієнта
@@ -37,6 +41,8 @@ namespace chess
       ID_ITEM_NICK = 1,
     };
 
-    StateHandler _current_state{nullptr};
+    pixeler::GameServer _server;
+
+    StateHandler _state_kb_handler{nullptr};
   };
 }  // namespace chess

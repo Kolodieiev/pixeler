@@ -226,43 +226,19 @@ void PrefFileServerContext::changeTbFocus()
 void PrefFileServerContext::update()
 {
   if (_input.isPressed(BtnID::BTN_OK))
-  {
-    _input.lock(BtnID::BTN_OK, PRESS_LOCK);
     okPressed();
-  }
   else if (_input.isPressed(BtnID::BTN_BACK))
-  {
-    _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
     backPressed();
-  }
   else if (_input.isHolded(BtnID::BTN_UP))
-  {
-    _input.lock(BtnID::BTN_UP, HOLD_LOCK);
     up();
-  }
   else if (_input.isHolded(BtnID::BTN_DOWN))
-  {
-    _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
     down();
-  }
   else if (_input.isHolded(BtnID::BTN_RIGHT))
-  {
-    _input.lock(BtnID::BTN_RIGHT, HOLD_LOCK);
     right();
-  }
   else if (_input.isHolded(BtnID::BTN_LEFT))
-  {
-    _input.lock(BtnID::BTN_LEFT, HOLD_LOCK);
     left();
-  }
   else if (_input.isReleased(BtnID::BTN_OK))
-  {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
     ok();
-  }
   else if (_input.isReleased(BtnID::BTN_BACK))
-  {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     back();
-  }
 }

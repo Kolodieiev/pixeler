@@ -41,20 +41,15 @@ void PrefBrightContext::update()
 {
   if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-
     SettingsManager::set(STR_PREF_BRIGHT, String(_progress->getProgress()).c_str());
     releaseContext();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     releaseContext();
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, HOLD_LOCK);
-
     uint16_t cur_progress = _progress->getProgress();
 
     if (cur_progress < MAX_BRIGHT)
@@ -65,8 +60,6 @@ void PrefBrightContext::update()
   }
   else if (_input.isHolded(BtnID::BTN_DOWN))
   {
-    _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
-
     uint16_t cur_progress = _progress->getProgress();
     if (cur_progress > BRIGHT_STEP * 2)
     {

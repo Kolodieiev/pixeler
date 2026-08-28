@@ -59,22 +59,18 @@ void WiFiContext::update()
 
   if (swipe == ITouchscreen::SWIPE_U)
   {
-    _input.lock(CLICK_LOCK);
     up();
   }
   else if (swipe == ITouchscreen::SWIPE_D)
   {
-    _input.lock(CLICK_LOCK);
     down();
   }
   else if (swipe == ITouchscreen::SWIPE_L)
   {
-    _input.lock(CLICK_LOCK);
     back();
   }
   else if (_input.isPressed())
   {
-    _input.lock(CLICK_LOCK);
     if (_mode == MODE_MAIN)
       showContextMenuTmpl();
     else if (_mode == MODE_ENTER_PWD)
@@ -82,7 +78,6 @@ void WiFiContext::update()
   }
   else if (_input.isReleased())
   {
-    _input.lock(CLICK_LOCK);
     ok();
   }
 }

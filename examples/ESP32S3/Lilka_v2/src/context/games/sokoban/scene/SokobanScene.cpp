@@ -553,7 +553,8 @@ namespace sokoban
 
   SokobanScene::~SokobanScene()
   {
-    delete _ghost;  // Цей об'єкт необхідно видаляти самостійно, тому що він не додається до ігрового світу
+    delete _ghost;                              // Цей об'єкт необхідно видаляти самостійно, тому що він не додається до ігрового світу
+    _input.setHoldLockTime(HOLD_LOCK_TIME_MS);  // Скидаємо час блокування кнопки в стані is_holded на стандартний
   }
 
   void SokobanScene::update()
@@ -562,20 +563,22 @@ namespace sokoban
 
     if (_input.isPressed(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, PRESS_LOCK);
       openSceneByID(++_level);
       return;
     }
     else if (_input.isPressed(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
       _is_finished = true;
       return;
     }
     else if (_input.isReleased(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
       _is_ghost_selected = !_is_ghost_selected;
+      if (_is_ghost_selected)
+        _input.setHoldLockTime(20);
+      else
+        _input.setHoldLockTime(HOLD_LOCK_TIME_MS);
+
       _input.reset();
     }
 
@@ -584,25 +587,13 @@ namespace sokoban
       _main_obj = _ghost;  // Якщо обрано привида встановлюємо його вказівник головним у сцені
 
       if (_input.isHolded(BtnID::BTN_UP))  // Оброблюємо тільки утримання кнопок
-      {
-        _input.lock(BtnID::BTN_UP, 30);
         direction = IGameObject2D::DIRECTION_UP;
-      }
       else if (_input.isHolded(BtnID::BTN_DOWN))
-      {
-        _input.lock(BtnID::BTN_DOWN, 30);
         direction = IGameObject2D::DIRECTION_DOWN;
-      }
       else if (_input.isHolded(BtnID::BTN_RIGHT))
-      {
-        _input.lock(BtnID::BTN_RIGHT, 30);
         direction = IGameObject2D::DIRECTION_RIGHT;
-      }
       else if (_input.isHolded(BtnID::BTN_LEFT))
-      {
-        _input.lock(BtnID::BTN_LEFT, 30);
         direction = IGameObject2D::DIRECTION_LEFT;
-      }
 
       _ghost->move(direction);
     }
@@ -611,25 +602,13 @@ namespace sokoban
       _main_obj = _sokoban;  // Встановлюємо головним об'єктом комірника
 
       if (_input.isReleased(BtnID::BTN_UP))  // Оброблюємо тільки відпусканя кнопок
-      {
-        _input.lock(BtnID::BTN_UP, 100);  // Блокуємо кнопку на 200мс, щоб запобігти випадковим зайвим натисканням
         direction = IGameObject2D::DIRECTION_UP;
-      }
       else if (_input.isReleased(BtnID::BTN_DOWN))
-      {
-        _input.lock(BtnID::BTN_DOWN, 100);
         direction = IGameObject2D::DIRECTION_DOWN;
-      }
       else if (_input.isReleased(BtnID::BTN_RIGHT))
-      {
-        _input.lock(BtnID::BTN_RIGHT, 100);
         direction = IGameObject2D::DIRECTION_RIGHT;
-      }
       else if (_input.isReleased(BtnID::BTN_LEFT))
-      {
-        _input.lock(BtnID::BTN_LEFT, 100);
         direction = IGameObject2D::DIRECTION_LEFT;
-      }
 
       _sokoban->move(direction);
     }
@@ -693,6 +672,7 @@ namespace sokoban
   {
     _ghost = createObject<GhostObj>();  // Створити об'єкт привида
     _main_obj = _ghost;                 // Встановити головним об'єктом сцени привида. Саме за цим головним об'єктом слідкує viewport
+    _input.setHoldLockTime(20);         // Встановлюємо час блокування вводу для is_holded в 20 мс.
   }
 
   void SokobanScene::createSokoban()

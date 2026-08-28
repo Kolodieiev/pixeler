@@ -67,8 +67,6 @@ void PrefWiFiPowerContext::update()
 {
   if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
-
     uint16_t power = _menu->getCurrItemID() - 1;  // Одразу переводимо в потужність з item_id
     _wifi.setPower(static_cast<WiFiManager::WiFiPowerLevel>(power));
 
@@ -78,17 +76,14 @@ void PrefWiFiPowerContext::update()
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     releaseContext();
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, HOLD_LOCK);
     _menu->focusUp();
   }
   else if (_input.isHolded(BtnID::BTN_DOWN))
   {
-    _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
     _menu->focusDown();
   }
 }

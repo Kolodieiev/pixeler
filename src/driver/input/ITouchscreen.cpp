@@ -77,7 +77,7 @@ namespace pixeler
 
     if (_has_touch)
     {
-      if (!_is_pressed && (millis() - _hold_duration > PRESS_DURATION))
+      if (!_is_pressed && (millis() - _hold_duration > PRESS_DURATION_TIME_MS))
       {
         _has_touch = false;
         _is_pressed = true;

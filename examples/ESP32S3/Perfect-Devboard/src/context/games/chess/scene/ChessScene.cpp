@@ -63,13 +63,11 @@ namespace chess
   {
     if (_input.isPressed(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
       // Оброблювати клієнт-серверну поведінку
       _is_finished = true;
     }
     if (_input.isHolded(BtnID::BTN_UP))
     {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
       if (_board.isWhiteTurn())
         moveCursorUp();
       else
@@ -77,7 +75,6 @@ namespace chess
     }
     else if (_input.isHolded(BtnID::BTN_DOWN))
     {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
       if (_board.isWhiteTurn())
         moveCursorDown();
       else
@@ -85,7 +82,6 @@ namespace chess
     }
     else if (_input.isHolded(BtnID::BTN_RIGHT))
     {
-      _input.lock(BtnID::BTN_RIGHT, HOLD_LOCK);
       if (_board.isWhiteTurn())
         moveCursorRight();
       else
@@ -93,7 +89,6 @@ namespace chess
     }
     else if (_input.isHolded(BtnID::BTN_LEFT))
     {
-      _input.lock(BtnID::BTN_LEFT, HOLD_LOCK);
       if (_board.isWhiteTurn())
         moveCursorLeft();
       else
@@ -101,12 +96,10 @@ namespace chess
     }
     else if (_input.isReleased(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
       handleOkClick();
     }
     else if (_input.isReleased(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       clearCurrSelect();
     }
 

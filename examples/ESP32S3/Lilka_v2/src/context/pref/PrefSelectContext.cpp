@@ -166,33 +166,26 @@ void PrefSelectContext::update()
   if (_mode == MODE_SD_UNCONN)
   {
     if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       openContext(new MenuContext());
-    }
 
     return;
   }
 
   if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
     ok();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     openContext(new MenuContext());
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, HOLD_LOCK);
     _menu->focusUp();
     _scrollbar->scrollUp();
   }
   else if (_input.isHolded(BtnID::BTN_DOWN))
   {
-    _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
     _menu->focusDown();
     _scrollbar->scrollDown();
   }

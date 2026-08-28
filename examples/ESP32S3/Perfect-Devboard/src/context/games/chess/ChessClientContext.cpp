@@ -1,6 +1,9 @@
 #include "ChessClientContext.h"
 
+#include "../../WidgetCreator.h"
 #include "ChessContext.h"
+#include "widget/menu/FixedMenu.h"
+#include "widget/text/TextBox.h"
 
 namespace chess
 {
@@ -38,14 +41,14 @@ namespace chess
 
   void ChessClientContext::update()
   {
-    (this->*_current_state)();
+    (this->*_state_kb_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
   void ChessClientContext::showConnDialogTmpl()
   {
-    // _current_state = &ChessContext::procDialog;
+    // _state_kb_handler = &ChessContext::procDialog;
     // addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
   }
 

@@ -96,17 +96,12 @@ end
 
 function update() -- Функція викликається автоматично контекстом кожен кадр.
     if input.is_pressed(BTN_EXIT) then -- Обробка кнопки виходу.
-        input.lock(BTN_EXIT, 1000) -- Заблокувати спрацьовування кнопки на n мс.
         context.exit() -- Завершити роботу скрипта.
-        return;
     elseif input.is_released(BTN_UP) then
-        input.lock(BTN_UP, 250)
         main_menu:focusUp()
     elseif input.is_released(BTN_DOWN) then
-        input.lock(BTN_DOWN, 250)
         main_menu:focusDown()
     elseif input.is_released(BTN_OK) then
-        input.lock(BTN_OK, 250)
         ok_handler()
     end
 end

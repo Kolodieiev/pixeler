@@ -55,33 +55,26 @@ void WiFiContext::update()
 {
   if (_input.isReleased(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, CLICK_LOCK);
     up();
   }
   else if (_input.isReleased(BtnID::BTN_DOWN))
   {
-    _input.lock(BtnID::BTN_DOWN, CLICK_LOCK);
     down();
   }
   else if (_input.isReleased(BtnID::BTN_LEFT))
   {
-    _input.lock(BtnID::BTN_LEFT, CLICK_LOCK);
     left();
   }
   else if (_input.isReleased(BtnID::BTN_RIGHT))
   {
-    _input.lock(BtnID::BTN_RIGHT, CLICK_LOCK);
     right();
   }
   else if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
     ok();
   }
   else if (_input.isPressed(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, PRESS_LOCK);
-
     if (_mode == MODE_MAIN)
       showContextMenuTmpl();
     else if (_mode == MODE_ENTER_PWD)
@@ -89,17 +82,14 @@ void WiFiContext::update()
   }
   else if (_input.isPressed(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, PRESS_LOCK);
     changeKbCaps();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     back();
   }
   else if (_input.isPressed(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
     exitPressed();
   }
 }

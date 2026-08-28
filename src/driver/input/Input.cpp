@@ -19,7 +19,9 @@ static const char STR_UNKNOWN_PIN[] = "Незареєстрована вірту
 
 namespace pixeler
 {
-  Input::Input() {}
+  Input::Input() : _hold_lock_time{HOLD_LOCK_TIME_MS}, _click_lock_time{CLICK_LOCK_TIME_MS}, _press_lock_time{PRESS_LOCK_TIME_MS}
+  {
+  }
 
   void Input::__init()
   {
@@ -89,7 +91,7 @@ namespace pixeler
       btn.second.reset();
   }
 
-  void Input::__printPinMode(BtnID pin_id)
+  void Input::__printPinMode(uint16_t pin_id)
   {
     if ((gpio_num_t)pin_id >= GPIO_NUM_MAX)
     {
@@ -139,11 +141,16 @@ namespace pixeler
     }
   }
 
-  bool Input::isHolded(BtnID btn_id) const
+  bool Input::isHolded(BtnID btn_id)
   {
     try
     {
-      return _buttons.at(btn_id).isHolded();
+      bool result = _buttons.at(btn_id).isHolded();
+
+      if (result)
+        _buttons.at(btn_id).lock(_hold_lock_time);
+
+      return result;
     }
     catch (const std::out_of_range& ignored)
     {
@@ -152,11 +159,16 @@ namespace pixeler
     }
   }
 
-  bool Input::isPressed(BtnID btn_id) const
+  bool Input::isPressed(BtnID btn_id)
   {
     try
     {
-      return _buttons.at(btn_id).isPressed();
+      bool result = _buttons.at(btn_id).isPressed();
+
+      if (result)
+        _buttons.at(btn_id).lock(_press_lock_time);
+
+      return result;
     }
     catch (const std::out_of_range& ignored)
     {
@@ -165,11 +177,16 @@ namespace pixeler
     }
   }
 
-  bool Input::isReleased(BtnID btn_id) const
+  bool Input::isReleased(BtnID btn_id)
   {
     try
     {
-      return _buttons.at(btn_id).isReleased();
+      bool result = _buttons.at(btn_id).isReleased();
+
+      if (result)
+        _buttons.at(btn_id).lock(_click_lock_time);
+
+      return result;
     }
     catch (const std::out_of_range& ignored)
     {
@@ -178,16 +195,19 @@ namespace pixeler
     }
   }
 
-  void Input::lock(BtnID btn_id, unsigned long lock_duration)
+  void Input::setHoldLockTime(unsigned long lock_duration_ms)
   {
-    try
-    {
-      _buttons.at(btn_id).lock(lock_duration);
-    }
-    catch (const std::out_of_range& ignored)
-    {
-      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
-    }
+    _hold_lock_time = lock_duration_ms;
+  }
+
+  void Input::setClickLockTime(unsigned long lock_duration_ms)
+  {
+    _click_lock_time = lock_duration_ms;
+  }
+
+  void Input::setPressLockTime(unsigned long lock_duration_ms)
+  {
+    _press_lock_time = lock_duration_ms;
   }
 
 #ifdef TOUCHSCREEN_SUPPORT
@@ -206,9 +226,9 @@ namespace pixeler
     return _touchscreen->isReleased();
   }
 
-  void Input::lock(unsigned long lock_duration)
+  void Input::lock(unsigned long lock_duration_ms)
   {
-    _touchscreen->lock(lock_duration);
+    _touchscreen->lock(lock_duration_ms);
   }
 
   ITouchscreen::Swipe Input::getSwipe()

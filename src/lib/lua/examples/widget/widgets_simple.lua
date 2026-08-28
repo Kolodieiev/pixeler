@@ -78,9 +78,7 @@ ticker_clone_label:setPos(20, ticker_clone_label:getYPos() + ticker_clone_label:
 
 function update() -- Функція викликається автоматично контекстом кожен кадр.
     if input.is_pressed(BTN_EXIT) then -- Обробка кнопки виходу.
-        input.lock(BTN_EXIT, 1000) -- Заблокувати спрацьовування кнопки на n мс.
 		context.exit() -- Завершити роботу скрипта.
-        return;
     elseif input.is_holded(BTN_LEFT) then
         if(img_id_plus > 0) then
             if plus_img:getXPos() < 10 then -- Якщо поточна позиція віджета виходить за задані рамки.

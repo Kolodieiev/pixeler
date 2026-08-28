@@ -19,7 +19,6 @@ progress_bar:setBorder(true)
 
 function update()
     if input.is_pressed(BTN_EXIT) then
-        input.lock(BTN_EXIT, 1000)
 		context.exit()
         return;
 	end

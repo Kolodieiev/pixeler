@@ -11,9 +11,7 @@ pwm.set(PWM_PIN, 20) -- Встановити 20% заповнення.
 
 function update() -- Функція викликається автоматично контекстом кожен кадр.
     if input.is_pressed(BTN_EXIT) then -- Обробка кнопки виходу.
-        input.lock(BTN_EXIT, 1000) -- Заблокувати спрацьовування кнопки на n мс.
         pwm.detach(PWM_PIN) -- Зупинити ШІМ на піну.
 		context.exit() -- Завершити роботу скрипта.
-        return;
 	end
 end

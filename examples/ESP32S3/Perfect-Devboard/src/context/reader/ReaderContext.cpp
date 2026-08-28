@@ -502,10 +502,7 @@ void ReaderContext::update()
   if (_mode == MODE_SD_UNCONN)
   {
     if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       openContext(new MenuContext());
-    }
 
     return;
   }
@@ -514,7 +511,6 @@ void ReaderContext::update()
   {
     if (_input.isReleased(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       back();
     }
     else if (!_is_book_loading)
@@ -527,43 +523,35 @@ void ReaderContext::update()
 
   if (_input.isPressed(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, PRESS_LOCK);
     if (_mode == MODE_BOOK_SEL)
       showContextMenuTmpl();
   }
   else if (_input.isPressed(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
     backPressed();
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, HOLD_LOCK);
     up();
   }
   else if (_input.isHolded(BtnID::BTN_DOWN))
   {
-    _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
     down();
   }
   else if (_input.isReleased(BtnID::BTN_RIGHT))
   {
-    _input.lock(BtnID::BTN_RIGHT, CLICK_LOCK);
     right();
   }
   else if (_input.isReleased(BtnID::BTN_LEFT))
   {
-    _input.lock(BtnID::BTN_LEFT, CLICK_LOCK);
     left();
   }
   else if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
     ok();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     back();
   }
 }

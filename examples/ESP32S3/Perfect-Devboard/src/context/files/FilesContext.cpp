@@ -580,7 +580,6 @@ void FilesContext::update()
   {
     if (_input.isReleased(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       openContext(new MenuContext());
     }
 
@@ -589,7 +588,6 @@ void FilesContext::update()
 
   if (_input.isPressed(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, PRESS_LOCK);
     if (_mode == MODE_NAVIGATION)
       showContextMenu();
     else if (_mode == MODE_NEW_DIR_DIALOG || _mode == MODE_RENAME_DIALOG)
@@ -597,8 +595,6 @@ void FilesContext::update()
   }
   else if (_input.isPressed(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
-
     if (_mode == MODE_NAVIGATION)
       openContext(new MenuContext());
     else if (_mode == MODE_NEW_DIR_DIALOG || _mode == MODE_RENAME_DIALOG)
@@ -606,34 +602,28 @@ void FilesContext::update()
   }
   else if (_input.isHolded(BtnID::BTN_UP))
   {
-    _input.lock(BtnID::BTN_UP, HOLD_LOCK);
     up();
   }
   else if (_input.isHolded(BtnID::BTN_DOWN))
   {
-    _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
     down();
   }
   else if (_input.isHolded(BtnID::BTN_RIGHT))
   {
-    _input.lock(BtnID::BTN_RIGHT, HOLD_LOCK);
     if (_mode == MODE_NEW_DIR_DIALOG || _mode == MODE_RENAME_DIALOG)
       _keyboard->focusRight();
   }
   else if (_input.isHolded(BtnID::BTN_LEFT))
   {
-    _input.lock(BtnID::BTN_LEFT, HOLD_LOCK);
     if (_mode == MODE_NEW_DIR_DIALOG || _mode == MODE_RENAME_DIALOG)
       _keyboard->focusLeft();
   }
   else if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
     ok();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     back();
   }
 

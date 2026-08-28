@@ -51,8 +51,6 @@ void FirmwareContext::update()
 {
   if (_input.isReleased(BtnID::BTN_OK))
   {
-    _input.lock(BtnID::BTN_OK, 500);
-
     if (_fs.fileExist(STR_FIRMWARE_FN))
     {
       size_t firm_size = _fs.getFileSize(STR_FIRMWARE_FN);
@@ -74,7 +72,6 @@ void FirmwareContext::update()
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
-    _input.lock(BtnID::BTN_BACK, 500);
     openContext(new MenuContext());
   }
 }

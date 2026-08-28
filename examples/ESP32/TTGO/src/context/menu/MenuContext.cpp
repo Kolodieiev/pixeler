@@ -86,20 +86,11 @@ bool MenuContext::loop()
 void MenuContext::update()
 {
   if (_input.isReleased(BtnID::BTN_OK))
-  {
-    _input.lock(BtnID::BTN_OK, CLICK_LOCK);
     down();
-  }
   else if (_input.isReleased(BtnID::BTN_BACK))
-  {
-    _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
     up();
-  }
   else if (_input.isPressed(BtnID::BTN_OK))
-  {
-    _input.lock(BtnID::BTN_OK, PRESS_LOCK);
     ok();
-  }
 }
 
 void MenuContext::up()

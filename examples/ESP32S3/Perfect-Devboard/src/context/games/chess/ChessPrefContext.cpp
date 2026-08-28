@@ -27,12 +27,12 @@ namespace chess
 
   void ChessPrefContext::update()
   {
-    (this->*_current_state)();
+    (this->*_state_kb_handler)();
   }
 
   void ChessPrefContext::showMainTmpl()
   {
-    _current_state = &ChessPrefContext::procMainMenu;
+    _state_kb_handler = &ChessPrefContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -73,17 +73,14 @@ namespace chess
 
     if (_input.isHolded(BtnID::BTN_UP))
     {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
       menu->focusUp();
     }
     else if (_input.isHolded(BtnID::BTN_DOWN))
     {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
       menu->focusDown();
     }
     else if (_input.isReleased(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
       uint16_t id = menu->getCurrItemID();
 
       switch (id)
@@ -103,7 +100,6 @@ namespace chess
     }
     else if (_input.isReleased(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, HOLD_LOCK);
       openContext(new ChessContext());
     }
   }
@@ -131,7 +127,7 @@ namespace chess
 
   void ChessPrefContext::addDialog(const String& title_txt, const String& start_txt)
   {
-    _current_state = &ChessPrefContext::procDialog;
+    _state_kb_handler = &ChessPrefContext::procDialog;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -170,45 +166,36 @@ namespace chess
 
     if (_input.isHolded(BtnID::BTN_UP))
     {
-      _input.lock(BtnID::BTN_UP, CLICK_LOCK);
       keyboard->focusUp();
     }
     else if (_input.isHolded(BtnID::BTN_DOWN))
     {
-      _input.lock(BtnID::BTN_DOWN, CLICK_LOCK);
       keyboard->focusDown();
     }
     else if (_input.isHolded(BtnID::BTN_LEFT))
     {
-      _input.lock(BtnID::BTN_LEFT, CLICK_LOCK);
       keyboard->focusLeft();
     }
     else if (_input.isHolded(BtnID::BTN_RIGHT))
     {
-      _input.lock(BtnID::BTN_RIGHT, CLICK_LOCK);
       keyboard->focusRight();
     }
     else if (_input.isReleased(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
       dialog_txt->addChars(keyboard->getCurrBtnTxt().c_str());
     }
     else if (_input.isReleased(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       dialog_txt->removeLastChar();
     }
     else if (_input.isPressed(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, PRESS_LOCK);
 
       String tb_txt = dialog_txt->getText();
       saveDialogResult(tb_txt);
     }
     else if (_input.isPressed(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, PRESS_LOCK);
-
       //   if (_dialog_id == DIALOG_ID_SERVER_CONN)  // Якщо в режимі підключення до сервера // TODO
       //     showWifiScanTmpl();                     // Пароль не введено. Повторно запускаємо сканування
       //   else

@@ -89,8 +89,8 @@ namespace pixeler
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#define PRESS_DURATION (unsigned long)1000  // Час(мс), після спливання якого кнопка вважається утримуваною.
+#define PRESS_DURATION_TIME_MS (unsigned long)1000  // Час(мс), після спливання якого кнопка вважається утримуваною.
 
-#define PRESS_LOCK (unsigned long)700  // Час(мс) блокування кнопки після спрацювання тригеру PRESS
-#define CLICK_LOCK (unsigned long)250  // Час(мс) блокування кнопки після спрацювання тригеру CLICK
-#define HOLD_LOCK (unsigned long)150   // Час(мс) блокування кнопки після спрацювання тригеру HOLD
+#define PRESS_LOCK_TIME_MS (unsigned long)700  // Час(мс) блокування кнопки після спрацювання тригеру PRESS
+#define CLICK_LOCK_TIME_MS (unsigned long)250  // Час(мс) блокування кнопки після спрацювання тригеру CLICK
+#define HOLD_LOCK_TIME_MS (unsigned long)150   // Час(мс) блокування кнопки після спрацювання тригеру HOLD

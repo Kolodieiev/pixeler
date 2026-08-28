@@ -167,13 +167,8 @@ end
 
 function update()
     if input.is_pressed(BTN_EXIT) then
-        input.lock(BTN_EXIT, 1000)
         context.exit()
-        return;
-    end
-
-    if input.is_released(BTN_UP) then
-        input.lock(BTN_UP, 250)
+    elseif input.is_released(BTN_UP) then
         wifi.setPower(2) -- 0-2 де 2 Max
         runTest()
     end

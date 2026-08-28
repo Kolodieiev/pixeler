@@ -42,8 +42,6 @@ print("Ресурси SD повністю звільнено")
 
 function update()
     if input.is_pressed(BTN_EXIT) then
-        input.lock(BTN_EXIT, 1000)
-		context.exit()
-        return;
-	end
+		  context.exit()
+	  end
 end

@@ -35,14 +35,14 @@ namespace chess
 
   void ChessContext::update()
   {
-    (this->*_current_state)();
+    (this->*_state_kb_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
   void ChessContext::showMainTmpl()
   {
-    _current_state = &ChessContext::procMainMenu;
+    _state_kb_handler = &ChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -97,17 +97,14 @@ namespace chess
 
     if (_input.isHolded(BtnID::BTN_UP))
     {
-      _input.lock(BtnID::BTN_UP, HOLD_LOCK);
       menu->focusUp();
     }
     else if (_input.isHolded(BtnID::BTN_DOWN))
     {
-      _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
       menu->focusDown();
     }
     else if (_input.isReleased(BtnID::BTN_OK))
     {
-      _input.lock(BtnID::BTN_OK, CLICK_LOCK);
       uint16_t id = menu->getCurrItemID();
 
       switch (id)
@@ -135,7 +132,6 @@ namespace chess
     }
     else if (_input.isReleased(BtnID::BTN_BACK))
     {
-      _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
       openContext(new GameListContext());
     }
   }

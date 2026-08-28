@@ -57,24 +57,20 @@ namespace sokoban
     {
       if (_input.isReleased(BtnID::BTN_BACK))
       {
-        _input.lock(BtnID::BTN_BACK, CLICK_LOCK);
         openContext(new GameListContext());
       }
       else if (_input.isHolded(BtnID::BTN_UP))
       {
-        _input.lock(BtnID::BTN_UP, HOLD_LOCK);
         _lvl_menu->focusUp();
         _scrollbar->scrollUp();
       }
       else if (_input.isHolded(BtnID::BTN_DOWN))
       {
-        _input.lock(BtnID::BTN_DOWN, HOLD_LOCK);
         _lvl_menu->focusDown();
         _scrollbar->scrollDown();
       }
       else if (_input.isReleased(BtnID::BTN_OK))
       {
-        _input.lock(BtnID::BTN_OK, CLICK_LOCK);
         _prev_lvl = _lvl_menu->getCurrItemID();
         getLayout()->delWidgets();
         _scene = new SokobanScene(_stored_objs, false, _prev_lvl);

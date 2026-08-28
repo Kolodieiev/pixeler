@@ -616,13 +616,10 @@ void FilesContext::update()
 
   if (swipe == ITouchscreen::SWIPE_L)
   {
-    _input.lock(CLICK_LOCK);
     back();
   }
   else if (_input.isPressed())
   {
-    _input.lock(PRESS_LOCK);
-
     if (_mode == MODE_NAVIGATION)
     {
       updateFileInfo();
@@ -634,18 +631,15 @@ void FilesContext::update()
   }
   else if (swipe == ITouchscreen::SWIPE_U)
   {
-    _input.lock(CLICK_LOCK);
     up();
   }
   else if (swipe == ITouchscreen::SWIPE_D)
   {
-    _input.lock(CLICK_LOCK);
     down();
   }
   else if (_input.isReleased())
   {
     ok();
-    _input.lock(CLICK_LOCK);
   }
 
   if (_fs.isWorking())

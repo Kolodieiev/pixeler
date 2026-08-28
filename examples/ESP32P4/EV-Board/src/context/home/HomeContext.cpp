@@ -68,7 +68,6 @@ void HomeContext::update()
 {
   // if (_input.isPressed())
   // {
-  //   _input.lock(CLICK_LOCK);
   //   log_i("isPressed");
   // }
   // else if (_input.isHolded())

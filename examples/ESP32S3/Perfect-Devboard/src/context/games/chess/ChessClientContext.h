@@ -42,6 +42,6 @@ namespace chess
       ID_ITEM_NICK = 1,
     };
 
-    StateHandler _current_state{nullptr};
+    StateHandler _state_kb_handler{nullptr};
   };
 }  // namespace chess
