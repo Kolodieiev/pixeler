@@ -7,8 +7,8 @@ namespace pixeler
   uint32_t IGameScene2D::_obj_id_counter = 0;
 
   IGameScene2D::IGameScene2D(DataStream& stored_objs) : _terrain{TerrainManager2D()},
-                                                    _stored_objs{stored_objs},
-                                                    _obj_mutex{xSemaphoreCreateMutex()}
+                                                        _stored_objs{stored_objs},
+                                                        _obj_mutex{xSemaphoreCreateMutex()}
   {
     if (!_obj_mutex)
     {
@@ -53,7 +53,7 @@ namespace pixeler
     view_objs.reserve(_game_objs.size());
     IGameObject2D* obj;
 
-    for (size_t i = 0; i < _game_objs.size(); ++i)
+    for (size_t i = 0; i < _game_objs.size();)
     {
       obj = _game_objs[i];
 
@@ -64,6 +64,8 @@ namespace pixeler
         _game_objs.pop_back();
         continue;
       }
+
+      ++i;
 
       obj->__update();
 
@@ -107,9 +109,9 @@ namespace pixeler
 
     std::sort(view_objs.begin(), view_objs.end(), [](IGameObject2D* a, IGameObject2D* b)
               {
-    if (a->_layer < b->_layer) 
-        return true;
-    return a->_y_global + a->_geometry->height < b->_y_global + b->_geometry->height; });
+        if (a->_layer != b->_layer)
+          return a->_layer < b->_layer;
+        return a->_y_global + a->_geometry->height < b->_y_global + b->_geometry->height; });
 
     for (auto const& game_obj : view_objs)
       game_obj->__onDraw();
