@@ -55,7 +55,7 @@ void PrefSelectContext::showMainTmpl()
   MenuItem* bright_item = WidgetCreator::getMenuItem(ITEM_ID_BRIGHT);
   _menu->addItem(bright_item);
   Label* bright_lbl = WidgetCreator::getItemLabel(STR_BRIGHT, font_10x20);
-  bright_item->setLbl(bright_lbl);
+  bright_item->setLabel(bright_lbl);
   //
   ToggleItem* mono_item = new ToggleItem(ITEM_ID_AUDIO_MONO);
   _menu->addItem(mono_item);
@@ -65,7 +65,7 @@ void PrefSelectContext::showMainTmpl()
   mono_item->setChangingBack(true);
 
   Label* mono_lbl = WidgetCreator::getItemLabel(STR_AUDIO_MONO, font_10x20);
-  mono_item->setLbl(mono_lbl);
+  mono_item->setLabel(mono_lbl);
 
   ToggleSwitch* toggle_mono = new ToggleSwitch(ID_TOGGLE);
   mono_item->setToggle(toggle_mono);
@@ -82,7 +82,7 @@ void PrefSelectContext::showMainTmpl()
   // VU-metr
   ToggleItem* vu_metr_item = mono_item->clone(ITEM_ID_AUDIO_VU_METR);
   _menu->addItem(vu_metr_item);
-  vu_metr_item->getLbl()->setText(STR_VU_METR);
+  vu_metr_item->getLabel()->setText(STR_VU_METR);
 
   String vu_metr_setting = SettingsManager::get(STR_PREF_EN_VU_METR);
   if (vu_metr_setting.equals("1"))
@@ -93,7 +93,7 @@ void PrefSelectContext::showMainTmpl()
   // Автоматичне підключення wifi
   ToggleItem* wifi_autoconn_item = mono_item->clone(ITEM_ID_WIFI_AUTOCONN);
   _menu->addItem(wifi_autoconn_item);
-  wifi_autoconn_item->getLbl()->setText(STR_WIFI_AUTOCONNECT);
+  wifi_autoconn_item->getLabel()->setText(STR_WIFI_AUTOCONNECT);
 
   String wifi_autoconn = SettingsManager::get(STR_PREF_WIFI_AUTOCONNECT, STR_WIFI_SUBDIR);
   if (wifi_autoconn.equals("1"))
@@ -103,7 +103,7 @@ void PrefSelectContext::showMainTmpl()
 
   ToggleItem* audio_amp_item = mono_item->clone(ITEM_ID_AUDIO_AMP);
   _menu->addItem(audio_amp_item);
-  audio_amp_item->getLbl()->setText(STR_AUDIO_AMP);
+  audio_amp_item->getLabel()->setText(STR_AUDIO_AMP);
 
   String audio_amp_str = SettingsManager::get(STR_PREF_AUDIO_AMP);
   if (audio_amp_str.equals("1"))
@@ -115,7 +115,7 @@ void PrefSelectContext::showMainTmpl()
 
   ToggleItem* led_greet_item = mono_item->clone(ITEM_ID_LED_GREET);
   _menu->addItem(led_greet_item);
-  led_greet_item->getLbl()->setText(STR_LED_GREET);
+  led_greet_item->getLabel()->setText(STR_LED_GREET);
 
   String led_greet_str = SettingsManager::get(STR_PREF_LED_GREET);
   if (led_greet_str.equals("1"))
@@ -128,14 +128,14 @@ void PrefSelectContext::showMainTmpl()
   MenuItem* file_server_item = WidgetCreator::getMenuItem(ITEM_ID_FILE_SERVER);
   _menu->addItem(file_server_item);
   Label* file_server_lbl = WidgetCreator::getItemLabel(STR_FILE_SERVER, font_10x20);
-  file_server_item->setLbl(file_server_lbl);
+  file_server_item->setLabel(file_server_lbl);
 
   //
 
   MenuItem* wifi_power_item = WidgetCreator::getMenuItem(ITEM_ID_WIFI_POWER);
   _menu->addItem(wifi_power_item);
   Label* wifi_power_lbl = WidgetCreator::getItemLabel(STR_WIFI_POWER, font_10x20);
-  wifi_power_item->setLbl(wifi_power_lbl);
+  wifi_power_item->setLabel(wifi_power_lbl);
 
   //
 

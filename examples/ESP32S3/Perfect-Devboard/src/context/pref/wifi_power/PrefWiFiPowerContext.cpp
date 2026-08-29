@@ -45,17 +45,17 @@ void PrefWiFiPowerContext::showMainTmpl()
   MenuItem* min_item = WidgetCreator::getMenuItem(ITEM_ID_MIN);
   _menu->addItem(min_item);
   Label* min_lbl = WidgetCreator::getItemLabel(STR_WIFI_POWER_MIN, font_10x20);
-  min_item->setLbl(min_lbl);
+  min_item->setLabel(min_lbl);
   //
   MenuItem* mid_item = WidgetCreator::getMenuItem(ITEM_ID_MID);
   _menu->addItem(mid_item);
   Label* mid_lbl = WidgetCreator::getItemLabel(STR_WIFI_POWER_MID, font_10x20);
-  mid_item->setLbl(mid_lbl);
+  mid_item->setLabel(mid_lbl);
   //
   MenuItem* max_item = WidgetCreator::getMenuItem(ITEM_ID_MAX);
   _menu->addItem(max_item);
   Label* max_lbl = WidgetCreator::getItemLabel(STR_WIFI_POWER_MAX, font_10x20);
-  max_item->setLbl(max_lbl);
+  max_item->setLabel(max_lbl);
 }
 
 bool PrefWiFiPowerContext::loop()

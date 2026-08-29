@@ -58,10 +58,10 @@ namespace pixeler
     MenuItem::copyTo(widget);
 
     ToggleItem* clone = static_cast<ToggleItem*>(widget);
-    clone->setLbl(_label->clone(_label->getID()));
+    clone->setLabel(_label->clone(_label->getID()));
     clone->setToggle(_toggle->clone(_toggle->getID()));
     if (_image)
-      clone->setImg(_image->clone(_image->getID()));
+      clone->setImage(_image->clone(_image->getID()));
   }
 
   ToggleItem* ToggleItem::clone(uint16_t id) const

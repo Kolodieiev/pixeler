@@ -56,28 +56,28 @@ MenuContext::MenuContext()
   _menu->addItem(files_item);
 
   Image* files_img = new Image(1);
-  files_item->setImg(files_img);
+  files_item->setImage(files_img);
   files_img->setTransparency(true);
   files_img->setWidth(ICO_WH);
   files_img->setHeight(ICO_WH);
   files_img->setSrc(SD_IMG);
 
   Label* files_lbl = WidgetCreator::getItemLabel(STR_FILES_ITEM, font_10x20);
-  files_item->setLbl(files_lbl);
+  files_item->setLabel(files_lbl);
 
   // WiFi
   MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_ITEM_WIFI);
   _menu->addItem(wifi_item);
 
   Image* wifi_img = new Image(1);
-  wifi_item->setImg(wifi_img);
+  wifi_item->setImage(wifi_img);
   wifi_img->setTransparency(true);
   wifi_img->setWidth(ICO_WH);
   wifi_img->setHeight(ICO_WH);
   wifi_img->setSrc(WIFI_IMG);
 
   Label* wifi_lbl = WidgetCreator::getItemLabel(STR_WIFI_ITEM, font_10x20);
-  wifi_item->setLbl(wifi_lbl);
+  wifi_item->setLabel(wifi_lbl);
 
   //
   _scrollbar->setMax(_menu->getPagesCount());

@@ -50,21 +50,21 @@ namespace chess
     menu->addItem(nick_item);
 
     Label* nick_lbl = WidgetCreator::getItemLabel(STR_NICKNAME, font_10x20);
-    nick_item->setLbl(nick_lbl);
+    nick_item->setLabel(nick_lbl);
 
     // serv name
     MenuItem* serv_name_item = WidgetCreator::getMenuItem(ID_ITEM_SERV_NAME);
     menu->addItem(serv_name_item);
 
     Label* serv_name_lbl = WidgetCreator::getItemLabel(STR_SERV_NAME, font_10x20);
-    serv_name_item->setLbl(serv_name_lbl);
+    serv_name_item->setLabel(serv_name_lbl);
 
     // serv pwd
     MenuItem* serv_pwd_item = WidgetCreator::getMenuItem(ID_ITEM_SERV_PWD);
     menu->addItem(serv_pwd_item);
 
     Label* serv_pwd_lbl = WidgetCreator::getItemLabel(STR_SERV_PWD, font_10x20);
-    serv_pwd_item->setLbl(serv_pwd_lbl);
+    serv_pwd_item->setLabel(serv_pwd_lbl);
   }
 
   void ChessPrefContext::procMainMenu()

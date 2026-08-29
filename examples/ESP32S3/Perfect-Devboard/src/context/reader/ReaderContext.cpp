@@ -46,7 +46,7 @@ void ReaderContext::showContextMenuTmpl()
     _context_menu->addItem(del_item);
 
     Label* upd_lbl = WidgetCreator::getItemLabel(STR_DELETE);
-    del_item->setLbl(upd_lbl);
+    del_item->setLabel(upd_lbl);
   }
 
   _context_menu->setHeight(_context_menu->getItemHeight() * _context_menu->getSize() + 4);
@@ -89,7 +89,7 @@ void ReaderContext::showBookDirsTmpl()
     _book_dirs_menu->addItem(cont_item);
 
     Label* cont_lbl = WidgetCreator::getItemLabel(STR_CONTINUE, font_10x20);
-    cont_item->setLbl(cont_lbl);
+    cont_item->setLabel(cont_lbl);
   }
 }
 
@@ -121,7 +121,7 @@ void ReaderContext::makeBookDirsItems(std::vector<MenuItem*>& items)
     items.push_back(item);
 
     Label* lbl = new Label(1);
-    item->setLbl(lbl);
+    item->setLabel(lbl);
     lbl->setAutoscrollInFocus(true);
     lbl->setFont(font_10x20);
     lbl->setText(_dirs[i].getName());
@@ -192,7 +192,7 @@ void ReaderContext::makeBooksItems(std::vector<MenuItem*>& items, uint16_t file_
     items.push_back(item);
 
     Label* lbl = new Label(1);
-    item->setLbl(lbl);
+    item->setLabel(lbl);
     lbl->setAutoscrollInFocus(true);
     lbl->setFont(font_10x20);
     lbl->setText(_books[i].getName());

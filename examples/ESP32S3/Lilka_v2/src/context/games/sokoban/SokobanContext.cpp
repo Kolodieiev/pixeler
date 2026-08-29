@@ -105,7 +105,7 @@ namespace sokoban
       lbl += i;
 
       Label* lvl_lbl = WidgetCreator::getItemLabel(lbl.c_str());
-      lvl_item->setLbl(lvl_lbl);
+      lvl_item->setLabel(lvl_lbl);
       lvl_lbl->setFont(font_10x20);
     }
 

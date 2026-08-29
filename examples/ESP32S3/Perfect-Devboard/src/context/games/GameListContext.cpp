@@ -40,7 +40,7 @@ GameListContext::GameListContext()
   _menu->addItem(sokoban_item);
 
   Image* soko_img = new Image(1);
-  sokoban_item->setImg(soko_img);
+  sokoban_item->setImage(soko_img);
   soko_img->setWidth(32);
   soko_img->setHeight(32);
   soko_img->setCornerRadius(5);
@@ -48,7 +48,7 @@ GameListContext::GameListContext()
   soko_img->setSrc(ICO_SOKOBAN);
 
   Label* soko_lbl = WidgetCreator::getItemLabel(STR_SOKOBAN_ITEM, font_10x20);
-  sokoban_item->setLbl(soko_lbl);
+  sokoban_item->setLabel(soko_lbl);
   soko_lbl->setAutoscrollInFocus(true);
 
   //
@@ -57,7 +57,7 @@ GameListContext::GameListContext()
   _menu->addItem(chess_item);
 
   Image* chess_img = new Image(1);
-  chess_item->setImg(chess_img);
+  chess_item->setImage(chess_img);
   chess_img->setWidth(32);
   chess_img->setHeight(32);
   chess_img->setCornerRadius(5);
@@ -65,7 +65,7 @@ GameListContext::GameListContext()
   chess_img->setSrc(ICO_CHESS);
 
   Label* chess_lbl = WidgetCreator::getItemLabel(STR_CHESS_ITEM, font_10x20);
-  chess_item->setLbl(chess_lbl);
+  chess_item->setLabel(chess_lbl);
   chess_lbl->setAutoscrollInFocus(true);
 
   _scrollbar->setMax(_menu->getSize());

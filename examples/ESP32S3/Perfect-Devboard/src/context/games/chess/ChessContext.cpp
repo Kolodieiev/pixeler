@@ -60,35 +60,35 @@ namespace chess
     menu->addItem(solo_item);
 
     Label* solo_lbl = WidgetCreator::getItemLabel(STR_MODE_ONE_PL, font_10x20);
-    solo_item->setLbl(solo_lbl);
+    solo_item->setLabel(solo_lbl);
 
     // Два гравці
     MenuItem* multi_item = WidgetCreator::getMenuItem(ID_ITEM_TWO_PLAYERS);
     menu->addItem(multi_item);
 
     Label* multi_lbl = WidgetCreator::getItemLabel(STR_MODE_TWO_PL, font_10x20);
-    multi_item->setLbl(multi_lbl);
+    multi_item->setLabel(multi_lbl);
 
     // Клієнт
     MenuItem* client_item = WidgetCreator::getMenuItem(ID_ITEM_CLIENT);
     menu->addItem(client_item);
 
     Label* client_lbl = WidgetCreator::getItemLabel(STR_MODE_CLIENT, font_10x20);
-    client_item->setLbl(client_lbl);
+    client_item->setLabel(client_lbl);
 
     // Сервер
     MenuItem* server_item = WidgetCreator::getMenuItem(ID_ITEM_SERVER);
     menu->addItem(server_item);
 
     Label* server_lbl = WidgetCreator::getItemLabel(STR_MODE_SERVER, font_10x20);
-    server_item->setLbl(server_lbl);
+    server_item->setLabel(server_lbl);
 
     // Налаштування
     MenuItem* prefs_item = WidgetCreator::getMenuItem(ID_ITEM_PREFS);
     menu->addItem(prefs_item);
 
     Label* prefs_lbl = WidgetCreator::getItemLabel(STR_PREFERENCES, font_10x20);
-    prefs_item->setLbl(prefs_lbl);
+    prefs_item->setLabel(prefs_lbl);
   }
 
   void ChessContext::procMainMenu()

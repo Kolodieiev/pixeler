@@ -55,28 +55,28 @@ MenuContext::MenuContext()
   _menu->addItem(files_item);
 
   Image* files_img = new Image(1);
-  files_item->setImg(files_img);
+  files_item->setImage(files_img);
   files_img->setTransparency(true);
   files_img->setWidth(ICO_WH);
   files_img->setHeight(ICO_WH);
   files_img->setSrc(SD_IMG);
 
   Label* files_lbl = WidgetCreator::getItemLabel(STR_FILES_ITEM, font_10x20);
-  files_item->setLbl(files_lbl);
+  files_item->setLabel(files_lbl);
 
   // Музика
   MenuItem* mp3_item = WidgetCreator::getMenuItem(ID_ITEM_MP3);
   _menu->addItem(mp3_item);
 
   Image* mp3_img = new Image(1);
-  mp3_item->setImg(mp3_img);
+  mp3_item->setImage(mp3_img);
   mp3_img->setTransparency(true);
   mp3_img->setWidth(ICO_WH);
   mp3_img->setHeight(ICO_WH);
   mp3_img->setSrc(HEADPHONES_IMG);
 
   Label* mp3_lbl = WidgetCreator::getItemLabel(STR_MUSIC_ITEM, font_10x20);
-  mp3_item->setLbl(mp3_lbl);
+  mp3_item->setLabel(mp3_lbl);
 
   //
   _scrollbar->setMax(_menu->getPagesCount());

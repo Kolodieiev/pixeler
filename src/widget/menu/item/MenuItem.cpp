@@ -5,7 +5,7 @@ namespace pixeler
 {
   MenuItem::MenuItem(uint16_t widget_ID, TypeID type_ID) : IWidget(widget_ID, type_ID)
   {
-    setLbl(new Label(1));
+    setLabel(new Label(1));
   }
 
   MenuItem::~MenuItem()
@@ -19,7 +19,7 @@ namespace pixeler
     return _label->getText();
   }
 
-  Label* MenuItem::getLbl() const
+  Label* MenuItem::getLabel() const
   {
     return _label;
   }
@@ -69,9 +69,9 @@ namespace pixeler
     IWidget::copyTo(widget);
 
     MenuItem* clone = static_cast<MenuItem*>(widget);
-    clone->setLbl(_label->clone(_label->getID()));
+    clone->setLabel(_label->clone(_label->getID()));
     if (_image)
-      clone->setImg(_image->clone(_image->getID()));
+      clone->setImage(_image->clone(_image->getID()));
   }
 
   MenuItem* MenuItem::clone(uint16_t id) const
@@ -89,7 +89,7 @@ namespace pixeler
     }
   }
 
-  void MenuItem::setImg(Image* image)
+  void MenuItem::setImage(Image* image)
   {
     if (image == _image)
       return;
@@ -103,12 +103,12 @@ namespace pixeler
     _is_changed = true;
   }
 
-  Image* MenuItem::getImg() const
+  Image* MenuItem::getImage() const
   {
     return _image;
   }
 
-  void MenuItem::setLbl(Label* label)
+  void MenuItem::setLabel(Label* label)
   {
     if (!label)
     {

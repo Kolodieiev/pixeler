@@ -52,7 +52,7 @@ namespace pixeler
      *
      * @param image Вказівник на Image.
      */
-    void setImg(Image* image);
+    void setImage(Image* image);
 
     /**
      * @brief Повертає вказівник на Image, який присвоєно цьому елементу списку.
@@ -60,7 +60,7 @@ namespace pixeler
      * @return Image* - Вказівник на віджет.
      * @return nullptr - Якщо вказівник не було встановлено раніше.
      */
-    Image* getImg() const;
+    Image* getImage() const;
 
     /**
      * @brief Встановлює вказівник на віджет Label, що буде використаний для відображення тексту елемента списку.
@@ -69,7 +69,7 @@ namespace pixeler
      *
      * @param label Вказівник на Label.
      */
-    void setLbl(Label* label);
+    void setLabel(Label* label);
 
     /**
      * @brief Повертає вказівник на Label, який присвоєно цьому елементу списку.
@@ -77,7 +77,7 @@ namespace pixeler
      * @return Label* - Вказівник на віджет.
      * @return nullptr - Якщо вказівник не було встановлено раніше.
      */
-    Label* getLbl() const;
+    Label* getLabel() const;
 
     /**
      * @brief Встановлює текст, що буде відображатися у віджеті.

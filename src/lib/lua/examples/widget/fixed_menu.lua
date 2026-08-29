@@ -61,7 +61,7 @@ simple_item:setBackColor(COLOR_BLACK) -- Чорний колір фону вст
 simple_item:setChangingBorder(true) -- Встановлюємо прапор зміни кольору межі віджета, у разі його потрапляння у фокус.
 simple_item:setChangingBack(true) -- Встановлюємо прапор зміни кольору фону віджета, у разі його потрапляння у фокус.
 
-simple_item_label = simple_item:getLbl() -- Отримуємо вказівник на віджет текстової мітки. Можна також створити нову мітку і присвоїти її елементу.
+simple_item_label = simple_item:getLabel() -- Отримуємо вказівник на віджет текстової мітки. Можна також створити нову мітку і присвоїти її елементу.
 simple_item_label:setText("Простий елемент списку")
 simple_item_label:setGravity(GRAVITY_CENTER)
 simple_item_label:setFocusBackColor(COLOR_ITEM_FOCUS_BACK)
@@ -77,7 +77,7 @@ toggle_item:setChangingBorder(true)
 toggle_item:setChangingBack(true)
 
 toggle_item_label = simple_item_label:clone(1) -- Клонуємо текстову мітку з попереднього елемента списку, щоб не налаштовувати повторно параметри.
-toggle_item:setLbl(toggle_item_label) -- Присвоюємо клоновану мітку елементу меню.
+toggle_item:setLabel(toggle_item_label) -- Присвоюємо клоновану мітку елементу меню.
 toggle_item_label:setText("Довгий текст елемента списку меню з перемикачем") -- Змінюємо текст клонованої мітки на інший.
 
 toggle_switch = toggle_item:getToggle() -- Отримуємо вказівник на перемикача. Можна також створити новий перемикач та присвоїти його елементу.
@@ -88,8 +88,8 @@ toggle_switch:setCornerRadius(7)
 if (img_id_plus > 0) then -- Якщо ресурс зображення успішно завантажено з карти пам'яті, додаємо зображення до текстової мітки.
     toggle_item_img = Image:new(1) -- Створюємо віджет зображення.
     toggle_item_img:setSrc(img_id_plus); -- Встановлюємо ресурс. Розмір віджета встановиться таким, як і у ресурса зображення.
-    simple_item:setImg(toggle_item_img) -- Встановлюємо іконку елемента меню.
-    toggle_item:setImg(toggle_item_img:clone(1)) -- Встановлюємо іконку наступого елемента меню методом клонуванням основного зображення.
+    simple_item:setImage(toggle_item_img) -- Встановлюємо іконку елемента меню.
+    toggle_item:setImage(toggle_item_img:clone(1)) -- Встановлюємо іконку наступого елемента меню методом клонуванням основного зображення.
 end
 
 -------------------------------------------------------- Обробка вводу

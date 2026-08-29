@@ -117,7 +117,7 @@ void WiFiContext::showMainTmpl()
   wifi_state_item->setChangingBack(true);
 
   Label* wifi_state_lbl = WidgetCreator::getItemLabel(STR_TRANSMITTER_STATE, font_10x20);
-  wifi_state_item->setLbl(wifi_state_lbl);
+  wifi_state_item->setLabel(wifi_state_lbl);
 
   ToggleSwitch* wifi_state_toggle = new ToggleSwitch(1);
   wifi_state_item->setToggle(wifi_state_toggle);
@@ -170,7 +170,7 @@ void WiFiContext::addCurrNetItem()
   _main_menu->addItem(cur_net_item);
 
   Image* conn_ico = new Image(1);
-  cur_net_item->setImg(conn_ico);
+  cur_net_item->setImage(conn_ico);
   conn_ico->setWidth(16);
   conn_ico->setHeight(16);
   conn_ico->setCornerRadius(1);
@@ -178,7 +178,7 @@ void WiFiContext::addCurrNetItem()
   conn_ico->setSrc(ICO_CONNECT);
 
   Label* conn_lbl = WidgetCreator::getItemLabel(ssid_name.c_str(), font_10x20);
-  cur_net_item->setLbl(conn_lbl);
+  cur_net_item->setLabel(conn_lbl);
   conn_lbl->setAutoscrollInFocus(true);
 }
 
@@ -316,13 +316,13 @@ void WiFiContext::showContextMenuTmpl()
     MenuItem* ip_item = WidgetCreator::getMenuItem(ID_ITEM_IP);
     _context_menu->addItem(ip_item);
     Label* ip_lbl = WidgetCreator::getItemLabel(ip.c_str());
-    ip_item->setLbl(ip_lbl);
+    ip_item->setLabel(ip_lbl);
     ip_lbl->setFullAutoscroll(false);
 
     MenuItem* disconn_item = WidgetCreator::getMenuItem(ID_ITEM_DISCONN);
     _context_menu->addItem(disconn_item);
     Label* disconn_lbl = WidgetCreator::getItemLabel(STR_DISCONNECT);
-    disconn_item->setLbl(disconn_lbl);
+    disconn_item->setLabel(disconn_lbl);
   }
 
   String wifi_pass = SettingsManager::get(_sel_ssid.c_str(), STR_WIFI_SUBDIR);
@@ -333,7 +333,7 @@ void WiFiContext::showContextMenuTmpl()
     _context_menu->addItem(forget_item);
 
     Label* forget_lbl = WidgetCreator::getItemLabel(STR_FORGET);
-    forget_item->setLbl(forget_lbl);
+    forget_item->setLabel(forget_lbl);
   }
 
   if (_context_menu->getSize() == 0)
@@ -495,7 +495,7 @@ void WiFiContext::updateNetList(bool no_scan)
     _main_menu->addItem(item);
 
     Label* item_lbl = WidgetCreator::getItemLabel((i_b)->c_str(), font_10x20);
-    item->setLbl(item_lbl);
+    item->setLabel(item_lbl);
     ++i;
   }
 

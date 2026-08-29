@@ -144,35 +144,35 @@ namespace chess
     menu->addItem(solo_item);
 
     Label* solo_lbl = WidgetCreator::getItemLabel(STR_MODE_ONE_PL, font_10x20);
-    solo_item->setLbl(solo_lbl);
+    solo_item->setLabel(solo_lbl);
 
     // Два гравці
     MenuItem* multi_item = WidgetCreator::getMenuItem(ID_ITEM_TWO_PLAYERS);
     menu->addItem(multi_item);
 
     Label* multi_lbl = WidgetCreator::getItemLabel(STR_MODE_TWO_PL, font_10x20);
-    multi_item->setLbl(multi_lbl);
+    multi_item->setLabel(multi_lbl);
 
     // Клієнт
     MenuItem* client_item = WidgetCreator::getMenuItem(ID_ITEM_CLIENT);
     menu->addItem(client_item);
 
     Label* client_lbl = WidgetCreator::getItemLabel(STR_MODE_CLIENT, font_10x20);
-    client_item->setLbl(client_lbl);
+    client_item->setLabel(client_lbl);
 
     // Сервер
     MenuItem* server_item = WidgetCreator::getMenuItem(ID_ITEM_SERVER);
     menu->addItem(server_item);
 
     Label* server_lbl = WidgetCreator::getItemLabel(STR_MODE_SERVER, font_10x20);
-    server_item->setLbl(server_lbl);
+    server_item->setLabel(server_lbl);
 
     // Налаштування
     MenuItem* prefs_item = WidgetCreator::getMenuItem(ID_ITEM_PREFS);
     menu->addItem(prefs_item);
 
     Label* prefs_lbl = WidgetCreator::getItemLabel(STR_PREFERENCES, font_10x20);
-    prefs_item->setLbl(prefs_lbl);
+    prefs_item->setLabel(prefs_lbl);
   }
 
   void ChessContext::procMainMenu()
@@ -244,21 +244,21 @@ namespace chess
     menu->addItem(nick_item);
 
     Label* nick_lbl = WidgetCreator::getItemLabel(STR_NICKNAME, font_10x20);
-    nick_item->setLbl(nick_lbl);
+    nick_item->setLabel(nick_lbl);
 
     // serv name
     MenuItem* serv_name_item = WidgetCreator::getMenuItem(ID_ITEM_SERV_NAME);
     menu->addItem(serv_name_item);
 
     Label* serv_name_lbl = WidgetCreator::getItemLabel(STR_SERV_NAME, font_10x20);
-    serv_name_item->setLbl(serv_name_lbl);
+    serv_name_item->setLabel(serv_name_lbl);
 
     // serv pwd
     MenuItem* serv_pwd_item = WidgetCreator::getMenuItem(ID_ITEM_SERV_PWD);
     menu->addItem(serv_pwd_item);
 
     Label* serv_pwd_lbl = WidgetCreator::getItemLabel(STR_SERV_PWD, font_10x20);
-    serv_pwd_item->setLbl(serv_pwd_lbl);
+    serv_pwd_item->setLabel(serv_pwd_lbl);
   }
 
   void ChessContext::procPrefMenu()

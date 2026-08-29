@@ -60,98 +60,98 @@ MenuContext::MenuContext()
   _menu->addItem(files_item);
 
   Image* files_img = new Image(1);
-  files_item->setImg(files_img);
+  files_item->setImage(files_img);
   files_img->setTransparency(true);
   files_img->setWidth(ICO_WH);
   files_img->setHeight(ICO_WH);
   files_img->setSrc(SD_IMG);
 
   Label* files_lbl = WidgetCreator::getItemLabel(STR_FILES_ITEM, font_10x20);
-  files_item->setLbl(files_lbl);
+  files_item->setLabel(files_lbl);
 
   // Музика
   MenuItem* mp3_item = WidgetCreator::getMenuItem(ID_ITEM_MP3);
   _menu->addItem(mp3_item);
 
   Image* mp3_img = new Image(1);
-  mp3_item->setImg(mp3_img);
+  mp3_item->setImage(mp3_img);
   mp3_img->setTransparency(true);
   mp3_img->setWidth(ICO_WH);
   mp3_img->setHeight(ICO_WH);
   mp3_img->setSrc(HEADPHONES_IMG);
 
   Label* mp3_lbl = WidgetCreator::getItemLabel(STR_MUSIC_ITEM, font_10x20);
-  mp3_item->setLbl(mp3_lbl);
+  mp3_item->setLabel(mp3_lbl);
 
   // Ігри
   MenuItem* game_item = WidgetCreator::getMenuItem(ID_ITEM_GAMES);
   _menu->addItem(game_item);
 
   Image* game_img = new Image(1);
-  game_item->setImg(game_img);
+  game_item->setImage(game_img);
   game_img->setTransparency(true);
   game_img->setWidth(ICO_WH);
   game_img->setHeight(ICO_WH);
   game_img->setSrc(JOYSTICK_IMG);
 
   Label* game_lbl = WidgetCreator::getItemLabel(STR_GAME_ITEM, font_10x20);
-  game_item->setLbl(game_lbl);
+  game_item->setLabel(game_lbl);
 
   // Читалка
   MenuItem* read_item = WidgetCreator::getMenuItem(ID_ITEM_READER);
   _menu->addItem(read_item);
 
   Image* read_img = new Image(1);
-  read_item->setImg(read_img);
+  read_item->setImage(read_img);
   read_img->setTransparency(true);
   read_img->setWidth(ICO_WH);
   read_img->setHeight(ICO_WH);
   read_img->setSrc(BOOK_IMG);
 
   Label* read_lbl = WidgetCreator::getItemLabel(STR_READER_ITEM, font_10x20);
-  read_item->setLbl(read_lbl);
+  read_item->setLabel(read_lbl);
 
   // WiFi
   MenuItem* wifi_item = WidgetCreator::getMenuItem(ID_ITEM_WIFI);
   _menu->addItem(wifi_item);
 
   Image* wifi_img = new Image(1);
-  wifi_item->setImg(wifi_img);
+  wifi_item->setImage(wifi_img);
   wifi_img->setTransparency(true);
   wifi_img->setWidth(ICO_WH);
   wifi_img->setHeight(ICO_WH);
   wifi_img->setSrc(WIFI_IMG);
 
   Label* wifi_lbl = WidgetCreator::getItemLabel(STR_WIFI_ITEM, font_10x20);
-  wifi_item->setLbl(wifi_lbl);
+  wifi_item->setLabel(wifi_lbl);
 
   // Налаштування
   MenuItem* pref_item = WidgetCreator::getMenuItem(ID_ITEM_PREF_SEL);
   _menu->addItem(pref_item);
 
   Image* pref_img = new Image(1);
-  pref_item->setImg(pref_img);
+  pref_item->setImage(pref_img);
   pref_img->setTransparency(true);
   pref_img->setWidth(ICO_WH);
   pref_img->setHeight(ICO_WH);
   pref_img->setSrc(SETTINGS_IMG);
 
   Label* pref_lbl = WidgetCreator::getItemLabel(STR_PREFERENCES, font_10x20);
-  pref_item->setLbl(pref_lbl);
+  pref_item->setLabel(pref_lbl);
 
   // Прошивка
   MenuItem* firm_item = WidgetCreator::getMenuItem(ID_ITEM_FIRMWARE);
   _menu->addItem(firm_item);
 
   Image* firm_img = new Image(1);
-  firm_item->setImg(firm_img);
+  firm_item->setImage(firm_img);
   firm_img->setTransparency(true);
   firm_img->setWidth(ICO_WH);
   firm_img->setHeight(ICO_WH);
   firm_img->setSrc(CHIP_IMG);
 
   Label* firm_lbl = WidgetCreator::getItemLabel(STR_FIRMWARE_ITEM, font_10x20);
-  firm_item->setLbl(firm_lbl);
+  firm_item->setLabel(firm_lbl);
   //
   _scrollbar->setMax(_menu->getSize());
 

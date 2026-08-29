@@ -41,14 +41,14 @@ int lua_menu_item_set_img(lua_State* L)
 {
   MenuItem* item = *static_cast<MenuItem**>(lua_check_instance(L, 1, STR_TYPE_NAME_MENU_ITEM));
   Image* image = *static_cast<Image**>(luaL_checkudata(L, 2, STR_TYPE_NAME_IMAGE));
-  item->setImg(image);
+  item->setImage(image);
   return 0;
 }
 
 int lua_menu_item_get_img(lua_State* L)
 {
   MenuItem* item = *static_cast<MenuItem**>(lua_check_instance(L, 1, STR_TYPE_NAME_MENU_ITEM));
-  Image* image = item->getImg();
+  Image* image = item->getImage();
 
   if (!image)
   {
@@ -70,7 +70,7 @@ int lua_menu_item_set_lbl(lua_State* L)
 {
   MenuItem* item = *static_cast<MenuItem**>(lua_check_instance(L, 1, STR_TYPE_NAME_MENU_ITEM));
   Label* label = *static_cast<Label**>(luaL_checkudata(L, 2, STR_TYPE_NAME_LABEL));
-  item->setLbl(label);
+  item->setLabel(label);
   return 0;
 }
 
@@ -78,7 +78,7 @@ int lua_menu_item_get_lbl(lua_State* L)
 {
   MenuItem* item = *static_cast<MenuItem**>(lua_check_instance(L, 1, STR_TYPE_NAME_MENU_ITEM));
   Label** lbl = static_cast<Label**>(lua_newuserdata(L, sizeof(Label*)));
-  *lbl = item->getLbl();
+  *lbl = item->getLabel();
 
   luaL_getmetatable(L, STR_TYPE_NAME_LABEL);
   lua_setmetatable(L, -2);
@@ -108,10 +108,10 @@ int lua_menu_item_unload(lua_State* L)
 }
 
 const struct luaL_Reg TYPE_METH_MENU_ITEM[] = {
-    {"setImg", lua_menu_item_set_img},
-    {"getImg", lua_menu_item_get_img},
-    {"setLbl", lua_menu_item_set_lbl},
-    {"getLbl", lua_menu_item_get_lbl},
+    {"setImage", lua_menu_item_set_img},
+    {"getImage", lua_menu_item_get_img},
+    {"setLabel", lua_menu_item_set_lbl},
+    {"getLabel", lua_menu_item_get_lbl},
     {"setText", lua_menu_item_set_text},
     {"getText", lua_menu_item_get_text},
     {STR_LUA_WIDGET_CLONE, lua_menu_item_clone},
