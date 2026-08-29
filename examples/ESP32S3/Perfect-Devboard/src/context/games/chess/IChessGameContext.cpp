@@ -9,5 +9,7 @@ namespace chess
 
   IChessGameContext::~IChessGameContext()
   {
+    if (_scene)
+      delete (_scene);
   }
 }  // namespace chess
