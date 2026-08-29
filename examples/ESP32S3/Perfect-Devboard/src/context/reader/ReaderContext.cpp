@@ -37,15 +37,8 @@ void ReaderContext::showContextMenuTmpl()
 
   _books_list_menu->disable();
 
-  _context_menu = new FixedMenu(ID_BOOK_MENU);
+  _context_menu = WidgetCreator::getContextMenu(ID_BOOK_MENU);
   layout->addWidget(_context_menu);
-  _context_menu->setBackColor(COLOR_MENU_ITEM);
-  _context_menu->setBorderColor(COLOR_ORANGE);
-  _context_menu->setBorder(true);
-  _context_menu->setItemHeight(20);
-  _context_menu->setWidth(120);
-  _context_menu->setHeight(44);
-  _context_menu->setPos(UI_WIDTH - _context_menu->getWidth(), UI_HEIGHT - _context_menu->getHeight());
 
   if (_books_list_menu->getCurrItemID() != 0)
   {
@@ -55,6 +48,9 @@ void ReaderContext::showContextMenuTmpl()
     Label* upd_lbl = WidgetCreator::getItemLabel(STR_DELETE);
     del_item->setLbl(upd_lbl);
   }
+
+  _context_menu->setHeight(_context_menu->getItemHeight() * _context_menu->getSize() + 4);
+  _context_menu->setPos(UI_WIDTH - _context_menu->getWidth(), UI_HEIGHT - _context_menu->getHeight());
 
   _mode = MODE_CONTEXT_MENU;
   layout->enable();

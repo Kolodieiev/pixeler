@@ -257,14 +257,8 @@ void FilesContext::showContextMenu()
   _mode = MODE_CONTEXT_MENU;
   _files_list->disable();
 
-  _context_menu = new FixedMenu(ID_CNTXT_MENU);
+  _context_menu = WidgetCreator::getContextMenu(ID_CNTXT_MENU);
   getLayout()->addWidget(_context_menu);
-  _context_menu->setItemHeight(18);
-  _context_menu->setWidth((float)UI_WIDTH / 2.2);
-  _context_menu->setBackColor(COLOR_BLACK);
-  _context_menu->setBorder(true);
-  _context_menu->setBorderColor(COLOR_ORANGE);
-  _context_menu->setLoopState(true);
 
   if (_has_moving_file || _has_copying_file)
   {

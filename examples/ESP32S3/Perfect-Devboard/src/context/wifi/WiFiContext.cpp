@@ -334,12 +334,7 @@ void WiFiContext::showContextMenuTmpl()
   if (item_id == ID_ITEM_WIFI_STATE)
     return;
 
-  _context_menu = new FixedMenu(ID_CTX_MENU);
-  _context_menu->setBackColor(COLOR_MENU_ITEM);
-  _context_menu->setBorderColor(COLOR_ORANGE);
-  _context_menu->setBorder(true);
-  _context_menu->setItemHeight(20);
-  _context_menu->setWidth(120);
+  _context_menu = WidgetCreator::getContextMenu(ID_CTX_MENU);
 
   if (item_id == ID_ITEM_CUR_NET)
   {
