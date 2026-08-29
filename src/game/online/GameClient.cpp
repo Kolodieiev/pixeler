@@ -210,7 +210,7 @@ namespace pixeler
         handlePing();
         break;
       case UdpPacket::TYPE_NAME:
-        handleNameConfirm(packet);
+        handleConfirmResult(packet);
         break;
       case UdpPacket::TYPE_HANDSHAKE:
         handleHandshake(packet);
@@ -276,23 +276,23 @@ namespace pixeler
   {
     if (static_cast<uint8_t>(packet.getData()[0]) != 1)
     {
-      log_e("Некоректний сервер");
+      log_i("Некоректний сервер гри");
       _status = STATUS_INCORRECT_SERVER;
       disconnect();
       invokeDisconnectHandler();
     }
     else
     {
-      log_i("Сервер розпізнано");
+      log_i("Сервер гри розпізнано");
       sendName();
     }
   }
 
-  void GameClient::handleNameConfirm(const UdpPacket& packet)
+  void GameClient::handleConfirmResult(const UdpPacket& packet)
   {
     if (static_cast<uint8_t>(packet.getData()[0]) != 1)
     {
-      log_e("Приєднання відхилено сервером");
+      log_i("Приєднання відхилено сервером");
       _status = STATUS_ACCESS_DENIED;
       disconnect();
       invokeDisconnectHandler();
@@ -307,7 +307,7 @@ namespace pixeler
 
   void GameClient::handleIncorrectName()
   {
-    log_e("Некоректне ім'я клієнта");
+    log_i("Некоректне ім'я клієнта");
     _status = STATUS_INCORRECT_NAME;
     disconnect();
     invokeDisconnectHandler();
@@ -325,7 +325,7 @@ namespace pixeler
 
   void GameClient::handleBusy()
   {
-    log_e("Сервер зайнятий");
+    log_i("Сервер зайнятий");
     _status = STATUS_SERVER_BUSY;
     disconnect();
     invokeDisconnectHandler();
@@ -337,7 +337,7 @@ namespace pixeler
   {
     if (millis() - _last_act_time > 3000) [[unlikely]]
     {
-      log_e("З'єднання з сервером втрачено");
+      log_i("З'єднання з сервером втрачено");
       _status = STATUS_DISCONNECTED;
       disconnect();
       invokeDisconnectHandler();

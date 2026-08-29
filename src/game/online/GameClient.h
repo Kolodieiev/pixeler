@@ -123,7 +123,7 @@ namespace pixeler
     static void checkConnectTask(void* arg);
     //
     void handleHandshake(const UdpPacket& packet);
-    void handleNameConfirm(const UdpPacket& packet);
+    void handleConfirmResult(const UdpPacket& packet);
     void handleIncorrectName();
     void handlePing();
     void handleBusy();
