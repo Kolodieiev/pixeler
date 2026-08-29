@@ -41,14 +41,14 @@ namespace chess
 
   void ChessClientContext::update()
   {
-    (this->*_state_kb_handler)();
+    (this->*_state_input_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
   void ChessClientContext::showConnDialogTmpl()
   {
-    // _state_kb_handler = &ChessContext::procDialog;
+    // _state_input_handler = &ChessContext::procDialog;
     // addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
   }
 

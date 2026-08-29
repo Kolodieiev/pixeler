@@ -34,6 +34,6 @@ namespace chess
       ID_ITEM_PREFS,
     };
 
-    StateHandler _state_kb_handler{&ChessContext::procMainMenu};  // Змінна для збереження методу, який відповідає за обробку поточного стану контексту
+    StateHandler _state_input_handler{&ChessContext::procMainMenu};  // Змінна для збереження методу, який відповідає за обробку поточного стану контексту
   };
 }  // namespace chess

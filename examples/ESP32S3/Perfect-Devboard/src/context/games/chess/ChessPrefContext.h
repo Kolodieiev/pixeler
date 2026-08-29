@@ -53,7 +53,7 @@ namespace chess
       DIALOG_ID_SERVER_CONN,
     };
 
-    StateHandler _state_kb_handler{nullptr};
+    StateHandler _state_input_handler{nullptr};
 
     PrefDialogID _dialog_id{DIALOG_ID_NICK};
   };

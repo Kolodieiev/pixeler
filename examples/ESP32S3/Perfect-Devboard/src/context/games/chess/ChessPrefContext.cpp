@@ -27,12 +27,12 @@ namespace chess
 
   void ChessPrefContext::update()
   {
-    (this->*_state_kb_handler)();
+    (this->*_state_input_handler)();
   }
 
   void ChessPrefContext::showMainTmpl()
   {
-    _state_kb_handler = &ChessPrefContext::procMainMenu;
+    _state_input_handler = &ChessPrefContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -127,7 +127,7 @@ namespace chess
 
   void ChessPrefContext::addDialog(const String& title_txt, const String& start_txt)
   {
-    _state_kb_handler = &ChessPrefContext::procDialog;
+    _state_input_handler = &ChessPrefContext::procDialog;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);

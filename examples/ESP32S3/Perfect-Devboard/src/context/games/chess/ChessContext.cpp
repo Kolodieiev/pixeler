@@ -35,14 +35,14 @@ namespace chess
 
   void ChessContext::update()
   {
-    (this->*_state_kb_handler)();
+    (this->*_state_input_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
   void ChessContext::showMainTmpl()
   {
-    _state_kb_handler = &ChessContext::procMainMenu;
+    _state_input_handler = &ChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
