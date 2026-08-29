@@ -25,12 +25,12 @@ class WidgetCreator
 {
 public:
   static EmptyLayout* getEmptyLayout();
-  static Label* getItemLabel(const char* text, const uint8_t* font_ptr = font_unifont, uint8_t text_size = 1);
+  static Label* getItemLabel(const String& text, const uint8_t* font_ptr = font_unifont, uint8_t text_size = 1);
   static MenuItem* getMenuItem(uint16_t id = 1);
   static DynamicMenu* getDynamicMenu(uint16_t id);
-  static Label* getStatusMsgLable(uint16_t id, const char* text, uint8_t text_size = 1);
+  static Label* getStatusMsgLable(uint16_t id, const String& text, uint8_t text_size = 1);
   static Keyboard* getStandardEnKeyboard(uint16_t id);
   static Keyboard* getCapsdEnKeyboard(uint16_t id);
-  static Label* getWindowHeader(uint16_t id, const char* text);
+  static Label* getWindowHeader(uint16_t id, const String& text);
   static FixedMenu* getContextMenu(uint16_t id);
 };

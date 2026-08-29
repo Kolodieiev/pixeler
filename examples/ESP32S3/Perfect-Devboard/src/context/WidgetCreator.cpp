@@ -9,7 +9,7 @@ EmptyLayout* WidgetCreator::getEmptyLayout()
   return layout;
 }
 
-Label* WidgetCreator::getItemLabel(const char* text, const uint8_t* font_ptr, uint8_t text_size)
+Label* WidgetCreator::getItemLabel(const String& text, const uint8_t* font_ptr, uint8_t text_size)
 {
   Label* item = new Label(1);
   item->setText(text);
@@ -41,7 +41,7 @@ DynamicMenu* WidgetCreator::getDynamicMenu(uint16_t id)
   return menu;
 }
 
-Label* WidgetCreator::getStatusMsgLable(uint16_t id, const char* text, uint8_t text_size)
+Label* WidgetCreator::getStatusMsgLable(uint16_t id, const String& text, uint8_t text_size)
 {
   Label* lbl = new Label(id);
   lbl->setText(text);
@@ -471,7 +471,7 @@ Keyboard* WidgetCreator::getCapsdEnKeyboard(uint16_t id)
   return _keyboard;
 }
 
-Label* WidgetCreator::getWindowHeader(uint16_t id, const char* text)
+Label* WidgetCreator::getWindowHeader(uint16_t id, const String& text)
 {
   Label* header_lbl = new Label(id);
   header_lbl->setText(text);
