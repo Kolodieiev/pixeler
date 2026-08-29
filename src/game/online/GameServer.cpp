@@ -397,24 +397,7 @@ namespace pixeler
     _is_busy = true;
 
     client.setName(packet.getData());
-    invokeConfirmationHandler(client, onConfirmationResult);
-  }
-
-  void GameServer::handleData(const ClientSession& client, const UdpPacket& packet)
-  {
-    if (!client.isConfirmed())
-    {
-      removeClient(client.getIP());
-      return;
-    }
-
-    if (!_data_handler) [[unlikely]]
-    {
-      log_e("Не встановлено обробник даних від клієнтів");
-      return;
-    }
-
-    _data_handler(client, packet, _data_arg);
+    invokeConfirmationHandler(client);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -429,7 +412,13 @@ namespace pixeler
       switch (type)
       {
         case UdpPacket::TYPE_DATA:
-          handleData(*client, packet);
+          if (!client->isConfirmed()) [[unlikely]]
+          {
+            removeClient(client->getIP());
+            return;
+          }
+
+          invokeDataHandler(*client, packet);
           break;
         case UdpPacket::UdpPacket::TYPE_PING:
           client->prolong();
@@ -543,32 +532,30 @@ namespace pixeler
     }
   }
 
-  void GameServer::handleNameConfirm(const String name, bool result)
+  void GameServer::confirmName(const String& client_name, bool confirm_result)
   {
     _is_busy = false;
 
-    ClientSession* client = findClient(name);
+    ClientSession* client = findClient(client_name);
     if (!client)
       return;
 
-    client->confirm();
+    sendNameRespMsg(*client, confirm_result);
 
-    sendNameRespMsg(*client, result);
-
-    if (!result)
+    if (!confirm_result)
+    {
       removeClient(client->getIP());
+    }
     else
+    {
+      client->confirm();
       ++_confirmed_clients_num;
-  }
-
-  void GameServer::onConfirmationResult(const String name, bool result, GameServer* server)
-  {
-    server->handleNameConfirm(name, result);
+    }
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::invokeConfirmationHandler(const ClientSession& client, ConfirmationResultHandler result_handler)
+  void GameServer::invokeConfirmationHandler(const ClientSession& client)
   {
     if (!_confirmation_handler) [[unlikely]]
     {
@@ -578,13 +565,29 @@ namespace pixeler
       return;
     }
 
-    _confirmation_handler(client.getName(), result_handler, _confirmation_arg);
+    _confirmation_handler(client.getName(), _confirmation_arg);
   }
 
   void GameServer::invokeDisconnectHandler(const ClientSession& client)
   {
-    if (_disconnect_handler)
-      _disconnect_handler(client.getName(), _disconnect_arg);
+    if (!_disconnect_handler) [[unlikely]]
+    {
+      log_e("Не встановлено обробник відключення клієнтів");
+      return;
+    }
+
+    _disconnect_handler(client.getName(), _disconnect_arg);
+  }
+
+  void GameServer::invokeDataHandler(const ClientSession& client, const UdpPacket& packet)
+  {
+    if (!_data_handler) [[unlikely]]
+    {
+      log_e("Не встановлено обробник даних від клієнтів");
+      return;
+    }
+
+    _data_handler(client, packet, _data_arg);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -612,13 +615,13 @@ namespace pixeler
     return &_clients;
   }
 
-  const char* GameServer::getServerIP() const
+  String GameServer::getServerIP() const
   {
-    return _server_ip.c_str();
+    return _server_ip;
   }
 
-  const char* GameServer::getName() const
+  String GameServer::getName() const
   {
-    return _server_name.c_str();
+    return _server_name;
   }
 }  // namespace pixeler

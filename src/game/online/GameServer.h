@@ -14,16 +14,10 @@ namespace pixeler
   {
   public:
     /**
-     * @brief Тип функції-обробника результату, яку буде надано сервером разом із запитом на авторизацію нового клієнта.
-     *
-     */
-    using ConfirmationResultHandler = std::function<void(const String name, bool result, GameServer* server)>;
-
-    /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
      *
      */
-    using ClientConfirmationHandler = std::function<void(const String name, ConfirmationResultHandler result_handler, void* arg)>;
+    using ClientConfirmationHandler = std::function<void(const String name, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
@@ -109,6 +103,14 @@ namespace pixeler
     void removeClient(IPAddress remote_ip);
 
     /**
+     * @brief Передає серверу результат схвалення приєднання клієнта.
+     *
+     * @param client_name Ім'я клієнта
+     * @param confirm_result Результат схвалення
+     */
+    void confirmName(const String& client_name, bool confirm_result);
+
+    /**
      * @brief Надсилає пакет усім підключеним клієнтам.
      *
      * @param packet Пакет, що буде надіслано усім клієнтам
@@ -177,16 +179,16 @@ namespace pixeler
     /**
      * @brief Повертає локальну ip-адресу сервера.
      *
-     * @return const char*
+     * @return String
      */
-    const char* getServerIP() const;
+    String getServerIP() const;
 
     /**
      * @brief Повертає ім'я сервера.
      *
-     * @return const char*
+     * @return String
      */
-    const char* getName() const;
+    String getName() const;
 
   protected:
     ClientSession* findClient(IPAddress remote_ip);
@@ -202,20 +204,17 @@ namespace pixeler
     //
     void handleHandshake(const UdpPacket& packet);
     void handleName(ClientSession& client, const UdpPacket& packet);
-    void handleData(const ClientSession& client, const UdpPacket& packet);
     //
     void sendNameRespMsg(const ClientSession& client, bool result);
     void sendNameIncorrectMsg(const ClientSession& client);
     void sendBusyMsg(const ClientSession& client);
     //
+    void invokeDataHandler(const ClientSession& client, const UdpPacket& packet);
     void invokeDisconnectHandler(const ClientSession& client);
-    void invokeConfirmationHandler(const ClientSession& client, ConfirmationResultHandler result_handler);
+    void invokeConfirmationHandler(const ClientSession& client);
     //
     void pingClients();
     static void pingClientsTask(void* arg);
-    //
-    void handleNameConfirm(const String name, bool result);
-    static void onConfirmationResult(const String name, bool result, GameServer* server);
     //
   protected:
     AsyncUDP _server;
