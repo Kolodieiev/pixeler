@@ -52,7 +52,7 @@ const char STR_CREATE[] = "Створити";
 const char STR_APPLY[] = "Застосувати";
 const char STR_EDIT[] = "Редагувати";
 const char STR_LOADING[] = "Завантаження";
-
+const char STR_EMPTY[] = "";
 //
 
 const char STR_PREF_BRIGHT[] = "brightness";
@@ -100,6 +100,14 @@ const char STR_MODE_SERVER[] = "Сервер";
 const char STR_NICKNAME[] = "Нікнейм";
 const char STR_SERV_NAME[] = "Назва сервера";
 const char STR_SERV_PWD[] = "Пароль до сервера";
+
+const char STR_WAITING_CLIENT[] = "Очікуйте приєднання клієнтів";
+const char STR_WANTS_TO_JOIN[] = " хоче приєднатися";
+const char STR_KICK_CLIENT[] = "Відключити клієнта";
+const char STR_OPEN_LOBBY[] = "Відкрити лоббі";
+const char STR_CLOSE_LOBBY[] = "Закрити лоббі";
+const char STR_START_GAME[] = "Розпочати гру";
+const char STR_END_GAME[] = "Завершити гру";
 
 //
 const char STR_EMPTY_BAT[] = "0.00";
