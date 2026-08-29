@@ -160,6 +160,11 @@ namespace pixeler
     }
   }
 
+  uint16_t IWidget::getBottomPos() const
+  {
+    return getYPos() + _height;
+  }
+
   void IWidget::copyTo(IWidget* widget) const
   {
     if (!widget)
