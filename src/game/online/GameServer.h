@@ -103,12 +103,12 @@ namespace pixeler
     void removeClient(IPAddress remote_ip);
 
     /**
-     * @brief Передає серверу результат схвалення приєднання клієнта.
+     * @brief Підтверджує або відхиляє приєднання клієнта в залежності від результату його схвалення.
      *
      * @param client_name Ім'я клієнта
-     * @param confirm_result Результат схвалення
+     * @param is_accepted Результат схвалення
      */
-    void confirmName(const String& client_name, bool confirm_result);
+    void resolveJoin(const String& client_name, bool is_accepted);
 
     /**
      * @brief Надсилає пакет усім підключеним клієнтам.

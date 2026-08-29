@@ -532,7 +532,7 @@ namespace pixeler
     }
   }
 
-  void GameServer::confirmName(const String& client_name, bool confirm_result)
+  void GameServer::resolveJoin(const String& client_name, bool is_accepted)
   {
     _is_busy = false;
 
@@ -540,9 +540,9 @@ namespace pixeler
     if (!client)
       return;
 
-    sendNameRespMsg(*client, confirm_result);
+    sendNameRespMsg(*client, is_accepted);
 
-    if (!confirm_result)
+    if (!is_accepted)
     {
       removeClient(client->getIP());
     }
