@@ -74,6 +74,12 @@ namespace pixeler
     void close();
 
     /**
+     * @brief Змінює стан сервера(закритий/відкритий) на протилежний.
+     *
+     */
+    void toggle();
+
+    /**
      * @brief Повертає значення прапора, який вказує на поточний стан можливості авторизації клієнтів на сервері.
      *
      * @return true - Якщо авторизація відкрита. false - інакше
@@ -93,7 +99,7 @@ namespace pixeler
      *
      * @param client_name Рядок, що містить ім'я клієнта
      */
-    void removeClient(const char* client_name);
+    void removeClient(const String& client_name);
 
     /**
      * @brief Видаляє клієнта з сервера за вказаною віддаленою ip-адресою.
@@ -184,10 +190,10 @@ namespace pixeler
 
   protected:
     ClientSession* findClient(IPAddress remote_ip);
-    ClientSession* findClient(const char* name);
+    ClientSession* findClient(const String& name);
 
     const ClientSession* findClient(IPAddress remote_ip) const;
-    const ClientSession* findClient(const char* name) const;
+    const ClientSession* findClient(const String& name) const;
     //
     void handlePacket(const UdpPacket& packet);
     static void packetHandlerTask(void* arg);

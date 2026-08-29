@@ -181,6 +181,14 @@ namespace pixeler
     log_i("Сервер закрито");
   }
 
+  void GameServer::toggle()
+  {
+    if (_is_open)
+      close();
+    else
+      open();
+  }
+
   bool GameServer::isOpen() const
   {
     return _is_open;
@@ -229,11 +237,8 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::removeClient(const char* client_name)
+  void GameServer::removeClient(const String& client_name)
   {
-    if (!client_name)
-      return;
-
     xSemaphoreTake(_client_mutex, portMAX_DELAY);
 
     for (auto it = _clients.begin(), last_it = _clients.end(); it != last_it; ++it)
@@ -283,7 +288,7 @@ namespace pixeler
     return &it->second;
   }
 
-  ClientSession* GameServer::findClient(const char* name)
+  ClientSession* GameServer::findClient(const String& name)
   {
     xSemaphoreTake(_client_mutex, portMAX_DELAY);
 
@@ -303,7 +308,7 @@ namespace pixeler
     return findClient(remote_ip);
   }
 
-  const ClientSession* GameServer::findClient(const char* name) const
+  const ClientSession* GameServer::findClient(const String& name) const
   {
     return findClient(name);
   }
@@ -373,7 +378,7 @@ namespace pixeler
       return;
     }
 
-    if (packet.dataLen() > 20 || _server_name.equals(packet.getData()) || findClient(packet.getData()))
+    if (packet.dataLen() > 20 || _server_name.equals(packet.getData()) || findClient((const String&)packet.getData()))
     {
       sendNameIncorrectMsg(client);
       removeClient(client.getIP());
@@ -542,7 +547,7 @@ namespace pixeler
   {
     _is_busy = false;
 
-    ClientSession* client = findClient(name.c_str());
+    ClientSession* client = findClient(name);
     if (!client)
       return;
 
