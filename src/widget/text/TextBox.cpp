@@ -18,6 +18,7 @@ namespace pixeler
 
     TextBox* clone = static_cast<TextBox*>(widget);
     clone->_type = _type;
+    clone->_text_gravity = GRAVITY_CENTER;
   }
 
   TextBox* TextBox::clone(uint16_t id) const
@@ -132,7 +133,7 @@ namespace pixeler
       {
         uint32_t txt_len = calcRealStrLen(_text);
 
-        String pwd_str = "";
+        String pwd_str;
 
         for (uint32_t i = 0; i < txt_len; ++i)
           pwd_str += "*";
@@ -156,7 +157,7 @@ namespace pixeler
       {
         uint32_t txt_len = calcRealStrLen(sub_str);
 
-        String pwd_str = "";
+        String pwd_str;
 
         for (uint32_t i = 0; i < txt_len; ++i)
           pwd_str += "*";

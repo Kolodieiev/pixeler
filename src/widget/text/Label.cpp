@@ -21,6 +21,7 @@ namespace pixeler
     clone->_text_color = _text_color;
     clone->_font = _font;
     clone->_char_hgt = _char_hgt;
+    clone->_y_char_offset = _y_char_offset;
     clone->_h_padding = _h_padding;
     clone->_text_gravity = _text_gravity;
     clone->_text_alignment = _text_alignment;
