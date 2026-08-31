@@ -120,7 +120,7 @@ namespace pixeler
     String url = req.substring(addr_start + 1, addr_end);
     String versionEnd = req.substring(addr_end + 8);
     _currentVersion = atoi(versionEnd.c_str());
-    String searchStr = "";
+    String searchStr;
     int hasSearch = url.indexOf('?');
     if (hasSearch != -1)
     {
@@ -715,7 +715,7 @@ namespace pixeler
 
   String FServer::urlDecode(const String& text)
   {
-    String decoded = "";
+    String decoded;
     char temp[] = "0x00";
     unsigned int len = text.length();
     unsigned int i = 0;

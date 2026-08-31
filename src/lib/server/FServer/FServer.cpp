@@ -92,7 +92,7 @@ namespace pixeler
     int _begin = authReq.indexOf(param);
     if (_begin == -1)
     {
-      return "";
+      return emptyString;
     }
     return authReq.substring(_begin + param.length(), authReq.indexOf(delimit, _begin + param.length()));
   }
@@ -667,7 +667,7 @@ namespace pixeler
     {
       return _currentHandler->pathArg(i);
     }
-    return "";
+    return emptyString;
   }
 
   String FServer::arg(const String& name) const
@@ -686,7 +686,7 @@ namespace pixeler
         return _currentArgs[i].value;
       }
     }
-    return "";
+    return emptyString;
   }
 
   String FServer::arg(int i) const
@@ -695,7 +695,7 @@ namespace pixeler
     {
       return _currentArgs[i].value;
     }
-    return "";
+    return emptyString;
   }
 
   String FServer::argName(int i) const
@@ -704,7 +704,7 @@ namespace pixeler
     {
       return _currentArgs[i].key;
     }
-    return "";
+    return emptyString;
   }
 
   int FServer::args() const
@@ -740,7 +740,7 @@ namespace pixeler
         return current->value;
       }
     }
-    return "";
+    return emptyString;
   }
 
   void FServer::collectHeaders(const char* headerKeys[], const size_t headerKeysCount)
