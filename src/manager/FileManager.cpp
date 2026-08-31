@@ -10,6 +10,7 @@
 
 #include "bus/SPI_Bus.h"
 #include "util/MutexGuard.h"
+#include "util/string_util.h"
 
 #ifdef SD_TYPE_MMC
 // clang-format off
@@ -585,6 +586,12 @@ namespace pixeler
 
   bool FileManager::rmFileUnlocked(const char* path, bool make_full)
   {
+    if (isEmptyStr(path))
+    {
+      log_e("Шлях до файлу не може бути порожнім або null");
+      return false;
+    }
+
     bool result;
 
     if (make_full)
