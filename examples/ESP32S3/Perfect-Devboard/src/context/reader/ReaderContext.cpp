@@ -22,10 +22,10 @@ bool ReaderContext::loop()
 
 void ReaderContext::savePref()
 {
-  SettingsManager::set(STR_BOOK_DIR_PREF, _dirname.c_str());
-  SettingsManager::set(STR_BOOK_NAME_PREF, _book_name.c_str());
-  SettingsManager::set(STR_READ_BOOK_PAGE, String(_cur_book_page).c_str());
-  SettingsManager::set(STR_BOOK_BRIGHT_PREF, String(_brightness).c_str());
+  SettingsManager::set(STR_BOOK_DIR_PREF, _dirname);
+  SettingsManager::set(STR_BOOK_NAME_PREF, _book_name);
+  SettingsManager::set(STR_READ_BOOK_PAGE, String(_cur_book_page));
+  SettingsManager::set(STR_BOOK_BRIGHT_PREF, String(_brightness));
 }
 
 //-------------------------------------------------------------------------------------------

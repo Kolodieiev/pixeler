@@ -57,13 +57,13 @@ void PrefFileServerContext::showMainTmpl()
   layout->addWidget(_pwd_lbl);
   _pwd_lbl->setText(STR_AP_PWD);
   _pwd_lbl->initWidthToFit();
-  _pwd_lbl->setPos(LEFT_PADDING, _ssid_txt->getYPos() + _ssid_txt->getHeight() + SPACE_BETWEEN);
+  _pwd_lbl->setPos(LEFT_PADDING, _ssid_txt->getBottomYPos() + SPACE_BETWEEN);
 
   _pwd_txt = _ssid_txt->clone(ID_TXT_PWD);
   layout->addWidget(_pwd_txt);
   _pwd_txt->setType(TextBox::TYPE_PASSWORD);
   _pwd_txt->setText(_pwd_str);
-  _pwd_txt->setPos(LEFT_PADDING, _pwd_lbl->getYPos() + _pwd_lbl->getHeight() + 1);
+  _pwd_txt->setPos(LEFT_PADDING, _pwd_lbl->getBottomYPos() + 1);
 
   if (_is_ssid_edit)
   {
@@ -130,8 +130,8 @@ void PrefFileServerContext::hideDialog()
 
 void PrefFileServerContext::saveSettings()
 {
-  SettingsManager::set(STR_PREF_FS_AP_SSID, _ssid_str.c_str());
-  SettingsManager::set(STR_PREF_FS_AP_PWD, _pwd_str.c_str());
+  SettingsManager::set(STR_PREF_FS_AP_SSID, _ssid_str);
+  SettingsManager::set(STR_PREF_FS_AP_PWD, _pwd_str);
 }
 
 void PrefFileServerContext::up()

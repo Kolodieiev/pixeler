@@ -71,7 +71,7 @@ private:
   void loadSelectedItemText();
   uint16_t getSelectedItemID(IMenu* menu);
   //
-  static void scanDoneHandler(void* arg);
+  static void scanCompleteHandler(void* arg);
   static void connDoneHandler(void* arg, wl_status_t conn_status);
 
 private:

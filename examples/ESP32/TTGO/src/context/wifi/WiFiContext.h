@@ -69,7 +69,7 @@ private:
   void updateNetList(bool no_scan = false);
   void connectToNet(const String& ssid);
   //
-  static void scanDoneHandler(void* arg);
+  static void scanCompleteHandler(void* arg);
   static void connDoneHandler(void* arg, wl_status_t conn_status);
 
 private:

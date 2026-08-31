@@ -8,16 +8,14 @@
 #include "widget/menu/item/ToggleItem.h"
 #include "widget/toggle/ToggleSwitch.h"
 
-const char STR_TRANSMITTER_STATE[] = "Стан модуля WiFi";
-const char STR_START_SCAN[] = "Розпочато скануваня";
-const char STR_START_SCAN_ERR[] = "Помилка сканування";
-const char STR_WIFI_BUSY[] = "Модуль зайнятий";
-const char STR_DISCONNECT[] = "Від'єднaтися";
-const char STR_FORGET[] = "Забути";
-const char STR_CONNECTING[] = "З'єднання...";
-const char STR_CONNECT_ERR[] = "Помилка з'єднання";
-
-const char STR_WIFI_SUBDIR[] = "wifi";
+static const char STR_TRANSMITTER_STATE[] = "Стан модуля WiFi";
+static const char STR_START_SCAN[] = "Розпочато скануваня";
+static const char STR_START_SCAN_ERR[] = "Помилка сканування";
+static const char STR_WIFI_BUSY[] = "Модуль зайнятий";
+static const char STR_DISCONNECT[] = "Від'єднaтися";
+static const char STR_FORGET[] = "Забути";
+static const char STR_CONNECTING[] = "З'єднання...";
+static const char STR_CONNECT_ERR[] = "Помилка з'єднання";
 
 WiFiContext::WiFiContext()
 {
@@ -27,18 +25,6 @@ WiFiContext::WiFiContext()
   {
     showSDErrTmpl();
     return;
-  }
-
-  String wifi_power = SettingsManager::get(STR_PREF_WIFI_POWER);
-
-  if (wifi_power.isEmpty())
-  {
-    _wifi.setPower(WiFiManager::WIFI_POWER_MIN);
-  }
-  else
-  {
-    int power_val = std::atoi(wifi_power.c_str());
-    _wifi.setPower(static_cast<WiFiManager::WiFiPowerLevel>(power_val));
   }
 
   showMainTmpl();
@@ -267,7 +253,7 @@ void WiFiContext::ok()
     }
     else if (ctx_item_id == ID_ITEM_FORGET)
     {
-      String path_to_pwd = SettingsManager::getSettingsFilePath(_sel_ssid.c_str(), STR_WIFI_SUBDIR);
+      String path_to_pwd = SettingsManager::getSettingsFilePath(_sel_ssid, STR_WIFI_SUBDIR);
       if (!_fs.rmFile(path_to_pwd.c_str()))
         showToast(STR_FAIL);
       else
@@ -282,8 +268,8 @@ void WiFiContext::back()
 {
   if (_mode == MODE_SD_UNCONN || _mode == MODE_MAIN)
   {
-    _wifi.onScanDone(nullptr, nullptr);
-    _wifi.onConnectDone(nullptr, nullptr);
+    _wifi.onScanComplete(nullptr, nullptr);
+    _wifi.onConnectComplete(nullptr, nullptr);
     openContext(new MenuContext());
   }
   else if (_mode == MODE_CONTEXT_MENU)
@@ -325,7 +311,7 @@ void WiFiContext::showContextMenuTmpl()
     disconn_item->setLabel(disconn_lbl);
   }
 
-  String wifi_pass = SettingsManager::get(_sel_ssid.c_str(), STR_WIFI_SUBDIR);
+  String wifi_pass = SettingsManager::get(_sel_ssid, STR_WIFI_SUBDIR);
 
   if (!wifi_pass.isEmpty())
   {
@@ -431,7 +417,7 @@ void WiFiContext::changeKbCaps()
 
 void WiFiContext::savePressed()
 {
-  if (SettingsManager::set(_sel_ssid.c_str(), _pwd_txt->getText().c_str(), STR_WIFI_SUBDIR))
+  if (SettingsManager::set(_sel_ssid, _pwd_txt->getText(), STR_WIFI_SUBDIR))
     connectToNet(_sel_ssid);
   else
     showToast(STR_FAIL, TOAST_LENGTH_LONG);
@@ -451,7 +437,7 @@ void WiFiContext::exitPressed()
 
 void WiFiContext::loadNetsList()
 {
-  _wifi.onScanDone(scanDoneHandler, this);
+  _wifi.onScanComplete(scanCompleteHandler, this);
   if (!_wifi.startScan())
     showToast(STR_START_SCAN_ERR, TOAST_LENGTH_SHORT);
   else
@@ -480,7 +466,7 @@ void WiFiContext::updateNetList(bool no_scan)
   String cur_ssid = _wifi.getSSID();
 
   if (!no_scan)
-    _wifi.getScanResult(_ssids);
+    _ssids = _wifi.getScanResult();
 
   uint16_t i = ID_ITEM_CUR_NET + 1;
   for (auto i_b = _ssids.begin(), i_e = _ssids.end(); i_b != i_e; ++i_b)
@@ -502,7 +488,7 @@ void WiFiContext::updateNetList(bool no_scan)
   giveLayoutMutex();
 }
 
-void WiFiContext::scanDoneHandler(void* arg)
+void WiFiContext::scanCompleteHandler(void* arg)
 {
   WiFiContext* self = static_cast<WiFiContext*>(arg);
   self->updateNetList();
@@ -510,7 +496,7 @@ void WiFiContext::scanDoneHandler(void* arg)
 
 void WiFiContext::connectToNet(const String& ssid)
 {
-  String wifi_pass = SettingsManager::get(ssid.c_str(), STR_WIFI_SUBDIR);
+  String wifi_pass = SettingsManager::get(ssid, STR_WIFI_SUBDIR);
 
   if (wifi_pass.isEmpty())
   {
@@ -518,7 +504,7 @@ void WiFiContext::connectToNet(const String& ssid)
   }
   else
   {
-    _wifi.onConnectDone(connDoneHandler, this);
+    _wifi.onConnectComplete(connDoneHandler, this);
     if (!_wifi.tryConnectTo(ssid, wifi_pass))
       showToast(STR_FAIL, TOAST_LENGTH_SHORT);
     else

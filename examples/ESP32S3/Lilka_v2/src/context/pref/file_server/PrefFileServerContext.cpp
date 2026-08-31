@@ -129,8 +129,8 @@ void PrefFileServerContext::hideDialog()
 
 void PrefFileServerContext::saveSettings()
 {
-  SettingsManager::set(STR_PREF_FS_AP_SSID, _ssid_str.c_str());
-  SettingsManager::set(STR_PREF_FS_AP_PWD, _pwd_str.c_str());
+  SettingsManager::set(STR_PREF_FS_AP_SSID, _ssid_str);
+  SettingsManager::set(STR_PREF_FS_AP_PWD, _pwd_str);
 }
 
 void PrefFileServerContext::up()

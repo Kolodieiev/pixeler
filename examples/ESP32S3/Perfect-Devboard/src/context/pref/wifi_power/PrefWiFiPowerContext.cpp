@@ -68,9 +68,12 @@ void PrefWiFiPowerContext::update()
   if (_input.isReleased(BtnID::BTN_OK))
   {
     uint16_t power = _menu->getCurrItemID() - 1;  // Одразу переводимо в потужність з item_id
-    _wifi.setPower(static_cast<WiFiManager::WiFiPowerLevel>(power));
 
-    SettingsManager::set(STR_PREF_WIFI_POWER, String(power).c_str());
+    if (!_wifi.savePower(static_cast<WiFiManager::WiFiPowerLevel>(power)))
+    {
+      showToast(STR_FAIL);
+      return;
+    }
 
     showToast(STR_SUCCESS);
   }

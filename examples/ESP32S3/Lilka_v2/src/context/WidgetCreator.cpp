@@ -9,7 +9,7 @@ EmptyLayout* WidgetCreator::getEmptyLayout()
   return layout;
 }
 
-Label* WidgetCreator::getItemLabel(const char* text, const uint8_t* font_ptr, uint8_t text_size)
+Label* WidgetCreator::getItemLabel(const String& text, const uint8_t* font_ptr, uint8_t text_size)
 {
   Label* item = new Label(1);
   item->setText(text);
@@ -41,7 +41,7 @@ DynamicMenu* WidgetCreator::getDynamicMenu(uint16_t id)
   return menu;
 }
 
-Label* WidgetCreator::getStatusMsgLable(uint16_t id, const char* text, uint8_t text_size)
+Label* WidgetCreator::getStatusMsgLable(uint16_t id, const String& text, uint8_t text_size)
 {
   Label* lbl = new Label(id);
   lbl->setText(text);
@@ -49,10 +49,10 @@ Label* WidgetCreator::getStatusMsgLable(uint16_t id, const char* text, uint8_t t
   lbl->setAlign(IWidget::ALIGN_CENTER);
   lbl->setGravity(IWidget::GRAVITY_CENTER);
   lbl->setBackColor(COLOR_MAIN_BACK);
-  lbl->setWidth(UI_WIDTH - DISPLAY_CUTOUT * 2);
+  lbl->setWidth(UI_WIDTH);
+  lbl->setHeight(UI_HEIGHT);
   lbl->setAutoscroll(true);
   lbl->setFullAutoscroll(false);
-  lbl->setPos((UI_WIDTH - lbl->getWidth()) / 2, UI_HEIGHT / 2 - lbl->getHeight() * 2);
 
   return lbl;
 }
@@ -62,7 +62,7 @@ Keyboard* WidgetCreator::getStandardEnKeyboard(uint16_t id)
   Keyboard* _keyboard = new Keyboard(id);
   _keyboard->setWidth(UI_WIDTH);
   _keyboard->setHeight(UI_HEIGHT - 50 * 2);
-  _keyboard->setPos(0, 50 + DISPLAY_CUTOUT);
+  _keyboard->setPos(0, 50);
   _keyboard->setCornerRadius(5);
 
   KeyboardRow* row1 = new KeyboardRow(1);  // Цифри
@@ -269,7 +269,7 @@ Keyboard* WidgetCreator::getCapsdEnKeyboard(uint16_t id)
   Keyboard* _keyboard = new Keyboard(id);
   _keyboard->setWidth(UI_WIDTH);
   _keyboard->setHeight(UI_HEIGHT - 50 * 2);
-  _keyboard->setPos(0, 50 + DISPLAY_CUTOUT);
+  _keyboard->setPos(0, 50);
   _keyboard->setCornerRadius(5);
 
   KeyboardRow* row1 = new KeyboardRow(1);  // Цифри
@@ -471,7 +471,7 @@ Keyboard* WidgetCreator::getCapsdEnKeyboard(uint16_t id)
   return _keyboard;
 }
 
-Label* WidgetCreator::getWindowHeader(uint16_t id, const char* text)
+Label* WidgetCreator::getWindowHeader(uint16_t id, const String& text)
 {
   Label* header_lbl = new Label(id);
   header_lbl->setText(text);
@@ -482,4 +482,17 @@ Label* WidgetCreator::getWindowHeader(uint16_t id, const char* text)
   header_lbl->setGravity(IWidget::GRAVITY_CENTER);
 
   return header_lbl;
+}
+
+FixedMenu* WidgetCreator::getContextMenu(uint16_t id)
+{
+  FixedMenu* context_menu = new FixedMenu(id);
+  context_menu->setItemHeight(24);
+  context_menu->setWidth((float)UI_WIDTH / 2);
+  context_menu->setBackColor(COLOR_MAIN_BACK);
+  context_menu->setBorderColor(COLOR_ORANGE);
+  context_menu->setBorder(true);
+  context_menu->setLoopState(true);
+
+  return context_menu;
 }

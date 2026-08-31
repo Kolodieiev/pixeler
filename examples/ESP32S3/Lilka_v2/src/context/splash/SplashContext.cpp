@@ -58,9 +58,11 @@ void SplashContext::update()
         String last_ssid = SettingsManager::get(STR_PREF_WIFI_LAST_SSID, STR_WIFI_SUBDIR);
         if (!last_ssid.isEmpty())
         {
-          String last_ssid_pwd = SettingsManager::get(last_ssid.c_str(), STR_WIFI_SUBDIR);
-          _wifi.enable();
-          _wifi.tryConnectTo(last_ssid, last_ssid_pwd);
+          if (_wifi.hasKnownSSID(last_ssid))
+          {
+            _wifi.enable();
+            _wifi.tryConnectToKnown(last_ssid);
+          }
         }
       }
     }

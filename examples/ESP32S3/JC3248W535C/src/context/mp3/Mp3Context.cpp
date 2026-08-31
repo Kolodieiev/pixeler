@@ -36,11 +36,11 @@ bool Mp3Context::loop()
 
 void Mp3Context::savePref()
 {
-  SettingsManager::set(STR_VOLUME_PREF, String(_volume).c_str());
-  SettingsManager::set(STR_TRACK_POS_PREF, String(_track_pos).c_str());
-  SettingsManager::set(STR_TRACK_TIME_PREF, String(_track_time).c_str());
-  SettingsManager::set(STR_PLAYLIST_PREF, _playlist_name.c_str());
-  SettingsManager::set(STR_TRACK_NAME_PREF, _track_name.c_str());
+  SettingsManager::set(STR_VOLUME_PREF, String(_volume));
+  SettingsManager::set(STR_TRACK_POS_PREF, String(_track_pos));
+  SettingsManager::set(STR_TRACK_TIME_PREF, String(_track_time));
+  SettingsManager::set(STR_PLAYLIST_PREF, _playlist_name);
+  SettingsManager::set(STR_TRACK_NAME_PREF, _track_name);
 }
 
 //-------------------------------------------------------------------------------------------

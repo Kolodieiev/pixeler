@@ -487,8 +487,8 @@ Label* WidgetCreator::getWindowHeader(uint16_t id, const String& text)
 FixedMenu* WidgetCreator::getContextMenu(uint16_t id)
 {
   FixedMenu* context_menu = new FixedMenu(id);
-  context_menu->setItemHeight(20);
-  context_menu->setWidth((float)UI_WIDTH / 2.2);
+  context_menu->setItemHeight(24);
+  context_menu->setWidth((float)UI_WIDTH / 2);
   context_menu->setBackColor(COLOR_MAIN_BACK);
   context_menu->setBorderColor(COLOR_ORANGE);
   context_menu->setBorder(true);

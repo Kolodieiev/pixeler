@@ -53,7 +53,7 @@ private:
   void showContextMenuTmpl();
   void hideContextMenu();
   //
-  void addCurrNetItem();
+  void addCurrSSIDItem();
   //
   void up();
   void down();
@@ -65,11 +65,11 @@ private:
   void savePressed();
   void exitPressed();
   //
-  void loadNetsList();
-  void updateNetList(bool no_scan = false);
-  void connectToNet(const String& ssid);
+  void scanSSIDs();
+  void updateSSIDList(bool without_scanning = false);
+  void connectToSSID(const String& ssid);
   //
-  static void scanDoneHandler(void* arg);
+  static void scanCompleteHandler(void* arg);
   static void connDoneHandler(void* arg, wl_status_t conn_status);
 
 private:

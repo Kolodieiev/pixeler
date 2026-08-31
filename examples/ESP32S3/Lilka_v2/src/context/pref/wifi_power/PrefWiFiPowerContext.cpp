@@ -39,9 +39,8 @@ void PrefWiFiPowerContext::showMainTmpl()
   layout->addWidget(_menu);
   _menu->setBackColor(COLOR_MENU_ITEM);
   _menu->setWidth(UI_WIDTH - SCROLLBAR_WIDTH - 2);
-  _menu->setHeight(UI_HEIGHT - DISPLAY_CUTOUT * 2);
+  _menu->setHeight(UI_HEIGHT);
   _menu->setItemHeight((_menu->getHeight() - 2) / 5);
-  _menu->setPos(0, DISPLAY_CUTOUT);
   //
   MenuItem* min_item = WidgetCreator::getMenuItem(ITEM_ID_MIN);
   _menu->addItem(min_item);
@@ -69,9 +68,12 @@ void PrefWiFiPowerContext::update()
   if (_input.isReleased(BtnID::BTN_OK))
   {
     uint16_t power = _menu->getCurrItemID() - 1;  // Одразу переводимо в потужність з item_id
-    _wifi.setPower(static_cast<WiFiManager::WiFiPowerLevel>(power));
 
-    SettingsManager::set(STR_PREF_WIFI_POWER, String(power).c_str());
+    if (!_wifi.savePower(static_cast<WiFiManager::WiFiPowerLevel>(power)))
+    {
+      showToast(STR_FAIL);
+      return;
+    }
 
     showToast(STR_SUCCESS);
   }

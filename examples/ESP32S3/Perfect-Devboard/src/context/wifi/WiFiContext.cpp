@@ -27,18 +27,6 @@ WiFiContext::WiFiContext()
     return;
   }
 
-  String wifi_power = SettingsManager::get(STR_PREF_WIFI_POWER);
-
-  if (wifi_power.isEmpty())
-  {
-    _wifi.setPower(WiFiManager::WIFI_POWER_MIN);
-  }
-  else
-  {
-    int power_val = std::atoi(wifi_power.c_str());
-    _wifi.setPower(static_cast<WiFiManager::WiFiPowerLevel>(power_val));
-  }
-
   showMainTmpl();
 }
 
@@ -136,9 +124,9 @@ void WiFiContext::showMainTmpl()
 
   if (_wifi.isEnabled())
   {
-    addCurrNetItem();
+    addCurrSSIDItem();
     wifi_state_toggle->setOn(true);
-    loadNetsList();
+    scanSSIDs();
   }
   else
   {
@@ -168,7 +156,7 @@ void WiFiContext::showEnterPwdTmpl()
   layout->addWidget(_keyboard);
 }
 
-void WiFiContext::addCurrNetItem()
+void WiFiContext::addCurrSSIDItem()
 {
   if (!_wifi.isConnected())
     return;
@@ -275,13 +263,13 @@ void WiFiContext::ok()
       else
       {
         wifi_state_item->setOn(true);
-        loadNetsList();
+        scanSSIDs();
       }
     }
     else if (item_id != ID_ITEM_CUR_NET)
     {
       String ssid = _main_menu->getCurrItemText();
-      connectToNet(ssid);
+      connectToSSID(ssid);
     }
   }
   else if (_mode == MODE_CONTEXT_MENU)
@@ -295,12 +283,11 @@ void WiFiContext::ok()
       _main_menu->delWidgets();
       _main_menu->addItem(temp_toggle);
       hideContextMenu();
-      loadNetsList();
+      scanSSIDs();
     }
     else if (ctx_item_id == ID_ITEM_FORGET)
     {
-      String path_to_pwd = SettingsManager::getSettingsFilePath(_main_menu->getCurrItemText().c_str(), STR_WIFI_SUBDIR);
-      if (!_fs.rmFile(path_to_pwd.c_str()))
+      if (!_wifi.forgetSSID(_main_menu->getCurrItemText()))
         showToast(STR_FAIL);
       else
         showToast(STR_SUCCESS);
@@ -318,8 +305,8 @@ void WiFiContext::back()
   }
   else if (_mode == MODE_SD_UNCONN || _mode == MODE_MAIN)
   {
-    _wifi.onScanDone(nullptr, nullptr);
-    _wifi.onConnectDone(nullptr, nullptr);
+    _wifi.onScanComplete(nullptr, nullptr);
+    _wifi.onConnectComplete(nullptr, nullptr);
     openContext(new MenuContext());
   }
   else if (_mode == MODE_CONTEXT_MENU)
@@ -352,9 +339,7 @@ void WiFiContext::showContextMenuTmpl()
     disconn_item->setLabel(disconn_lbl);
   }
 
-  String wifi_pass = SettingsManager::get(_main_menu->getCurrItemText().c_str(), STR_WIFI_SUBDIR);
-
-  if (!wifi_pass.isEmpty())
+  if (_wifi.hasKnownSSID(_main_menu->getCurrItemText()))
   {
     MenuItem* forget_item = WidgetCreator::getMenuItem(ID_ITEM_FORGET);
     _context_menu->addItem(forget_item);
@@ -409,10 +394,13 @@ void WiFiContext::changeKbCaps()
 
 void WiFiContext::savePressed()
 {
-  if (SettingsManager::set(_sel_ssid.c_str(), _pwd_txt->getText().c_str(), STR_WIFI_SUBDIR))
-    connectToNet(_sel_ssid);
-  else
+  if (!_wifi.saveSSID(_sel_ssid, _pwd_txt->getText()))
+  {
     showToast(STR_FAIL, TOAST_LENGTH_LONG);
+    return;
+  }
+
+  connectToSSID(_sel_ssid);
 }
 
 void WiFiContext::exitPressed()
@@ -427,16 +415,16 @@ void WiFiContext::exitPressed()
   }
 }
 
-void WiFiContext::loadNetsList()
+void WiFiContext::scanSSIDs()
 {
-  _wifi.onScanDone(scanDoneHandler, this);
+  _wifi.onScanComplete(scanCompleteHandler, this);
   if (!_wifi.startScan())
     showToast(STR_START_SCAN_ERR, TOAST_LENGTH_SHORT);
   else
     showToast(STR_START_SCAN, TOAST_LENGTH_SHORT);
 }
 
-void WiFiContext::updateNetList(bool no_scan)
+void WiFiContext::updateSSIDList(bool without_scanning)
 {
   if (_mode != MODE_MAIN)
   {
@@ -444,21 +432,19 @@ void WiFiContext::updateNetList(bool no_scan)
     return;
   }
 
-  takeLayoutMutex();
-
   ToggleItem* wifi_state_item = _main_menu->getWidgetByID(ID_ITEM_WIFI_STATE)->castTo<ToggleItem>();
   ToggleItem* temp_toggle = wifi_state_item->clone(ID_ITEM_WIFI_STATE);
   _main_menu->delWidgets();
   _main_menu->addItem(temp_toggle);
 
-  addCurrNetItem();
+  addCurrSSIDItem();
 
   bool is_connected = _wifi.isConnected();
   bool curr_scipped = false;
   String cur_ssid = _wifi.getSSID();
 
-  if (!no_scan)
-    _wifi.getScanResult(_ssids);
+  if (!without_scanning)
+    _ssids = _wifi.getScanResult();
 
   uint16_t i = ID_ITEM_CUR_NET + 1;
   for (auto i_b = _ssids.begin(), i_e = _ssids.end(); i_b < i_e; ++i_b)
@@ -476,34 +462,31 @@ void WiFiContext::updateNetList(bool no_scan)
     item->setLabel(item_lbl);
     ++i;
   }
-
-  giveLayoutMutex();
 }
 
-void WiFiContext::scanDoneHandler(void* arg)
+void WiFiContext::scanCompleteHandler(void* arg)
 {
   WiFiContext* self = static_cast<WiFiContext*>(arg);
-  self->updateNetList();
+  self->post([self]()
+             { self->updateSSIDList(); });
 }
 
-void WiFiContext::connectToNet(const String& ssid)
+void WiFiContext::connectToSSID(const String& ssid)
 {
-  String wifi_pass = SettingsManager::get(ssid.c_str(), STR_WIFI_SUBDIR);
-
-  if (wifi_pass.isEmpty())
+  if (!_wifi.hasKnownSSID(ssid))
   {
     _sel_ssid = _main_menu->getCurrItemText();
     showEnterPwdTmpl();
   }
   else
   {
-    _wifi.onConnectDone(connDoneHandler, this);
+    _wifi.onConnectComplete(connDoneHandler, this);
 
     String wifi_autoconn = SettingsManager::get(STR_PREF_WIFI_AUTOCONNECT, STR_WIFI_SUBDIR);
     if (wifi_autoconn.equals("1"))
-      SettingsManager::set(STR_PREF_WIFI_LAST_SSID, ssid.c_str(), STR_WIFI_SUBDIR);
+      SettingsManager::set(STR_PREF_WIFI_LAST_SSID, ssid, STR_WIFI_SUBDIR);
 
-    if (!_wifi.tryConnectTo(ssid, wifi_pass))
+    if (!_wifi.tryConnectToKnown(ssid))
       showToast(STR_FAIL, TOAST_LENGTH_SHORT);
     else
       showToast(STR_CONNECTING, TOAST_LENGTH_SHORT);
@@ -514,10 +497,13 @@ void WiFiContext::connDoneHandler(void* arg, wl_status_t conn_status)
 {
   WiFiContext* self = static_cast<WiFiContext*>(arg);
   if (conn_status != WL_CONNECTED)
+  {
     self->showToast(STR_CONNECT_ERR, TOAST_LENGTH_LONG);
+  }
   else
   {
     self->showToast(STR_SUCCESS, TOAST_LENGTH_SHORT);
-    self->updateNetList(true);
+    self->post([self]()
+               { self->updateSSIDList(true); });
   }
 }

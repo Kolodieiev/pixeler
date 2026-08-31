@@ -1,51 +1,25 @@
 #include "ChessContext.h"
 
 #include "../../WidgetCreator.h"
+#include "ChessClientContext.h"
+#include "ChessOfflineContext.h"
+#include "ChessPrefContext.h"
+#include "ChessServerContext.h"
 #include "context/games/GameListContext.h"
-#include "manager/SettingsManager.h"
-#include "scene/ChessScene.h"
+#include "widget/menu/FixedMenu.h"
 #include "widget/text/TextBox.h"
-
-static const char STR_CHESS_GAME_DIR[] = "chess";
-
-static const char STR_SELECT_ROLE_TITLE[] = "Оберіть роль";
-static const char STR_WAITING_CLIENT[] = "Очікуйте приєднання клієнтів";
-static const char STR_SERVER_SCANNING[] = "Зачекайте, відбувається сканування";
-static const char STR_SERVER_SCANNING_DONE[] = "Сканування завершено";
-static const char STR_SELECT_SERVER[] = "Оберіть сервер";
-static const char STR_CLIENT[] = "Клієнт";
-static const char STR_SERVER[] = "Сервер";
-static const char STR_ENTER_PWD[] = "Введіть пароль до: ";
-static const char STR_CONNECTING_TO[] = "Очікуємо підключення до: ";
-
-static const char STR_SERVER_UNAVAILABLE[] = "Сервер не відповідає";
-static const char STR_CONNECTING_ERROR[] = "Помилка підключення";
-static const char STR_CONNECTING[] = "Підключення до сервера";
-
-static const char STR_WANTS_TO_JOIN[] = " хоче приєднатися";
-
-static const char STR_WAITING_GAME[] = "Очікуйте запуск гри";
-static const char STR_DISCONNECTED[] = "Від'єднано від сервера";
-//
-static const char STR_CONT_DISC_CLIENT[] = "Відключити клієнта";
-static const char STR_CONT_OPEN_LOBBY[] = "Відкрити лоббі";
-static const char STR_CONT_CLOSE_LOBBY[] = "Закрити лоббі";
-static const char STR_CONT_GAME_START[] = "Розпочати гру";
-static const char STR_CONT_GAME_EXIT[] = "Завершити гру";
-
-static const uint8_t ITEM_NUM{5};
 
 namespace chess
 {
+  static const uint8_t MENU_ITEM_NUM{5};
+
   //----------------------------------------------------------------------------------------------------------
 
   ChessContext::ChessContext()
   {
-    setCpuFrequency(FREQ_BALANCED);
-    EmptyLayout* layout = WidgetCreator::getEmptyLayout();
-    setLayout(layout);
+    setCpuFrequency(FREQ_MIN);
+
     showMainTmpl();
-    loadPrefs();
   }
 
   ChessContext::~ChessContext()
@@ -61,72 +35,14 @@ namespace chess
 
   void ChessContext::update()
   {
-    (this->*_current_state)();
+    (this->*_state_input_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::loadPrefs()
-  {
-    _client_nick = SettingsManager::get(STR_PREF_NICKNAME, STR_CHESS_GAME_DIR);
-    _serv_ssid = SettingsManager::get(STR_PREF_SERVER_SSID, STR_CHESS_GAME_DIR);
-    _serv_pwd = SettingsManager::get(STR_PREF_SERVER_PWD, STR_CHESS_GAME_DIR);
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::startGame(GameMode mode)
-  {
-    _current_state = &ChessContext::updateGame;
-
-    getLayout()->delWidgets();
-    switch (mode)
-    {  // TODO
-      case GAME_MODE_SERVER:
-        break;
-
-      case GAME_MODE_CLIENT:
-        // _is_client = true;
-        break;
-
-      case GAME_MODE_TWO_PL:
-        _scene = new ChessScene(_stored_objs, 2);
-        break;
-
-      default:  // GAME_MODE_ONE_PL
-        _scene = new ChessScene(_stored_objs, 1);
-        break;
-    }
-  }
-
-  void ChessContext::updateGame()
-  {
-    _scene->update();
-
-    if (!_scene->isFinished() && !_scene->isReleased())
-    {
-      _scene->update();
-    }
-    else
-    {
-      // if (_is_client) // TODO
-      //   _client.disconnect();
-      // else if (_is_server)
-      //   _server.stop();
-
-      delete _scene;
-
-      showMainTmpl();
-    }
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-
-#pragma region MAIN_MENU
 
   void ChessContext::showMainTmpl()
   {
-    _current_state = &ChessContext::procMainMenu;
+    _state_input_handler = &ChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -136,7 +52,7 @@ namespace chess
     menu->setBackColor(COLOR_MAIN_BACK);
     menu->setWidth(UI_WIDTH);
     menu->setHeight(UI_HEIGHT);
-    menu->setItemHeight(UI_HEIGHT / ITEM_NUM - 2);
+    menu->setItemHeight(UI_HEIGHT / MENU_ITEM_NUM - 2);
     menu->setLoopState(true);
 
     // Один гравець
@@ -194,23 +110,23 @@ namespace chess
       switch (id)
       {
         case ID_ITEM_ONE_PLAYER:
-          startGame(GAME_MODE_ONE_PL);
+          openContext(new ChessOfflineContext(1));
           break;
 
         case ID_ITEM_TWO_PLAYERS:
-          startGame(GAME_MODE_TWO_PL);
+          openContext(new ChessOfflineContext(2));
           break;
 
         case ID_ITEM_CLIENT:
-          showClientLobbyTmpl();
+          openContext(new ChessClientContext());
           break;
 
         case ID_ITEM_SERVER:
-          showServerLobbyTmpl();
+          openContext(new ChessServerContext());
           break;
 
         case ID_ITEM_PREFS:
-          showPrefsTmpl();
+          openContext(new ChessPrefContext());
           break;
       }
     }
@@ -219,282 +135,4 @@ namespace chess
       openContext(new GameListContext());
     }
   }
-
-#pragma endregion  // MAIN_MENU
-
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::showPrefsTmpl()
-  {
-    _current_state = &ChessContext::procPrefMenu;
-
-    EmptyLayout* layout = WidgetCreator::getEmptyLayout();
-    setLayout(layout);
-
-    FixedMenu* menu = new FixedMenu(ID_MAIN_MENU);
-    layout->addWidget(menu);
-    menu->setBackColor(COLOR_MAIN_BACK);
-    menu->setWidth(UI_WIDTH);
-    menu->setHeight(UI_HEIGHT);
-    menu->setItemHeight(UI_HEIGHT / ITEM_NUM - 2);
-    menu->setLoopState(true);
-
-    // nick
-    MenuItem* nick_item = WidgetCreator::getMenuItem(ID_ITEM_NICK);
-    menu->addItem(nick_item);
-
-    Label* nick_lbl = WidgetCreator::getItemLabel(STR_NICKNAME, font_10x20);
-    nick_item->setLabel(nick_lbl);
-
-    // serv name
-    MenuItem* serv_name_item = WidgetCreator::getMenuItem(ID_ITEM_SERV_NAME);
-    menu->addItem(serv_name_item);
-
-    Label* serv_name_lbl = WidgetCreator::getItemLabel(STR_SERV_NAME, font_10x20);
-    serv_name_item->setLabel(serv_name_lbl);
-
-    // serv pwd
-    MenuItem* serv_pwd_item = WidgetCreator::getMenuItem(ID_ITEM_SERV_PWD);
-    menu->addItem(serv_pwd_item);
-
-    Label* serv_pwd_lbl = WidgetCreator::getItemLabel(STR_SERV_PWD, font_10x20);
-    serv_pwd_item->setLabel(serv_pwd_lbl);
-  }
-
-  void ChessContext::procPrefMenu()
-  {
-    FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
-
-    if (_input.isHolded(BtnID::BTN_UP))
-    {
-      menu->focusUp();
-    }
-    else if (_input.isHolded(BtnID::BTN_DOWN))
-    {
-      menu->focusDown();
-    }
-    else if (_input.isReleased(BtnID::BTN_OK))
-    {
-      uint16_t id = menu->getCurrItemID();
-
-      switch (id)
-      {
-        case ID_ITEM_NICK:
-          showDialogNicknameTmpl();
-          break;
-
-        case ID_ITEM_SERV_NAME:
-          showDialogServNameTmpl();
-          break;
-
-        case ID_ITEM_SERV_PWD:
-          showDialogServPwdTmpl();
-          break;
-      }
-    }
-    else if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      showMainTmpl();
-    }
-  }
-
-#pragma region DIALOG
-
-  void ChessContext::showDialogNicknameTmpl()
-  {
-    _dialog_id = DIALOG_ID_NICK;
-    addDialog(STR_NICKNAME, _client_nick);
-  }
-
-  void ChessContext::showDialogServNameTmpl()
-  {
-    _dialog_id = DIALOG_ID_SERV_NAME;
-    addDialog(STR_SERV_NAME, _serv_ssid);
-  }
-
-  void ChessContext::showDialogServPwdTmpl()
-  {
-    _dialog_id = DIALOG_ID_SERV_PWD;
-    addDialog(STR_SERV_PWD, _serv_pwd);
-  }
-
-  void ChessContext::addDialog(const String& title_txt, const String& start_txt)
-  {
-    _current_state = &ChessContext::procDialog;
-
-    EmptyLayout* layout = WidgetCreator::getEmptyLayout();
-    setLayout(layout);
-
-    Label* title_lbl = new Label(ID_DIALOG_LBL);
-    layout->addWidget(title_lbl);
-    title_lbl->setText(title_txt);
-    title_lbl->setAlign(IWidget::ALIGN_CENTER);
-    title_lbl->setGravity(IWidget::GRAVITY_CENTER);
-    title_lbl->setWidth(UI_WIDTH);
-    title_lbl->setBackColor(COLOR_MAIN_BACK);
-    title_lbl->setTextColor(COLOR_ORANGE);
-    title_lbl->setAutoscroll(true);
-
-    TextBox* dialog_txt = new TextBox(ID_DIALOG_TEXT);
-    layout->addWidget(dialog_txt);
-    dialog_txt->setText(start_txt);
-    dialog_txt->setHPadding(5);
-    dialog_txt->setWidth(UI_WIDTH - 10);
-    dialog_txt->setHeight(40);
-    dialog_txt->setBackColor(COLOR_WHITE);
-    dialog_txt->setTextColor(COLOR_BLACK);
-    dialog_txt->setTextSize(2);
-    dialog_txt->setPos(5, title_lbl->getYPos() + title_lbl->getHeight() + 5);
-    dialog_txt->setCornerRadius(3);
-
-    Keyboard* keyboard = WidgetCreator::getStandardEnKeyboard(ID_DIALOG_KB);
-    layout->addWidget(keyboard);
-    keyboard->setPos(0, dialog_txt->getYPos() + dialog_txt->getHeight() + 5);
-  }
-
-  void ChessContext::procDialog()
-  {
-    Keyboard* keyboard = getLayout()->getWidgetByID(ID_DIALOG_KB)->castTo<Keyboard>();
-    TextBox* dialog_txt = getLayout()->getWidgetByID(ID_DIALOG_TEXT)->castTo<TextBox>();
-
-    if (_input.isHolded(BtnID::BTN_UP))
-    {
-      keyboard->focusUp();
-    }
-    else if (_input.isHolded(BtnID::BTN_DOWN))
-    {
-      keyboard->focusDown();
-    }
-    else if (_input.isHolded(BtnID::BTN_LEFT))
-    {
-      keyboard->focusLeft();
-    }
-    else if (_input.isHolded(BtnID::BTN_RIGHT))
-    {
-      keyboard->focusRight();
-    }
-    else if (_input.isReleased(BtnID::BTN_OK))
-    {
-      dialog_txt->addChars(keyboard->getCurrBtnTxt().c_str());
-    }
-    else if (_input.isReleased(BtnID::BTN_BACK))
-    {
-      dialog_txt->removeLastChar();
-    }
-    else if (_input.isPressed(BtnID::BTN_OK))
-    {
-      bool save_pref_result{false};
-
-      switch (_dialog_id)
-      {
-        case DIALOG_ID_SERVER_CONN:  // Якщо в режимі підключення до сервера
-          _serv_pwd = dialog_txt->getText();
-          SettingsManager::set(STR_PREF_SERVER_PWD, _serv_pwd.c_str(), STR_CHESS_GAME_DIR);
-          showConnToApTmpl();
-          return;
-
-        case DIALOG_ID_NICK:
-          _client_nick = dialog_txt->getText();
-          save_pref_result = SettingsManager::set(STR_PREF_NICKNAME, _client_nick.c_str(), STR_CHESS_GAME_DIR);
-          break;
-
-        case DIALOG_ID_SERV_NAME:
-          _serv_ssid = dialog_txt->getText();
-          save_pref_result = SettingsManager::set(STR_PREF_SERVER_SSID, _serv_ssid.c_str(), STR_CHESS_GAME_DIR);
-          break;
-
-        case DIALOG_ID_SERV_PWD:
-          _serv_pwd = dialog_txt->getText();
-          save_pref_result = SettingsManager::set(STR_PREF_SERVER_PWD, _serv_pwd.c_str(), STR_CHESS_GAME_DIR);
-          break;
-      }
-
-      showPrefsTmpl();
-
-      if (save_pref_result)
-        showToast(STR_SUCCESS);
-      else
-        showToast(STR_FAIL);
-    }
-    else if (_input.isPressed(BtnID::BTN_BACK))
-    {
-      if (_dialog_id == DIALOG_ID_SERVER_CONN)  // Якщо в режимі підключення до сервера
-        showWifiScanTmpl();                     // Пароль не введено. Повторно запускаємо сканування
-      else
-        showPrefsTmpl();  // Повертаємось до вікна налаштувань
-    }
-  }
-
-#pragma endregion  // DIALOG
-
-  void ChessContext::showConnDialogTmpl()
-  {
-    _current_state = &ChessContext::procDialog;
-    addDialog(STR_NICKNAME, _client_nick);  // TODO тут відображати імя SSID
-  }
-
-  void ChessContext::showClientConfirmTmpl()  // TODO
-  {
-  }
-
-  void ChessContext::showServerContextTmpl()
-  {
-  }
-
-  void ChessContext::showServerLobbyTmpl()
-  {
-  }
-
-  void ChessContext::showConnToApTmpl()
-  {
-  }
-
-  void ChessContext::showClientLobbyTmpl()
-  {
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::showWifiScanTmpl()
-  {
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::showWifiListTmpl()
-  {
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-
-  void ChessContext::procWifiScan()  // TODO
-  {
-  }
-
-  void ChessContext::procWifiList()
-  {
-  }
-
-  void ChessContext::procClientLobby()
-  {
-  }
-
-  void ChessContext::procConnectToAp()
-  {
-  }
-
-  void ChessContext::procServerLobby()
-  {
-  }
-
-  void ChessContext::procLobbyContext()
-  {
-  }
-
-  void ChessContext::procClientConfirmation()
-  {
-  }
-
-  //----------------------------------------------------------------------------------------------------------
-
 }  // namespace chess

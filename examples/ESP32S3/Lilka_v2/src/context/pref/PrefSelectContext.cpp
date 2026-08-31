@@ -8,6 +8,7 @@
 #include "context/menu/MenuContext.h"
 #include "file_server/PrefFileServerContext.h"
 #include "manager/SettingsManager.h"
+#include "manager/WiFiManager.h"
 #include "wifi_power/PrefWiFiPowerContext.h"
 
 static const char STR_AUDIO_MONO[] = "Монозвук";
@@ -28,7 +29,7 @@ void PrefSelectContext::showSDErrTmpl()
 PrefSelectContext::PrefSelectContext()
 {
   setCpuFrequency(FREQ_MIN);
-  
+
   if (!_fs.isMounted())
   {
     showSDErrTmpl();

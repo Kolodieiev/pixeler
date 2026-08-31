@@ -8,7 +8,6 @@ const char STR_AUTHOR[] = "Автор: @Kolodieiev";
 const char STR_FIRM_VER[] = "Версія прошивки: ";
 const char STR_FIRM_VER_NUM[] = "0.0.1";
 
-const char STR_EMPTY[] = "";
 const char STR_NONE[] = "NONE";
 const char STR_OK[] = "OK";
 const char STR_SELECT[] = "Вибір";
@@ -54,7 +53,6 @@ const char STR_ENABLE[] = "Увімкнути";
 const char STR_ENABLED[] = "Увімкнено";
 const char STR_SUCCESS[] = "Успішно";
 //
-
 const char STR_PREF_BRIGHT[] = "brightness";
 const char STR_PREF_MONO_AUDIO[] = "forcemono";
 const char STR_PREF_EN_VU_METR[] = "envumetr";
@@ -62,37 +60,27 @@ const char STR_PREF_AUDIO_AMP[] = "audioamp";
 const char STR_PREF_LED_GREET[] = "ledgreeting";
 const char STR_PREF_FS_AP_SSID[] = "fsapssid";
 const char STR_PREF_FS_AP_PWD[] = "fsappwd";
-const char STR_PREF_WIFI_POWER[] = "wifipower";
 const char STR_PREF_WIFI_AUTOCONNECT[] = "wifiautoconn";
 const char STR_PREF_WIFI_LAST_SSID[] = "lastssid";
 //
-const char STR_WIFI_SUBDIR[] = "wifi";
-
 const char STR_SD_ERR[] = "SD не примонтовано";
-
 //
 const char STR_AP_NAME[] = "SSID:";
-const char STR_AP_PWD[] = "PWD:";
+const char STR_AP_PWD[] = "PASSWORD:";
 const char STR_REM_IP[] = "192.168.4.1";
-const char STR_DEF_SSID[] = "pixeler";
+const char STR_DEF_SSID[] = "Pixeler";
 const char STR_DEF_PWD[] = "12345678";
 
 //
-
 const char STR_NEW_DIR[] = "Новий каталог";
-
 //
-
 const char STR_BRIGHT[] = "Яскравість";
 const char STR_WIFI_POWER[] = "Потужність WiFi";
-
 //
 const char STR_PREF_NICKNAME[] = "nickname";
 const char STR_PREF_SERVER_SSID[] = "serverssid";
 const char STR_PREF_SERVER_PWD[] = "serverpwd";
-
 //
-
 const char STR_MODE_ONE_PL[] = "Один гравець";
 const char STR_MODE_TWO_PL[] = "Два гравці";
 const char STR_MODE_CLIENT[] = "Клієнт";
@@ -100,8 +88,8 @@ const char STR_MODE_SERVER[] = "Сервер";
 const char STR_NICKNAME[] = "Нікнейм";
 const char STR_SERV_NAME[] = "Назва сервера";
 const char STR_SERV_PWD[] = "Пароль до сервера";
-
-const char STR_WAITING_CLIENT[] = "Очікуйте приєднання клієнтів";
+//
+const char STR_MISSING_CLIENTS[] = "Клієнти наразі відсутні";
 const char STR_WANTS_TO_JOIN[] = "Клієнт хоче приєднатися:";
 const char STR_KICK_CLIENT[] = "Відключити клієнта";
 const char STR_OPEN_LOBBY[] = "Відкрити лоббі";
@@ -110,6 +98,17 @@ const char STR_START_GAME[] = "Розпочати гру";
 const char STR_END_GAME[] = "Завершити гру";
 const char STR_CONFIRM_WAY[] = "Прийняти -> BTN_OK";
 const char STR_REJECT_WAY[] = "Відхилити -> BTN_BACK";
+//
+const char STR_AP_SCANNING[] = "Зачекайте, відбувається сканування";
+const char STR_AP_NOT_FOUND[] = "Точки доступу не виявлено";
+const char STR_ENTER_PWD[] = "Введіть пароль до: ";
+const char STR_AP_CONNECT[] = "Очікуємо підключення до: ";
+const char STR_AP_CONNECT_ERR[] = "Помилка підключення до точки доступу";
+const char STR_SERVER_CONNECT[] = "Підключення до сервера";
+const char STR_SERVER_CONNECT_ERR[] = "Помилка підключення до сервера";
+const char STR_SERVER_IS_BUSY[] = "Сервер зайнятий";
+const char STR_WAITING_GAME[] = "Очікуйте запуск гри";
+const char STR_CLIENT_DISCONNECTED[] = "Від'єднано від сервера";
 
 //
 const char STR_EMPTY_BAT[] = "0.00";
@@ -117,5 +116,5 @@ const char STR_EMPTY_BAT[] = "0.00";
 const char STR_WALLPP_FILENAME[] = "wallpp";
 
 //
-
 const char STR_CHESS_GAME_DIR[] = "chess";
+const char STR_CHESS_GAME_ID[] = "chess_server";

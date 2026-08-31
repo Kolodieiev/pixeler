@@ -41,7 +41,7 @@ void PrefBrightContext::update()
 {
   if (_input.isReleased(BtnID::BTN_OK))
   {
-    SettingsManager::set(STR_PREF_BRIGHT, String(_progress->getProgress()).c_str());
+    SettingsManager::set(STR_PREF_BRIGHT, String(_progress->getProgress()));
     releaseContext();
   }
   else if (_input.isReleased(BtnID::BTN_BACK))
