@@ -1,15 +1,27 @@
 #pragma GCC optimize("O3")
 #include "WiFiManager.h"
 
-const char STR_ERR_WIFI_BUSY[] = "WiFi-модуль зайнятий";
+#include "SettingsManager.h"
 
 namespace pixeler
 {
+  static const char STR_PREF_WIFI_POWER[] = "wifipower";
+
+  static const char STR_ERR_WIFI_BUSY[] = "WiFi-модуль зайнятий";
+  static const char STR_ERR_EMPTY_SSID[] = "SSID не може бути порожній";
+  static const char STR_ERR_UNKNOWN_SSID[] = "Невідомий SSID:";
+
   bool WiFiManager::tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan, bool autoreconnect)
   {
     if (_is_busy)
     {
       log_e("%s", STR_ERR_WIFI_BUSY);
+      return false;
+    }
+
+    if (ssid.isEmpty())
+    {
+      log_e("%s", STR_ERR_EMPTY_SSID);
       return false;
     }
 
@@ -35,6 +47,74 @@ namespace pixeler
 
     _is_busy = true;
     return true;
+  }
+
+  bool WiFiManager::tryConnectToKnown(const String& ssid, uint8_t wifi_chan, bool autoreconnect)
+  {
+    String pwd = getSSIDKey(ssid);
+    if (pwd.isEmpty())
+    {
+      log_e("%s %s", STR_ERR_UNKNOWN_SSID, ssid.c_str());
+      return false;
+    }
+
+    return tryConnectTo(ssid, pwd, wifi_chan, autoreconnect);
+  }
+
+  bool WiFiManager::saveSSID(const String& ssid, const String& pwd) const
+  {
+    if (ssid.isEmpty())
+    {
+      log_e("%s", STR_ERR_EMPTY_SSID);
+      return emptyString;
+    }
+
+    return SettingsManager::set(ssid, pwd, STR_WIFI_SUBDIR);
+  }
+
+  bool WiFiManager::forgetSSID(const String& ssid) const
+  {
+    if (ssid.isEmpty())
+    {
+      log_e("%s", STR_ERR_EMPTY_SSID);
+      return emptyString;
+    }
+
+    String ssid_keys_path = SettingsManager::getSettingsFilePath(ssid, STR_WIFI_SUBDIR);
+    if (ssid_keys_path.isEmpty())
+    {
+      log_e("%s %s", STR_ERR_UNKNOWN_SSID, ssid.c_str());
+      return false;
+    }
+
+    return _fs.rmFile(ssid_keys_path.c_str());
+  }
+
+  bool WiFiManager::hasKnownSSID(const String& ssid) const
+  {
+    if (ssid.isEmpty())
+    {
+      log_e("%s", STR_ERR_EMPTY_SSID);
+      return emptyString;
+    }
+
+    String pwd = SettingsManager::get(ssid, STR_WIFI_SUBDIR);
+    return !pwd.isEmpty();
+  }
+
+  String WiFiManager::getSSIDKey(const String& ssid) const
+  {
+    if (ssid.isEmpty())
+    {
+      log_e("%s", STR_ERR_EMPTY_SSID);
+      return emptyString;
+    }
+
+    String pwd = SettingsManager::get(ssid, STR_WIFI_SUBDIR);
+    if (pwd.isEmpty())
+      log_e("Невідомий SSID: %s", ssid.c_str());
+
+    return pwd;
   }
 
   bool WiFiManager::createAP(const String& ssid, const String& pwd, uint8_t max_connection, uint8_t wifi_chan, bool is_hidden)
@@ -66,16 +146,16 @@ namespace pixeler
     return result;
   }
 
-  void WiFiManager::onConnectDone(WiFiConnectDoneHandler handler, void* arg)
+  void WiFiManager::onConnectComplete(ConnectCompleteHandler handler, void* arg)
   {
-    _conn_done_handler = handler;
-    _conn_done_handler_arg = arg;
+    _connect_complete_handler = handler;
+    _connect_complete_handler_arg = arg;
   }
 
-  void WiFiManager::onScanDone(WiFiScanDoneHandler handler, void* arg)
+  void WiFiManager::onScanComplete(ScanCompleteHandler handler, void* arg)
   {
-    _scan_done_handler = handler;
-    _scan_done_handler_arg = arg;
+    _scan_complete_handler = handler;
+    _scan_complete_handler_arg = arg;
   }
 
   bool WiFiManager::startScan()
@@ -107,27 +187,27 @@ namespace pixeler
     return true;
   }
 
-  void WiFiManager::getScanResult(std::vector<String>& out_vector) const
+  std::vector<String> WiFiManager::getScanResult()
   {
-    out_vector.clear();
+    std::vector<String> out_vector;
 
     if (_is_busy)
     {
       log_e("%s", STR_ERR_WIFI_BUSY);
-      return;
+      return out_vector;
     }
 
     int16_t scan_result = WiFi.scanComplete();
 
     if (scan_result == -1)
     {
-      log_e("Scan not fin");
-      return;
+      log_e("Сканування ще не завершено");
+      return out_vector;
     }
     else if (scan_result == -2)
     {
-      log_e("Scan not triggered");
-      return;
+      log_e("Сканування не було запущено");
+      return out_vector;
     }
 
     out_vector.reserve(scan_result);
@@ -136,30 +216,69 @@ namespace pixeler
       out_vector.emplace_back(WiFi.SSID(i));
 
     WiFi.scanDelete();
+
+    return out_vector;
   }
 
-  void WiFiManager::clearScanResult()
+  bool WiFiManager::setPower(WiFiPowerLevel power_lvl)
   {
-    WiFi.scanDelete();
-  }
-
-  void WiFiManager::setPower(WiFiPowerLevel power_lvl)
-  {
+    bool result = false;
     switch (power_lvl)
     {
       case WIFI_POWER_MIN:
-        WiFi.setTxPower(WIFI_POWER_5dBm);
+        result = WiFi.setTxPower(WIFI_POWER_5dBm);
         break;
       case WIFI_POWER_MEDIUM:
-        WiFi.setTxPower(WIFI_POWER_15dBm);
+        result = WiFi.setTxPower(WIFI_POWER_15dBm);
         break;
       case WIFI_POWER_MAX:
-        WiFi.setTxPower(WIFI_POWER_19_5dBm);
+        result = WiFi.setTxPower(WIFI_POWER_19_5dBm);
         break;
       default:
-        log_e("Invalid WiFi-power level received");
-        WiFi.setTxPower(WIFI_POWER_5dBm);
+        log_e("Отримано некоректний рівень потужності WiFi");
+        result = false;
+        break;
     }
+
+    return result;
+  }
+
+  bool WiFiManager::savePower(WiFiPowerLevel power_lvl)
+  {
+    setPower(power_lvl);
+    return savePowerSettings(power_lvl);
+  }
+
+  WiFiManager::WiFiPowerLevel WiFiManager::getPower() const
+  {
+    wifi_power_t power = WiFi.getTxPower();
+
+    if (power > WIFI_POWER_15dBm)
+      return WIFI_POWER_MAX;
+
+    if (power > WIFI_POWER_5dBm)
+      return WIFI_POWER_MEDIUM;
+
+    return WIFI_POWER_MIN;
+  }
+
+  WiFiManager::WiFiPowerLevel WiFiManager::readPowerSettings() const
+  {
+    String wifi_power = SettingsManager::get(STR_PREF_WIFI_POWER, STR_WIFI_SUBDIR);
+
+    if (wifi_power.isEmpty())
+    {
+      log_e("Помилка зчитування налаштувань потужності WiFi");
+      return WIFI_POWER_MIN;
+    }
+
+    int power = std::atoi(wifi_power.c_str());
+    return static_cast<WiFiManager::WiFiPowerLevel>(power);
+  }
+
+  bool WiFiManager::savePowerSettings(WiFiPowerLevel power_lvl) const
+  {
+    return SettingsManager::set(STR_PREF_WIFI_POWER, String(power_lvl).c_str(), STR_WIFI_SUBDIR);
   }
 
   bool WiFiManager::isConnected() const
@@ -182,8 +301,8 @@ namespace pixeler
 
   void WiFiManager::disconnect()
   {
-    _conn_done_handler = nullptr;
-    _scan_done_handler = nullptr;
+    _connect_complete_handler = nullptr;
+    _scan_complete_handler = nullptr;
     WiFi.disconnect();
     delay(100);
   }
@@ -196,9 +315,12 @@ namespace pixeler
   bool WiFiManager::enable()
   {
     bool result = WiFi.mode(WIFI_MODE_STA);
-    delay(100);
-    if (!result)
-      log_e("Помилка увімкнення WiFi модуля");
+    if (result)
+    {
+      WiFiPowerLevel power = readPowerSettings();
+      setPower(power);
+    }
+
     return result;
   }
 
@@ -246,14 +368,14 @@ namespace pixeler
   {
     log_i("WiFi.status: %d", WiFi.status());
 
-    if (_conn_done_handler)
-      _conn_done_handler(_conn_done_handler_arg, WiFi.status());
+    if (_connect_complete_handler)
+      _connect_complete_handler(_connect_complete_handler_arg, WiFi.status());
   }
 
   void WiFiManager::invokeScanDoneHandler()
   {
-    if (_scan_done_handler)
-      _scan_done_handler(_scan_done_handler_arg);
+    if (_scan_complete_handler)
+      _scan_complete_handler(_scan_complete_handler_arg);
     else
       WiFi.scanDelete();
   }
