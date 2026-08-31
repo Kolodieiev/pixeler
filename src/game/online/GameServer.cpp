@@ -107,10 +107,6 @@ namespace pixeler
 
     xSemaphoreTake(_client_mutex, portMAX_DELAY);
 
-    _data_handler = nullptr;
-    _confirmation_handler = nullptr;
-    _disconnect_handler = nullptr;
-
     _server.close();
     _clients.clear();
 
@@ -592,19 +588,19 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::onConfirmation(ClientConfirmationHandler handler, void* arg)
+  void GameServer::onConfirmation(ConfirmationHandler handler, void* arg)
   {
     _confirmation_handler = handler;
     _confirmation_arg = arg;
   }
 
-  void GameServer::onDisconnect(ClientDisconnectHandler handler, void* arg)
+  void GameServer::onDisconnect(DisconnectHandler handler, void* arg)
   {
     _disconnect_handler = handler;
     _disconnect_arg = arg;
   }
 
-  void GameServer::onData(ClientDataHandler handler, void* arg)
+  void GameServer::onData(DataHandler handler, void* arg)
   {
     _data_handler = handler;
     _data_arg = arg;

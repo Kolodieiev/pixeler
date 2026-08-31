@@ -14,19 +14,19 @@ namespace pixeler
      * @brief Тип обробника, який може бути викликано клієнтом у разі втрати зв'язку з сервером.
      *
      */
-    using ServerDisconnectHandler = std::function<void(void* arg)>;
+    using DisconnectHandler = std::function<void(void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано клієнтом після встановлення зв'язку з сервером.
      *
      */
-    using ServerConnectHandler = std::function<void(void* arg)>;
+    using ConnectHandler = std::function<void(void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано клієнтом після отримання пакета даних від сервера.
      *
      */
-    using ServerDataHandler = std::function<void(const UdpPacket& packet, void* arg)>;
+    using DataHandler = std::function<void(const UdpPacket& packet, void* arg)>;
 
     /**
      * @brief Перечислення, що містить значення станів клієнта.
@@ -89,10 +89,10 @@ namespace pixeler
     /**
      * @brief Встановлює обробник, який буде викликано після отримання пакета даних від сервера.
      *
-     * @param data_handler Обробник події отримання даних
+     * @param handler Обробник події отримання даних
      * @param arg Аргумент, який будуе передано обробнику
      */
-    void onData(ServerDataHandler data_handler, void* arg);
+    void onData(DataHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після встановлення з'єднання з сервером.
@@ -100,7 +100,7 @@ namespace pixeler
      * @param handler Обробник події встановлення з'єднання з сервером
      * @param arg Аргумент, який буде передано обробнику
      */
-    void onConnect(ServerConnectHandler handler, void* arg);
+    void onConnect(ConnectHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з сервером.
@@ -108,7 +108,7 @@ namespace pixeler
      * @param handler Обробник події втрати з'єднання з сервером
      * @param arg Аргумент, який будуе передано обробнику
      */
-    void onDisconnect(ServerDisconnectHandler handler, void* arg);
+    void onDisconnect(DisconnectHandler handler, void* arg);
 
   protected:
     void sendHandshake();
@@ -136,9 +136,9 @@ namespace pixeler
     AsyncUDP _client;
     IPAddress _server_ip;
 
-    ServerConnectHandler _connect_handler{nullptr};
-    ServerDisconnectHandler _disconnect_handler{nullptr};
-    ServerDataHandler _data_handler{nullptr};
+    ConnectHandler _connect_handler{nullptr};
+    DisconnectHandler _disconnect_handler{nullptr};
+    DataHandler _data_handler{nullptr};
 
     String _nickname;
     String _game_id;

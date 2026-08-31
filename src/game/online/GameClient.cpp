@@ -110,10 +110,6 @@ namespace pixeler
 
     log_i("Від'єднано від сервера");
 
-    _data_handler = nullptr;
-    _connect_handler = nullptr;
-    _disconnect_handler = nullptr;
-
     _client.close();
 
     if (_check_task_handler)
@@ -394,19 +390,19 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameClient::onData(ServerDataHandler data_handler, void* arg)
+  void GameClient::onData(DataHandler handler, void* arg)
   {
-    _data_handler = data_handler;
+    _data_handler = handler;
     _data_arg = arg;
   }
 
-  void GameClient::onConnect(ServerConnectHandler handler, void* arg)
+  void GameClient::onConnect(ConnectHandler handler, void* arg)
   {
     _connect_handler = handler;
     _connect_arg = arg;
   }
 
-  void GameClient::onDisconnect(ServerDisconnectHandler handler, void* arg)
+  void GameClient::onDisconnect(DisconnectHandler handler, void* arg)
   {
     _disconnect_handler = handler;
     _disconnect_arg = arg;

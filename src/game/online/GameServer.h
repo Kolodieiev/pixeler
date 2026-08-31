@@ -17,19 +17,19 @@ namespace pixeler
      * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
      *
      */
-    using ClientConfirmationHandler = std::function<void(const String name, void* arg)>;
+    using ConfirmationHandler = std::function<void(const String name, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
      *
      */
-    using ClientDisconnectHandler = std::function<void(const String name, void* arg)>;
+    using DisconnectHandler = std::function<void(const String name, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі отримання пакета даних від одного із клієнтів.
      *
      */
-    using ClientDataHandler = std::function<void(const ClientSession& client, const UdpPacket& packet, void* arg)>;
+    using DataHandler = std::function<void(const ClientSession& client, const UdpPacket& packet, void* arg)>;
 
     GameServer();
     ~GameServer();
@@ -150,7 +150,7 @@ namespace pixeler
      * @param handler Обробник, що буде викликано у разі настання події
      * @param arg Аргумент, який буде передано обробнику
      */
-    void onConfirmation(ClientConfirmationHandler handler, void* arg);
+    void onConfirmation(ConfirmationHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з будь-яким із авторизованих клієнтів.
@@ -158,7 +158,7 @@ namespace pixeler
      * @param handler Обробник, що буде викликано у разі настання події
      * @param arg Аргумент, який буде передано обробнику
      */
-    void onDisconnect(ClientDisconnectHandler handler, void* arg);
+    void onDisconnect(DisconnectHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після отримання пакета даних від будь-якого із авторизованих клієнтів.
@@ -166,7 +166,7 @@ namespace pixeler
      * @param handler Обробник, що буде викликано у разі настання події
      * @param arg Аргумент, який буде передано обробнику
      */
-    void onData(ClientDataHandler handler, void* arg);
+    void onData(DataHandler handler, void* arg);
 
     /**
      * @brief Повертає вказівник на список клієнтів.
@@ -221,9 +221,9 @@ namespace pixeler
 
     std::unordered_map<uint32_t, ClientSession> _clients;
 
-    ClientConfirmationHandler _confirmation_handler{nullptr};
-    ClientDisconnectHandler _disconnect_handler{nullptr};
-    ClientDataHandler _data_handler{nullptr};
+    ConfirmationHandler _confirmation_handler{nullptr};
+    DisconnectHandler _disconnect_handler{nullptr};
+    DataHandler _data_handler{nullptr};
 
     String _server_name;
     String _game_id;
