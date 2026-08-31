@@ -53,7 +53,7 @@ namespace pixeler
 
     if (!_fs.readFromFileExact(bmp_file, data, data_size, bmp_header.data_offset))
     {
-      log_e("Помилка читання файла: %s", path);
+      log_e("Помилка читання файлу: %s", path);
       free(data);
       _fs.closeFile(bmp_file);
       return nullptr;

@@ -61,7 +61,7 @@ namespace pixeler
     static bool saveBmp(BmpHeader& header, const uint16_t* buff, const char* path_to_bmp, bool swap_data_bytes = false);
 
     /**
-     * @brief Повертає стандартний заголовок BMP-файла, що відповідає вимогам системи.
+     * @brief Повертає стандартний заголовок BMP-файлу, що відповідає вимогам системи.
      *
      * @return BmpHeader
      */
@@ -71,7 +71,7 @@ namespace pixeler
      * @brief Перевіряє BMP-файл, на відповідність вимогам системи.
      *
      * @param bmp_file Вказівник на відкритий для читання файл.
-     * @param out_bmp_header Адреса об'єкта, куди будуть записані заголовкові дані bmp-файла, якщо він є валідним.
+     * @param out_bmp_header Адреса об'єкта, куди будуть записані заголовкові дані bmp-файлу, якщо він є валідним.
      * @return true - Якщо BMP-файл валідний та може бути використаний в системі.
      * @return false - Інакше.
      */

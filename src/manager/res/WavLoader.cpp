@@ -16,7 +16,7 @@ namespace pixeler
 
     if (!validateHeader(header))
     {
-      log_e("Помилка валідації файла: %s", path);
+      log_e("Помилка валідації файлу: %s", path);
       return nullptr;
     }
 

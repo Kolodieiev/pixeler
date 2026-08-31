@@ -113,7 +113,7 @@ namespace pixeler
     if (endsWith(path, ".wav"))
       return std::make_unique<WavLoader>();
 
-    log_e("Незареєстрований тип файла: %s", path);
+    log_e("Незареєстрований тип файлу: %s", path);
     return nullptr;
   }
 
