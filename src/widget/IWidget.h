@@ -369,11 +369,11 @@ namespace pixeler
     bool isTouchable() const;
 
     /**
-     * @brief Повертає саму нижню точку по вертикалі, на якій в даний момент знаходиться віджет.
+     * @brief Повертає саму нижню Y-координату відносно канвасу, на якій в даний момент знаходиться віджет.
      *
      * @return uint16_t
      */
-    uint16_t getBottomPos() const;
+    uint16_t getBottomYPos() const;
 
   protected:
     /**
