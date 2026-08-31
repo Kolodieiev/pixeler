@@ -19,6 +19,11 @@ namespace pixeler
     return true;
   }
 
+  bool isEmptyStr(const char* str)
+  {
+    return !str || *str == '\0';
+  }
+
   void trim(char* str)
   {
     char* start = str;

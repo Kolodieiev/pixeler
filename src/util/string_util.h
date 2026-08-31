@@ -12,6 +12,7 @@ namespace pixeler
   void rmFilenameExt(String& filename);
 
   bool startsWith(const char* base, const char* str);
+  bool isEmptyStr(const char* str);
   void trim(char* str);
   void strlower(char* str);
   bool endsWith(const char* base, const char* searchString);
