@@ -7,17 +7,19 @@
 
 namespace pixeler
 {
-  const char DATA_ROOT[] = "/.data";
-  const char PREF_ROOT[] = "/.data/preferences";
+  static const char DATA_ROOT[] = "/.data";
+  static const char PREF_ROOT[] = "/.data/preferences";
 
-  bool SettingsManager::set(const char* pref_name, const char* value, const char* subdir)
+  static const char STR_EMPTY_PREF_VAL[] = "Ім'я налаштування не може бути порожнім";
+
+  bool SettingsManager::set(const String& pref_name, const String& value, const String& subdir)
   {
     if (!_fs.isMounted())
       return false;
 
-    if (!pref_name || !value)
+    if (pref_name.isEmpty())
     {
-      log_e("Некоректні аргументи");
+      log_e("%s", STR_EMPTY_PREF_VAL);
       return false;
     }
 
@@ -26,17 +28,17 @@ namespace pixeler
     if (path.isEmpty())
       return false;
 
-    return _fs.writeFile(path.c_str(), value, strlen(value));
+    return _fs.writeFile(path.c_str(), value.c_str(), value.length());
   }
 
-  String SettingsManager::get(const char* pref_name, const char* subdir)
+  String SettingsManager::get(const String& pref_name, const String& subdir)
   {
     if (!_fs.isMounted())
       return emptyString;
 
-    if (!pref_name)
+    if (pref_name.isEmpty())
     {
-      log_e("Некоректний аргумент");
+      log_e("%s", STR_EMPTY_PREF_VAL);
       return emptyString;
     }
 
@@ -45,14 +47,14 @@ namespace pixeler
     return _fs.readFileToStr(path);
   }
 
-  String SettingsManager::getSettingsFilePath(const char* pref_name, const char* subdir)
+  String SettingsManager::getSettingsFilePath(const String& pref_name, const String& subdir)
   {
     if (!_fs.isMounted())
       return emptyString;
 
-    if (!pref_name || !std::strcmp(pref_name, "") || !subdir)
+    if (pref_name.isEmpty())
     {
-      log_e("Некоректний аргумент");
+      log_e("%s", STR_EMPTY_PREF_VAL);
       return emptyString;
     }
 
@@ -67,16 +69,10 @@ namespace pixeler
     return path;
   }
 
-  String SettingsManager::getSettingsDirPath(const char* sub_dirname)
+  String SettingsManager::getSettingsDirPath(const String& sub_dirname)
   {
     if (!_fs.isMounted())
       return emptyString;
-
-    if (!sub_dirname)
-    {
-      log_e("Некоректний аргумент");
-      return emptyString;
-    }
 
     if (!_fs.dirExist(DATA_ROOT, true) && !_fs.createDir(DATA_ROOT))
       return emptyString;
@@ -84,9 +80,9 @@ namespace pixeler
     if (!_fs.dirExist(PREF_ROOT, true) && !_fs.createDir(PREF_ROOT))
       return emptyString;
 
-    String path = PREF_ROOT;
+    String path{PREF_ROOT};
 
-    if (std::strcmp(sub_dirname, ""))
+    if (!sub_dirname.isEmpty())
     {
       path += "/";
       path += sub_dirname;
@@ -98,12 +94,12 @@ namespace pixeler
     return path;
   }
 
-  bool SettingsManager::load(void* out_data_struct, size_t data_struct_size, const char* data_filename, const char* data_dirname)
+  bool SettingsManager::load(void* out_data_struct, size_t data_struct_size, const String& filename, const String& subdir)
   {
     if (!_fs.isMounted())
       return false;
 
-    String sets_path = SettingsManager::getSettingsFilePath(data_filename, data_dirname);
+    String sets_path = SettingsManager::getSettingsFilePath(filename, subdir);
 
     if (sets_path.isEmpty())
       return false;
@@ -114,12 +110,12 @@ namespace pixeler
     return _fs.readFile(sets_path.c_str(), out_data_struct, data_struct_size) == data_struct_size;
   }
 
-  bool SettingsManager::save(const void* data_struct, size_t data_struct_size, const char* data_filename, const char* data_dirname)
+  bool SettingsManager::save(const void* data_struct, size_t data_struct_size, const String& filename, const String& subdir)
   {
     if (!_fs.isMounted())
       return false;
 
-    String sets_path = SettingsManager::getSettingsFilePath(data_filename, data_dirname);
+    String sets_path = SettingsManager::getSettingsFilePath(filename, subdir);
 
     if (sets_path.isEmpty())
       return false;
