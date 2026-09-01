@@ -275,8 +275,8 @@ namespace pixeler
     if (static_cast<uint8_t>(packet.getData()[0]) != 1)
     {
       log_i("Некоректний сервер гри");
-      disconnect();
       invokeErrorHandler(ERR_INCORRECT_SERVER);
+      disconnect();
     }
     else
     {
@@ -290,8 +290,8 @@ namespace pixeler
     if (static_cast<uint8_t>(packet.getData()[0]) != 1)
     {
       log_i("Приєднання відхилено сервером");
-      disconnect();
       invokeErrorHandler(ERR_ACCESS_DENIED);
+      disconnect();
     }
     else
     {
@@ -304,15 +304,15 @@ namespace pixeler
   void GameClient::handleIncorrectName()
   {
     log_i("Некоректне ім'я клієнта");
-    disconnect();
     invokeErrorHandler(ERR_INCORRECT_NAME);
+    disconnect();
   }
 
   void GameClient::handleBusy()
   {
     log_i("Сервер зайнятий");
-    disconnect();
     invokeErrorHandler(ERR_SERVER_BUSY);
+    disconnect();
   }
 
   void GameClient::handlePing()
@@ -332,8 +332,8 @@ namespace pixeler
     if (millis() - _last_act_time > 3000) [[unlikely]]
     {
       log_i("З'єднання з сервером втрачено");
-      disconnect();
       invokeDisconnectHandler();
+      disconnect();
     }
   }
 
