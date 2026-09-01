@@ -495,7 +495,7 @@ namespace pixeler
     {
       if (!it->second.isConnected())
       {
-        log_i("Клієнт від'єднався");
+        log_i("Клієнт від'єднався: %s", it->second.getName().c_str());
 
         if (it->second.isConfirmed())
         {
