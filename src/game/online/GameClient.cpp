@@ -106,6 +106,8 @@ namespace pixeler
     if (_is_freed)
       return;
 
+    _status = STATUS_DISCONNECTED;
+
     _is_freed = true;
 
     log_i("Від'єднано від сервера");
@@ -164,7 +166,7 @@ namespace pixeler
     sendPacket(pack);
   }
 
-  GameClient::ClientStatus GameClient::getStatus() const
+  GameClient::Status GameClient::getStatus() const
   {
     return _status;
   }
@@ -273,9 +275,8 @@ namespace pixeler
     if (static_cast<uint8_t>(packet.getData()[0]) != 1)
     {
       log_i("Некоректний сервер гри");
-      _status = STATUS_INCORRECT_SERVER;
       disconnect();
-      invokeDisconnectHandler();
+      invokeErrorHandler(ERR_INCORRECT_SERVER);
     }
     else
     {
@@ -289,9 +290,8 @@ namespace pixeler
     if (static_cast<uint8_t>(packet.getData()[0]) != 1)
     {
       log_i("Приєднання відхилено сервером");
-      _status = STATUS_ACCESS_DENIED;
       disconnect();
-      invokeDisconnectHandler();
+      invokeErrorHandler(ERR_ACCESS_DENIED);
     }
     else
     {
@@ -304,9 +304,15 @@ namespace pixeler
   void GameClient::handleIncorrectName()
   {
     log_i("Некоректне ім'я клієнта");
-    _status = STATUS_INCORRECT_NAME;
     disconnect();
-    invokeDisconnectHandler();
+    invokeErrorHandler(ERR_INCORRECT_NAME);
+  }
+
+  void GameClient::handleBusy()
+  {
+    log_i("Сервер зайнятий");
+    disconnect();
+    invokeErrorHandler(ERR_SERVER_BUSY);
   }
 
   void GameClient::handlePing()
@@ -319,14 +325,6 @@ namespace pixeler
     sendPacket(packet);
   }
 
-  void GameClient::handleBusy()
-  {
-    log_i("Сервер зайнятий");
-    _status = STATUS_SERVER_BUSY;
-    disconnect();
-    invokeDisconnectHandler();
-  }
-
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameClient::handleCheckConnect()
@@ -334,7 +332,6 @@ namespace pixeler
     if (millis() - _last_act_time > 3000) [[unlikely]]
     {
       log_i("З'єднання з сервером втрачено");
-      _status = STATUS_DISCONNECTED;
       disconnect();
       invokeDisconnectHandler();
     }
@@ -388,6 +385,18 @@ namespace pixeler
     _disconnect_handler(_disconnect_arg);
   }
 
+  void GameClient::invokeErrorHandler(Error error)
+  {
+    if (!_error_handler) [[unlikely]]
+    {
+      log_e("Не встановлено обробник помилок клієнта");
+      return;
+    }
+
+    log_i("Викликаю error_handler");
+    _error_handler(error, _error_arg);
+  }
+
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameClient::onData(DataHandler handler, void* arg)
@@ -400,6 +409,12 @@ namespace pixeler
   {
     _connect_handler = handler;
     _connect_arg = arg;
+  }
+
+  void GameClient::OnError(ErrorHandler handler, void* arg)
+  {
+    _error_handler = handler;
+    _error_arg = arg;
   }
 
   void GameClient::onDisconnect(DisconnectHandler handler, void* arg)

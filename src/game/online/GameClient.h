@@ -11,6 +11,29 @@ namespace pixeler
   {
   public:
     /**
+     * @brief Перечислення, що містить значення станів клієнта.
+     *
+     */
+    enum Status : uint8_t
+    {
+      STATUS_IDLE = 0,      // В очікуванні.
+      STATUS_CONNECTED,     // Приєднано до сервера.
+      STATUS_DISCONNECTED,  // З'єднання з сервером втрачено.
+    };
+
+    /**
+     * @brief Перечислення, що містить значення помилок клієнта.
+     *
+     */
+    enum Error : uint8_t
+    {
+      ERR_INCORRECT_SERVER = 0,  // Некоректний сервер.
+      ERR_INCORRECT_NAME,        // Некоректний нікнейм.
+      ERR_ACCESS_DENIED,         // Відмовлено в авторизації.
+      ERR_SERVER_BUSY,           // Сервер зайнятий обробкою інших запитів.
+    };
+
+    /**
      * @brief Тип обробника, який може бути викликано клієнтом у разі втрати зв'язку з сервером.
      *
      */
@@ -29,19 +52,10 @@ namespace pixeler
     using DataHandler = std::function<void(const UdpPacket& packet, void* arg)>;
 
     /**
-     * @brief Перечислення, що містить значення станів клієнта.
+     * @brief Тип обробника, який може бути викликано клієнтом після отримання повідомлення про помилку.
      *
      */
-    enum ClientStatus : uint8_t
-    {
-      STATUS_IDLE = 0,          // В очікуванні.
-      STATUS_CONNECTED,         // Приєднано до сервера.
-      STATUS_DISCONNECTED,      // З'єднання з сервером втрачено.
-      STATUS_INCORRECT_SERVER,  // Некоректний сервер.
-      STATUS_INCORRECT_NAME,    // Некоректний нікнейм.
-      STATUS_ACCESS_DENIED,     // Відмовлено в авторизації.
-      STATUS_SERVER_BUSY,       // Сервер зайнятий обробкою інших запитів.
-    };
+    using ErrorHandler = std::function<void(GameClient::Error error, void* arg)>;
 
     GameClient();
     ~GameClient();
@@ -82,9 +96,9 @@ namespace pixeler
     /**
      * @brief Повертає поточний статус клієнта.
      *
-     * @return ClientStatus
+     * @return Status
      */
-    ClientStatus getStatus() const;
+    Status getStatus() const;
 
     /**
      * @brief Встановлює обробник, який буде викликано після отримання пакета даних від сервера.
@@ -101,6 +115,14 @@ namespace pixeler
      * @param arg Аргумент, який буде передано обробнику
      */
     void onConnect(ConnectHandler handler, void* arg);
+
+    /**
+     * @brief Встановлює обробник, який буде викликано після отримання повідомлення про помилку.
+     *
+     * @param handler Обробник події отримання помилки
+     * @param arg Аргумент, який буде передано обробнику
+     */
+    void OnError(ErrorHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з сервером.
@@ -131,6 +153,7 @@ namespace pixeler
     void invokeDataHandler(const UdpPacket& packet);
     void invokeConnectHandler();
     void invokeDisconnectHandler();
+    void invokeErrorHandler(Error error);
 
   protected:
     AsyncUDP _client;
@@ -139,6 +162,7 @@ namespace pixeler
     ConnectHandler _connect_handler{nullptr};
     DisconnectHandler _disconnect_handler{nullptr};
     DataHandler _data_handler{nullptr};
+    ErrorHandler _error_handler{nullptr};
 
     String _nickname;
     String _game_id;
@@ -153,10 +177,11 @@ namespace pixeler
     void* _connect_arg{nullptr};
     void* _disconnect_arg{nullptr};
     void* _data_arg{nullptr};
+    void* _error_arg{nullptr};
 
     unsigned long _last_act_time{0};
 
-    ClientStatus _status{STATUS_DISCONNECTED};
+    Status _status{STATUS_DISCONNECTED};
 
     bool _is_freed{true};
   };
