@@ -1,7 +1,7 @@
 #pragma once
 
-#include "manager/WiFiManager.h"
 #include "context/IContext.h"
+#include "manager/WiFiManager.h"
 #include "widget/keyboard/Keyboard.h"
 #include "widget/menu/FixedMenu.h"
 #include "widget/scrollbar/ScrollBar.h"
@@ -70,7 +70,7 @@ private:
   void connectToSSID(const String& ssid);
   //
   static void scanCompleteHandler(void* arg);
-  static void connDoneHandler(void* arg, wl_status_t conn_status);
+  static void connDoneHandler(void* arg, const String& ssid, wl_status_t conn_status);
 
 private:
   String _sel_ssid;

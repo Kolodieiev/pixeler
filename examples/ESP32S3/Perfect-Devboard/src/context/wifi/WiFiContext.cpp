@@ -493,12 +493,13 @@ void WiFiContext::connectToSSID(const String& ssid)
   }
 }
 
-void WiFiContext::connDoneHandler(void* arg, wl_status_t conn_status)
+void WiFiContext::connDoneHandler(void* arg, const String& ssid, wl_status_t conn_status)
 {
   WiFiContext* self = static_cast<WiFiContext*>(arg);
   if (conn_status != WL_CONNECTED)
   {
     self->showToast(STR_CONNECT_ERR, TOAST_LENGTH_LONG);
+    _wifi.forgetSSID(ssid);
   }
   else
   {

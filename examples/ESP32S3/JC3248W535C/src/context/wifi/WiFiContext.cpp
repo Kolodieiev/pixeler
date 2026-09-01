@@ -452,8 +452,6 @@ void WiFiContext::updateNetList(bool no_scan)
     return;
   }
 
-  takeLayoutMutex();
-
   ToggleItem* wifi_state_item = _main_menu->getWidgetByID(ID_ITEM_WIFI_STATE)->castTo<ToggleItem>();
   ToggleItem* temp_toggle = wifi_state_item->clone(ID_ITEM_WIFI_STATE);
   _main_menu->delWidgets();
@@ -484,8 +482,6 @@ void WiFiContext::updateNetList(bool no_scan)
     item->setLabel(item_lbl);
     ++i;
   }
-
-  giveLayoutMutex();
 }
 
 void WiFiContext::scanCompleteHandler(void* arg)
@@ -512,14 +508,18 @@ void WiFiContext::connectToNet(const String& ssid)
   }
 }
 
-void WiFiContext::connDoneHandler(void* arg, wl_status_t conn_status)
+void WiFiContext::connDoneHandler(void* arg, const String& ssid, wl_status_t conn_status)
 {
   WiFiContext* self = static_cast<WiFiContext*>(arg);
   if (conn_status != WL_CONNECTED)
+  {
     self->showToast(STR_CONNECT_ERR, TOAST_LENGTH_LONG);
+    _wifi.forgetSSID(ssid);
+  }
   else
   {
     self->showToast(STR_SUCCESS, TOAST_LENGTH_SHORT);
-    self->updateNetList(true);
+    self->post([self]()
+               { self->updateNetList(true); });
   }
 }

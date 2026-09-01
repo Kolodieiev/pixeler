@@ -72,7 +72,7 @@ private:
   uint16_t getSelectedItemID(IMenu* menu);
   //
   static void scanCompleteHandler(void* arg);
-  static void connDoneHandler(void* arg, wl_status_t conn_status);
+  static void connDoneHandler(void* arg, const String& ssid, wl_status_t conn_status);
 
 private:
   String _sel_ssid;
