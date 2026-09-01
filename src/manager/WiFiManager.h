@@ -21,7 +21,7 @@ namespace pixeler
   class WiFiManager
   {
   public:
-    using ConnectCompleteHandler = std::function<void(void* arg, wl_status_t conn_status)>;
+    using ConnectCompleteHandler = std::function<void(void* arg, const String& ssid, wl_status_t conn_status)>;
     using ScanCompleteHandler = std::function<void(void* arg)>;
 
     enum WiFiPowerLevel : uint8_t
@@ -41,7 +41,7 @@ namespace pixeler
      * до точки доступу у разі невдачі або втрати з'єднання
      * @return true - Якщо запуск спроби підключення виконано успішно. false - Якщо не вдалося розпочати підключення
      */
-    bool tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan = 1, bool autoreconnect = false);
+    bool tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan = 6, bool autoreconnect = false);
 
     /**
      * @brief Запускає асинхронну спробу підключення до відомої точки доступу із заданими параметрами.
@@ -53,7 +53,7 @@ namespace pixeler
      * @return true - Якщо запуск спроби підключення виконано успішно. false - Якщо не вдалося розпочати підключення,
      * або точка доступу не є відомою
      */
-    bool tryConnectToKnown(const String& ssid, uint8_t wifi_chan = 1, bool autoreconnect = false);
+    bool tryConnectToKnown(const String& ssid, uint8_t wifi_chan = 6, bool autoreconnect = false);
 
     /**
      * @brief Зберігає ім'я точки доступу та пароль до неї без шифрування на карту пам'яті.
@@ -247,6 +247,8 @@ namespace pixeler
     static void onEvent(WiFiEvent_t event);
 
   private:
+    String _last_ssid;
+
     ScanCompleteHandler _scan_complete_handler{nullptr};
     ConnectCompleteHandler _connect_complete_handler{nullptr};
 

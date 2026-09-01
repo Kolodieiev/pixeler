@@ -46,6 +46,7 @@ namespace pixeler
     }
 
     _is_busy = true;
+    _last_ssid = ssid;
     return true;
   }
 
@@ -301,8 +302,6 @@ namespace pixeler
 
   void WiFiManager::disconnect()
   {
-    _connect_complete_handler = nullptr;
-    _scan_complete_handler = nullptr;
     WiFi.disconnect();
     delay(100);
   }
@@ -369,7 +368,7 @@ namespace pixeler
     log_i("WiFi.status: %d", WiFi.status());
 
     if (_connect_complete_handler)
-      _connect_complete_handler(_connect_complete_handler_arg, WiFi.status());
+      _connect_complete_handler(_connect_complete_handler_arg, _last_ssid, WiFi.status());
   }
 
   void WiFiManager::invokeScanDoneHandler()
