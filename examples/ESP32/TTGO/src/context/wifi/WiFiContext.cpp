@@ -68,7 +68,7 @@ void WiFiContext::showMainTmpl()
   _main_menu->setWidth(UI_WIDTH);
   _main_menu->setHeight(UI_HEIGHT);
   _main_menu->setItemHeight(40);
-  _main_menu->setLoopState(true);
+  _main_menu->setLooped(true);
 
   // Add state item
   ToggleItem* wifi_state_item = new ToggleItem(ID_ITEM_WIFI_STATE);

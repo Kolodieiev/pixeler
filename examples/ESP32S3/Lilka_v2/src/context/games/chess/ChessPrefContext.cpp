@@ -43,7 +43,7 @@ namespace chess
     menu->setWidth(UI_WIDTH);
     menu->setHeight(UI_HEIGHT);
     menu->setItemHeight(UI_HEIGHT / MENU_ITEM_NUM - 2);
-    menu->setLoopState(true);
+    menu->setLooped(true);
 
     // nick
     MenuItem* nick_item = WidgetCreator::getMenuItem(ID_ITEM_NICK);

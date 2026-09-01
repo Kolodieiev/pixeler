@@ -146,7 +146,7 @@ int lua_menu_set_loop_state(lua_State* L)
 {
   FixedMenu* menu = *static_cast<FixedMenu**>(luaL_checkudata(L, 1, STR_TYPE_NAME_MENU));
   bool state = lua_toboolean(L, 2);
-  menu->setLoopState(state);
+  menu->setLooped(state);
   return 0;
 }
 
@@ -180,7 +180,7 @@ const struct luaL_Reg TYPE_METH_MENU[] = {
     {"getCurrItemText", lua_menu_get_curr_item_text},
     {"setItemsSpacing", lua_menu_set_item_spacing},
     {"addItem", lua_menu_add_item},
-    {"setLoopState", lua_menu_set_loop_state},
+    {"setLooped", lua_menu_set_loop_state},
     {"setCurrFocusPos", lua_menu_set_curr_focus_pos},
     {STR_LUA_WIDGET_CLONE, lua_menu_clone},
     {STR_LUA_UNLOAD, lua_menu_unload},

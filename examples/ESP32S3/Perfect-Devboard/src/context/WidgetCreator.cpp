@@ -492,7 +492,7 @@ FixedMenu* WidgetCreator::getContextMenu(uint16_t id)
   context_menu->setBackColor(COLOR_MAIN_BACK);
   context_menu->setBorderColor(COLOR_ORANGE);
   context_menu->setBorder(true);
-  context_menu->setLoopState(true);
+  context_menu->setLooped(true);
 
   return context_menu;
 }

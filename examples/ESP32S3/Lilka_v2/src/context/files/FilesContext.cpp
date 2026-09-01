@@ -264,7 +264,7 @@ void FilesContext::showContextMenu()
   _context_menu->setBackColor(COLOR_BLACK);
   _context_menu->setBorder(true);
   _context_menu->setBorderColor(COLOR_ORANGE);
-  _context_menu->setLoopState(true);
+  _context_menu->setLooped(true);
 
   if (_has_moving_file || _has_copying_file)
   {
