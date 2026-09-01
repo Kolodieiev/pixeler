@@ -76,7 +76,7 @@ namespace pixeler
      * @param state Якщо true - меню буде зациклене.
      * Якщо false - фокус не буде переходити на протилежний край списку при досягненні його кінця.
      */
-    void setLoopState(bool state);
+    void setLooped(bool state);
 
     /**
      * @brief Встановлює фокус в списку на віджеті за його порядковим номером у контейнері.

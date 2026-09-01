@@ -165,7 +165,7 @@ namespace pixeler
     return true;
   }
 
-  void FixedMenu::setLoopState(bool state)
+  void FixedMenu::setLooped(bool state)
   {
     _is_loop_enbl = state;
   }
