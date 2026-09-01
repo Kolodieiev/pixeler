@@ -109,8 +109,13 @@ const char STR_SERVER_CONNECT[] = "Підключення до сервера";
 const char STR_SERVER_CONNECT_ERR[] = "Помилка підключення до сервера";
 const char STR_SERVER_IS_BUSY[] = "Сервер зайнятий";
 const char STR_WAITING_GAME[] = "Очікуйте запуск гри";
-const char STR_CLIENT_DISCONNECTED[] = "Від'єднано від сервера";
-
+const char STR_CLIENT_DISCONNECTED[] = "Втрачено з'єднання з сервером";
+//
+const char STR_ERR_INCORRECT_SERVER[] = "Некоректний сервер гри";
+const char STR_ERR_INCORRECT_NAME[] = "Некоректний нікнейм";
+const char STR_ERR_ACCESS_DENIED[] = "В приєднанні відмовлено";
+const char STR_ERR_SERVER_BUSY[] = "Сервер зайнятий";
+const char STR_ERR_UNKNOWN[] = "Невідома помилка";
 //
 const char STR_EMPTY_BAT[] = "0.00";
 //
