@@ -26,7 +26,7 @@ namespace chess
     };
 
     explicit Board(uint16_t x_glob_offset, uint16_t y_glob_offset, uint16_t x_loc_offset, uint16_t y_loc_offset, uint16_t square_size, uint16_t piece_size);
-    ~Board();
+    ~Board(); // TODO встановити хто ходить перший
 
     void addPiece(IPiece* piece);
     void reset();

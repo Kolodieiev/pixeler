@@ -31,6 +31,8 @@ namespace chess
     static void onConfirmationHandler(const String client_name, void* arg);  // Обробник запиту на підключення
     static void onDisconnectHandler(const String client_name, void* arg);    // Обробник відключення клієнта
 
+    void startGame();
+
   private:
     using StateHandler = void (ChessServerContext::*)();
 

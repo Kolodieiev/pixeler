@@ -2,7 +2,7 @@
 
 #include "../../WidgetCreator.h"
 #include "ChessClientContext.h"
-#include "ChessOfflineContext.h"
+#include "LocalChessContext.h"
 #include "ChessPrefContext.h"
 #include "ChessServerContext.h"
 #include "context/games/GameListContext.h"
@@ -110,11 +110,11 @@ namespace chess
       switch (id)
       {
         case ID_ITEM_ONE_PLAYER:
-          openContext(new ChessOfflineContext(1));
+          openContext(new LocalChessContext(1));
           break;
 
         case ID_ITEM_TWO_PLAYERS:
-          openContext(new ChessOfflineContext(2));
+          openContext(new LocalChessContext(2));
           break;
 
         case ID_ITEM_CLIENT:

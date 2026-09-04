@@ -3,6 +3,8 @@
 #include "../../WidgetCreator.h"
 #include "ChessContext.h"
 #include "manager/SettingsManager.h"
+#include "manager/WiFiManager.h"
+#include "scene/ServerChessScene.h"
 
 namespace chess
 {
@@ -24,12 +26,16 @@ namespace chess
     if (server_pwd.isEmpty())
       server_pwd = STR_DEF_PWD;
 
-    _server.begin(STR_CHESS_GAME_ID, server_name, server_pwd, true, 3);
+    _wifi_was_enabled = _wifi.isEnabled();
+
+    _server.begin(STR_CHESS_GAME_ID, server_name, server_pwd, 3);
     _server.open();
   }
 
   ChessServerContext::~ChessServerContext()
   {
+    if (!_wifi_was_enabled)
+      _wifi.disable();
   }
 
   //----------------------------------------------------------------------------------------------------------
@@ -53,21 +59,23 @@ namespace chess
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
 
-    Label* empty_lobby_msg = new Label(ID_EMPTY_MSG);
-    layout->addWidget(empty_lobby_msg);
-
-    empty_lobby_msg->setText(STR_MISSING_CLIENTS);
-    empty_lobby_msg->setWidth(UI_WIDTH);
-    empty_lobby_msg->setAutoscroll(true);
-    empty_lobby_msg->setBackColor(layout->getBackColor());
-    empty_lobby_msg->setPos(0, getCenterY(empty_lobby_msg));
-    empty_lobby_msg->setAlign(IWidget::ALIGN_CENTER);
-    empty_lobby_msg->setGravity(IWidget::GRAVITY_CENTER);
-
     const std::unordered_map<uint32_t, pixeler::ClientSession>* clients = _server.getClients();
 
     if (clients->empty())
+    {
+      Label* empty_lobby_msg = new Label(ID_EMPTY_MSG);
+      layout->addWidget(empty_lobby_msg);
+
+      empty_lobby_msg->setText(STR_MISSING_CLIENTS);
+      empty_lobby_msg->setWidth(UI_WIDTH);
+      empty_lobby_msg->setAutoscroll(true);
+      empty_lobby_msg->setBackColor(layout->getBackColor());
+      empty_lobby_msg->setPos(0, getCenterY(empty_lobby_msg));
+      empty_lobby_msg->setAlign(IWidget::ALIGN_CENTER);
+      empty_lobby_msg->setGravity(IWidget::GRAVITY_CENTER);
+
       return;
+    }
 
     FixedMenu* clients_menu = new FixedMenu(ID_CLIENT_LIST);
     layout->addWidget(clients_menu);
@@ -76,6 +84,7 @@ namespace chess
     clients_menu->setHeight(UI_HEIGHT);
     clients_menu->setItemHeight(UI_HEIGHT / 4 - 2);
     clients_menu->setPos(DISPLAY_PADDING, 0);
+    clients_menu->setLooped(true);
 
     uint16_t item_id_counter = 1;
 
@@ -98,9 +107,9 @@ namespace chess
     else if (_input.isPressed(BtnID::BTN_OK))
       showLobbyContextMenuTmpl();
     else if (_input.isReleased(BtnID::BTN_UP))
-      showLobbyContextMenuTmpl();
+      scrollClientsMenu(true);
     else if (_input.isReleased(BtnID::BTN_DOWN))
-      showLobbyContextMenuTmpl();
+      scrollClientsMenu(false);
   }
 
   //----------------------------------------------------------------------------------------------------------
@@ -181,13 +190,14 @@ namespace chess
           _server.toggle();
           break;
         case ID_ITEM_START_GAME:
-          _server.close();
-          // TODO start game
+          startGame();
           break;
         case ID_ITEM_KICK_CLIENT:
         {
           FixedMenu* client_list = getLayout()->getWidgetByID(ID_CLIENT_LIST)->castTo<FixedMenu>();
-          _server.removeClient(client_list->getCurrItemText());
+          _server.removeSession(client_list->getCurrItemText());
+          showLobbyTmpl();
+          return;
         }
         break;
 
@@ -209,6 +219,20 @@ namespace chess
     }
   }
 
+  void ChessServerContext::scrollClientsMenu(bool scroll_up)
+  {
+    IWidget* raw_menu = getLayout()->getWidgetByID(ID_CLIENT_LIST);
+    if (raw_menu)
+    {
+      FixedMenu* clients_menu = raw_menu->castTo<FixedMenu>();
+
+      if (scroll_up)
+        clients_menu->focusUp();
+      else
+        clients_menu->focusDown();
+    }
+  }
+
   //----------------------------------------------------------------------------------------------------------
 
   void ChessServerContext::showClientConfirmTmpl(String client_name)
@@ -221,7 +245,6 @@ namespace chess
     Label* confirm_title = new Label(ID_LBL_CONFIRM_TITLE);
     layout->addWidget(confirm_title);
     confirm_title->setText(STR_WANTS_TO_JOIN);
-    confirm_title->setTextColor(COLOR_BLACK);
     confirm_title->setBackColor(COLOR_MAIN_BACK);
     confirm_title->setGravity(IWidget::GRAVITY_CENTER);
     confirm_title->setWidth(UI_WIDTH);
@@ -232,8 +255,8 @@ namespace chess
     layout->addWidget(name_lbl);
     name_lbl->setText(client_name);
     name_lbl->setPos(0, confirm_title->getBottomYPos() + 5);
-    name_lbl->setBackColor(COLOR_GREEN);
     name_lbl->setFont(font_inr24);
+    name_lbl->setTextColor(COLOR_GREEN);
 
     Label* confirm_way = confirm_title->clone(ID_LBL_CONFIRM_WAY);
     layout->addWidget(confirm_way);
@@ -278,4 +301,13 @@ namespace chess
   }
 
   //----------------------------------------------------------------------------------------------------------
+
+  void ChessServerContext::startGame()
+  {
+    _server.close();
+    // TODO start game _server.broadcastGameStarted();
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
 }  // namespace chess

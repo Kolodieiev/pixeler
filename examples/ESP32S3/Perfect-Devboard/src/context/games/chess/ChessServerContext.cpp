@@ -4,6 +4,7 @@
 #include "ChessContext.h"
 #include "manager/SettingsManager.h"
 #include "manager/WiFiManager.h"
+#include "scene/ServerChessScene.h"
 
 namespace chess
 {
@@ -27,7 +28,7 @@ namespace chess
 
     _wifi_was_enabled = _wifi.isEnabled();
 
-    _server.begin(STR_CHESS_GAME_ID, server_name, server_pwd, true, 3);
+    _server.begin(STR_CHESS_GAME_ID, server_name, server_pwd, 3);
     _server.open();
   }
 
@@ -189,13 +190,12 @@ namespace chess
           _server.toggle();
           break;
         case ID_ITEM_START_GAME:
-          _server.close();
-          // TODO start game
+          startGame();
           break;
         case ID_ITEM_KICK_CLIENT:
         {
           FixedMenu* client_list = getLayout()->getWidgetByID(ID_CLIENT_LIST)->castTo<FixedMenu>();
-          _server.removeClient(client_list->getCurrItemText());
+          _server.removeSession(client_list->getCurrItemText());
           showLobbyTmpl();
           return;
         }
@@ -301,4 +301,13 @@ namespace chess
   }
 
   //----------------------------------------------------------------------------------------------------------
+
+  void ChessServerContext::startGame()
+  {
+    _server.close();
+    // TODO start game _server.broadcastGameStarted();
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
 }  // namespace chess

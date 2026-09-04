@@ -68,6 +68,7 @@ const char STR_SD_ERR[] = "SD не примонтовано";
 const char STR_AP_NAME[] = "SSID:";
 const char STR_AP_PWD[] = "PASSWORD:";
 const char STR_REM_IP[] = "192.168.4.1";
+const char STR_DEF_NAME[] = "Player_1";
 const char STR_DEF_SSID[] = "Pixeler";
 const char STR_DEF_PWD[] = "12345678";
 
@@ -102,14 +103,19 @@ const char STR_REJECT_WAY[] = "Відхилити -> BTN_BACK";
 const char STR_AP_SCANNING[] = "Зачекайте, відбувається сканування";
 const char STR_AP_NOT_FOUND[] = "Точки доступу не виявлено";
 const char STR_ENTER_PWD[] = "Введіть пароль до: ";
-const char STR_AP_CONNECT[] = "Очікуємо підключення до: ";
+const char STR_AP_CONNECT[] = "Підключення до точки доступу";
 const char STR_AP_CONNECT_ERR[] = "Помилка підключення до точки доступу";
 const char STR_SERVER_CONNECT[] = "Підключення до сервера";
 const char STR_SERVER_CONNECT_ERR[] = "Помилка підключення до сервера";
 const char STR_SERVER_IS_BUSY[] = "Сервер зайнятий";
 const char STR_WAITING_GAME[] = "Очікуйте запуск гри";
-const char STR_CLIENT_DISCONNECTED[] = "Від'єднано від сервера";
-
+const char STR_CLIENT_DISCONNECTED[] = "Втрачено з'єднання з сервером";
+//
+const char STR_ERR_INCORRECT_SERVER[] = "Некоректний сервер гри";
+const char STR_ERR_INCORRECT_NAME[] = "Некоректний нікнейм";
+const char STR_ERR_ACCESS_DENIED[] = "В приєднанні відмовлено";
+const char STR_ERR_SERVER_BUSY[] = "Сервер зайнятий";
+const char STR_ERR_UNKNOWN[] = "Невідома помилка";
 //
 const char STR_EMPTY_BAT[] = "0.00";
 //

@@ -1,34 +1,35 @@
-#include "ChessOfflineContext.h"
+#include "LocalChessContext.h"
 
 #include "ChessClientContext.h"
 #include "ChessContext.h"
 #include "ChessServerContext.h"
-#include "scene/ChessScene.h"
+#include "scene/AIChessScene.h"
+#include "scene/SingleChessScene.h"
 
 namespace chess
 {
-  ChessOfflineContext::ChessOfflineContext(uint8_t player_num)
+  LocalChessContext::LocalChessContext(uint8_t player_num)
   {
     if (player_num == 1)  // Проти ПК // TODO
     {
-      _scene = new ChessScene(_stored_objs, 1);
+      _scene = new SingleChessScene(_stored_objs);
     }
     else
     {
-      _scene = new ChessScene(_stored_objs, 2);
+      _scene = new SingleChessScene(_stored_objs);
     }
   }
 
-  ChessOfflineContext::~ChessOfflineContext()
+  LocalChessContext::~LocalChessContext()
   {
   }
 
-  bool ChessOfflineContext::loop()
+  bool LocalChessContext::loop()
   {
     return true;
   }
 
-  void ChessOfflineContext::update()
+  void LocalChessContext::update()
   {
     _scene->update();
 

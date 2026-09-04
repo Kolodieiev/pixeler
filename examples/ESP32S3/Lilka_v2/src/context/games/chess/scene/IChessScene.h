@@ -5,35 +5,24 @@
 #include "game/2D/IGameScene2D.h"
 #include "widget/text/Label.h"
 
-using namespace pixeler;
-
 namespace chess
 {
-  class ChessScene : public IGameScene2D
+  class IChessScene : public IGameScene2D
   {
   public:
-    explicit ChessScene(DataStream& stored_objs, uint8_t players_num = 1);
-    virtual ~ChessScene();
+    explicit IChessScene(DataStream& stored_objs, bool is_white);
+    virtual ~IChessScene();
 
     virtual void update() override;
 
   protected:
-    virtual void onTriggered(uint16_t id) override;
-
-  private:
-    enum GameMode : uint8_t
-    {
-      GAME_MODE_ONE_PL = 1,
-      GAME_MODE_TWO_PL,
-      GAME_MODE_CLIENT,
-      GAME_MODE_SERVER,
-    };
+    virtual void onTriggered(uint16_t id) = 0;
 
     void buildTerrain();      // Завантажити ігровий рівень
     void createMainObj();     // Створюємо об'єкт прив'язки камери
     void prepareBoard();      // Розмістити шахи на стартові позиції
     void createSpiteTmpls();  // Згенерувати спрайтові шаблони для ігрових об'єктів
-    //
+
     void moveCursorUp();
     void moveCursorDown();
     void moveCursorLeft();
@@ -41,7 +30,7 @@ namespace chess
     void handleOkClick();
     void clearCurrSelect();
 
-  private:
+  protected:
     std::vector<Position> _possible_moves;
     Board _board;
     CameraObj* _camera{nullptr};
@@ -55,7 +44,6 @@ namespace chess
     uint8_t _cur_poss_position{0};
 
     bool _is_piece_selected{false};
-
-    const GameMode _GAME_MODE;
+    const bool IS_WHITE; // TODO sort to private
   };
 }  // namespace chess

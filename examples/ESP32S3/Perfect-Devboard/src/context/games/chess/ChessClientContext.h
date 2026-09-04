@@ -43,8 +43,8 @@ namespace chess
 
     static void onClientConnectHandler(void* arg);                                  // Обробник події підключення до сервера
     static void onClientDisconnectHandler(void* arg);                               // Обробник події відключення від сервера
-    static void onClientDataHandler(const pixeler::UdpPacket& packet, void* arg);   // Обробник події отримання даних від сервера
     static void onClientErrorHandler(pixeler::GameClient::Error error, void* arg);  // Обробник події отримання помилки клієнта
+    static void onGameStartHandler(void* arg);    // Обробник події запуску гри
 
     static void onScanCompleteHandler(void* arg);                                       // Обробник події завешення сканування точок доступу
     static void onApConnectHandler(void* arg, const String& ssid, wl_status_t status);  // Обробник події заверешення спроби підключення до точки доступу

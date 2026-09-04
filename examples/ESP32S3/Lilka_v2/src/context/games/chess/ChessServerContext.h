@@ -22,6 +22,7 @@ namespace chess
     void showLobbyContextMenuTmpl();  // Показати контекстне меню ігрового лобі сервера
     void hideLobbyContextMenu();      // Приховати контекстне меню ігрового лобі сервера
     void handleContextMenuInput();    // Обробка клавіш контекстного меню ігрового лобі
+    void scrollClientsMenu(bool scroll_up = false);
 
     void showClientConfirmTmpl(String client_name);  // Показати повідомлення про підключення клієнта
     void handleClientConfirmInput();                 // Прийняти або відхилити клієнта
@@ -29,6 +30,8 @@ namespace chess
 
     static void onConfirmationHandler(const String client_name, void* arg);  // Обробник запиту на підключення
     static void onDisconnectHandler(const String client_name, void* arg);    // Обробник відключення клієнта
+
+    void startGame();
 
   private:
     using StateHandler = void (ChessServerContext::*)();
@@ -54,5 +57,7 @@ namespace chess
     pixeler::GameServer _server;
 
     StateHandler _state_input_handler{nullptr};
+
+    bool _wifi_was_enabled{false};
   };
 }  // namespace chess

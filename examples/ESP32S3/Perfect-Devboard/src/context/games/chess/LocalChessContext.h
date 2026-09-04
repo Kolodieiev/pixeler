@@ -1,14 +1,15 @@
 #pragma once
 
 #include "IChessGameContext.h"
+#include "scene/IChessScene.h"
 
 namespace chess
 {
-  class ChessOfflineContext : public IChessGameContext
+  class LocalChessContext : public IChessGameContext
   {
   public:
-    ChessOfflineContext(uint8_t player_num);
-    virtual ~ChessOfflineContext();
+    LocalChessContext(uint8_t player_num);
+    virtual ~LocalChessContext();
 
   protected:
     virtual bool loop() override;

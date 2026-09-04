@@ -3,6 +3,7 @@
 #include "../../WidgetCreator.h"
 #include "ChessContext.h"
 #include "manager/SettingsManager.h"
+#include "scene/ClientChessScene.h"
 #include "widget/text/TextBox.h"
 
 namespace chess
@@ -281,7 +282,7 @@ namespace chess
 
     _client.onConnect(onClientConnectHandler, this);
     _client.onDisconnect(onClientDisconnectHandler, this);
-    _client.onData(onClientDataHandler, this);
+    _client.onGameStart(onGameStartHandler, this);
     _client.OnError(onClientErrorHandler, this);
 
     String client_name = SettingsManager::get(STR_PREF_NICKNAME, STR_CHESS_GAME_DIR);
@@ -314,7 +315,7 @@ namespace chess
   {
     _client.onConnect(nullptr, nullptr);
     _client.onDisconnect(nullptr, nullptr);
-    _client.onData(nullptr, nullptr);
+    _client.onGameStart(nullptr, nullptr);
     _client.OnError(nullptr, nullptr);
     _client.disconnect();
     showAPScanTmpl();
@@ -351,11 +352,6 @@ namespace chess
                { self->showStateLabelTmpl(STR_CLIENT_DISCONNECTED); });
   }
 
-  void ChessClientContext::onClientDataHandler(const pixeler::UdpPacket& packet, void* arg)
-  {
-    // TODO перехопити запуск гри та запустити ігрову сцену
-  }
-
   void ChessClientContext::onClientErrorHandler(pixeler::GameClient::Error error, void* arg)
   {
     ChessClientContext* self = static_cast<ChessClientContext*>(arg);
@@ -384,6 +380,13 @@ namespace chess
 
     self->post([self, err_msg]()
                { self->showStateLabelTmpl(err_msg); });
+  }
+
+  void ChessClientContext::onGameStartHandler(void* arg)
+  {
+    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
+
+    // TODO
   }
 
   //----------------------------------------------------------------------------------------------------------
