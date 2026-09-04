@@ -49,7 +49,7 @@ namespace pixeler
       return false;
     }
 
-    _nickname = client_name;
+    _login = client_name;
     _game_id = game_ID;
 
     if (!_wifi.isConnected())
@@ -158,10 +158,11 @@ namespace pixeler
     xSemaphoreGive(_udp_mutex);
   }
 
-  void GameClient::send(UdpPacket::PacketType type, const void* data, size_t data_size)
+  void GameClient::send(UdpPacket::PacketType type, uint8_t subtype, const void* data, size_t data_size)
   {
     UdpPacket pack(data_size);
     pack.setType(type);
+    pack.setSubtype(subtype);
     pack.write(data, data_size);
     sendPacket(pack);
   }
@@ -178,19 +179,21 @@ namespace pixeler
     log_i("Рукостискання...");
 
     UdpPacket packet(_game_id.length());
-    packet.setType(UdpPacket::TYPE_HANDSHAKE);
+    packet.setType(UdpPacket::TYPE_CONNECT);
+    packet.setSubtype(UdpPacket::SUBTYPE_HANDSHAKE);
     packet.write(_game_id.c_str(), _game_id.length());
 
     sendPacket(packet);
   }
 
-  void GameClient::sendName()
+  void GameClient::sendLogin()
   {
     log_i("Авторизація...");
 
-    UdpPacket packet(_nickname.length());
-    packet.setType(UdpPacket::TYPE_NAME);
-    packet.write(_nickname.c_str(), _nickname.length());
+    UdpPacket packet(_login.length());
+    packet.setType(UdpPacket::TYPE_CONNECT);
+    packet.setSubtype(UdpPacket::SUBTYPE_LOGIN);
+    packet.write(_login.c_str(), _login.length());
 
     sendPacket(packet);
   }
@@ -207,17 +210,11 @@ namespace pixeler
       case UdpPacket::TYPE_PING:
         handlePing();
         break;
-      case UdpPacket::TYPE_NAME:
-        handleConfirmResult(packet);
+      case UdpPacket::TYPE_CONNECT:
+        handleConnect(packet);
         break;
-      case UdpPacket::TYPE_HANDSHAKE:
-        handleHandshake(packet);
-        break;
-      case UdpPacket::TYPE_BUSY:
-        handleBusy();
-        break;
-      case UdpPacket::TYPE_NAME_INCORRECT:
-        handleIncorrectName();
+      case UdpPacket::TYPE_CLIENT_DATA:
+        handleClientData(packet);
         break;
       default:
         log_e("Неочікуваний тип пакета:");
@@ -248,9 +245,10 @@ namespace pixeler
 
   void GameClient::onPacket(void* arg, AsyncUDPPacket& packet)
   {
-    if (packet.length() > 1000 || packet.length() == 0)
+    size_t packet_len = packet.length();
+    if (packet_len > 1000 || packet_len < 2)
     {
-      log_e("Некоректний пакет");
+      log_e("Некоректний розмір пакета: %zu", packet_len);
       return;
     }
 
@@ -270,56 +268,75 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameClient::handleHandshake(const UdpPacket& packet)
+  void GameClient::handleConnect(const UdpPacket& packet)
   {
-    if (static_cast<uint8_t>(packet.getData()[0]) != 1)
+    uint8_t subtype = packet.getSubtype();
+
+    switch (subtype)
     {
-      log_i("Некоректний сервер гри");
-      invokeErrorHandler(ERR_INCORRECT_SERVER);
-      disconnect();
-    }
-    else
-    {
-      log_i("Сервер гри розпізнано");
-      sendName();
+      case UdpPacket::SUBTYPE_HANDSHAKE:
+        log_i("Сервер гри розпізнано");
+        sendLogin();
+        break;
+
+      case UdpPacket::SUBTYPE_INCORRECT_SERVER:
+        log_i("Некоректний сервер гри");
+        invokeErrorHandler(ERR_INCORRECT_SERVER);
+        disconnect();
+        break;
+
+      case UdpPacket::SUBTYPE_ACCESS_GRANTED:
+        log_i("Приєднано до сервера");
+        _status = STATUS_CONNECTED;
+        invokeConnectHandler();
+        break;
+
+      case UdpPacket::SUBTYPE_ACCESS_DENIED:
+        log_i("Приєднання відхилено сервером");
+        invokeErrorHandler(ERR_ACCESS_DENIED);
+        disconnect();
+        break;
+
+      case UdpPacket::SUBTYPE_INCORRECT_NAME:
+        log_i("Некоректне ім'я клієнта");
+        invokeErrorHandler(ERR_INCORRECT_NAME);
+        disconnect();
+        break;
+
+      case UdpPacket::SUBTYPE_BUSY:
+        log_i("Сервер зайнятий");
+        invokeErrorHandler(ERR_SERVER_BUSY);
+        disconnect();
+        break;
+
+      default:
+        log_e("Некоректний підтип пакету підключення: %u", subtype);
+        break;
     }
   }
 
-  void GameClient::handleConfirmResult(const UdpPacket& packet)
+  void GameClient::handleClientData(const UdpPacket& packet)
   {
-    if (static_cast<uint8_t>(packet.getData()[0]) != 1)
-    {
-      log_i("Приєднання відхилено сервером");
-      invokeErrorHandler(ERR_ACCESS_DENIED);
-      disconnect();
-    }
-    else
-    {
-      log_i("Приєднано до сервера");
-      _status = STATUS_CONNECTED;
-      invokeConnectHandler();
-    }
-  }
+    uint8_t subtype = packet.getSubtype();
 
-  void GameClient::handleIncorrectName()
-  {
-    log_i("Некоректне ім'я клієнта");
-    invokeErrorHandler(ERR_INCORRECT_NAME);
-    disconnect();
-  }
+    switch (subtype)
+    {
+      case UdpPacket::SUBTYPE_START_GAME:
+        log_i("Гра розпочинаєтсья");
+        invokeGameStartHandler();
+        break;
 
-  void GameClient::handleBusy()
-  {
-    log_i("Сервер зайнятий");
-    invokeErrorHandler(ERR_SERVER_BUSY);
-    disconnect();
+      default:
+        log_e("Некоректний підтип пакету клієнтських даних: %u", subtype);
+        break;
+    }
   }
 
   void GameClient::handlePing()
   {
     _last_act_time = millis();
 
-    UdpPacket packet(1);
+    UdpPacket packet;
     packet.setType(UdpPacket::TYPE_PING);
 
     sendPacket(packet);
@@ -385,6 +402,18 @@ namespace pixeler
     _disconnect_handler(_disconnect_arg);
   }
 
+  void GameClient::invokeGameStartHandler()
+  {
+    if (!_game_start_handler) [[unlikely]]
+    {
+      log_e("Не встановлено обробник старту гри");
+      return;
+    }
+
+    log_i("Викликаю game_start_handler");
+    _game_start_handler(_game_start_arg);
+  }
+
   void GameClient::invokeErrorHandler(Error error)
   {
     if (!_error_handler) [[unlikely]]
@@ -409,6 +438,12 @@ namespace pixeler
   {
     _connect_handler = handler;
     _connect_arg = arg;
+  }
+
+  void GameClient::onGameStart(GameStartHandler handler, void* arg)
+  {
+    _game_start_handler = handler;
+    _game_start_arg = arg;
   }
 
   void GameClient::OnError(ErrorHandler handler, void* arg)

@@ -28,7 +28,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  bool GameServer::begin(const String& game_ID, const String& server_name, const String& pwd, bool is_local, uint8_t max_connection, uint8_t wifi_chan)
+  bool GameServer::begin(const String& game_ID, const String& server_name, const String& pwd, uint8_t max_connection, bool is_local, uint8_t wifi_chan)
   {
     _game_id = game_ID;
     _max_connection = max_connection;
@@ -56,12 +56,12 @@ namespace pixeler
     _server.onPacket(onPacket, this);
     _server.listen(GAME_SERVER_PORT);
 
-    _client_mutex = xSemaphoreCreateMutex();
+    _sessions_mutex = xSemaphoreCreateMutex();
     _udp_mutex = xSemaphoreCreateMutex();
 
-    if (!_client_mutex)
+    if (!_sessions_mutex)
     {
-      log_e("Не вдалося створити _client_mutex");
+      log_e("Не вдалося створити _sessions_mutex");
       esp_restart();
     }
 
@@ -105,12 +105,12 @@ namespace pixeler
 
     _is_freed = true;
 
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
     _server.close();
-    _clients.clear();
+    _sessions.clear();
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
 
     if (_ping_task_handler)
     {
@@ -124,10 +124,10 @@ namespace pixeler
       _packet_task_handler = nullptr;
     }
 
-    if (_client_mutex)
+    if (_sessions_mutex)
     {
-      vSemaphoreDelete(_client_mutex);
-      _client_mutex = nullptr;
+      vSemaphoreDelete(_sessions_mutex);
+      _sessions_mutex = nullptr;
     }
 
     if (_udp_mutex)
@@ -159,21 +159,25 @@ namespace pixeler
 
   void GameServer::close()
   {
+    if (!_is_open)
+      return;
+
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
     _is_open = false;
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
-    for (auto it = _clients.begin(), last_it = _clients.end(); it != last_it;)
+
+    for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it;)
     {
       if (!it->second.isConfirmed())
       {
-        it = _clients.erase(it);
-        last_it = _clients.end();
+        it = _sessions.erase(it);
+        last_it = _sessions.end();
       }
       else
       {
         ++it;
       }
     }
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
     log_i("Сервер закрито");
   }
 
@@ -192,199 +196,230 @@ namespace pixeler
 
   bool GameServer::isFull() const
   {
-    return _max_connection == _confirmed_clients_num;
+    return _max_connection == _confirmed_sessions_num;
+  }
+
+  void GameServer::broadcastGameStarted()
+  {
+    close();
+
+    UdpPacket packet;
+    packet.setType(UdpPacket::TYPE_CLIENT_DATA);
+    packet.setSubtype(UdpPacket::SUBTYPE_START_GAME);
+
+    sendBroadcast(packet);
+
+    log_i("Повідомлення про СТАРТ розіслано");
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::sendBroadcast(UdpPacket::PacketType type, const void* data, size_t data_size)
+  void GameServer::sendBroadcast(UdpPacket::PacketType type, uint8_t subtype, const void* data, size_t data_size)
   {
     UdpPacket pack(data_size);
     pack.setType(type);
+    pack.setSubtype(subtype);
     pack.write(data, data_size);
     sendBroadcast(pack);
   }
 
   void GameServer::sendBroadcast(const UdpPacket& packet)
   {
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
-    for (auto it = _clients.begin(), last_it = _clients.end(); it != last_it; ++it)
+    for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
       sendPacket(it->second, packet);
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
   }
 
-  void GameServer::sendPacket(const ClientSession& client, UdpPacket::PacketType type, const void* data, size_t data_size)
+  void GameServer::sendPacket(const ClientSession& session, UdpPacket::PacketType type, uint8_t subtype, const void* data, size_t data_size)
   {
     UdpPacket pack(data_size);
     pack.setType(type);
+    pack.setSubtype(subtype);
     pack.write(data, data_size);
 
-    sendPacket(client, pack);
+    sendPacket(session, pack);
   }
 
-  void GameServer::sendPacket(const ClientSession& client, const UdpPacket& packet)
+  void GameServer::sendPacket(const ClientSession& session, const UdpPacket& packet)
   {
     xSemaphoreTake(_udp_mutex, portMAX_DELAY);
-    _server.writeTo(packet.raw(), packet.length(), client.getIP(), client.getPort());
+    _server.writeTo(packet.raw(), packet.length(), session.getIP(), session.getPort());
     xSemaphoreGive(_udp_mutex);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::removeClient(const String& client_name)
+  void GameServer::removeSession(const String& client_name)
   {
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
-    for (auto it = _clients.begin(), last_it = _clients.end(); it != last_it; ++it)
+    for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
     {
       if (it->second.hasName(client_name))
       {
-        _clients.erase(it);
+        _sessions.erase(it);
         break;
       }
     }
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
   }
 
-  void GameServer::removeClient(IPAddress remote_ip)
+  void GameServer::removeSession(const IPAddress& remote_ip)
   {
-    uint32_t cl_ip = remote_ip;
-    if (cl_ip == 0)
+    uint32_t session_ip = remote_ip;
+    if (session_ip == 0)
       return;
 
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
-    auto it = _clients.find(remote_ip);
-    if (it != _clients.end())
-      _clients.erase(it);
+    auto it = _sessions.find(session_ip);
+    if (it != _sessions.end())
+      _sessions.erase(it);
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
   }
 
-  ClientSession* GameServer::findClient(IPAddress remote_ip)
+  ClientSession* GameServer::findSession(const IPAddress& remote_ip)
   {
-    uint32_t cl_ip = remote_ip;
-    if (cl_ip == 0)
+    uint32_t ip = remote_ip;
+    if (ip == 0U)
       return nullptr;
 
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
-    auto it = _clients.find(remote_ip);
+    auto it = _sessions.find(remote_ip);
 
-    if (it == _clients.end())
+    if (it == _sessions.end())
     {
-      xSemaphoreGive(_client_mutex);
+      xSemaphoreGive(_sessions_mutex);
       return nullptr;
     }
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
     return &it->second;
   }
 
-  ClientSession* GameServer::findClient(const String& name)
+  ClientSession* GameServer::findSession(const String& name)
   {
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
-    for (auto it = _clients.begin(), last_it = _clients.end(); it != last_it; ++it)
+    for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
       if (it->second.hasName(name))
       {
-        xSemaphoreGive(_client_mutex);
+        xSemaphoreGive(_sessions_mutex);
         return &it->second;
       }
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
     return nullptr;
   }
 
-  const ClientSession* GameServer::findClient(IPAddress remote_ip) const
+  const ClientSession* GameServer::findSession(const IPAddress& remote_ip) const
   {
-    return findClient(remote_ip);
+    return findSession(remote_ip);
   }
 
-  const ClientSession* GameServer::findClient(const String& name) const
+  const ClientSession* GameServer::findSession(const String& name) const
   {
-    return findClient(name);
+    return findSession(name);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::sendNameRespMsg(const ClientSession& client, bool result)
+  void GameServer::sendNameRespMsg(const ClientSession& session, bool result)
   {
+    UdpPacket packet;
+    packet.setType(UdpPacket::TYPE_CONNECT);
+
     if (!result)
-      log_i("Авторизацію відхилено: %s", client.getName());
+    {
+      packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_DENIED);
+      log_i("Авторизацію відхилено: %s", session.getName());
+    }
     else
-      log_i("Авторизовано: %s", client.getName());
+    {
+      packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_GRANTED);
+      log_i("Авторизовано: %s", session.getName());
+    }
 
-    uint8_t resp = result;
-    UdpPacket packet(sizeof(resp));
-    packet.setType(UdpPacket::TYPE_NAME);
-    packet.write(&resp, sizeof(resp));
-
-    sendPacket(client, packet);
+    sendPacket(session, packet);
   }
 
-  void GameServer::sendNameIncorrectMsg(const ClientSession& client)
+  void GameServer::sendIncorrectName(const ClientSession& session)
   {
     log_i("Некоректне ім'я клієнта");
 
-    uint8_t data = 1;
-    UdpPacket packet(sizeof(data));
-    packet.setType(UdpPacket::TYPE_NAME_INCORRECT);
-    packet.write(&data, sizeof(data));
+    UdpPacket packet;
+    packet.setType(UdpPacket::TYPE_CONNECT);
+    packet.setSubtype(UdpPacket::SUBTYPE_INCORRECT_NAME);
 
-    sendPacket(client, packet);
+    sendPacket(session, packet);
   }
 
-  void GameServer::sendBusyMsg(const ClientSession& client)
+  void GameServer::sendBusy(const ClientSession& session)
   {
     log_i("Сервер зайнятий");
 
-    uint8_t data = 1;
-    UdpPacket packet(sizeof(data));
-    packet.setType(UdpPacket::TYPE_BUSY);
-    packet.write(&data, sizeof(data));
+    UdpPacket packet;
+    packet.setType(UdpPacket::TYPE_CONNECT);
+    packet.setSubtype(UdpPacket::SUBTYPE_BUSY);
 
-    sendPacket(client, packet);
+    sendPacket(session, packet);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameServer::handleHandshake(const UdpPacket& packet)
   {
-    uint8_t result = packet.isDataEquals(_game_id.c_str());
+    UdpPacket out_packet;
+    out_packet.setType(UdpPacket::TYPE_CONNECT);
 
-    UdpPacket resp_msg{sizeof(result)};
-    resp_msg.setType(UdpPacket::TYPE_HANDSHAKE);
-    resp_msg.write(&result, sizeof(result));
-    _server.writeTo(resp_msg.raw(), resp_msg.length(), packet.getRemoteIP(), packet.getRemotePort());
+    if (packet.isDataEquals(_game_id.c_str()))
+    {
+      out_packet.setSubtype(UdpPacket::SUBTYPE_HANDSHAKE);
+      log_i("Відкрито сеанс для IP: %s", packet.getRemoteIP().toString());
+    }
+    else
+    {
+      out_packet.setSubtype(UdpPacket::SUBTYPE_INCORRECT_SERVER);
+      log_i("Невдала спроба приєднатися ігровим клієнтом [%s] до [%s]", packet.dataToString().c_str(), _game_id.c_str());
+    }
+
+    _server.writeTo(out_packet.raw(), out_packet.length(), packet.getRemoteIP(), packet.getRemotePort());
   }
 
-  void GameServer::handleName(ClientSession& client, const UdpPacket& packet)
+  void GameServer::handleLogin(ClientSession& session, const UdpPacket& packet)
   {
+    if (packet.getSubtype() != UdpPacket::SUBTYPE_LOGIN)
+      return;
+
     log_i("Запит авторизації");
 
-    if (client.isConfirmed())
+    if (session.isConfirmed())
     {
       /* Помилкова повторна авторизація вже авторизованого клієнта.
-       * Мусить дочекатися видалення з сервера через 3 сек. */
-      sendNameRespMsg(client, false);
+       * Мусить дочекатися видалення з сервера через 3 сек,
+       * якщо відключився випадково самостійно. */
+      sendNameRespMsg(session, false);
       return;
     }
 
-    if (packet.dataLen() > 20 || _server_name.equals(packet.getData()) || findClient((const String&)packet.getData()))
+    String client_name = packet.dataToString();
+    if (packet.getDataLen() > 40 || client_name.equals(_server_name) || findSession(client_name))
     {
-      sendNameIncorrectMsg(client);
-      removeClient(client.getIP());
+      sendIncorrectName(session);
+      removeSession(session.getIP());
       return;
     }
 
     if (_is_busy)
     {
-      sendBusyMsg(client);
-      removeClient(client.getIP());
+      sendBusy(session);
+      removeSession(session.getIP());
       return;
     }
 
@@ -392,8 +427,8 @@ namespace pixeler
      * інші клієнти не повинні переривати розгляд поточного рішення. */
     _is_busy = true;
 
-    client.setName(packet.getData());
-    invokeConfirmationHandler(client);
+    session.setName(client_name);
+    invokeConfirmationHandler(session, client_name);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -401,45 +436,60 @@ namespace pixeler
   void GameServer::handlePacket(const UdpPacket& packet)
   {
     UdpPacket::PacketType type = packet.getType();
-    ClientSession* client = findClient(packet.getRemoteIP());
+    ClientSession* session = findSession(packet.getRemoteIP());
 
-    if (client)
+    if (session)
     {
       switch (type)
       {
         case UdpPacket::TYPE_DATA:
-          if (!client->isConfirmed()) [[unlikely]]
-          {
-            removeClient(client->getIP());
-            return;
-          }
-
-          invokeDataHandler(*client, packet);
+          invokeDataHandler(*session, packet);
           break;
-        case UdpPacket::UdpPacket::TYPE_PING:
-          client->prolong();
+        case UdpPacket::TYPE_PING:
+          session->prolong();
           break;
-        case UdpPacket::TYPE_NAME:
-          handleName(*client, packet);
+        case UdpPacket::TYPE_CONNECT:
+          handleLogin(*session, packet);
           break;
         default:
-          log_e("Неочікуваний тип пакета:");
+          log_e("Неочікуваний пакет:");
           if (CORE_DEBUG_LEVEL > 0)
             packet.printToLog();
           break;
       }
     }
-    else if (_is_open && _clients.size() < _max_connection)
+    else
     {
-      if (type == UdpPacket::TYPE_HANDSHAKE)
+      tryAddSession(packet);
+    }
+  }
+
+  void GameServer::tryAddSession(const UdpPacket& packet)
+  {
+    if (_is_open && _sessions.size() < _max_connection)
+    {
+      UdpPacket::PacketType type = packet.getType();
+      uint8_t subtype = packet.getSubtype();
+      if (type == UdpPacket::TYPE_CONNECT && subtype == UdpPacket::SUBTYPE_HANDSHAKE)
       {
-        log_i("Приєднався клієнт з IP: %s", packet.getRemoteIP().toString());
-
-        xSemaphoreTake(_client_mutex, portMAX_DELAY);
-        _clients.try_emplace(packet.getRemoteIP(), packet.getRemoteIP(), packet.getRemotePort());
-        xSemaphoreGive(_client_mutex);
-
-        handleHandshake(packet);
+        xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
+        if (_is_open && _sessions.size() < _max_connection)
+        {
+          _sessions.try_emplace(packet.getRemoteIP(), packet.getRemoteIP(), packet.getRemotePort());
+          xSemaphoreGive(_sessions_mutex);
+          handleHandshake(packet);
+        }
+        else
+        {
+          xSemaphoreGive(_sessions_mutex);
+          log_e("Клієнт відхилений через закриття сервера");
+        }
+      }
+      else
+      {
+        log_e("Неавторизований пакет:");
+        if (CORE_DEBUG_LEVEL > 0)
+          packet.printToLog();
       }
     }
   }
@@ -465,9 +515,10 @@ namespace pixeler
 
   void GameServer::onPacket(void* arg, AsyncUDPPacket& packet)
   {
-    if (packet.length() > 1000 || packet.length() == 0)
+    size_t packet_len = packet.length();
+    if (packet_len > 1000 || packet_len < 2)
     {
-      log_e("Некоректний пакет. Size: %zu", packet.length());
+      log_e("Некоректний розмір пакета: %zu", packet_len);
       return;
     }
 
@@ -489,9 +540,9 @@ namespace pixeler
 
   void GameServer::pingClients()
   {
-    xSemaphoreTake(_client_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
 
-    for (auto it = _clients.begin(), last_it = _clients.end(); it != last_it;)
+    for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it;)
     {
       if (!it->second.isConnected())
       {
@@ -499,11 +550,11 @@ namespace pixeler
 
         if (it->second.isConfirmed())
         {
-          --_confirmed_clients_num;
+          --_confirmed_sessions_num;
           invokeDisconnectHandler(it->second);
         }
-        it = _clients.erase(it);
-        last_it = _clients.end();
+        it = _sessions.erase(it);
+        last_it = _sessions.end();
       }
       else
       {
@@ -514,7 +565,7 @@ namespace pixeler
       }
     }
 
-    xSemaphoreGive(_client_mutex);
+    xSemaphoreGive(_sessions_mutex);
   }
 
   void GameServer::pingClientsTask(void* arg)
@@ -530,41 +581,42 @@ namespace pixeler
 
   void GameServer::resolveJoin(const String& client_name, bool is_accepted)
   {
-    _is_busy = false;
-
-    ClientSession* client = findClient(client_name);
-    if (!client)
+    ClientSession* session = findSession(client_name);
+    if (!session)
       return;
 
-    sendNameRespMsg(*client, is_accepted);
+    sendNameRespMsg(*session, is_accepted);
 
     if (!is_accepted)
     {
-      removeClient(client->getIP());
+      removeSession(session->getIP());
     }
     else
     {
-      client->confirm();
-      ++_confirmed_clients_num;
+      session->confirm();
+      ++_confirmed_sessions_num;
     }
+
+    _is_busy = false;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::invokeConfirmationHandler(const ClientSession& client)
+  void GameServer::invokeConfirmationHandler(const ClientSession& session, const String& client_name)
   {
     if (!_confirmation_handler) [[unlikely]]
     {
       log_e("Не додано обробник підключення клієнтів");
-      sendNameRespMsg(client, false);
+      sendNameRespMsg(session, false);
+      removeSession(session.getIP());
       _is_busy = false;
       return;
     }
 
-    _confirmation_handler(client.getName(), _confirmation_arg);
+    _confirmation_handler(client_name, _confirmation_arg);
   }
 
-  void GameServer::invokeDisconnectHandler(const ClientSession& client)
+  void GameServer::invokeDisconnectHandler(const ClientSession& session)
   {
     if (!_disconnect_handler) [[unlikely]]
     {
@@ -572,18 +624,24 @@ namespace pixeler
       return;
     }
 
-    _disconnect_handler(client.getName(), _disconnect_arg);
+    _disconnect_handler(session.getName(), _disconnect_arg);
   }
 
-  void GameServer::invokeDataHandler(const ClientSession& client, const UdpPacket& packet)
+  void GameServer::invokeDataHandler(const ClientSession& session, const UdpPacket& packet)
   {
+    if (!session.isConfirmed()) [[unlikely]]
+    {
+      removeSession(session.getIP());
+      return;
+    }
+
     if (!_data_handler) [[unlikely]]
     {
       log_e("Не встановлено обробник даних від клієнтів");
       return;
     }
 
-    _data_handler(client, packet, _data_arg);
+    _data_handler(session, packet, _data_arg);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -608,7 +666,7 @@ namespace pixeler
 
   const std::unordered_map<uint32_t, ClientSession>* GameServer::getClients() const
   {
-    return &_clients;
+    return &_sessions;
   }
 
   String GameServer::getServerIP() const

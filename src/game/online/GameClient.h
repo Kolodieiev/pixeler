@@ -57,6 +57,12 @@ namespace pixeler
      */
     using ErrorHandler = std::function<void(GameClient::Error error, void* arg)>;
 
+    /**
+     * @brief Тип обробника, який може бути викликано клієнтом після отримання повідомлення про початок гри.
+     *
+     */
+    using GameStartHandler = std::function<void(void* arg)>;
+
     GameClient();
     ~GameClient();
 
@@ -88,10 +94,11 @@ namespace pixeler
      * @brief Формує та надсилає пакет на сервер, з яким встановлено з'єднання.
      *
      * @param type Тип пакета
+     * @param subtype Підтип основго типу пакета
      * @param data Дані пакета
      * @param data_size Розмір даних
      */
-    void send(UdpPacket::PacketType type, const void* data, size_t data_size);
+    void send(UdpPacket::PacketType type, uint8_t subtype, const void* data, size_t data_size);
 
     /**
      * @brief Повертає поточний статус клієнта.
@@ -117,6 +124,14 @@ namespace pixeler
     void onConnect(ConnectHandler handler, void* arg);
 
     /**
+     * @brief Встановлює обробник, який буде викликано після отримання повідомлення від сервера про початок гри.
+     *
+     * @param handler Обробник події початку гри
+     * @param arg Аргумент, який буде передано обробнику
+     */
+    void onGameStart(GameStartHandler handler, void* arg);
+
+    /**
      * @brief Встановлює обробник, який буде викликано після отримання повідомлення про помилку.
      *
      * @param handler Обробник події отримання помилки
@@ -134,7 +149,7 @@ namespace pixeler
 
   protected:
     void sendHandshake();
-    void sendName();
+    void sendLogin();
     //
     void handlePacket(const UdpPacket& packet);
     static void packetHandlerTask(void* arg);
@@ -144,15 +159,15 @@ namespace pixeler
     void handleCheckConnect();
     static void checkConnectTask(void* arg);
     //
-    void handleHandshake(const UdpPacket& packet);
-    void handleConfirmResult(const UdpPacket& packet);
-    void handleIncorrectName();
+    void handleConnect(const UdpPacket& packet);
+    void handleClientData(const UdpPacket& packet);
+    //
     void handlePing();
-    void handleBusy();
     //
     void invokeDataHandler(const UdpPacket& packet);
     void invokeConnectHandler();
     void invokeDisconnectHandler();
+    void invokeGameStartHandler();
     void invokeErrorHandler(Error error);
 
   protected:
@@ -162,9 +177,10 @@ namespace pixeler
     ConnectHandler _connect_handler{nullptr};
     DisconnectHandler _disconnect_handler{nullptr};
     DataHandler _data_handler{nullptr};
+    GameStartHandler _game_start_handler{nullptr};
     ErrorHandler _error_handler{nullptr};
 
-    String _nickname;
+    String _login;
     String _game_id;
 
     SemaphoreHandle_t _udp_mutex{nullptr};
@@ -177,6 +193,7 @@ namespace pixeler
     void* _connect_arg{nullptr};
     void* _disconnect_arg{nullptr};
     void* _data_arg{nullptr};
+    void* _game_start_arg{nullptr};
     void* _error_arg{nullptr};
 
     unsigned long _last_act_time{0};

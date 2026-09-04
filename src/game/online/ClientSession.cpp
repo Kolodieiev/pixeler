@@ -63,4 +63,9 @@ namespace pixeler
   {
     return _remote_IP == session._remote_IP;
   }
+
+  bool ClientSession::is(const IPAddress& remote_ip) const
+  {
+    return _remote_IP == remote_ip;
+  }
 }  // namespace pixeler

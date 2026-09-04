@@ -16,7 +16,7 @@ namespace pixeler
   void DataStream::resize(size_t size)
   {
     _index = 0;
-    _size = size;
+    _length = size;
     try
     {
       delete[] _buffer;
@@ -64,6 +64,31 @@ namespace pixeler
 
   size_t DataStream::space() const
   {
-    return _size - _index;
+    return _length - _index;
+  }
+
+  size_t DataStream::length() const
+  {
+    return _length;
+  }
+
+  size_t DataStream::index() const
+  {
+    return _index;
+  }
+
+  void DataStream::flush()
+  {
+    _index = 0;
+  }
+
+  const uint8_t* DataStream::raw() const
+  {
+    return _buffer;
+  }
+
+  DataStream::operator bool() const
+  {
+    return _buffer != nullptr;
   }
 }  // namespace pixeler

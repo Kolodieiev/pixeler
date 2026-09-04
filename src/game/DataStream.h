@@ -34,7 +34,7 @@ namespace pixeler
     size_t read(void* out, size_t len = 1);
 
     /**
-     * @brief Переміщує початок буфера на вказану кількість байтів.
+     * @brief Переміщує поточну позицію каретки буфера на вказану кількість байтів.
      *
      * @param len Кількість байтів, які необхідно пропустити
      * @return size_t Кількість пропущених байтів
@@ -51,19 +51,6 @@ namespace pixeler
     size_t write(const void* data, size_t len = 1);
 
     /**
-     * @brief Копіює байти об'єкта до внутрішнього буфера.
-     *
-     * @tparam T Тип об'єкта
-     * @param data Об'єкт, який буде скопійовано
-     * @return size_t - Кількість скопійованих байтів
-     */
-    template <typename T>
-    size_t write(const T& data)
-    {
-      return write(&data, sizeof(T));
-    }
-
-    /**
      * @brief Повертає кількість вільного місця в буфері, що доступне для запису.
      *
      * @return size_t
@@ -75,30 +62,21 @@ namespace pixeler
      *
      * @return size_t
      */
-    size_t length() const
-    {
-      return _size;
-    }
+    size_t length() const;
 
     /**
      * @brief Повертає поточну позицію каретки в буфері.
      *
      * @return size_t
      */
-    size_t index() const
-    {
-      return _index;
-    }
+    size_t index() const;
 
     /**
      * @brief Скидає позицію каретки.
      * Дані в буфері залишаються без змін.
      *
      */
-    void flush()
-    {
-      _index = 0;
-    }
+    void flush();
 
     /**
      * @brief Повертає вказівник на буфер з даними.
@@ -108,15 +86,9 @@ namespace pixeler
      *
      * @return uint8_t*
      */
-    const uint8_t* raw() const
-    {
-      return _buffer;
-    }
+    const uint8_t* raw() const;
 
-    operator bool() const
-    {
-      return _buffer != nullptr;
-    }
+    operator bool() const;
 
   protected:
     DataStream() {}
@@ -124,6 +96,6 @@ namespace pixeler
   protected:
     uint8_t* _buffer{nullptr};
     size_t _index{0};
-    size_t _size{0};
+    size_t _length{0};
   };
 }  // namespace pixeler

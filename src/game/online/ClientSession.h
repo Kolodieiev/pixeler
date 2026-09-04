@@ -57,12 +57,20 @@ namespace pixeler
     bool hasName(const String& name) const;
 
     /**
-     * @brief Порівнює два об'єкта ClientSession на основі віддаленої IP-адреси клієнтів.
+     * @brief Порівнює клінтські сесії на основі віддаленої IP-адреси.
      *
-     * @param session Адреса ClientSession
-     * @return true - якщо віддалені IP-адреси збігаються. false - інакше
+     * @param session
+     * @return true - якщо віддалені IP-адреси сесії збігаються. false - інакше
      */
     bool is(const ClientSession& session) const;
+
+    /**
+     * @brief Порівнює клінтські сесії на основі віддаленої IP-адреси.
+     *
+     * @param remote_ip Віддалена IP-адреса іншої сесії
+     * @return true - якщо віддалені IP-адреси сесії збігаються. false - інакше
+     */
+    bool is(const IPAddress& remote_ip) const;
 
   private:
     friend class GameServer;
