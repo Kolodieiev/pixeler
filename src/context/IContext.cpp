@@ -6,6 +6,8 @@
 
 namespace pixeler
 {
+  static const uint8_t UI_TASK_QUEUE_DEPTH{20};
+
   void IContext::tick()
   {
 #ifdef GRAPHICS_ENABLED
@@ -89,6 +91,18 @@ namespace pixeler
                          _layout_mutex{xSemaphoreCreateMutex()},
                          _layout{new EmptyLayout(1)}
   {
+    if (!_layout_mutex) [[unlikely]]
+    {
+      log_e("Не вдалося створити _obj_mutex");
+      esp_restart();
+    }
+
+    if (!_task_queue) [[unlikely]]
+    {
+      log_e("Не вдалося створити _task_queue");
+      esp_restart();
+    }
+
     _owner_task_handle = xTaskGetCurrentTaskHandle();
     _layout->setBackColor(COLOR_YELLOW);
     _layout->setWidth(UI_WIDTH);
