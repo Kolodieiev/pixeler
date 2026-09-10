@@ -1,6 +1,8 @@
 #pragma GCC optimize("O3")
 #include "WiFiManager.h"
 
+#include <algorithm>
+
 #include "SettingsManager.h"
 
 namespace pixeler
@@ -10,6 +12,8 @@ namespace pixeler
   static const char STR_ERR_WIFI_BUSY[] = "WiFi-модуль зайнятий";
   static const char STR_ERR_EMPTY_SSID[] = "SSID не може бути порожній";
   static const char STR_ERR_UNKNOWN_SSID[] = "Невідомий SSID:";
+
+  static const uint8_t MAX_WIFI_CHAN = 10;
 
   bool WiFiManager::tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan, bool autoreconnect)
   {
@@ -28,8 +32,8 @@ namespace pixeler
     if (isConnected())
       disconnect();
 
-    if (wifi_chan > 10)
-      wifi_chan = 10;
+    if (wifi_chan > MAX_WIFI_CHAN)
+      wifi_chan = MAX_WIFI_CHAN;
 
     WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
     WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
@@ -129,16 +133,10 @@ namespace pixeler
     if (isConnected())
       disconnect();
 
-    if (max_connection > 9)
-      max_connection = 9;
+    if (wifi_chan > MAX_WIFI_CHAN)
+      wifi_chan = MAX_WIFI_CHAN;
 
-    if (max_connection == 0)
-      max_connection = 1;
-
-    if (wifi_chan > 10)
-      wifi_chan = 10;
-
-    bool result = WiFi.softAP(ssid, pwd, wifi_chan, is_hidden, max_connection);
+    bool result = WiFi.softAP(ssid, pwd, wifi_chan, is_hidden, std::clamp<uint8_t>(max_connection, 1, MAX_WIFI_CONNECTION));
     delay(100);
 
     if (!result)

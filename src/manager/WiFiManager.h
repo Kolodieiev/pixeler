@@ -17,6 +17,7 @@ namespace pixeler
 {
   const char STR_WIFI_SUBDIR[] = "wifi";
   const char STR_ROUTER_NOT_CONNECTED[] = "Не підключено до маршрутизатора";
+  static const uint8_t MAX_WIFI_CONNECTION = 10;
 
   class WiFiManager
   {
