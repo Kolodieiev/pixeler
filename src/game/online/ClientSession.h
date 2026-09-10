@@ -20,6 +20,12 @@ namespace pixeler
      */
     ClientSession(IPAddress remote_IP, uint16_t port);
 
+    ClientSession(ClientSession&& other) noexcept;
+    ClientSession& operator=(ClientSession&& other) noexcept;
+
+    ClientSession(const ClientSession&) = delete;
+    ClientSession& operator=(const ClientSession&) = delete;
+
     /**
      * @brief Повертає віддалену IP-адресу клієнта.
      *

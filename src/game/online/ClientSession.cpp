@@ -8,6 +8,25 @@ namespace pixeler
     _last_act_time = millis();
   }
 
+  ClientSession::ClientSession(ClientSession&& other) noexcept
+      : _remote_IP(other._remote_IP),
+        _name(std::move(other._name)),
+        _last_act_time(other._last_act_time),
+        _port(other._port)
+  {
+  }
+
+  ClientSession& ClientSession::operator=(ClientSession&& other) noexcept
+  {
+    if (this == &other)
+      return *this;
+
+    _remote_IP = other._remote_IP;
+    _name = std::move(other._name);
+    _last_act_time = other._last_act_time;
+    _port = other._port;
+  }
+
   IPAddress ClientSession::getIP() const
   {
     return _remote_IP;
