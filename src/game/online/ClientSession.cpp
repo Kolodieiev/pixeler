@@ -25,6 +25,8 @@ namespace pixeler
     _name = std::move(other._name);
     _last_act_time = other._last_act_time;
     _port = other._port;
+
+    return *this;
   }
 
   IPAddress ClientSession::getIP() const

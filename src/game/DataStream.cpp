@@ -54,7 +54,7 @@ namespace pixeler
   size_t DataStream::write(const void* data, size_t len)
   {
     if (len < 1)
-      return;
+      return 0;
 
     size_t s = space();
     if (len > s)
