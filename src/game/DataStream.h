@@ -7,6 +7,12 @@ namespace pixeler
   class DataStream
   {
   public:
+    DataStream(const DataStream&) = delete;
+    DataStream& operator=(const DataStream&) = delete;
+
+    DataStream(DataStream&&) = delete;
+    DataStream& operator=(DataStream&&) = delete;
+
     /**
      * @brief Конструює новий DataStream об'єкт.
      *
