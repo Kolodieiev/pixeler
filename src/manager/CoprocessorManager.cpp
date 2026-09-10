@@ -19,7 +19,7 @@ namespace pixeler
       return _is_connected;
     }
 
-    log_i("З'єднання з копроцесором встановлено");
+    log_i("З'єднання з співпроцесором встановлено");
 
     _is_connected = true;
     return _is_connected;
