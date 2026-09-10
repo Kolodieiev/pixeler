@@ -39,8 +39,8 @@ namespace pixeler
 
 #ifdef GRAPHICS_ENABLED
     /**
-     * @brief Додає задачу до черги виконання, яка буде викликана
-     * в потоці контексту під час наступного tick().
+     * @brief Додає задачу до черги, яка буде виконана
+     * в потоці контексту під час наступного виклику tick().
      * Може викликатись з будь-якої FreeRTOS-задачі.
      *
      * @param task Функція без аргументів і повернення результату,
@@ -219,7 +219,6 @@ namespace pixeler
     //
     unsigned long _toast_lifetime{0};
     unsigned long _toast_birthtime{0};
-    static constexpr size_t UI_TASK_QUEUE_DEPTH = 10;
 #endif  // #ifdef GRAPHICS_ENABLED
     unsigned long _upd_time{0};
 
