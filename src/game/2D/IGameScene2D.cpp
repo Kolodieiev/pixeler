@@ -4,28 +4,51 @@
 
 namespace pixeler
 {
+  static const uint8_t SCENE_TASK_QUEUE_DEPTH{20};
+
   uint32_t IGameScene2D::_obj_id_counter = 0;
 
-  IGameScene2D::IGameScene2D(DataStream& stored_objs) : _terrain{TerrainManager2D()},
-                                                        _stored_objs{stored_objs},
-                                                        _obj_mutex{xSemaphoreCreateMutex()}
+  IGameScene2D::IGameScene2D(DataStream& stored_objs)
+      : _terrain{TerrainManager2D()},
+        _stored_objs{stored_objs},
+        _obj_mutex{xSemaphoreCreateMutex()},
+        _task_queue{xQueueCreate(SCENE_TASK_QUEUE_DEPTH, sizeof(std::function<void()>*))}
+
   {
-    if (!_obj_mutex)
+    if (!_obj_mutex) [[unlikely]]
     {
       log_e("Не вдалося створити _obj_mutex");
       esp_restart();
     }
+
+    if (!_task_queue) [[unlikely]]
+    {
+      log_e("Не вдалося створити _task_queue");
+      esp_restart();
+    }
+
+    _owner_task_handle = xTaskGetCurrentTaskHandle();
 
     _obj_id_counter = 0;
   }
 
   IGameScene2D::~IGameScene2D()
   {
+    _is_alive = false;
+
     for (auto const& obj : _game_objs)
       delete obj;
 
     delete _game_UI;
     delete _game_menu;
+
+    std::function<void()>* task = nullptr;
+    while (xQueueReceive(_task_queue, &task, 0) == pdTRUE)
+      delete task;
+
+    vQueueDelete(_task_queue);
+
+    vSemaphoreDelete(_obj_mutex);
   }
 
   void IGameScene2D::update()
@@ -45,6 +68,8 @@ namespace pixeler
     }
 
     takeLock();
+
+    processPostedTasks();
 
     _terrain.setCameraPos(_main_obj->_x_global, _main_obj->_y_global);
     _terrain.onDraw();
@@ -120,6 +145,49 @@ namespace pixeler
 
     if (_game_UI)
       _game_UI->onDraw();
+  }
+
+  bool IGameScene2D::post(std::function<void()> task, unsigned long timeout_ms)
+  {
+    if (!_is_alive) [[unlikely]]
+    {
+      log_e("Спроба виконати post в мертвій сцені");
+      esp_restart();
+    }
+
+    if (xTaskGetCurrentTaskHandle() == _owner_task_handle)
+    {
+      task();
+      return true;
+    }
+
+    // Виділяємо копію в купі, бо queue копіює лише вказівник
+    auto* task_ptr = new std::function<void()>(std::move(task));
+    if (xQueueSend(_task_queue, &task_ptr, pdMS_TO_TICKS(timeout_ms)) != pdTRUE)
+    {
+      delete task_ptr;
+      if (timeout_ms > 0)
+        log_e("Черга post переповнена, гра може працювати нестабільно");
+
+      return false;
+    }
+
+    return true;
+  }
+
+  void IGameScene2D::processPostedTasks()
+  {
+    std::function<void()>* task = nullptr;
+    uint32_t processed_count{0};
+
+    while (xQueueReceive(_task_queue, &task, 0) == pdTRUE)
+    {
+      (*task)();
+      delete task;
+
+      if ((++processed_count & 15) == 0)
+        delay(1);
+    }
   }
 
   bool IGameScene2D::isFinished() const

@@ -12,6 +12,11 @@
 #include "manager/ResManager.h"
 
 //
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+
+#include <functional>
+
 #include "../ui/IGameMenu.h"
 #include "../ui/IGameUI.h"
 #include "IGameObject2D.h"
@@ -36,6 +41,20 @@ namespace pixeler
 
     IGameScene2D(const IGameScene2D& rhs) = delete;
     IGameScene2D& operator=(const IGameScene2D& rhs) = delete;
+
+    /**
+     * @brief Додає задачу до черги, яка буде виконана
+     * в потоці сцени під час наступного виклику update().
+     * Може викликатись з будь-якої FreeRTOS-задачі.
+     *
+     * @param task Функція без аргументів і повернення результату,
+     * яка повинна бути виконана в потоці UI
+     * @param timeout_ms Максимальний час очікування(мілісекунд) вільного місця в черзі,
+     * за замовчуванням - неблокуючий виклик
+     * @return true - якщо задачу успішно додано в чергу
+     * @return false - якщо черга переповнена і час очікування вичерпано
+     */
+    bool post(std::function<void()> task, unsigned long timeout_ms = 0);
 
     /**
      * @brief Повертає стан прапора, який вказує на те, чи повинна бути завершена гра.
@@ -221,6 +240,9 @@ namespace pixeler
      */
     void serializeObjects(DataStream& ds) const;
 
+  private:
+    void processPostedTasks();
+
   protected:
     TerrainManager2D _terrain;  // Самий нижній шар сцени
     SfxPlayer _sfx_player;      // Плеєр звукових ефектів
@@ -239,6 +261,9 @@ namespace pixeler
     IGameObject2D* _main_obj{nullptr};     // Об'єкт, за яким завжди слідує камера
 
   private:
+    TaskHandle_t _owner_task_handle{nullptr};
+    QueueHandle_t _task_queue{nullptr};
+
     static uint32_t _obj_id_counter;  // Глобальний лічильник ідентифікаторів об'єктів.
 
   protected:
@@ -247,5 +272,8 @@ namespace pixeler
     bool _is_paused{false};    // Прапор встановлення сцени на паузу
     bool _is_released{false};  // Прапор, який вказує, що поточна сцена готова звільнити своє місце для наступної сцени
     bool _is_finished{false};  // Прапор, який повідомляє керуючому контексту, що гру завершено
+
+  private:
+    bool _is_alive{true};
   };
 }  // namespace pixeler
