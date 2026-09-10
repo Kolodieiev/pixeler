@@ -16,22 +16,25 @@ namespace pixeler
       if (_visibility != INVISIBLE && _is_enabled)
         for (size_t i{0}; i < _widgets.size(); ++i)
           _widgets[i]->onDraw();
+
+      return;
     }
-    else
+
+    if (!_is_enabled)
+      return;
+
+    _is_changed = false;
+
+    if (_visibility == INVISIBLE)
     {
-      _is_changed = false;
-
-      if (_visibility == INVISIBLE)
-      {
-        hide();
-        return;
-      }
-
-      clear();
-
-      for (size_t i{0}; i < _widgets.size(); ++i)
-        _widgets[i]->drawForced();
+      hide();
+      return;
     }
+
+    clear();
+
+    for (size_t i{0}; i < _widgets.size(); ++i)
+      _widgets[i]->drawForced();
   }
 
   void EmptyLayout::copyTo(IWidget* widget) const
