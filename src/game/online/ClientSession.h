@@ -7,8 +7,6 @@
 
 namespace pixeler
 {
-  class GameServer;
-
   class ClientSession
   {
   public:
@@ -48,6 +46,15 @@ namespace pixeler
     bool isConnected() const;
 
     /**
+     * @brief Перевіряє чи потрібно оновити з'єднання з клієнтом,
+     * на підставі того наскільки давно клієнт відповідав через цю сесію.
+     *
+     * @return true - Якщо клієнт не звертався до сервера понад 2 сек.
+     * false - Інакше
+     */
+    bool needsPing() const;
+
+    /**
      * @brief Повертає ім'я клієнта.
      *
      * @return String
@@ -85,14 +92,14 @@ namespace pixeler
      * @brief Встановлює прапор, який вказує, що клієнта з цією сесією було авторизовано на сервері.
      *
      */
-    void confirm();
+    void accept();
 
     /**
      * @brief Повертає стан прапора, який вказує чи було авторизовано клієнта з цією сесією на сервері.
      *
      * @return true - якщо клієнт авторизований на сервері. false - інакше
      */
-    bool isConfirmed() const;
+    bool isAccepted() const;
 
     /**
      * @brief Продовжує підключення сесії.
@@ -115,6 +122,6 @@ namespace pixeler
     String _name;
     unsigned long _last_act_time{0};
     uint16_t _port{0};
-    bool _is_confirmed{false};
+    bool _is_accepted{false};
   };
 }  // namespace pixeler
