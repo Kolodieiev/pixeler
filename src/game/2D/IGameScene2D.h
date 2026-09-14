@@ -207,18 +207,6 @@ namespace pixeler
     virtual void onTriggered(uint16_t trigg_id);
 
     /**
-     * @brief Блокує мютекс доступу до ігрових об'єктів.
-     *
-     */
-    void takeLock() const;
-
-    /**
-     * @brief Відпускає мютекс доступу до ігрових об'єктів.
-     *
-     */
-    void giveLock() const;
-
-    /**
      * @brief Піднімає прапор, який вказує, що поточний ігровий рівень повинен бути змінений.
      * Встановлює ідентифікатро ігрового рівня, який повинен бути створений наступним.
      *
@@ -255,7 +243,6 @@ namespace pixeler
 
   protected:
     DataStream& _stored_objs;              // Контейнер для перенесення відбитків об'єктів до наступної сцени
-    mutable SemaphoreHandle_t _obj_mutex;  // Мютекс для синхронізації доступу до об'єктів
     IGameUI* _game_UI{nullptr};            // Шар ігрового UI. Тут можуть виводитися графічні елементи інтерфейса
     IGameMenu* _game_menu{nullptr};        // Шар ігрового меню, якщо в ньому є необхідність
     IGameObject2D* _main_obj{nullptr};     // Об'єкт, за яким завжди слідує камера
