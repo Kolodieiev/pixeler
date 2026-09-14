@@ -11,17 +11,10 @@ namespace pixeler
   IGameScene2D::IGameScene2D(DataStream& stored_objs)
       : _terrain{TerrainManager2D()},
         _stored_objs{stored_objs},
-        _obj_mutex{xSemaphoreCreateMutex()},
         _task_queue{xQueueCreate(SCENE_TASK_QUEUE_DEPTH, sizeof(std::function<void()>*))}
 
   {
-    if (!_obj_mutex) [[unlikely]]
-    {
-      log_e("Не вдалося створити _obj_mutex");
-      esp_restart();
-    }
-
-    if (!_task_queue) [[unlikely]]
+    if (!_task_queue)
     {
       log_e("Не вдалося створити _task_queue");
       esp_restart();
@@ -47,8 +40,6 @@ namespace pixeler
       delete task;
 
     vQueueDelete(_task_queue);
-
-    vSemaphoreDelete(_obj_mutex);
   }
 
   void IGameScene2D::update()
@@ -61,13 +52,11 @@ namespace pixeler
       return;
     }
 
-    if (!_main_obj) [[unlikely]]
+    if (!_main_obj)
     {
       log_e("Не встановлено головний ігровий об'єкт");
       esp_restart();
     }
-
-    takeLock();
 
     processPostedTasks();
 
@@ -97,9 +86,7 @@ namespace pixeler
       if (obj->_is_triggered) [[unlikely]]
       {
         obj->_is_triggered = false;
-        giveLock();
         onTriggered(obj->_trigger_ID);
-        takeLock();
       }
 
       if (obj->_sprite.has_img || obj->_sprite.has_animation)
@@ -141,15 +128,13 @@ namespace pixeler
     for (auto const& game_obj : view_objs)
       game_obj->__onDraw();
 
-    giveLock();
-
     if (_game_UI)
       _game_UI->onDraw();
   }
 
   bool IGameScene2D::post(std::function<void()> task, unsigned long timeout_ms)
   {
-    if (!_is_alive) [[unlikely]]
+    if (!_is_alive)
     {
       log_e("Спроба виконати post в мертвій сцені");
       esp_restart();
@@ -205,16 +190,6 @@ namespace pixeler
     return _next_scene_ID;
   }
 
-  void IGameScene2D::takeLock() const
-  {
-    xSemaphoreTake(_obj_mutex, portMAX_DELAY);
-  }
-
-  void IGameScene2D::giveLock() const
-  {
-    xSemaphoreGive(_obj_mutex);
-  }
-
   void IGameScene2D::openSceneByID(uint16_t scene_ID)
   {
     _input.reset();
@@ -225,19 +200,15 @@ namespace pixeler
   size_t IGameScene2D::calcObjectsSize() const
   {
     size_t sum{0};
-    takeLock();
     for (auto const& obj : _game_objs)
       sum += obj->getDataSize();
-    giveLock();
     return sum;
   }
 
   void IGameScene2D::serializeObjects(DataStream& ds) const
   {
-    takeLock();
     for (auto const& obj : _game_objs)
       obj->serialize(ds);
-    giveLock();
 
     ds.flush();
   }
@@ -298,11 +269,11 @@ namespace pixeler
 
     for (auto const& obj : _game_objs)
     {
-      if (obj != exclude)
+      if (obj != exclude && obj->hasIntersectWithPoint(x, y))
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id && obj->hasIntersectWithPoint(x, y))
+          if (obj->_type_ID == id)
           {
             ret_objs.push_back(obj);
             break;
@@ -321,11 +292,11 @@ namespace pixeler
 
     for (auto const& obj : _game_objs)
     {
-      if (obj != exclude)
+      if (obj != exclude && obj->hasIntersectWithRect(x, y, width, height))
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id && obj->hasIntersectWithRect(x, y, width, height))
+          if (obj->_type_ID == id)
           {
             ret_objs.push_back(obj);
             break;
@@ -344,11 +315,11 @@ namespace pixeler
 
     for (auto const& obj : _game_objs)
     {
-      if (obj != exclude)
+      if (obj != exclude && obj->hasIntersectWithCircle(x, y, radius))
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id && obj->hasIntersectWithCircle(x, y, radius))
+          if (obj->_type_ID == id)
           {
             ret_objs.push_back(obj);
             break;
