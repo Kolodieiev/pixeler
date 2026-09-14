@@ -74,10 +74,10 @@ namespace pixeler
     if (!_fs.isMounted())
       return emptyString;
 
-    if (!_fs.dirExist(DATA_ROOT, true) && !_fs.createDir(DATA_ROOT))
+    if (!_fs.dirExistSilently(DATA_ROOT) && !_fs.createDir(DATA_ROOT))
       return emptyString;
 
-    if (!_fs.dirExist(PREF_ROOT, true) && !_fs.createDir(PREF_ROOT))
+    if (!_fs.dirExistSilently(PREF_ROOT) && !_fs.createDir(PREF_ROOT))
       return emptyString;
 
     String path{PREF_ROOT};
@@ -104,7 +104,7 @@ namespace pixeler
     if (sets_path.isEmpty())
       return false;
 
-    if (!_fs.fileExist(sets_path.c_str(), true))
+    if (!_fs.fileExistSilently(sets_path.c_str()))
       return false;
 
     return _fs.readFile(sets_path.c_str(), out_data_struct, data_struct_size) == data_struct_size;

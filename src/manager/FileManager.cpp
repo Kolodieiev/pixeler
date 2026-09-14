@@ -29,7 +29,7 @@
 #endif
 #endif  // #ifdef SD_TYPE_MMC
 
-#define IDLE_WD_GUARD_TIME 250U
+#define IDLE_WD_GUARD_TIME 200U
 #define OPT_BLOCK_SIZE 16384
 
 namespace pixeler
@@ -38,6 +38,7 @@ namespace pixeler
   {
     String full_path = SD_MOUNTPOINT;
     full_path += path;
+    
     return full_path;
   }
 
@@ -46,7 +47,7 @@ namespace pixeler
     uint16_t counter = 1;
     String temp_path = file_path;
     String unique_filename = file_path;
-    while (fileExist(unique_filename.c_str(), true))
+    while (fileExistSilently(unique_filename.c_str()))
     {
       unique_filename = temp_path.substring(0, temp_path.lastIndexOf("."));
       unique_filename += "(";
@@ -83,6 +84,7 @@ namespace pixeler
   size_t FileManager::getFileSize(const char* path)
   {
     MutexGuard lock(_sd_mutex);
+
     return getFileSizeUnlocked(path);
   }
 
@@ -107,44 +109,61 @@ namespace pixeler
     return true;
   }
 
-  bool FileManager::fileExist(const char* path, bool silently)
+  //----------------------------------------------------------------------------------------------------------------
+
+  bool FileManager::fileExist(const char* path)
   {
-    String full_path = makeFullPath(path);
-
-    MutexGuard lock(_sd_mutex);
-    bool result = getEntryTypeUnlocked(full_path.c_str()) == DT_REG;
-
-    if (!result && !silently)
-      log_e("File %s not found", full_path.c_str());
+    bool result = fileExistSilently(path);
+    if (!result)
+      log_e("File [ %s ] not found", path);
 
     return result;
   }
 
-  bool FileManager::dirExist(const char* path, bool silently)
+  bool FileManager::fileExistSilently(const char* path)
   {
     String full_path = makeFullPath(path);
-
     MutexGuard lock(_sd_mutex);
-    bool result = getEntryTypeUnlocked(full_path.c_str()) == DT_DIR;
 
-    if (!result && !silently)
-      log_e("Dir %s not found", full_path.c_str());
+    return getEntryTypeUnlocked(full_path.c_str()) == DT_REG;
+  }
+
+  bool FileManager::dirExist(const char* path)
+  {
+    bool result = dirExistSilently(path);
+    if (!result)
+      log_e("Dir [ %s ] not found", path);
 
     return result;
   }
 
-  bool FileManager::exists(const char* path, bool silently)
+  bool FileManager::dirExistSilently(const char* path)
+  {
+    String full_path = makeFullPath(path);
+    MutexGuard lock(_sd_mutex);
+
+    return getEntryTypeUnlocked(full_path.c_str()) == DT_DIR;
+  }
+
+  bool FileManager::exists(const char* path)
+  {
+    bool result = existsSilently(path);
+    if (!result)
+      log_e("[ %s ] not exist", path);
+
+    return result;
+  }
+
+  bool FileManager::existsSilently(const char* path)
   {
     String full_path = makeFullPath(path);
     MutexGuard lock(_sd_mutex);
     uint8_t type = getEntryTypeUnlocked(full_path.c_str());
 
-    if (type == DT_REG || type == DT_DIR)
-      return true;
-
-    log_e("[ %s ] not exist", full_path.c_str());
-    return false;
+    return type == DT_REG || type == DT_DIR;
   }
+
+  //----------------------------------------------------------------------------------------------------------------
 
   bool FileManager::createDir(const char* path)
   {
@@ -175,6 +194,7 @@ namespace pixeler
     if (fd < 0)
     {
       log_e("Помилка відкриття файлу: %s", full_path.c_str());
+
       return 0;
     }
 
@@ -185,6 +205,7 @@ namespace pixeler
       {
         log_e("Помилка встановлення позиції(%d) у файлі %s", seek_pos, full_path.c_str());
         close(fd);
+
         return 0;
       }
     }
@@ -194,6 +215,7 @@ namespace pixeler
     {
       log_e("Помилка читання файлу %s", full_path.c_str());
       close(fd);
+
       return 0;
     }
 
@@ -201,6 +223,7 @@ namespace pixeler
       log_e("Прочитано: [ %zd ]  Очікувалося: [ %zu ]", bytes_read, len);
 
     close(fd);
+
     return bytes_read;
   }
 
@@ -458,7 +481,7 @@ namespace pixeler
 
     String full_path = makeFullPath(_rm_path.c_str());
 
-    bool is_dir = dirExist(_rm_path.c_str(), true);
+    bool is_dir = dirExistSilently(_rm_path.c_str());
 
     if (!is_dir)
     {
@@ -553,6 +576,8 @@ namespace pixeler
           xSemaphoreGive(_sd_mutex);
           was_mutex_taken = false;
           delay(1);
+          xSemaphoreTake(_sd_mutex, portMAX_DELAY);
+          was_mutex_taken = true;
           _ts = millis();
         }
       }
@@ -762,6 +787,8 @@ namespace pixeler
           }
 
           delay(1);
+          xSemaphoreTake(_sd_mutex, portMAX_DELAY);
+          was_mutex_taken = true;
           _ts = millis();
         }
       }

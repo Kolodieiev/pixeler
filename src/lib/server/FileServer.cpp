@@ -276,7 +276,7 @@ namespace pixeler
 
       log_i("Запит на створення файлу %s", filename.c_str());
 
-      if (_need_replace_file && _fs.fileExist(filename.c_str(), true))
+      if (_need_replace_file && _fs.fileExistSilently(filename.c_str()))
         _fs.rmFile(filename.c_str());
       else
         filename = _fs.makeUniqueFilename(filename);
