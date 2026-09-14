@@ -7,19 +7,28 @@
 
 namespace pixeler
 {
+  static const uint8_t PACKET_EXTRA_SIZE = 4;    // Основний тип пакета 1 байт + його підтип 1 байт + id 1 байт.
+  static const uint16_t MAX_PACKET_SIZE = 1000;  // Максимальний розмір пакета.
+
   class UdpPacket : public DataStream
   {
   public:
+    UdpPacket(const UdpPacket&);
+    UdpPacket& operator=(const UdpPacket&);
+
+    UdpPacket(UdpPacket&&);
+    UdpPacket& operator=(UdpPacket&&);
+
     /**
      * @brief Перечислення, що містить базовий тип пакета.
      *
      */
     enum PacketType : uint8_t
     {
-      TYPE_PING,         // Пакет для перевірки стану з'єднання.
-      TYPE_DATA,         // Пакет для обміну ігровими даними.
-      TYPE_CONNECT,      // Пакет для обміну даними про підключення.
-      TYPE_CLIENT_DATA,  // Пакет для передачі повідомлень авторизованим клієнтам.
+      TYPE_PING,          // Пакет для перевірки стану з'єднання.
+      TYPE_GAME_DATA,     // Пакет для обміну ігровими даними.
+      TYPE_SERVICE_DATA,  // Пакет для обміну сервісними даними між сервером та клієнтом.
+      TYPE_CONNECT,       // Пакет для обміну даними про підключення.
     };
 
     /**
@@ -41,9 +50,11 @@ namespace pixeler
      * @brief Перечислення, що містить підтипи пакета клієнтських даних.
      *
      */
-    enum PackClientSubtype : uint8_t
+    enum PackServiceSubtype : uint8_t
     {
       SUBTYPE_START_GAME,  // Пакет, який вказує на необхідність запуску гри.
+      SUBTYPE_STOP_GAME,   // Пакет, який вказує на необхідність завершення гри.
+      SUBTYPE_ACK,         // Пакет, що містить підтвердження про отримання пакету.
     };
 
     /**
@@ -95,6 +106,28 @@ namespace pixeler
     uint8_t getSubtype() const;
 
     /**
+     * @brief Встановлює ідентифікатор пакета.
+     *
+     * @param id
+     */
+    void setID(uint8_t id);
+
+    /**
+     * @brief Повертає значення, яке вказує, чи було задано цьому пакету ID.
+     *
+     * @return true - Якщо ідентифікатор було присвоєно пакету.
+     * @return false - Інакше
+     */
+    bool hasID() const;
+
+    /**
+     * @brief Повертає ідентифікатор пакета.
+     *
+     * @return uint8_t
+     */
+    uint8_t getID() const;
+
+    /**
      * @brief Повертає вказівник із заданим зміщенням на дані пакета.
      * Дані за вказівником не повинні бути видалені або змінені.
      * В іншому випадку, поведінка програми невизначена.
@@ -135,7 +168,7 @@ namespace pixeler
      *
      * @return IPAddress
      */
-    IPAddress getRemoteIP() const;
+    IPAddress getIP() const;
 
     /**
      * @brief Повертає порт, з якого було отримано цей пакет.
@@ -143,7 +176,7 @@ namespace pixeler
      *
      * @return uint16_t
      */
-    uint16_t getRemotePort() const;
+    uint16_t getPort() const;
 
     /**
      * @brief Порівнює побайтово дані з заданої позиції.
