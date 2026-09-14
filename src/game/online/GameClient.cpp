@@ -17,16 +17,23 @@ namespace pixeler
 #define GAME_CLIENT_PORT 333
 #endif  // #ifndef GAME_CLIENT_PORT
 
+  static const uint16_t MAX_PING_TIME = 4000U;
+
   GameClient::GameClient()
   {
     // Виправлення помилки assert failed: tcpip_api_call (Invalid mbox)
-    if (!_wifi.isEnabled())
+    _wifi_was_enabled = _wifi.isEnabled();
+
+    if (!_wifi_was_enabled)
       _wifi.enable();
   }
 
   GameClient::~GameClient()
   {
     disconnect();
+
+    if (!_wifi_was_enabled)
+      _wifi.disable();
   }
 
   bool GameClient::connect(const String& client_name, const String& game_ID, const String& host_IP)
@@ -51,6 +58,7 @@ namespace pixeler
 
     _login = client_name;
     _game_id = game_ID;
+    _last_packet_id = 0;
 
     if (!_wifi.isConnected())
     {
@@ -80,8 +88,8 @@ namespace pixeler
       esp_restart();
     }
 
-    xTaskCreatePinnedToCore(checkConnectTask, "checkConnectTask", (1024 / 2) * 4, this, 10, &_check_task_handler, 1);
-    xTaskCreatePinnedToCore(packetHandlerTask, "packetHandlerTask", (1024 / 2) * 10, this, 10, &_packet_task_handler, 1);
+    xTaskCreatePinnedToCore(checkConnectTask, "pingCl", (1024 / 2) * 7, this, 10, &_check_task_handler, 1);
+    xTaskCreatePinnedToCore(packetHandlerTask, "packHndl", (1024 / 2) * 20, this, 10, &_packet_task_handler, 1);
 
     if (!_check_task_handler)
     {
@@ -112,6 +120,7 @@ namespace pixeler
 
     log_i("Від'єднано від сервера");
 
+    _client.onPacket([](AsyncUDPPacket& packet) {});
     _client.close();
 
     if (_check_task_handler)
@@ -145,7 +154,7 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameClient::sendPacket(const UdpPacket& packet)
+  void GameClient::send(const UdpPacket& packet)
   {
     if (_status != STATUS_CONNECTED && _status != STATUS_IDLE) [[unlikely]]
     {
@@ -158,13 +167,24 @@ namespace pixeler
     xSemaphoreGive(_udp_mutex);
   }
 
-  void GameClient::send(UdpPacket::PacketType type, uint8_t subtype, const void* data, size_t data_size)
+  void GameClient::send(UdpPacket::PacketType type, uint8_t subtype, size_t data_size, const void* data)
   {
     UdpPacket pack(data_size);
     pack.setType(type);
     pack.setSubtype(subtype);
     pack.write(data, data_size);
-    sendPacket(pack);
+
+    send(pack);
+  }
+
+  void GameClient::sendAck(uint8_t packet_id)
+  {
+    UdpPacket pack(sizeof(packet_id));
+    pack.setType(UdpPacket::TYPE_SERVICE_DATA);
+    pack.setSubtype(UdpPacket::SUBTYPE_ACK);
+    pack.setID(packet_id);
+
+    send(pack);
   }
 
   GameClient::Status GameClient::getStatus() const
@@ -177,35 +197,28 @@ namespace pixeler
   void GameClient::sendHandshake()
   {
     log_i("Рукостискання...");
-
-    UdpPacket packet(_game_id.length());
-    packet.setType(UdpPacket::TYPE_CONNECT);
-    packet.setSubtype(UdpPacket::SUBTYPE_HANDSHAKE);
-    packet.write(_game_id.c_str(), _game_id.length());
-
-    sendPacket(packet);
+    send(UdpPacket::TYPE_CONNECT, UdpPacket::SUBTYPE_HANDSHAKE, _game_id.length(), _game_id.c_str());
   }
 
   void GameClient::sendLogin()
   {
     log_i("Авторизація...");
-
-    UdpPacket packet(_login.length());
-    packet.setType(UdpPacket::TYPE_CONNECT);
-    packet.setSubtype(UdpPacket::SUBTYPE_LOGIN);
-    packet.write(_login.c_str(), _login.length());
-
-    sendPacket(packet);
+    send(UdpPacket::TYPE_CONNECT, UdpPacket::SUBTYPE_LOGIN, _login.length(), _login.c_str());
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameClient::handlePacket(const UdpPacket& packet)
   {
+    _last_act_time = millis();
+
     switch (packet.getType())
     {
-      case UdpPacket::TYPE_DATA:
+      case UdpPacket::TYPE_GAME_DATA:
         invokeDataHandler(packet);
+        break;
+      case UdpPacket::TYPE_SERVICE_DATA:
+        handleServiceData(packet);
         break;
       case UdpPacket::TYPE_PING:
         handlePing();
@@ -213,9 +226,7 @@ namespace pixeler
       case UdpPacket::TYPE_CONNECT:
         handleConnect(packet);
         break;
-      case UdpPacket::TYPE_CLIENT_DATA:
-        handleClientData(packet);
-        break;
+
       default:
         log_e("Неочікуваний тип пакета:");
         if (CORE_DEBUG_LEVEL > 0)
@@ -246,23 +257,41 @@ namespace pixeler
   void GameClient::onPacket(void* arg, AsyncUDPPacket& packet)
   {
     size_t packet_len = packet.length();
-    if (packet_len > 1000 || packet_len < 2)
+    if (packet_len > MAX_PACKET_SIZE || packet_len < PACKET_EXTRA_SIZE) [[unlikely]]
     {
       log_e("Некоректний розмір пакета: %zu", packet_len);
       return;
     }
 
-    GameClient* self = static_cast<GameClient*>(arg);
+    GameClient& self = *static_cast<GameClient*>(arg);
+    UdpPacket* pack = new UdpPacket(packet);
 
-    if (self->_packet_queue)
+    bool has_id = pack->hasID();
+    uint8_t packet_id = 0;
+
+    if (has_id)
     {
-      UdpPacket* pack = new UdpPacket(packet);
+      packet_id = pack->getID();
 
-      if (!xQueueSend(self->_packet_queue, &pack, 0) == pdPASS)
+      if (self._last_packet_id == packet_id)
       {
-        log_e("Черга _packet_queue переповнена");
+        self.sendAck(packet_id);
         delete pack;
+        return;
       }
+    }
+
+    if (xQueueSend(self._packet_queue, &pack, 0) != pdPASS) [[unlikely]]
+    {
+      log_e("Черга packet_queue переповнена");
+      delete pack;
+      return;
+    }
+
+    if (has_id)
+    {
+      self._last_packet_id = packet_id;
+      self.sendAck(packet_id);
     }
   }
 
@@ -271,82 +300,84 @@ namespace pixeler
   void GameClient::handleConnect(const UdpPacket& packet)
   {
     uint8_t subtype = packet.getSubtype();
+    if (subtype == UdpPacket::SUBTYPE_HANDSHAKE)
+    {
+      _status = STATUS_IDLE;
+      sendLogin();
+      log_i("Сервер гри розпізнано");
+      return;
+    }
+
+    if (subtype == UdpPacket::SUBTYPE_ACCESS_GRANTED)
+    {
+      _status = STATUS_CONNECTED;
+      invokeConnectHandler();
+      log_i("Приєднано до сервера");
+      return;
+    }
 
     switch (subtype)
     {
-      case UdpPacket::SUBTYPE_HANDSHAKE:
-        log_i("Сервер гри розпізнано");
-        sendLogin();
-        break;
-
       case UdpPacket::SUBTYPE_INCORRECT_SERVER:
         log_i("Некоректний сервер гри");
         invokeErrorHandler(ERR_INCORRECT_SERVER);
-        disconnect();
-        break;
-
-      case UdpPacket::SUBTYPE_ACCESS_GRANTED:
-        log_i("Приєднано до сервера");
-        _status = STATUS_CONNECTED;
-        invokeConnectHandler();
         break;
 
       case UdpPacket::SUBTYPE_ACCESS_DENIED:
         log_i("Приєднання відхилено сервером");
         invokeErrorHandler(ERR_ACCESS_DENIED);
-        disconnect();
         break;
 
       case UdpPacket::SUBTYPE_INCORRECT_NAME:
         log_i("Некоректне ім'я клієнта");
         invokeErrorHandler(ERR_INCORRECT_NAME);
-        disconnect();
         break;
 
       case UdpPacket::SUBTYPE_BUSY:
         log_i("Сервер зайнятий");
         invokeErrorHandler(ERR_SERVER_BUSY);
-        disconnect();
         break;
 
       default:
-        log_e("Некоректний підтип пакету підключення: %u", subtype);
+        log_e("Некоректний підтип пакета підключення: %u", subtype);
         break;
     }
-  }
 
-  void GameClient::handleClientData(const UdpPacket& packet)
-  {
-    uint8_t subtype = packet.getSubtype();
-
-    switch (subtype)
-    {
-      case UdpPacket::SUBTYPE_START_GAME:
-        log_i("Гра розпочинаєтсья");
-        invokeGameStartHandler();
-        break;
-
-      default:
-        log_e("Некоректний підтип пакету клієнтських даних: %u", subtype);
-        break;
-    }
+    disconnect();
   }
 
   void GameClient::handlePing()
   {
-    _last_act_time = millis();
-
     UdpPacket packet;
     packet.setType(UdpPacket::TYPE_PING);
 
-    sendPacket(packet);
+    send(packet);
+  }
+
+  void GameClient::handleServiceData(const UdpPacket& packet)
+  {
+    uint8_t subtype = packet.getSubtype();
+    switch (subtype)
+    {
+      case UdpPacket::SUBTYPE_START_GAME:
+        handleGameStart(packet);
+        break;
+
+      case UdpPacket::SUBTYPE_STOP_GAME:
+        handleGameStop(packet);
+        break;
+
+      default:
+        log_e("Некоректний підтип сервісних даних: %u", subtype);
+        break;
+    }
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameClient::handleCheckConnect()
   {
-    if (millis() - _last_act_time > 3000) [[unlikely]]
+    if (millis() - _last_act_time > MAX_PING_TIME) [[unlikely]]
     {
       log_i("З'єднання з сервером втрачено");
       invokeDisconnectHandler();
@@ -369,9 +400,9 @@ namespace pixeler
 
   void GameClient::invokeDataHandler(const UdpPacket& packet)
   {
-    if (!_data_handler) [[unlikely]]
+    if (!_data_handler)
     {
-      log_e("Не встановлено обробник даних від сервера");
+      log_e("Не встановлено обробник ігрових даних");
       return;
     }
 
@@ -380,7 +411,7 @@ namespace pixeler
 
   void GameClient::invokeConnectHandler()
   {
-    if (!_connect_handler) [[unlikely]]
+    if (!_connect_handler)
     {
       log_e("Не встановлено обробник підключення до сервера");
       return;
@@ -392,7 +423,7 @@ namespace pixeler
 
   void GameClient::invokeDisconnectHandler()
   {
-    if (!_disconnect_handler) [[unlikely]]
+    if (!_disconnect_handler)
     {
       log_e("Не встановлено обробник відключення від сервера");
       return;
@@ -402,21 +433,9 @@ namespace pixeler
     _disconnect_handler(_disconnect_arg);
   }
 
-  void GameClient::invokeGameStartHandler()
-  {
-    if (!_game_start_handler) [[unlikely]]
-    {
-      log_e("Не встановлено обробник старту гри");
-      return;
-    }
-
-    log_i("Викликаю game_start_handler");
-    _game_start_handler(_game_start_arg);
-  }
-
   void GameClient::invokeErrorHandler(Error error)
   {
-    if (!_error_handler) [[unlikely]]
+    if (!_error_handler)
     {
       log_e("Не встановлено обробник помилок клієнта");
       return;
@@ -428,22 +447,54 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameClient::onData(DataHandler handler, void* arg)
+  void GameClient::handleGameStart(const UdpPacket& packet)
+  {
+    if (!_start_handler)
+    {
+      log_e("Не встановлено обробник запуску гри");
+      return;
+    }
+
+    log_i("Викликаю start_handler");
+    _start_handler(_start_arg);
+  }
+
+  void GameClient::handleGameStop(const UdpPacket& packet)
+  {
+    if (!_stop_handler)
+    {
+      log_e("Не встановлено обробник зупинки гри");
+      return;
+    }
+
+    log_i("Викликаю stop_handler");
+    _stop_handler(_stop_arg);
+  }
+
+  // ------------------------------------------------------------------------------------------------------------------------------
+
+  void GameClient::onGameData(DataHandler handler, void* arg)
   {
     _data_handler = handler;
     _data_arg = arg;
+  }
+
+  void GameClient::onGameStart(GameStartHandler handler, void* arg)
+  {
+    _start_handler = handler;
+    _start_arg = arg;
+  }
+
+  void GameClient::onGameStop(GameStopHandler handler, void* arg)
+  {
+    _stop_handler = handler;
+    _stop_arg = arg;
   }
 
   void GameClient::onConnect(ConnectHandler handler, void* arg)
   {
     _connect_handler = handler;
     _connect_arg = arg;
-  }
-
-  void GameClient::onGameStart(GameStartHandler handler, void* arg)
-  {
-    _game_start_handler = handler;
-    _game_start_arg = arg;
   }
 
   void GameClient::OnError(ErrorHandler handler, void* arg)

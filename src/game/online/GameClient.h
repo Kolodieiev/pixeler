@@ -58,10 +58,16 @@ namespace pixeler
     using ErrorHandler = std::function<void(GameClient::Error error, void* arg)>;
 
     /**
-     * @brief Тип обробника, який може бути викликано клієнтом після отримання повідомлення про початок гри.
+     * @brief Тип обробника, який може бути викликано клієнтом у разі отримання пакета початку гри.
      *
      */
     using GameStartHandler = std::function<void(void* arg)>;
+
+    /**
+     * @brief Тип обробника, який може бути викликано клієнтом у разі отримання пакета завершення гри.
+     *
+     */
+    using GameStopHandler = std::function<void(void* arg)>;
 
     GameClient();
     ~GameClient();
@@ -84,21 +90,14 @@ namespace pixeler
     void disconnect();
 
     /**
-     * @brief Надсилає пакет на сервер, з яким встановлено з'єднання.
-     *
-     * @param packet Пакет, що буде надіслано на сервер
-     */
-    void sendPacket(const UdpPacket& packet);
-
-    /**
      * @brief Формує та надсилає пакет на сервер, з яким встановлено з'єднання.
      *
      * @param type Тип пакета
      * @param subtype Підтип основго типу пакета
-     * @param data Дані пакета
      * @param data_size Розмір даних
+     * @param data Дані пакета
      */
-    void send(UdpPacket::PacketType type, uint8_t subtype, const void* data, size_t data_size);
+    void send(UdpPacket::PacketType type, uint8_t subtype, size_t data_size = 0, const void* data = nullptr);
 
     /**
      * @brief Повертає поточний статус клієнта.
@@ -111,9 +110,25 @@ namespace pixeler
      * @brief Встановлює обробник, який буде викликано після отримання пакета даних від сервера.
      *
      * @param handler Обробник події отримання даних
-     * @param arg Аргумент, який будуе передано обробнику
+     * @param arg Аргумент, який буде передано обробнику
      */
-    void onData(DataHandler handler, void* arg);
+    void onGameData(DataHandler handler, void* arg);
+
+    /**
+     * @brief Встановлює обробник, який буде викликано після отримання пакета з командою початку гри.
+     *
+     * @param handler Обробник події отримання пакета початку гри
+     * @param arg Аргумент, який буде передано обробнику
+     */
+    void onGameStart(GameStartHandler handler, void* arg);
+
+    /**
+     * @brief Встановлює обробник, який буде викликано після отримання пакета з командою зупинки гри.
+     *
+     * @param handler Обробник події отримання пакета зупинки гри
+     * @param arg Аргумент, який буде передано обробнику
+     */
+    void onGameStop(GameStopHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після встановлення з'єднання з сервером.
@@ -122,14 +137,6 @@ namespace pixeler
      * @param arg Аргумент, який буде передано обробнику
      */
     void onConnect(ConnectHandler handler, void* arg);
-
-    /**
-     * @brief Встановлює обробник, який буде викликано після отримання повідомлення від сервера про початок гри.
-     *
-     * @param handler Обробник події початку гри
-     * @param arg Аргумент, який буде передано обробнику
-     */
-    void onGameStart(GameStartHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після отримання повідомлення про помилку.
@@ -143,11 +150,14 @@ namespace pixeler
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з сервером.
      *
      * @param handler Обробник події втрати з'єднання з сервером
-     * @param arg Аргумент, який будуе передано обробнику
+     * @param arg Аргумент, який буде передано обробнику
      */
     void onDisconnect(DisconnectHandler handler, void* arg);
 
   protected:
+    void send(const UdpPacket& packet);
+    void sendAck(uint8_t packet_id = 0);
+    //
     void sendHandshake();
     void sendLogin();
     //
@@ -160,15 +170,16 @@ namespace pixeler
     static void checkConnectTask(void* arg);
     //
     void handleConnect(const UdpPacket& packet);
-    void handleClientData(const UdpPacket& packet);
-    //
     void handlePing();
+    void handleServiceData(const UdpPacket& packet);
     //
     void invokeDataHandler(const UdpPacket& packet);
     void invokeConnectHandler();
     void invokeDisconnectHandler();
-    void invokeGameStartHandler();
     void invokeErrorHandler(Error error);
+
+    void handleGameStart(const UdpPacket& packet);
+    void handleGameStop(const UdpPacket& packet);
 
   protected:
     AsyncUDP _client;
@@ -177,13 +188,14 @@ namespace pixeler
     ConnectHandler _connect_handler{nullptr};
     DisconnectHandler _disconnect_handler{nullptr};
     DataHandler _data_handler{nullptr};
-    GameStartHandler _game_start_handler{nullptr};
     ErrorHandler _error_handler{nullptr};
+    GameStartHandler _start_handler{nullptr};
+    GameStopHandler _stop_handler{nullptr};
 
     String _login;
     String _game_id;
 
-    SemaphoreHandle_t _udp_mutex{nullptr};
+    mutable SemaphoreHandle_t _udp_mutex{nullptr};
 
     QueueHandle_t _packet_queue;
 
@@ -193,13 +205,17 @@ namespace pixeler
     void* _connect_arg{nullptr};
     void* _disconnect_arg{nullptr};
     void* _data_arg{nullptr};
-    void* _game_start_arg{nullptr};
     void* _error_arg{nullptr};
+    void* _start_arg{nullptr};
+    void* _stop_arg{nullptr};
 
     unsigned long _last_act_time{0};
 
     Status _status{STATUS_DISCONNECTED};
 
+    int16_t _last_packet_id{-1};
+
     bool _is_freed{true};
+    bool _wifi_was_enabled{false};
   };
 }  // namespace pixeler
