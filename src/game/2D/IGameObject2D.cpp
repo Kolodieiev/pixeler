@@ -34,7 +34,7 @@ namespace pixeler
   {
     if (_sprite.has_animation)
     {
-      if (!_sprite.animation) [[unlikely]]
+      if (!_sprite.animation)
       {
         log_e("Не встановлено вказівник на вектор анімації");
         esp_restart();
@@ -71,7 +71,7 @@ namespace pixeler
     }
     else if (_sprite.has_img)
     {
-      if (!_sprite.image) [[unlikely]]
+      if (!_sprite.image)
       {
         log_e("Не встановлено вказівник на зображення");
         esp_restart();
@@ -188,7 +188,7 @@ namespace pixeler
 
   void IGameObject2D::setAnimationVariant(uint8_t anim_variant_ID)
   {
-    if (_sprite_tmpl->animation_variants.size() <= anim_variant_ID) [[unlikely]]
+    if (_sprite_tmpl->animation_variants.size() <= anim_variant_ID)
     {
       log_e("Відсутня анімація з ID [%u] для Type_ID [%u]", anim_variant_ID, _type_ID);
       esp_restart();
@@ -200,7 +200,7 @@ namespace pixeler
 
   void IGameObject2D::setImgVariant(uint8_t img_variant_ID)
   {
-    if (_sprite_tmpl->img_variants.size() <= img_variant_ID) [[unlikely]]
+    if (_sprite_tmpl->img_variants.size() <= img_variant_ID)
     {
       log_e("Відсутнє зображення спрайта з ID [%u] для Type_ID [%u]", img_variant_ID, _type_ID);
       esp_restart();
@@ -211,7 +211,7 @@ namespace pixeler
 
   void IGameObject2D::setGeometryVariant(uint8_t geometry_variant_ID)
   {
-    if (_sprite_tmpl->geometry_variants.size() <= geometry_variant_ID) [[unlikely]]
+    if (_sprite_tmpl->geometry_variants.size() <= geometry_variant_ID)
     {
       log_e("Відсутня геометрія спрайта з ID [%u] для Type_ID [%u]", geometry_variant_ID, _type_ID);
       esp_restart();
@@ -220,8 +220,7 @@ namespace pixeler
     _geometry = &_sprite_tmpl->geometry_variants[geometry_variant_ID];
   }
 
-  bool
-  IGameObject2D::hasIntersectWithPoint(uint16_t x, uint16_t y, bool rigid_only) const
+  bool IGameObject2D::hasIntersectWithPoint(uint16_t x, uint16_t y, bool rigid_only) const
   {
     if (rigid_only)
     {

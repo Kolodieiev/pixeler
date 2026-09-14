@@ -91,13 +91,13 @@ namespace pixeler
                          _layout_mutex{xSemaphoreCreateMutex()},
                          _layout{new EmptyLayout(1)}
   {
-    if (!_layout_mutex) [[unlikely]]
+    if (!_layout_mutex)
     {
       log_e("Не вдалося створити _obj_mutex");
       esp_restart();
     }
 
-    if (!_task_queue) [[unlikely]]
+    if (!_task_queue)
     {
       log_e("Не вдалося створити _task_queue");
       esp_restart();
@@ -127,7 +127,7 @@ namespace pixeler
 
   bool IContext::post(std::function<void()> task, unsigned long timeout_ms)
   {
-    if (!_is_alive) [[unlikely]]
+    if (!_is_alive)
     {
       log_e("Спроба виконати post в мертвому контексті");
       esp_restart();

@@ -443,7 +443,7 @@ namespace pixeler
   template <typename T>
   inline T* IWidget::castTo()
   {
-    if (_type_ID != T::getTypeID()) [[unlikely]]
+    if (_type_ID != T::getTypeID())
     {
       log_e("Неможливо привести тип віджета %u до %u", _type_ID, T::getTypeID());
       esp_restart();

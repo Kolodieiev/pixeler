@@ -31,8 +31,7 @@ namespace pixeler
       else
       {
         IContext* next_context = context->takeNextContext();
-
-        if (!next_context) [[unlikely]]
+        if (!next_context)
         {
           log_e("Наступний контекст першого рівня не може бути null");
           esp_restart();
