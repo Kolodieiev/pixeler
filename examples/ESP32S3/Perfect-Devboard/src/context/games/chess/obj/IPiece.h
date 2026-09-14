@@ -26,7 +26,7 @@ namespace chess
     bool isWhite() const;
     void destroy();
 
-    void rotateSprite(int16_t angle);
+    void setSpriteAngle(int16_t angle);
 
   protected:
     // Потрібно лишити protected щоб пішак міг змінити поля

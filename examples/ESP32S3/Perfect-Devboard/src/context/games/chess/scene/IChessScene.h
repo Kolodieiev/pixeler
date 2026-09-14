@@ -10,7 +10,7 @@ namespace chess
   class IChessScene : public IGameScene2D
   {
   public:
-    explicit IChessScene(DataStream& stored_objs, bool is_white);
+    explicit IChessScene(DataStream& stored_objs, bool is_singleplayer, bool is_white);
     virtual ~IChessScene();
 
     virtual void update() override;
@@ -44,6 +44,9 @@ namespace chess
     uint8_t _cur_poss_position{0};
 
     bool _is_piece_selected{false};
-    const bool IS_WHITE; // TODO sort to private
+
+  private:
+    const bool IS_WHITE;
+    const bool IS_SINGLEPLAYER;
   };
 }  // namespace chess

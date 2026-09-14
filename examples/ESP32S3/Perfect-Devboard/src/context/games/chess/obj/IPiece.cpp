@@ -63,7 +63,7 @@ namespace chess
     _is_alive = false;
   }
 
-  void IPiece::rotateSprite(int16_t angle)
+  void IPiece::setSpriteAngle(int16_t angle)
   {
     _sprite.angle = angle;
   }

@@ -1,4 +1,4 @@
-#include "ChessClientContext.h"
+#include "ClientChessContext.h"
 
 #include "../../WidgetCreator.h"
 #include "ChessContext.h"
@@ -11,45 +11,34 @@ namespace chess
   static const uint8_t ITEMS_PER_PAGE = 4;
   //----------------------------------------------------------------------------------------------------------
 
-  ChessClientContext::ChessClientContext()
+  ClientChessContext::ClientChessContext()
   {
-    _wifi_was_enabled = _wifi.isEnabled();
-
-    _wifi.enable();
-
     showAPScanTmpl();
   }
 
-  ChessClientContext::~ChessClientContext()
+  ClientChessContext::~ClientChessContext()
   {
     _client.disconnect();
 
     _wifi.onScanComplete(nullptr, nullptr);
     _wifi.onConnectComplete(nullptr, nullptr);
-    if (!_wifi_was_enabled)
-      _wifi.disable();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
-  bool ChessClientContext::loop()
+  bool ClientChessContext::loop()
   {
     return true;
   }
 
-  void ChessClientContext::update()
+  void ClientChessContext::update()
   {
-    (this->*_state_input_handler)();
-  }
-
-  void ChessClientContext::updateGame()
-  {
-    // TODO
+    (this->*_state_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::showStateLabelTmpl(const String& msg_str)
+  void ClientChessContext::showStateLabelTmpl(const String& msg_str)
   {
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -67,15 +56,17 @@ namespace chess
   }
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::startScanAP()
+  void ClientChessContext::startScanAP()
   {
     unsigned long ts = millis();
     while (_wifi.isBusy())
     {
-      if (millis() - ts > 1000)
+      if (millis() - ts > 2000)
       {
+        _wifi.disable();
         log_e("Модуль wifi не відповів вчасно");
         openContext(new ChessContext());
+        _wifi.enable();
         return;
       }
       delay(10);
@@ -87,14 +78,14 @@ namespace chess
     _wifi.startScan();
   }
 
-  void ChessClientContext::showAPScanTmpl()
+  void ClientChessContext::showAPScanTmpl()
   {
-    _state_input_handler = &ChessClientContext::handleAPScanInput;
+    _state_handler = &ClientChessContext::handleAPScanInput;
     showStateLabelTmpl(STR_AP_SCANNING);
     startScanAP();
   }
 
-  void ChessClientContext::handleAPScanInput()
+  void ClientChessContext::handleAPScanInput()
   {
     if (_input.isPressed(BtnID::BTN_BACK))
       openContext(new ChessContext());
@@ -102,7 +93,7 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::showAPListTmpl()
+  void ClientChessContext::showAPListTmpl()
   {
     std::vector<String> ssids = _wifi.getScanResult();
     if (ssids.empty())
@@ -111,7 +102,7 @@ namespace chess
       return;
     }
 
-    _state_input_handler = &ChessClientContext::handleAPListInput;
+    _state_handler = &ClientChessContext::handleAPListInput;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -135,7 +126,7 @@ namespace chess
     }
   }
 
-  void ChessClientContext::handleAPListInput()
+  void ClientChessContext::handleAPListInput()
   {
     if (_input.isPressed(BtnID::BTN_BACK))
       openContext(new ChessContext());
@@ -147,7 +138,7 @@ namespace chess
       scrollSSIDsMenu(false);
   }
 
-  void ChessClientContext::connectToAP()
+  void ClientChessContext::connectToAP()
   {
     IWidget* raw_menu = getLayout()->getWidgetByID(ID_SSIDS_LIST);
     if (!raw_menu)
@@ -170,7 +161,7 @@ namespace chess
     }
   }
 
-  void ChessClientContext::scrollSSIDsMenu(bool scroll_up)
+  void ClientChessContext::scrollSSIDsMenu(bool scroll_up)
   {
     IWidget* raw_menu = getLayout()->getWidgetByID(ID_SSIDS_LIST);
     if (!raw_menu)
@@ -186,9 +177,9 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::showPwdDialogTmpl(const String& ssid)
+  void ClientChessContext::showPwdDialogTmpl(const String& ssid)
   {
-    _state_input_handler = &ChessClientContext::handlePwdDialogInput;
+    _state_handler = &ClientChessContext::handlePwdDialogInput;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -219,7 +210,7 @@ namespace chess
     keyboard->setPos(0, dialog_txt->getYPos() + dialog_txt->getHeight() + 5);
   }
 
-  void ChessClientContext::handlePwdDialogInput()
+  void ClientChessContext::handlePwdDialogInput()
   {
     IWidget* raw_kb = getLayout()->getWidgetByID(ID_DIALOG_KB);
 
@@ -269,21 +260,17 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::showApConnectTmpl()
+  void ClientChessContext::showApConnectTmpl()
   {
-    _state_input_handler = &ChessClientContext::handleClientConnectInput;
-
+    _state_handler = &ClientChessContext::handleClientConnectInput;
     showStateLabelTmpl(STR_AP_CONNECT);
   }
 
-  void ChessClientContext::connectToServer()
+  void ClientChessContext::connectToServer()
   {
-    _state_input_handler = &ChessClientContext::handleClientConnectInput;
+    _state_handler = &ClientChessContext::handleClientConnectInput;
 
-    _client.onConnect(onClientConnectHandler, this);
-    _client.onDisconnect(onClientDisconnectHandler, this);
-    _client.onGameStart(onGameStartHandler, this);
-    _client.OnError(onClientErrorHandler, this);
+    subscribeClientHandlers();
 
     String client_name = SettingsManager::get(STR_PREF_NICKNAME, STR_CHESS_GAME_DIR);
     if (client_name.isEmpty())
@@ -298,39 +285,50 @@ namespace chess
     showStateLabelTmpl(STR_SERVER_CONNECT);
   }
 
-  void ChessClientContext::showClientConnectTmpl()
+  void ClientChessContext::showClientConnectTmpl()
   {
-    _state_input_handler = &ChessClientContext::handleClientConnectInput;
-
+    _state_handler = &ClientChessContext::handleClientConnectInput;
     showStateLabelTmpl(STR_SERVER_CONNECT);
   }
 
-  void ChessClientContext::handleClientConnectInput()
+  void ClientChessContext::handleClientConnectInput()
   {
     if (_input.isPressed(BtnID::BTN_BACK))
       cancelClientConnect();
   }
 
-  void ChessClientContext::cancelClientConnect()
+  void ClientChessContext::subscribeClientHandlers()
+  {
+    _client.onConnect(onClientConnectHandler, this);
+    _client.onDisconnect(onClientDisconnectHandler, this);
+    _client.onGameStart(onGameStartHandler, this);
+    _client.OnError(onClientErrorHandler, this);
+  }
+
+  void ClientChessContext::unsubscribeClientHandlers()
   {
     _client.onConnect(nullptr, nullptr);
     _client.onDisconnect(nullptr, nullptr);
     _client.onGameStart(nullptr, nullptr);
     _client.OnError(nullptr, nullptr);
+  }
+
+  void ClientChessContext::cancelClientConnect()
+  {
+    unsubscribeClientHandlers();
     _client.disconnect();
     showAPScanTmpl();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::showLobbyTmpl()
+  void ClientChessContext::showLobbyTmpl()
   {
-    _state_input_handler = &ChessClientContext::handleLobbyInput;
-
+    _state_handler = &ClientChessContext::handleLobbyInput;
     showStateLabelTmpl(STR_WAITING_GAME);
   }
 
-  void ChessClientContext::handleLobbyInput()
+  void ClientChessContext::handleLobbyInput()
   {
     if (_input.isPressed(BtnID::BTN_BACK))
       cancelClientConnect();
@@ -338,23 +336,59 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::onClientConnectHandler(void* arg)
+  void ClientChessContext::startGame()
   {
-    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
+    getLayout()->delWidgets();
+    getLayout()->disable();
+
+    unsubscribeClientHandlers();
+
+    _scene = new ClientChessScene(_stored_objs, _client);
+    _state_handler = &ClientChessContext::handleGame;
+  }
+
+  void ClientChessContext::handleGame()
+  {
+    if (!_scene->isReleased())
+    {
+      _scene->update();
+    }
+    else
+    {
+      delete _scene;
+
+      if (_client.getStatus() == GameClient::STATUS_CONNECTED)
+      {
+        getLayout()->enable();
+        subscribeClientHandlers();
+        showLobbyTmpl();
+      }
+      else
+      {
+        openContext(new ChessContext());
+      }
+    }
+  }
+
+  //----------------------------------------------------------------------------------------------------------
+
+  void ClientChessContext::onClientConnectHandler(void* arg)
+  {
+    ClientChessContext* self = static_cast<ClientChessContext*>(arg);
     self->post([self]()
                { self->showLobbyTmpl(); });
   }
 
-  void ChessClientContext::onClientDisconnectHandler(void* arg)
+  void ClientChessContext::onClientDisconnectHandler(void* arg)
   {
-    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
+    ClientChessContext* self = static_cast<ClientChessContext*>(arg);
     self->post([self]()
                { self->showStateLabelTmpl(STR_CLIENT_DISCONNECTED); });
   }
 
-  void ChessClientContext::onClientErrorHandler(pixeler::GameClient::Error error, void* arg)
+  void ClientChessContext::onClientErrorHandler(pixeler::GameClient::Error error, void* arg)
   {
-    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
+    ClientChessContext* self = static_cast<ClientChessContext*>(arg);
 
     String err_msg;
 
@@ -382,25 +416,25 @@ namespace chess
                { self->showStateLabelTmpl(err_msg); });
   }
 
-  void ChessClientContext::onGameStartHandler(void* arg)
+  void ClientChessContext::onGameStartHandler(void* arg)
   {
-    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
-
-    // TODO
+    ClientChessContext* self = static_cast<ClientChessContext*>(arg);
+    self->post([self]()
+               { self->startGame(); });
   }
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessClientContext::onScanCompleteHandler(void* arg)
+  void ClientChessContext::onScanCompleteHandler(void* arg)
   {
-    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
+    ClientChessContext* self = static_cast<ClientChessContext*>(arg);
     self->post([self]()
                { self->showAPListTmpl(); });
   }
 
-  void ChessClientContext::onApConnectHandler(void* arg, const String& ssid, wl_status_t status)
+  void ClientChessContext::onApConnectHandler(void* arg, const String& ssid, wl_status_t status)
   {
-    ChessClientContext* self = static_cast<ChessClientContext*>(arg);
+    ClientChessContext* self = static_cast<ClientChessContext*>(arg);
 
     if (status != WL_CONNECTED)
     {

@@ -2,7 +2,7 @@
 
 namespace chess
 {
-  SingleChessScene::SingleChessScene(DataStream& stored_objs) : IChessScene(stored_objs, true)
+  SingleChessScene::SingleChessScene(DataStream& stored_objs) : IChessScene(stored_objs, true, true)
   {
   }
 
@@ -14,8 +14,10 @@ namespace chess
   {
     if (_input.isPressed(BtnID::BTN_BACK))
     {
-      _is_finished = true;
+      _is_released = true;
+      return;
     }
+
     if (_input.isHolded(BtnID::BTN_UP))
     {
       if (_board.isWhiteTurn())

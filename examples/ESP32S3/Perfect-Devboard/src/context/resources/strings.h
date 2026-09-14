@@ -97,7 +97,7 @@ const char STR_OPEN_LOBBY[] = "Відкрити лоббі";
 const char STR_CLOSE_LOBBY[] = "Закрити лоббі";
 const char STR_START_GAME[] = "Розпочати гру";
 const char STR_END_GAME[] = "Завершити гру";
-const char STR_CONFIRM_WAY[] = "Прийняти -> BTN_OK";
+const char STR_ACCEPT_WAY[] = "Прийняти -> BTN_OK";
 const char STR_REJECT_WAY[] = "Відхилити -> BTN_BACK";
 //
 const char STR_AP_SCANNING[] = "Зачекайте, відбувається сканування";

@@ -30,13 +30,19 @@ namespace chess
   static const uint16_t BOARD_SQUARE_SZ = 28;
   static const uint16_t BOARD_PIECE_SZ = 26;
 
-  IChessScene::IChessScene(DataStream& stored_objs, bool is_white) : IGameScene2D(stored_objs),
-                                                                     IS_WHITE{is_white},
-                                                                     _board{0, BOARD_IMG_GLOB_OFF,
-                                                                            BOARD_IMG_OFF_X,
-                                                                            BOARD_IMG_OFF_Y + BOARD_IMG_GLOB_OFF,
-                                                                            BOARD_SQUARE_SZ, BOARD_PIECE_SZ},
-                                                                     _cur_y{BOARD_IMG_GLOB_OFF}
+  IChessScene::IChessScene(DataStream& stored_objs, bool is_singleplayer, bool is_white)
+      : IGameScene2D(stored_objs),
+        IS_SINGLEPLAYER{is_singleplayer},
+        IS_WHITE{is_white},
+        _board{0,
+               BOARD_IMG_GLOB_OFF,
+               BOARD_IMG_OFF_X,
+               BOARD_IMG_OFF_Y + BOARD_IMG_GLOB_OFF,
+               BOARD_SQUARE_SZ,
+               BOARD_PIECE_SZ,
+               is_singleplayer,
+               is_white},
+        _cur_y{BOARD_IMG_GLOB_OFF}
   {
     _msg_lbl = new Label(1);
     _msg_lbl->setWidth(UI_WIDTH);
@@ -62,7 +68,6 @@ namespace chess
   {
     IGameScene2D::update();
 
-    // Малюємо курсор після оновлення сцени, щоб фон не перемальовував його
     if (_is_piece_selected)
     {
       // Фігуру обрано, малюємо можливі ходи
@@ -73,11 +78,10 @@ namespace chess
     // Малюємо курсор
     _display.drawRoundRect(_cur_x + BOARD_IMG_OFF_X, _cur_y + BOARD_IMG_OFF_Y, BOARD_SQUARE_SZ, BOARD_SQUARE_SZ, 5, COLOR_RED);
 
-    // Повертаємо дошку
-    if (!_board.isWhiteTurn())
-    {
+    if (IS_SINGLEPLAYER && !_board.isWhiteTurn())
       _display.rotateDisplaySquare(0, BOARD_IMG_GLOB_OFF, SPRITE_CHESS_BOARD_SZ, DisplayWrapper::ROTATE_ANGLE_180);
-    }
+    else if (!IS_WHITE)
+      _display.rotateDisplaySquare(0, BOARD_IMG_GLOB_OFF, SPRITE_CHESS_BOARD_SZ, DisplayWrapper::ROTATE_ANGLE_180);
 
     // TODO перенести в UI
     if (_board.isCheckmate())
@@ -114,7 +118,7 @@ namespace chess
     _main_obj = _camera;
   }
 
-  void IChessScene::prepareBoard()  // TODO is_white
+  void IChessScene::prepareBoard()
   {
     // Bishop
     for (int i = 0; i < 2; ++i)
