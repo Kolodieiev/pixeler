@@ -187,19 +187,6 @@ namespace pixeler
      */
     void hideNotification();
 
-    /**
-     * @brief Віддає м'ютекс шаблону тій задачі, яка викликає цей метод.
-     *
-     * @return true - Якщо мютекс отримано. false - Інакше
-     */
-    bool takeLayoutMutex() const;
-
-    /**
-     * @brief Отримує назад м'ютекс шаблону з тієї задачі, яка викликає цей метод.
-     *
-     */
-    void giveLayoutMutex() const;
-
   private:
     void removeToast();
     void processPostedTasks();
@@ -212,7 +199,6 @@ namespace pixeler
 #ifdef GRAPHICS_ENABLED
     TaskHandle_t _owner_task_handle{nullptr};
     QueueHandle_t _task_queue{nullptr};
-    mutable SemaphoreHandle_t _layout_mutex{nullptr};
     IWidgetContainer* _layout{nullptr};
     Label* _toast_label{nullptr};
     Notification* _notification{nullptr};
