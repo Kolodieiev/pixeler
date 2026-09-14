@@ -1,4 +1,4 @@
-#include "ChessPrefContext.h"
+#include "PrefChessContext.h"
 
 #include "../../WidgetCreator.h"
 #include "ChessContext.h"
@@ -9,30 +9,30 @@ namespace chess
 {
   static const uint8_t MENU_ITEM_NUM{5};
 
-  ChessPrefContext::ChessPrefContext()
+  PrefChessContext::PrefChessContext()
   {
     setCpuFrequency(FREQ_MIN);
 
     showMainTmpl();
   }
 
-  ChessPrefContext::~ChessPrefContext()
+  PrefChessContext::~PrefChessContext()
   {
   }
 
-  bool ChessPrefContext::loop()
+  bool PrefChessContext::loop()
   {
     return true;
   }
 
-  void ChessPrefContext::update()
+  void PrefChessContext::update()
   {
-    (this->*_state_input_handler)();
+    (this->*_state_handler)();
   }
 
-  void ChessPrefContext::showMainTmpl()
+  void PrefChessContext::showMainTmpl()
   {
-    _state_input_handler = &ChessPrefContext::procMainMenu;
+    _state_handler = &PrefChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -67,7 +67,7 @@ namespace chess
     serv_pwd_item->setLabel(serv_pwd_lbl);
   }
 
-  void ChessPrefContext::procMainMenu()
+  void PrefChessContext::procMainMenu()
   {
     FixedMenu* menu = getLayout()->getWidgetByID(ID_MAIN_MENU)->castTo<FixedMenu>();
 
@@ -104,30 +104,30 @@ namespace chess
     }
   }
 
-  void ChessPrefContext::showDialogNicknameTmpl()
+  void PrefChessContext::showDialogNicknameTmpl()
   {
     String _client_nick = SettingsManager::get(STR_PREF_NICKNAME, STR_CHESS_GAME_DIR);
     _dialog_id = DIALOG_ID_NICK;
     addDialog(STR_NICKNAME, _client_nick);
   }
 
-  void ChessPrefContext::showDialogServNameTmpl()
+  void PrefChessContext::showDialogServNameTmpl()
   {
     String _serv_ssid = SettingsManager::get(STR_PREF_SERVER_SSID, STR_CHESS_GAME_DIR);
     _dialog_id = DIALOG_ID_SERV_NAME;
     addDialog(STR_SERV_NAME, _serv_ssid);
   }
 
-  void ChessPrefContext::showDialogServPwdTmpl()
+  void PrefChessContext::showDialogServPwdTmpl()
   {
     String _serv_pwd = SettingsManager::get(STR_PREF_SERVER_PWD, STR_CHESS_GAME_DIR);
     _dialog_id = DIALOG_ID_SERV_PWD;
     addDialog(STR_SERV_PWD, _serv_pwd);
   }
 
-  void ChessPrefContext::addDialog(const String& title_txt, const String& start_txt)
+  void PrefChessContext::addDialog(const String& title_txt, const String& start_txt)
   {
-    _state_input_handler = &ChessPrefContext::handleDialogInput;
+    _state_handler = &PrefChessContext::handleDialogInput;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -159,7 +159,7 @@ namespace chess
     keyboard->setPos(0, dialog_txt->getYPos() + dialog_txt->getHeight() + 5);
   }
 
-  void ChessPrefContext::handleDialogInput()
+  void PrefChessContext::handleDialogInput()
   {
     Keyboard* keyboard = getLayout()->getWidgetByID(ID_DIALOG_KB)->castTo<Keyboard>();
     TextBox* dialog_txt = getLayout()->getWidgetByID(ID_DIALOG_TEXT)->castTo<TextBox>();
@@ -200,7 +200,7 @@ namespace chess
     }
   }
 
-  void ChessPrefContext::saveDialogResult(String& result_str)
+  void PrefChessContext::saveDialogResult(String& result_str)
   {
     const char* PREF_FIELD_NAME = nullptr;
     switch (_dialog_id)

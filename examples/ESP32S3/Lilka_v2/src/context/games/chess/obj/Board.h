@@ -25,8 +25,15 @@ namespace chess
       uint16_t piece_type{TYPE_NONE};
     };
 
-    explicit Board(uint16_t x_glob_offset, uint16_t y_glob_offset, uint16_t x_loc_offset, uint16_t y_loc_offset, uint16_t square_size, uint16_t piece_size);
-    ~Board(); // TODO встановити хто ходить перший
+    explicit Board(uint16_t x_glob_offset,
+                   uint16_t y_glob_offset,
+                   uint16_t x_loc_offset,
+                   uint16_t y_loc_offset,
+                   uint16_t square_size,
+                   uint16_t piece_size,
+                   bool is_singleplayer,
+                   bool is_white);
+    ~Board();
 
     void addPiece(IPiece* piece);
     void reset();
@@ -67,6 +74,8 @@ namespace chess
     const uint16_t _SQUARE_SIZE;
     const uint16_t _PIECE_SIZE;
 
+    const bool IS_SINGLEPLAYER;
+    const bool IS_WHITE;
     bool _is_white_turn{true};
     bool _is_checkmate{false};
     bool _is_stalemate{false};

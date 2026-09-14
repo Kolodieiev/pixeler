@@ -24,27 +24,35 @@ namespace chess
   static const char STR_WHITE_WIN[] = "Білі перемогли!";
   static const char STR_STALEMATE[] = "Нічия!";
 
-  static const uint16_t BOARD_IMG_GLOB_OFF = (UI_HEIGHT - SPRITE_CHESS_BOARD_SZ) / 2;
+  static const uint16_t BOARD_IMG_GLOB_OFF_X = (UI_WIDTH - SPRITE_CHESS_BOARD_SZ) / 2;
+  static const uint16_t BOARD_IMG_GLOB_OFF_Y = (UI_HEIGHT - SPRITE_CHESS_BOARD_SZ) / 2;
   static const uint16_t BOARD_IMG_OFF_X = 8;
   static const uint16_t BOARD_IMG_OFF_Y = 8;
   static const uint16_t BOARD_SQUARE_SZ = 28;
   static const uint16_t BOARD_PIECE_SZ = 26;
 
-  IChessScene::IChessScene(DataStream& stored_objs, bool is_white) : IGameScene2D(stored_objs),
-                                                                     IS_WHITE{is_white},
-                                                                     _board{0, BOARD_IMG_GLOB_OFF,
-                                                                            BOARD_IMG_OFF_X,
-                                                                            BOARD_IMG_OFF_Y + BOARD_IMG_GLOB_OFF,
-                                                                            BOARD_SQUARE_SZ, BOARD_PIECE_SZ},
-                                                                     _cur_y{BOARD_IMG_GLOB_OFF}
+  IChessScene::IChessScene(DataStream& stored_objs, bool is_singleplayer, bool is_white)
+      : IGameScene2D(stored_objs),
+        IS_SINGLEPLAYER{is_singleplayer},
+        IS_WHITE{is_white},
+        _board{BOARD_IMG_GLOB_OFF_X,
+               BOARD_IMG_GLOB_OFF_Y,
+               BOARD_IMG_OFF_X + BOARD_IMG_GLOB_OFF_X,
+               BOARD_IMG_OFF_Y + BOARD_IMG_GLOB_OFF_Y,
+               BOARD_SQUARE_SZ,
+               BOARD_PIECE_SZ,
+               is_singleplayer,
+               is_white},
+        _cur_x{BOARD_IMG_GLOB_OFF_X},
+        _cur_y{BOARD_IMG_GLOB_OFF_Y}
   {
     _msg_lbl = new Label(1);
-    _msg_lbl->setWidth(UI_WIDTH);
+    _msg_lbl->setWidth(BOARD_IMG_GLOB_OFF_X);
     _msg_lbl->setAlign(IWidget::ALIGN_CENTER);
     _msg_lbl->setGravity(IWidget::GRAVITY_CENTER);
     _msg_lbl->setFont(font_10x20);
     _msg_lbl->setBackColor(COLOR_GREY);
-    _msg_lbl->setPos(0, 10);
+    _msg_lbl->setPos(0, (UI_HEIGHT - _msg_lbl->getHeight()) / 2);
 
     createSpiteTmpls();
     buildTerrain();
@@ -62,7 +70,6 @@ namespace chess
   {
     IGameScene2D::update();
 
-    // Малюємо курсор після оновлення сцени, щоб фон не перемальовував його
     if (_is_piece_selected)
     {
       // Фігуру обрано, малюємо можливі ходи
@@ -73,31 +80,41 @@ namespace chess
     // Малюємо курсор
     _display.drawRoundRect(_cur_x + BOARD_IMG_OFF_X, _cur_y + BOARD_IMG_OFF_Y, BOARD_SQUARE_SZ, BOARD_SQUARE_SZ, 5, COLOR_RED);
 
-    // Повертаємо дошку
-    if (!_board.isWhiteTurn())
-    {
-      _display.rotateDisplaySquare(0, BOARD_IMG_GLOB_OFF, SPRITE_CHESS_BOARD_SZ, DisplayWrapper::ROTATE_ANGLE_180);
-    }
+    if (IS_SINGLEPLAYER && !_board.isWhiteTurn())
+      _display.rotateDisplaySquare(BOARD_IMG_GLOB_OFF_X, BOARD_IMG_GLOB_OFF_Y, SPRITE_CHESS_BOARD_SZ, DisplayWrapper::ROTATE_ANGLE_180);
+    else if (!IS_WHITE)
+      _display.rotateDisplaySquare(BOARD_IMG_GLOB_OFF_X, BOARD_IMG_GLOB_OFF_Y, SPRITE_CHESS_BOARD_SZ, DisplayWrapper::ROTATE_ANGLE_180);
 
     // TODO перенести в UI
     if (_board.isCheckmate())
     {
       if (_board.isWhiteTurn())
+      {
         _msg_lbl->setText(STR_BLACK_WIN);
+        _msg_lbl->setTextColor(COLOR_BLACK);
+      }
       else
+      {
         _msg_lbl->setText(STR_WHITE_WIN);
+        _msg_lbl->setTextColor(COLOR_WHITE);
+      }
+
+      _msg_lbl->setWidth(UI_WIDTH);
     }
     else if (_board.isStalemate())
     {
       _msg_lbl->setText(STR_STALEMATE);
+      _msg_lbl->setWidth(UI_WIDTH);
     }
     else if (_board.isWhiteTurn())
     {
-      _msg_lbl->setText(STR_WHITE_TURN);
+      _msg_lbl->setText("Б");
+      _msg_lbl->setTextColor(COLOR_WHITE);
     }
     else
     {
-      _msg_lbl->setText(STR_BLACK_TURN);
+      _msg_lbl->setText("Ч");
+      _msg_lbl->setTextColor(COLOR_BLACK);
     }
 
     _msg_lbl->drawForced();
@@ -105,7 +122,7 @@ namespace chess
 
   void IChessScene::buildTerrain()
   {
-    _terrain.setBackImg(SPRITE_CHESS_BOARD, SPRITE_CHESS_BOARD_SZ, SPRITE_CHESS_BOARD_SZ, COLOR_GREY, 0, BOARD_IMG_GLOB_OFF);
+    _terrain.setBackImg(SPRITE_CHESS_BOARD, SPRITE_CHESS_BOARD_SZ, SPRITE_CHESS_BOARD_SZ, COLOR_GREY, BOARD_IMG_GLOB_OFF_X, BOARD_IMG_GLOB_OFF_Y);
   }
 
   void IChessScene::createMainObj()
@@ -114,7 +131,7 @@ namespace chess
     _main_obj = _camera;
   }
 
-  void IChessScene::prepareBoard()  // TODO is_white
+  void IChessScene::prepareBoard()
   {
     // Bishop
     for (int i = 0; i < 2; ++i)
@@ -260,34 +277,34 @@ namespace chess
 
   void IChessScene::moveCursorUp()
   {
-    if (_cur_y - BOARD_SQUARE_SZ < BOARD_IMG_GLOB_OFF)
-      _cur_y = SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_Y * 2 + BOARD_IMG_GLOB_OFF - BOARD_SQUARE_SZ;
+    if (_cur_y - BOARD_SQUARE_SZ < BOARD_IMG_GLOB_OFF_Y)
+      _cur_y = SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_Y * 2 + BOARD_IMG_GLOB_OFF_Y - BOARD_SQUARE_SZ;
     else
       _cur_y -= BOARD_SQUARE_SZ;
   }
 
   void IChessScene::moveCursorDown()
   {
-    if (_cur_y + BOARD_SQUARE_SZ < SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_Y * 2 + BOARD_IMG_GLOB_OFF)
+    if (_cur_y + BOARD_SQUARE_SZ < SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_Y * 2 + BOARD_IMG_GLOB_OFF_Y)
       _cur_y += BOARD_SQUARE_SZ;
     else
-      _cur_y = BOARD_IMG_GLOB_OFF;
+      _cur_y = BOARD_IMG_GLOB_OFF_Y;
   }
 
   void IChessScene::moveCursorLeft()
   {
-    if (_cur_x - BOARD_SQUARE_SZ < 0)
-      _cur_x = SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_X * 2 - BOARD_SQUARE_SZ;
+    if (_cur_x - BOARD_SQUARE_SZ < BOARD_IMG_GLOB_OFF_X)
+      _cur_x = SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_X * 2 + BOARD_IMG_GLOB_OFF_X - BOARD_SQUARE_SZ;
     else
       _cur_x -= BOARD_SQUARE_SZ;
   }
 
   void IChessScene::moveCursorRight()
   {
-    if (_cur_x + BOARD_SQUARE_SZ < SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_X * 2)
+    if (_cur_x + BOARD_SQUARE_SZ < SPRITE_CHESS_BOARD_SZ - BOARD_IMG_OFF_X * 2 + BOARD_IMG_GLOB_OFF_X)
       _cur_x += BOARD_SQUARE_SZ;
     else
-      _cur_x = 0;
+      _cur_x = BOARD_IMG_GLOB_OFF_X;
   }
 
   void IChessScene::handleOkClick()

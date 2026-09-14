@@ -829,7 +829,7 @@ void FilesContext::openNextLevel()
   String next_dir_path = makePathFromBreadcrumbs();
   next_dir_path += next_dir;
 
-  if (!_fs.dirExist(next_dir_path.c_str(), true))
+  if (!_fs.dirExistSilently(next_dir_path.c_str()))
     return;
 
   _breadcrumbs.push_back(next_dir);

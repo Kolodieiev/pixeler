@@ -1,4 +1,4 @@
-#include "ChessServerContext.h"
+#include "ServerChessContext.h"
 
 #include "../../WidgetCreator.h"
 #include "ChessContext.h"
@@ -8,53 +8,55 @@
 
 namespace chess
 {
-  const uint16_t PADDING_BOTT = 40;
+  static const uint8_t PADDING_BOTT = 40;
+  static const uint8_t MAX_CLIENT_NUM = 3;
 
-  ChessServerContext::ChessServerContext()
+  ServerChessContext::ServerChessContext()
   {
-    showLobbyTmpl();
-
-    _server.onConfirmation(onConfirmationHandler, this);
-    _server.onDisconnect(onDisconnectHandler, this);
-
-    String server_name = SettingsManager::get(STR_PREF_SERVER_SSID, STR_CHESS_GAME_DIR);
-    String server_pwd = SettingsManager::get(STR_PREF_SERVER_PWD, STR_CHESS_GAME_DIR);
-
-    if (server_name.isEmpty())
-      server_name = STR_DEF_SSID;
-
-    if (server_pwd.isEmpty())
-      server_pwd = STR_DEF_PWD;
-
     _wifi_was_enabled = _wifi.isEnabled();
 
-    _server.begin(STR_CHESS_GAME_ID, server_name, server_pwd, 3);
-    _server.open();
+    showLobbyTmpl();
+    setupServer();
   }
 
-  ChessServerContext::~ChessServerContext()
+  ServerChessContext::~ServerChessContext()
   {
     if (!_wifi_was_enabled)
       _wifi.disable();
   }
 
+  void ServerChessContext::setupServer()
+  {
+    String server_name = SettingsManager::get(STR_PREF_SERVER_SSID, STR_CHESS_GAME_DIR);
+    if (server_name.isEmpty())
+      server_name = STR_DEF_SSID;
+
+    String server_pwd = SettingsManager::get(STR_PREF_SERVER_PWD, STR_CHESS_GAME_DIR);
+    if (server_pwd.isEmpty())
+      server_pwd = STR_DEF_PWD;
+
+    subscribeServerHandlers();
+
+    _server.begin(STR_CHESS_GAME_ID, server_name, server_pwd, MAX_CLIENT_NUM);
+    _server.open();
+  }
   //----------------------------------------------------------------------------------------------------------
 
-  bool ChessServerContext::loop()
+  bool ServerChessContext::loop()
   {
     return true;
   }
 
-  void ChessServerContext::update()
+  void ServerChessContext::update()
   {
-    (this->*_state_input_handler)();
+    (this->*_state_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessServerContext::showLobbyTmpl()
+  void ServerChessContext::showLobbyTmpl()
   {
-    _state_input_handler = &ChessServerContext::handleLobbyInput;
+    _state_handler = &ServerChessContext::handleLobbyInput;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -100,7 +102,7 @@ namespace chess
     }
   }
 
-  void ChessServerContext::handleLobbyInput()
+  void ServerChessContext::handleLobbyInput()
   {
     if (_input.isPressed(BtnID::BTN_BACK))
       openContext(new ChessContext());
@@ -114,9 +116,9 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessServerContext::showLobbyContextMenuTmpl()
+  void ServerChessContext::showLobbyContextMenuTmpl()
   {
-    _state_input_handler = &ChessServerContext::handleContextMenuInput;
+    _state_handler = &ServerChessContext::handleContextMenuInput;
 
     FixedMenu* context_menu = WidgetCreator::getContextMenu(ID_CONTEXT_MENU);
     getLayout()->addWidget(context_menu);
@@ -159,9 +161,9 @@ namespace chess
                          UI_HEIGHT - PADDING_BOTT - context_menu->getHeight() - 2);
   }
 
-  void ChessServerContext::hideLobbyContextMenu()
+  void ServerChessContext::hideLobbyContextMenu()
   {
-    _state_input_handler = &ChessServerContext::handleLobbyInput;
+    _state_handler = &ServerChessContext::handleLobbyInput;
 
     getLayout()->delWidgetByID(ID_CONTEXT_MENU);
 
@@ -173,7 +175,7 @@ namespace chess
     }
   }
 
-  void ChessServerContext::handleContextMenuInput()
+  void ServerChessContext::handleContextMenuInput()
   {
     if (_input.isReleased(BtnID::BTN_BACK))
     {
@@ -188,24 +190,27 @@ namespace chess
       {
         case ID_ITEM_TOGGLE_LOBBY:
           _server.toggle();
+          hideLobbyContextMenu();
           break;
+
         case ID_ITEM_START_GAME:
-          startGame();
-          break;
+        {
+          FixedMenu* client_list = getLayout()->getWidgetByID(ID_CLIENT_LIST)->castTo<FixedMenu>();
+          startGame(client_list->getCurrItemText());
+        }
+        break;
+
         case ID_ITEM_KICK_CLIENT:
         {
           FixedMenu* client_list = getLayout()->getWidgetByID(ID_CLIENT_LIST)->castTo<FixedMenu>();
-          _server.removeSession(client_list->getCurrItemText());
-          showLobbyTmpl();
-          return;
+          _server.removeSession(client_list->getCurrItemText()); 
+          // Оновлення view буде викликано через disconnectHandler
         }
         break;
 
         default:
           break;
       }
-
-      hideLobbyContextMenu();
     }
     else if (_input.isReleased(BtnID::BTN_UP))
     {
@@ -219,7 +224,7 @@ namespace chess
     }
   }
 
-  void ChessServerContext::scrollClientsMenu(bool scroll_up)
+  void ServerChessContext::scrollClientsMenu(bool scroll_up)
   {
     IWidget* raw_menu = getLayout()->getWidgetByID(ID_CLIENT_LIST);
     if (raw_menu)
@@ -235,49 +240,49 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessServerContext::showClientConfirmTmpl(String client_name)
+  void ServerChessContext::showClientAcceptTmpl(String client_name)
   {
-    _state_input_handler = &ChessServerContext::handleClientConfirmInput;
+    _state_handler = &ServerChessContext::handleClientAcceptInput;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
 
-    Label* confirm_title = new Label(ID_LBL_CONFIRM_TITLE);
-    layout->addWidget(confirm_title);
-    confirm_title->setText(STR_WANTS_TO_JOIN);
-    confirm_title->setBackColor(COLOR_MAIN_BACK);
-    confirm_title->setGravity(IWidget::GRAVITY_CENTER);
-    confirm_title->setWidth(UI_WIDTH);
-    confirm_title->setHeight(20);
-    confirm_title->setAutoscroll(true);
+    Label* accept_title = new Label(ID_LBL_ACCEPT_TITLE);
+    layout->addWidget(accept_title);
+    accept_title->setText(STR_WANTS_TO_JOIN);
+    accept_title->setBackColor(COLOR_MAIN_BACK);
+    accept_title->setGravity(IWidget::GRAVITY_CENTER);
+    accept_title->setWidth(UI_WIDTH);
+    accept_title->setHeight(20);
+    accept_title->setAutoscroll(true);
 
-    Label* name_lbl = confirm_title->clone(ID_LBL_CLIENT_NAME);
+    Label* name_lbl = accept_title->clone(ID_LBL_CLIENT_NAME);
     layout->addWidget(name_lbl);
     name_lbl->setText(client_name);
-    name_lbl->setPos(0, confirm_title->getBottomYPos() + 5);
+    name_lbl->setPos(0, accept_title->getBottomYPos() + 5);
     name_lbl->setFont(font_inr24);
     name_lbl->setTextColor(COLOR_GREEN);
 
-    Label* confirm_way = confirm_title->clone(ID_LBL_CONFIRM_WAY);
-    layout->addWidget(confirm_way);
-    confirm_way->setText(STR_CONFIRM_WAY);
-    confirm_way->setPos(0, name_lbl->getBottomYPos() + 5);
+    Label* accept_way = accept_title->clone(ID_LBL_ACCEPT_WAY);
+    layout->addWidget(accept_way);
+    accept_way->setText(STR_ACCEPT_WAY);
+    accept_way->setPos(0, name_lbl->getBottomYPos() + 5);
 
-    Label* reject_way = confirm_title->clone(ID_LBL_REJECT_WAY);
+    Label* reject_way = accept_title->clone(ID_LBL_REJECT_WAY);
     layout->addWidget(reject_way);
     reject_way->setText(STR_REJECT_WAY);
-    reject_way->setPos(0, confirm_way->getBottomYPos() + 5);
+    reject_way->setPos(0, accept_way->getBottomYPos() + 5);
   }
 
-  void ChessServerContext::handleClientConfirmInput()
+  void ServerChessContext::handleClientAcceptInput()
   {
     if (_input.isReleased(BtnID::BTN_BACK))
-      handleClientConfirmResult(false);
+      handleClientAcceptResult(false);
     else if (_input.isReleased(BtnID::BTN_OK))
-      handleClientConfirmResult(true);
+      handleClientAcceptResult(true);
   }
 
-  void ChessServerContext::handleClientConfirmResult(bool is_accepted)
+  void ServerChessContext::handleClientAcceptResult(bool is_accepted)
   {
     Label* client_name_lbl = getLayout()->getWidgetByID(ID_LBL_CLIENT_NAME)->castTo<Label>();
     _server.resolveJoin(client_name_lbl->getText(), is_accepted);
@@ -286,26 +291,60 @@ namespace chess
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessServerContext::onConfirmationHandler(const String client_name, void* arg)
+  void ServerChessContext::onAcceptHandler(const String client_name, void* arg)
   {
-    ChessServerContext* self = static_cast<ChessServerContext*>(arg);
+    ServerChessContext* self = static_cast<ServerChessContext*>(arg);
     self->post([self, client_name]()
-               { self->showClientConfirmTmpl(client_name); }, 500);
+               { self->showClientAcceptTmpl(client_name); }, 500);
   }
 
-  void ChessServerContext::onDisconnectHandler(const String client_name, void* arg)
+  void ServerChessContext::onDisconnectHandler(const IPAddress& client_ip, void* arg)
   {
-    ChessServerContext* self = static_cast<ChessServerContext*>(arg);
+    ServerChessContext* self = static_cast<ServerChessContext*>(arg);
     self->post([self]()
                { self->showLobbyTmpl(); }, 500);
   }
 
   //----------------------------------------------------------------------------------------------------------
 
-  void ChessServerContext::startGame()
+  void ServerChessContext::subscribeServerHandlers()
+  {
+    _server.onAccept(onAcceptHandler, this);
+    _server.onDisconnect(onDisconnectHandler, this);
+  }
+
+  void ServerChessContext::unsubscribeServerHandlers()
+  {
+    _server.onAccept(nullptr, nullptr);
+    _server.onDisconnect(nullptr, nullptr);
+  }
+
+  void ServerChessContext::startGame(const String& main_client_name)
   {
     _server.close();
-    // TODO start game _server.broadcastGameStarted();
+    unsubscribeServerHandlers();
+    _state_handler = &ServerChessContext::handleGame;
+    IPAddress main_ip = _server.getClientIP(main_client_name);
+    getLayout()->delWidgets();
+    getLayout()->disable();
+    _scene = new ServerChessScene(_stored_objs, _server, main_ip);
+  }
+
+  void ServerChessContext::handleGame()
+  {
+    if (!_scene->isReleased())
+    {
+      _scene->update();
+    }
+    else
+    {
+      delete _scene;
+      _scene = nullptr;
+      subscribeServerHandlers();
+      getLayout()->enable();
+      showLobbyTmpl();
+      _server.open();
+    }
   }
 
   //----------------------------------------------------------------------------------------------------------

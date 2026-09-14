@@ -1,10 +1,10 @@
 #include "ChessContext.h"
 
 #include "../../WidgetCreator.h"
-#include "ChessClientContext.h"
+#include "ClientChessContext.h"
 #include "LocalChessContext.h"
-#include "ChessPrefContext.h"
-#include "ChessServerContext.h"
+#include "PrefChessContext.h"
+#include "ServerChessContext.h"
 #include "context/games/GameListContext.h"
 #include "widget/menu/FixedMenu.h"
 #include "widget/text/TextBox.h"
@@ -35,14 +35,14 @@ namespace chess
 
   void ChessContext::update()
   {
-    (this->*_state_input_handler)();
+    (this->*_state_handler)();
   }
 
   //----------------------------------------------------------------------------------------------------------
 
   void ChessContext::showMainTmpl()
   {
-    _state_input_handler = &ChessContext::procMainMenu;
+    _state_handler = &ChessContext::procMainMenu;
 
     EmptyLayout* layout = WidgetCreator::getEmptyLayout();
     setLayout(layout);
@@ -118,15 +118,15 @@ namespace chess
           break;
 
         case ID_ITEM_CLIENT:
-          openContext(new ChessClientContext());
+          openContext(new ClientChessContext());
           break;
 
         case ID_ITEM_SERVER:
-          openContext(new ChessServerContext());
+          openContext(new ServerChessContext());
           break;
 
         case ID_ITEM_PREFS:
-          openContext(new ChessPrefContext());
+          openContext(new PrefChessContext());
           break;
       }
     }

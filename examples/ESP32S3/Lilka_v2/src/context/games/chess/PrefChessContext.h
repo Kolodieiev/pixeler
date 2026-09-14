@@ -5,11 +5,11 @@
 
 namespace chess
 {
-  class ChessPrefContext : public pixeler::IContext
+  class PrefChessContext : public pixeler::IContext
   {
   public:
-    ChessPrefContext();
-    virtual ~ChessPrefContext();
+    PrefChessContext();
+    virtual ~PrefChessContext();
 
   protected:
     virtual bool loop() override;
@@ -28,7 +28,7 @@ namespace chess
     void saveDialogResult(String& result_str);
 
   private:
-    using StateHandler = void (ChessPrefContext::*)();
+    using StateHandler = void (PrefChessContext::*)();
 
     enum WidgetID : uint8_t
     {
@@ -53,7 +53,7 @@ namespace chess
       DIALOG_ID_SERVER_CONN,
     };
 
-    StateHandler _state_input_handler{nullptr};
+    StateHandler _state_handler{nullptr};
 
     PrefDialogID _dialog_id{DIALOG_ID_NICK};
   };

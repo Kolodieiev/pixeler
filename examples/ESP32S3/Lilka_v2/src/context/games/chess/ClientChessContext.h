@@ -6,19 +6,17 @@
 
 namespace chess
 {
-  class ChessClientContext : public IChessGameContext
+  class ClientChessContext : public IChessGameContext
   {
   public:
-    ChessClientContext();
-    virtual ~ChessClientContext();
+    ClientChessContext();
+    virtual ~ClientChessContext();
 
   protected:
     virtual bool loop() override;
     virtual void update() override;
 
   private:
-    void updateGame();
-
     void showStateLabelTmpl(const String& msg_str);  // Метод для відображення повідомлення про поточну дію
 
     void startScanAP();        // Метод для запуску сканування точок доступу
@@ -37,20 +35,26 @@ namespace chess
     void connectToServer();           // Метод для обробки підключення до серверу
     void showClientConnectTmpl();     // Показати підключення до сервера
     void handleClientConnectInput();  // Обробка відміни підключення до AP
+    void subscribeClientHandlers(); //
+    void unsubscribeClientHandlers(); //
     void cancelClientConnect();       // Вихід з лоббі або процесу підключення до сервера
     void showLobbyTmpl();             // Показати клієнтське лобі
     void handleLobbyInput();          // Вихід з клієнтського лобі
 
+    void startGame();
+    void handleGame();  
+
+
     static void onClientConnectHandler(void* arg);                                  // Обробник події підключення до сервера
     static void onClientDisconnectHandler(void* arg);                               // Обробник події відключення від сервера
     static void onClientErrorHandler(pixeler::GameClient::Error error, void* arg);  // Обробник події отримання помилки клієнта
-    static void onGameStartHandler(void* arg);    // Обробник події запуску гри
+    static void onGameStartHandler(void* arg);                                      // Обробник події запуску гри
 
     static void onScanCompleteHandler(void* arg);                                       // Обробник події завешення сканування точок доступу
     static void onApConnectHandler(void* arg, const String& ssid, wl_status_t status);  // Обробник події заверешення спроби підключення до точки доступу
 
   private:
-    using StateHandler = void (ChessClientContext::*)();
+    using StateHandler = void (ClientChessContext::*)();
 
     enum WidgetID : uint8_t
     {
@@ -68,8 +72,6 @@ namespace chess
 
     pixeler::GameClient _client;
 
-    StateHandler _state_input_handler{nullptr};
-
-    bool _wifi_was_enabled{false};
+    StateHandler _state_handler{nullptr};
   };
 }  // namespace chess

@@ -5,17 +5,19 @@
 
 namespace chess
 {
-  class ChessServerContext : public IChessGameContext
+  class ServerChessContext : public IChessGameContext
   {
   public:
-    ChessServerContext();
-    virtual ~ChessServerContext();
+    ServerChessContext();
+    virtual ~ServerChessContext();
 
   protected:
     virtual bool loop() override;
     virtual void update() override;
 
   private:
+    void setupServer();  // Налаштувати ігровий сервер
+
     void showLobbyTmpl();     // Показати ігрове лобі сервера
     void handleLobbyInput();  // Обробка клавіш ігрового лобі
 
@@ -24,24 +26,27 @@ namespace chess
     void handleContextMenuInput();    // Обробка клавіш контекстного меню ігрового лобі
     void scrollClientsMenu(bool scroll_up = false);
 
-    void showClientConfirmTmpl(String client_name);  // Показати повідомлення про підключення клієнта
-    void handleClientConfirmInput();                 // Прийняти або відхилити клієнта
-    void handleClientConfirmResult(bool is_accepted);
+    void showClientAcceptTmpl(String client_name);  // Показати повідомлення про підключення клієнта
+    void handleClientAcceptInput();                 // Прийняти або відхилити клієнта
+    void handleClientAcceptResult(bool is_accepted);
 
-    static void onConfirmationHandler(const String client_name, void* arg);  // Обробник запиту на підключення
-    static void onDisconnectHandler(const String client_name, void* arg);    // Обробник відключення клієнта
+    static void onAcceptHandler(const String client_name, void* arg);        // Обробник запиту на підключення
+    static void onDisconnectHandler(const IPAddress& client_ip, void* arg);  // Обробник відключення клієнта
 
-    void startGame();
+    void unsubscribeServerHandlers();
+    void subscribeServerHandlers();
+    void startGame(const String& main_client_name);
+    void handleGame();
 
   private:
-    using StateHandler = void (ChessServerContext::*)();
+    using StateHandler = void (ServerChessContext::*)();
 
     enum WidgetID : uint8_t
     {
       ID_CLIENT_LIST = 1,
-      ID_LBL_CONFIRM_TITLE,
+      ID_LBL_ACCEPT_TITLE,
       ID_LBL_CLIENT_NAME,
-      ID_LBL_CONFIRM_WAY,
+      ID_LBL_ACCEPT_WAY,
       ID_LBL_REJECT_WAY,
       ID_EMPTY_MSG,
       ID_CONTEXT_MENU,
@@ -56,7 +61,7 @@ namespace chess
 
     pixeler::GameServer _server;
 
-    StateHandler _state_input_handler{nullptr};
+    StateHandler _state_handler{nullptr};
 
     bool _wifi_was_enabled{false};
   };

@@ -12,13 +12,17 @@ namespace chess
                uint16_t x_loc_offset,
                uint16_t y_loc_offset,
                uint16_t square_size,
-               uint16_t piece_size) : _X_GLOB_OFFSET{x_glob_offset},
-                                      _Y_GLOB_OFFSET{y_glob_offset},
-                                      _X_LOC_OFFSET{x_loc_offset},
-                                      _Y_LOC_OFFSET{y_loc_offset},
-                                      _SQUARE_SIZE{square_size},
-                                      _PIECE_SIZE{piece_size}
-
+               uint16_t piece_size,
+               bool is_singleplayer,
+               bool is_white)
+      : _X_GLOB_OFFSET{x_glob_offset},
+        _Y_GLOB_OFFSET{y_glob_offset},
+        _X_LOC_OFFSET{x_loc_offset},
+        _Y_LOC_OFFSET{y_loc_offset},
+        _SQUARE_SIZE{square_size},
+        _PIECE_SIZE{piece_size},
+        IS_SINGLEPLAYER{is_singleplayer},
+        IS_WHITE{is_white}
   {
   }
 
@@ -82,6 +86,12 @@ namespace chess
         _board[6][col] = white_pawn;
         updateObjPhysPos(white_pawn, 6, col);
       }
+    }
+
+    if (!IS_SINGLEPLAYER && !IS_WHITE)
+    {
+      for (const auto& p : _pieces)
+        p->setSpriteAngle(180);
     }
   }
 
@@ -319,7 +329,7 @@ namespace chess
   void Board::destroyPiece(uint16_t y_pos, uint16_t x_pos)
   {
     IPiece* piece = _board[y_pos][x_pos];
-    
+
     for (size_t i = 0; i < _pieces.size(); ++i)
     {
       if (_pieces[i] == piece)
@@ -486,12 +496,16 @@ namespace chess
     if (!_is_checkmate)
       checkInsufficientMaterial();
 
-    int16_t rot_angle = 180;
-    if (_is_white_turn)
-      rot_angle = 0;
+    if (IS_SINGLEPLAYER)
+    {
+      int16_t rot_angle = 180;
 
-    for (const auto& p : _pieces)
-      p->rotateSprite(rot_angle);
+      if (_is_white_turn)
+        rot_angle = 0;
+
+      for (const auto& p : _pieces)
+        p->setSpriteAngle(rot_angle);
+    }
 
     // dumpBoard();
   }
