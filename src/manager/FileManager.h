@@ -336,7 +336,7 @@ namespace pixeler
      * @brief Встановлює обробник події завершення будь-якої задачі.
      *
      * @param handler Обробник події завершення операції
-     * @param arg Аргументи, які будуть повернуті до обробника
+     * @param arg Аргумент, який буде повернуто обробнику
      */
     void onTaskDone(TaskDoneHandler handler, void* arg);
 
@@ -344,7 +344,7 @@ namespace pixeler
      * @brief Встановлює обробник події оновлення прогресу копіювання файлу.
      *
      * @param handler Обробник події оновлення прогресу копіювання файлу
-     * @param arg Аргументи, які будуть повернуті до обробника
+     * @param arg Аргумент, який буде повернуто обробнику
      */
     void onCopyProgress(CopyProgressHandler handler, void* arg);
 
