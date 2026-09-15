@@ -133,7 +133,6 @@ int AacDecoder::getBitrate()
 {
   uint32_t br = getBitsPerSample() * getChannels() * getSampRate();
   return (br / compressionRatio);
-  ;
 }
 //----------------------------------------------------------------------------------------------------------------------
 int AacDecoder::getChannels()

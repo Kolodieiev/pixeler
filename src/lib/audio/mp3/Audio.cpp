@@ -2666,7 +2666,8 @@ void Audio::loop()
         }
         break;
       case AUDIO_PLAYLISTINIT:
-        readPlayListData();
+        if (!readPlayListData())
+          stopSong();
         break;
       case AUDIO_PLAYLISTDATA:
         if (m_playlistFormat == FORMAT_M3U)
@@ -3811,6 +3812,12 @@ void Audio::processLocalFile()
   // end of file reached? - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if (m_f_eof)
   {  // m_f_eof and m_f_ID3v1TagFound will be set in playAudioData()
+    if (InBuff.bufferFilled())
+    {  // something to play before stopSong()
+      playChunk();
+      return;
+    }
+
     if (m_f_ID3v1TagFound)
       readID3V1Tag();
   exit:
@@ -3943,6 +3950,12 @@ void Audio::processWebStream()
   if (m_f_eof)
   {
     log_i("End of webstream: \"%s\"", m_lastHost);
+    if (InBuff.bufferFilled())
+    {  // something to play before stopSong()
+      playChunk();
+      return;
+    }
+
     stopSong();
   }
 }
@@ -4426,7 +4439,6 @@ void Audio::playAudioData()
     m_sumBytesDecoded = 0;
     m_bytesNotDecoded = 0;
     plad_lastFrames = false;
-    m_f_eof = false;
   }
   //--------------------------------------------------------------------------------
 
@@ -5067,10 +5079,15 @@ bool Audio::parseContentType(char* ct)
         m_codec = CODEC_AAC;
         log_i("set ct from M3U8 to AAC");
       }
-      if (m_expectedCodec == CODEC_MP3)
+      else if (m_expectedCodec == CODEC_MP3)
       {
         m_codec = CODEC_MP3;
         log_i("set ct from M3U8 to MP3");
+      }
+      else if (m_expectedCodec == CODEC_FLAC)
+      {
+        m_codec = CODEC_FLAC;
+        log_i("set ct from M3U8 to FLAC");
       }
 
       if (m_expectedPlsFmt == FORMAT_ASX)
@@ -5078,21 +5095,22 @@ bool Audio::parseContentType(char* ct)
         m_playlistFormat = FORMAT_ASX;
         log_i("set playlist format to ASX");
       }
-      if (m_expectedPlsFmt == FORMAT_M3U)
+      else if (m_expectedPlsFmt == FORMAT_M3U)
       {
         m_playlistFormat = FORMAT_M3U;
         log_i("set playlist format to M3U");
       }
-      if (m_expectedPlsFmt == FORMAT_M3U8)
+      else if (m_expectedPlsFmt == FORMAT_M3U8)
       {
         m_playlistFormat = FORMAT_M3U8;
         log_i("set playlist format to M3U8");
       }
-      if (m_expectedPlsFmt == FORMAT_PLS)
+      else if (m_expectedPlsFmt == FORMAT_PLS)
       {
         m_playlistFormat = FORMAT_PLS;
         log_i("set playlist format to PLS");
       }
+
       break;
     default:
       log_i("%s, unsupported audio format", ct);
