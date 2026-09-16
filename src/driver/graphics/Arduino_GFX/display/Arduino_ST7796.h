@@ -178,6 +178,7 @@ public:
       uint8_t row_offset2 = 0);
 
   bool begin(int32_t speed = GFX_NOT_DEFINED) override;
+  bool begin(int32_t speed, int32_t mode);
 
   void setRotation(uint8_t r) override;
 
