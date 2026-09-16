@@ -1,7 +1,17 @@
 1. Встановити залежності:
-    pip install -U sphinx
-	pip install -U sphinx-autobuild
-    pip install -U myst_parser
-    pip install -U furo
+    sudo apt install pipx
 
-2. Для збірки документації виконати make build.
+    pipx ensurepath
+
+    pipx install sphinx
+
+    pipx inject sphinx myst-parser furo
+
+    pipx install sphinx-autobuild
+
+    pipx inject sphinx-autobuild myst-parser furo
+
+
+2. Для збірки документації в поточному каталозі виконати:
+
+    make build
