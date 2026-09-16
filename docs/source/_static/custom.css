@@ -1,0 +1,84 @@
+.wy-nav-content {
+    max-width: 100% !important;
+}
+/* Pygments підсвітка синтаксису - Monokai тема */
+.highlight { 
+    background: #272822 !important; 
+    color: #f8f8f2 !important; 
+    padding: 12px !important;
+    border-radius: 4px !important;
+    overflow-x: auto !important;
+}
+
+/* Ключові слова (class, void, public, private, new, delete) */
+.highlight .k { color: #f92672 !important; font-weight: bold !important; }
+
+/* Типи (int, char, bool, void як тип) */
+.highlight .kt { color: #66d9ef !important; }
+
+/* ====== ГОЛОВНЕ - імена (типи, змінні, класи) ====== */
+.highlight .n { color: #b1e053 !important; }  /* Зелений для імен */
+
+/* Виклики функцій (якщо Pygments їх розпізнає) */
+.highlight .nf { color: #a6e22e !important; font-weight: bold !important; }
+
+/* Типи класів (якщо розпізнає) */
+.highlight .nc { color: #66d9ef !important; }
+
+/* Оператори (::, *, &, ->) */
+.highlight .o { color: #f92672 !important; }
+
+/* Дужки, коми, крапки з комою */
+.highlight .p { color: #f8f8f2 !important; }
+
+/* Числа */
+.highlight .mi, .highlight .mf, .highlight .mh { color: #ae81ff !important; }
+
+/* Рядки */
+.highlight .s, .highlight .s1, .highlight .s2 { color: #e6db74 !important; }
+
+/* Коментарі */
+.highlight .c1, .highlight .cm, .highlight .cp { 
+    color: #75715e !important; 
+    font-style: italic !important; 
+}
+
+/* Препроцесор (#include, #define) */
+.highlight .cp { color: #f92672 !important; font-weight: bold !important; }
+
+/* Макроси та константи */
+.highlight .nb { color: #66d9ef !important; }
+
+/* Пробіли (прозорі) */
+.highlight .w { color: transparent !important; }
+
+/* Номери рядків */
+.highlight .linenos { 
+    color: #75715e !important; 
+    background: #3e3d32 !important;
+    padding-right: 10px !important;
+    margin-right: 10px !important;
+    border-right: 1px solid #75715e !important;
+    user-select: none !important;
+}
+
+/* Код блок */
+.highlight pre { 
+    margin: 0 !important;
+    background: transparent !important;
+    color: inherit !important;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* Додаткові класи для кращої підсвітки */
+.highlight .na { color: #a6e22e !important; } /* атрибути */
+.highlight .nb { color: #66d9ef !important; } /* вбудовані */
+.highlight .nc { color: #66d9ef !important; } /* class names */
+.highlight .no { color: #ae81ff !important; } /* константи */
+.highlight .nd { color: #f92672 !important; } /* декоратори */
+.highlight .ni { color: #f8f8f2 !important; } /* entities */
+.highlight .ne { color: #a6e22e !important; } /* exceptions */
+.highlight .nv { color: #f8f8f2 !important; } /* variables */
+.highlight .ow { color: #f92672 !important; } /* word operators */
