@@ -56,9 +56,13 @@ private:
   GFX_INLINE void CS_HIGH(void);
   GFX_INLINE void CS_LOW(void);
 
-  int8_t _dc, _cs, _wr, _rd;
-  int8_t _d0, _d1, _d2, _d3, _d4, _d5, _d6, _d7;
-  int8_t _d8, _d9, _d10, _d11, _d12, _d13, _d14, _d15;
+  // Lookup table for ESP32 parallel bus interface uses 4kbyte RAM
+  uint32_t _xset_mask1_lo[256];
+  uint32_t _xset_mask1_hi[256];
+#if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5)
+  uint32_t _xset_mask2_lo[256];
+  uint32_t _xset_mask2_hi[256];
+#endif
 
   PORTreg_t _dcPortSet;  ///< PORT register SET
   PORTreg_t _dcPortClr;  ///< PORT register CLEAR
@@ -81,13 +85,9 @@ private:
   uint32_t _data2ClrMask;
 #endif
 
-  // Lookup table for ESP32 parallel bus interface uses 4kbyte RAM
-  uint32_t _xset_mask1_lo[256];
-  uint32_t _xset_mask1_hi[256];
-#if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5)
-  uint32_t _xset_mask2_lo[256];
-  uint32_t _xset_mask2_hi[256];
-#endif
+  int8_t _dc, _cs, _wr, _rd;
+  int8_t _d0, _d1, _d2, _d3, _d4, _d5, _d6, _d7;
+  int8_t _d8, _d9, _d10, _d11, _d12, _d13, _d14, _d15;
 };
 
 #endif  // _ARDUINO_ESP32PAR16_H_

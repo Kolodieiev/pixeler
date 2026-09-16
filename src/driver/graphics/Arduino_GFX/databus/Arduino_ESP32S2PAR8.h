@@ -34,8 +34,6 @@ private:
   GFX_INLINE void CS_HIGH(void);
   GFX_INLINE void CS_LOW(void);
 
-  int8_t _dc, _cs, _wr, _rd;
-
   PORTreg_t _dcPortSet;  ///< PORT register SET
   PORTreg_t _dcPortClr;  ///< PORT register CLEAR
   uint32_t _dcPinMask;   ///< Bitmask
@@ -51,6 +49,8 @@ private:
   PORTreg_t _dataPortSet;  ///< PORT register SET
   PORTreg_t _dataPortClr;  ///< PORT register CLEAR
   uint32_t _dataClrMask;
+
+  int8_t _dc, _cs, _wr, _rd;
 };
 
 #endif  // _ARDUINO_ESP32S2PAR8_H_

@@ -100,22 +100,7 @@ protected:
   GFX_INLINE void POLL(uint32_t len);
 
 private:
-  int8_t _dc, _cs;
-  int8_t _sck, _mosi, _miso;
-  uint8_t _spi_num;
-  bool _is_shared_interface;
-  uint32_t _div = 0;
-
-  PORTreg_t _dcPortSet;  ///< PORT register for data/command SET
-  PORTreg_t _dcPortClr;  ///< PORT register for data/command CLEAR
-  PORTreg_t _csPortSet;  ///< PORT register for chip select SET
-  PORTreg_t _csPortClr;  ///< PORT register for chip select CLEAR
-  uint32_t _dcPinMask;   ///< Bitmask for data/command
-  uint32_t _csPinMask;   ///< Bitmask for chip select
-
   spi_t* _spi;
-  uint8_t _bitOrder = SPI_MSBFIRST;
-
   union
   {
     uint8_t* _buffer;
@@ -123,7 +108,21 @@ private:
     uint32_t* _buffer32;
   };
 
+  PORTreg_t _dcPortSet;  ///< PORT register for data/command SET
+  PORTreg_t _dcPortClr;  ///< PORT register for data/command CLEAR
+  PORTreg_t _csPortSet;  ///< PORT register for chip select SET
+  PORTreg_t _csPortClr;  ///< PORT register for chip select CLEAR
+  uint32_t _div = 0;
+  uint32_t _dcPinMask;  ///< Bitmask for data/command
+  uint32_t _csPinMask;  ///< Bitmask for chip select
+
   uint16_t _data_buf_bit_idx = 0;
+
+  uint8_t _spi_num;
+  uint8_t _bitOrder = SPI_MSBFIRST;
+  int8_t _dc, _cs;
+  int8_t _sck, _mosi, _miso;
+  bool _is_shared_interface;
 };
 
 #endif  // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C2 || CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5)

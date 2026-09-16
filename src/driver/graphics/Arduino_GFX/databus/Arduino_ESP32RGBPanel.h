@@ -148,11 +148,12 @@ public:
 
 protected:
 private:
+  esp_lcd_panel_handle_t _panel_handle = NULL;
+
   int32_t _speed;
-  int8_t _de, _vsync, _hsync, _pclk;
-  int8_t _r0, _r1, _r2, _r3, _r4;
-  int8_t _g0, _g1, _g2, _g3, _g4, _g5;
-  int8_t _b0, _b1, _b2, _b3, _b4;
+  int32_t _prefer_speed;
+  size_t _bounce_buffer_size_px;
+
   uint16_t _hsync_polarity;
   uint16_t _hsync_front_porch;
   uint16_t _hsync_pulse_width;
@@ -162,13 +163,15 @@ private:
   uint16_t _vsync_pulse_width;
   uint16_t _vsync_back_porch;
   uint16_t _pclk_active_neg;
-  int32_t _prefer_speed;
-  bool _useBigEndian;
   uint16_t _de_idle_high;
   uint16_t _pclk_idle_high;
-  size_t _bounce_buffer_size_px;
 
-  esp_lcd_panel_handle_t _panel_handle = NULL;
+  int8_t _de, _vsync, _hsync, _pclk;
+  int8_t _r0, _r1, _r2, _r3, _r4;
+  int8_t _g0, _g1, _g2, _g3, _g4, _g5;
+  int8_t _b0, _b1, _b2, _b3, _b4;
+
+  bool _useBigEndian;
 };
 
 #endif  // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S3)

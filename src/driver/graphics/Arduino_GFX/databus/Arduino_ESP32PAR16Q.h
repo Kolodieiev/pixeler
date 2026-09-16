@@ -56,9 +56,9 @@ private:
   GFX_INLINE void CS_HIGH(void);
   GFX_INLINE void CS_LOW(void);
 
-  int8_t _dc, _cs, _wr, _rd;
-  int8_t _d0, _d1, _d2, _d3, _d4, _d5, _d6, _d7;
-  int8_t _d8, _d9, _d10, _d11, _d12, _d13, _d14, _d15;
+  // Lookup table for ESP32 parallel bus interface uses 2kbyte RAM,
+  uint32_t _xset_mask_lo[256];
+  uint32_t _xset_mask_hi[256];
 
   PORTreg_t _dcPortSet;  ///< PORT register SET
   PORTreg_t _dcPortClr;  ///< PORT register CLEAR
@@ -75,9 +75,10 @@ private:
   PORTreg_t _dataPortSet;
   PORTreg_t _dataPortClr;
   uint32_t _dataClrMask;
-  // Lookup table for ESP32 parallel bus interface uses 2kbyte RAM,
-  uint32_t _xset_mask_lo[256];
-  uint32_t _xset_mask_hi[256];
+
+  int8_t _dc, _cs, _wr, _rd;
+  int8_t _d0, _d1, _d2, _d3, _d4, _d5, _d6, _d7;
+  int8_t _d8, _d9, _d10, _d11, _d12, _d13, _d14, _d15;
 };
 
 #endif  // _ARDUINO_ESP32PAR16Q_H_

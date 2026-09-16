@@ -6992,17 +6992,17 @@ public:
   uint16_t* getFramebuffer();
 
 protected:
-  size_t _framebuffer_size;
   Arduino_ESP32RGBPanel* _rgbpanel;
   Arduino_DataBus* _bus;
-  int8_t _rst;
   const uint8_t* _init_operations;
   size_t _init_operations_len;
+  size_t _framebuffer_size;
+  uint16_t _fb_width, _fb_height, _fb_max_x, _fb_max_y;
   int16_t MAX_X, MAX_Y;
   uint8_t COL_OFFSET1, ROW_OFFSET1;
   uint8_t COL_OFFSET2, ROW_OFFSET2;
   uint8_t _xStart, _yStart;
-  uint16_t _fb_width, _fb_height, _fb_max_x, _fb_max_y;
+  int8_t _rst;
 
 private:
 };

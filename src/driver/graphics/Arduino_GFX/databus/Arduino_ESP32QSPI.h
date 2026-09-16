@@ -62,17 +62,11 @@ private:
   GFX_INLINE void POLL_START();
   GFX_INLINE void POLL_END();
 
-  int8_t _cs, _sck, _mosi, _miso, _quadwp, _quadhd;
-  bool _is_shared_interface;
-
-  PORTreg_t _csPortSet;  ///< PORT register for chip select SET
-  PORTreg_t _csPortClr;  ///< PORT register for chip select CLEAR
-  uint32_t _csPinMask;   ///< Bitmask for chip select
-
   spi_device_handle_t _handle;
   spi_transaction_ext_t _spi_tran_ext;
   spi_transaction_t* _spi_tran;
-
+  PORTreg_t _csPortSet;  ///< PORT register for chip select SET
+  PORTreg_t _csPortClr;  ///< PORT register for chip select CLEAR
   union
   {
     uint8_t* _buffer;
@@ -85,6 +79,9 @@ private:
     uint16_t* _2nd_buffer16;
     uint32_t* _2nd_buffer32;
   };
+  uint32_t _csPinMask;   ///< Bitmask for chip select
+  int8_t _cs, _sck, _mosi, _miso, _quadwp, _quadhd;
+  bool _is_shared_interface;
 };
 
 #endif  // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C2 || CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5)
