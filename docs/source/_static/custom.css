@@ -1,3 +1,34 @@
+/* Автоматично розтягує контейнер SVG на повну ширину */
+.mermaid svg {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Збільшуємо розмір шрифту вузлів та зв'язків */
+.mermaid .node label,
+.mermaid .nodeText,
+.mermaid .label,
+.mermaid .edgeLabel {
+    font-size: 20px !important;
+    font-weight: 500 !important;
+}
+
+/* Збільшуємо розмір шрифту в StateDiagram */
+.mermaid .stateTitle,
+.mermaid .stateLabel {
+    font-size: 20px !important;
+}
+
+/* Збільшуємо розміри блоків (вершин), щоб великий текст у них вміщався */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node polygon {
+    padding: 10px !important;
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+
 .wy-nav-content {
     max-width: 100% !important;
 }
