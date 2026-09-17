@@ -19,16 +19,20 @@
 #ifdef TOUCHSCREEN_SUPPORT
 #include "ITouchscreen.h"
 #endif  // #ifdef TOUCHSCREEN_SUPPORT
-#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#if defined(KEYBOARD_SUPPORT)
+#if defined(CONFIG_IDF_TARGET_ESP32)
+#error "Клавіатура не може бути підключена до звичайної ESP32"
+#endif  // defined(CONFIG_IDF_TARGET_ESP32)
+
 #include "usb-host/EspUsbHost.h"
-#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#endif  // #if defined(KEYBOARD_SUPPORT)
 
 namespace pixeler
 {
   class Input
   {
   public:
-#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#if defined(KEYBOARD_SUPPORT)
     using KeyPressedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
     using KeyReleasedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
 
@@ -46,7 +50,7 @@ namespace pixeler
       KEY_TAB = 0x2B,
     };
 
-#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#endif  // #if defined(KEYBOARD_SUPPORT)
 
     Input();
 
@@ -72,7 +76,7 @@ namespace pixeler
     /**
      * @brief Вмикає фізичний пін та ініціалізує його в тому режимі, який було передано в конструктор під час створення об'єкта віртуального піна з цим номером.
      *
-     * @param btn_id Номер віртуального піна.
+     * @param btn_id Номер віртуального піна
      */
     void enableBtn(BtnID btn_id);
 
@@ -153,7 +157,7 @@ namespace pixeler
      * @brief Повертає значення, яке вказує, чи утримується сенсорний екран тривалий час.
      *
      * @return true - Якщо на сенсорному екрані зафіксовано тривалий дотик.
-     * @return false - Інакше.
+     * @return false - Інакше
      */
     bool isPressed() const;
 
@@ -161,7 +165,7 @@ namespace pixeler
      * @brief Повертає значення, яке вказує, чи було зафіксовано дотик на сенсорному екрані раніше.
      *
      * @return true - Якщо на сенсорному екрані було раніше зафіксовано дотик, але тепер дотик не фіксується.
-     * @return false - Інакше.
+     * @return false - Інакше
      */
     bool isReleased() const;
 
@@ -195,41 +199,41 @@ namespace pixeler
 
 #endif  // TOUCHSCREEN_SUPPORT
 
-#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#if defined(KEYBOARD_SUPPORT)
     /**
      * @brief Встановлює обробник для події натискання клавіші на фізичній клавіатурі.
      *
-     * @param handler Обробник події.
-     * @param arg Аргумент, який буде передано обробнику.
+     * @param handler Обробник події
+     * @param arg Аргумент, який буде передано обробнику
      */
     void onKeyPressed(const KeyPressedHandler handler, void* arg = nullptr);
 
     /**
      * @brief Встановлює обробник для події відтискання клавіші на фізичній клавіатурі.
      *
-     * @param handler Обробник події.
-     * @param arg Аргумент, який буде передано обробнику.
+     * @param handler Обробник події
+     * @param arg Аргумент, який буде передано обробнику
      */
     void onKeyReleased(const KeyReleasedHandler handler, void* arg = nullptr);
 
-#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#endif  // #if defined(KEYBOARD_SUPPORT)
 
   private:
-#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#if defined(KEYBOARD_SUPPORT)
     static void keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg);
 
-#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#endif  // #if defined(KEYBOARD_SUPPORT)
 
     std::unordered_map<BtnID, Button> _buttons BUTTONS_TMPL;
 
-#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#if defined(KEYBOARD_SUPPORT)
     EspUsbHost _usb;
     KeyPressedHandler _key_pressed_handler{nullptr};
     void* _key_pressed_arg{nullptr};
     KeyReleasedHandler _key_released_handler{nullptr};
     void* _key_released_arg{nullptr};
 
-#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+#endif  // #if defined(KEYBOARD_SUPPORT)
 
     unsigned long _hold_lock_time;
     unsigned long _click_lock_time;
