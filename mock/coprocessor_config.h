@@ -26,7 +26,7 @@ namespace pixeler
     CCPU_CMD_GET_BTNS_STATE,
     CCPU_CMD_BTN_OFF,
     CCPU_CMD_BTN_ON,
-  } CoprocessorCMD_t;
+  } CoprocessorCMD;
 }  // namespace pixeler
 
 #define COPROCESSOR_ADDR 0x66  // I2C - адреса МК, який відповідає за розширення функціоналу основного.

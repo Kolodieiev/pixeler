@@ -16,7 +16,7 @@ namespace pixeler
 
   void ExtInput::update()
   {
-    CoprocessorCMD_t cmd = CCPU_CMD_GET_BTNS_STATE;
+    CoprocessorCMD cmd = CCPU_CMD_GET_BTNS_STATE;
 
     if (!_ccpu.sendCmd(&cmd, sizeof(cmd), RESP_PREP_TIME))
       return;
