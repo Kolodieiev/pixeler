@@ -170,13 +170,6 @@ namespace pixeler
     bool isReleased() const;
 
     /**
-     * @brief Блокує розпізнавання жестів на сенсорному екрані на вказаний час.
-     *
-     * @param lock_duration_ms час в мілісекундах, на який буде заблоковано розпізнавання жестів.
-     */
-    void lock(unsigned long lock_duration_ms);
-
-    /**
      * @brief Повертає останній розпізнаний на сенсорному екрані жест.
      *
      * @return ITouchscreen::Swipe

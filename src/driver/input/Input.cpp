@@ -213,27 +213,38 @@ namespace pixeler
 #ifdef TOUCHSCREEN_SUPPORT
   bool Input::isHolded() const
   {
-    return _touchscreen->isHolded();
+    bool result = _touchscreen->isHolded();
+    if (result)
+      _touchscreen->lock(HOLD_LOCK_TIME_MS);
+
+    return result;
   }
 
   bool Input::isPressed() const
   {
-    return _touchscreen->isPressed();
+    bool result = _touchscreen->isPressed();
+    if (result)
+      _touchscreen->lock(PRESS_LOCK_TIME_MS);
+
+    return result;
   }
 
   bool Input::isReleased() const
   {
-    return _touchscreen->isReleased();
-  }
+    bool result = _touchscreen->isReleased();
+    if (result)
+      _touchscreen->lock(CLICK_LOCK_TIME_MS);
 
-  void Input::lock(unsigned long lock_duration_ms)
-  {
-    _touchscreen->lock(lock_duration_ms);
+    return result;
   }
 
   ITouchscreen::Swipe Input::getSwipe()
   {
-    return _touchscreen->getSwipe();
+    ITouchscreen::Swipe swipe = _touchscreen->getSwipe();
+    if (swipe != ITouchscreen::SWIPE_NONE)
+      _touchscreen->lock(CLICK_LOCK_TIME_MS);
+
+    return swipe;
   }
 
   uint16_t Input::getTouchX() const
