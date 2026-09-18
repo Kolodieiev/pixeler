@@ -31,6 +31,7 @@ input.md
 context.md
 display.md
 gui.md
+async.md
 sd.md
 lua.md
 engine.md
