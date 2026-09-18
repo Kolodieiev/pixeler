@@ -44,9 +44,8 @@ namespace pixeler
 {
   enum BtnID : uint8_t
   {
-
   };
-}
+}  // namespace pixeler
 
 // Макрос з ініціалізацією пінів. Між фігурними дужками потрібно додати ініціалізацію пінів, як показано нижче
 // Де Button(uint8_t btn_id, bool is_touch)
@@ -61,8 +60,8 @@ namespace pixeler
 #define BTN_TOUCH_TRESHOLD 50000  // На ESP32S3 значення сенсорного датчика збільшується в момент дотику.
 #endif
 
-#define PRESS_DURATION_TIME_MS (unsigned long)1000  // Час(мс), після спливання якого кнопка вважається утримуваною.
+#define PRESS_DURATION_TIME_MS 1000UL  // Час(мс), після спливання якого кнопка вважається утримуваною.
 
-#define PRESS_LOCK_TIME_MS (unsigned long)700  // Час(мс) блокування кнопки після спрацювання тригеру PRESS
-#define CLICK_LOCK_TIME_MS (unsigned long)250  // Час(мс) блокування кнопки після спрацювання тригеру CLICK
-#define HOLD_LOCK_TIME_MS (unsigned long)150   // Час(мс) блокування кнопки після спрацювання тригеру HOLD
+#define PRESS_LOCK_TIME_MS 700UL  // Час(мс) блокування кнопки після спрацювання тригеру PRESS
+#define CLICK_LOCK_TIME_MS 250UL  // Час(мс) блокування кнопки після спрацювання тригеру CLICK
+#define HOLD_LOCK_TIME_MS 150UL   // Час(мс) блокування кнопки після спрацювання тригеру HOLD
