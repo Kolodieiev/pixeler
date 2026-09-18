@@ -371,9 +371,9 @@ namespace pixeler
   private:
 #ifdef GRAPHICS_ENABLED
     BUS_TYPE _bus{BUS_PARAMS};
-    Arduino_GFX* _output = new DISP_DRIVER_TYPE(&_bus, DISP_DRIVER_PARAMS);
+    DISP_DRIVER_TYPE _output{&_bus, DISP_DRIVER_PARAMS};
 #ifndef DIRECT_DRAWING
-    Arduino_Canvas _canvas{UI_WIDTH, UI_HEIGHT, _output};
+    Arduino_Canvas _canvas{UI_WIDTH, UI_HEIGHT, &_output};
 #endif  // #ifndef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
 

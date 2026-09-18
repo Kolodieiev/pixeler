@@ -23,7 +23,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->fillScreen(color);
+    _output.fillScreen(color);
 #else
     _canvas.fillScreen(color);
     _is_buff_changed = true;
@@ -35,7 +35,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->setCursor(x, y);
+    _output.setCursor(x, y);
 #else
     _canvas.setCursor(x, y);
 #endif  // #ifdef DIRECT_DRAWING
@@ -46,7 +46,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->setTextWrap(state);
+    _output.setTextWrap(state);
 #else
     _canvas.setTextWrap(state);
 #endif  // #ifdef DIRECT_DRAWING
@@ -57,7 +57,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    return _output->setTextBound(x, y, w, h);
+    return _output.setTextBound(x, y, w, h);
 #else
     _is_buff_changed = true;
     return _canvas.setTextBound(x, y, w, h);
@@ -69,7 +69,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    return _output->resetTextBound();
+    return _output.resetTextBound();
 #else
     _is_buff_changed = true;
     return _canvas.resetTextBound();
@@ -81,7 +81,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    return _output->print(str);
+    return _output.print(str);
 #else
     _is_buff_changed = true;
     return _canvas.print(str);
@@ -111,7 +111,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->setFont(font);
+    _output.setFont(font);
 #else
     _canvas.setFont(font);
 #endif  // #ifdef DIRECT_DRAWING
@@ -122,7 +122,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->setTextSize(size, size, 0);
+    _output.setTextSize(size, size, 0);
 #else
     _canvas.setTextSize(size, size, 0);
 #endif  // #ifdef DIRECT_DRAWING
@@ -133,7 +133,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->setTextColor(color);
+    _output.setTextColor(color);
 #else
     _canvas.setTextColor(color);
 #endif  // #ifdef DIRECT_DRAWING
@@ -144,7 +144,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->getTextBounds(str, x, y, x_out, y_out, w_out, h_out);
+    _output.getTextBounds(str, x, y, x_out, y_out, w_out, h_out);
 #else
     _canvas.getTextBounds(str, x, y, x_out, y_out, w_out, h_out);
 #endif  // #ifdef DIRECT_DRAWING
@@ -155,7 +155,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->drawPixel(x, y, color);
+    _output.drawPixel(x, y, color);
 #else
     _canvas.drawPixel(x, y, color);
     _is_buff_changed = true;
@@ -167,7 +167,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->drawLine(x0, y0, x1, y1, color);
+    _output.drawLine(x0, y0, x1, y1, color);
 #else
     _canvas.drawLine(x0, y0, x1, y1, color);
     _is_buff_changed = true;
@@ -179,7 +179,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->drawTriangle(x0, y0, x1, y1, x2, y2, color);
+    _output.drawTriangle(x0, y0, x1, y1, x2, y2, color);
 #else
     _canvas.drawTriangle(x0, y0, x1, y1, x2, y2, color);
     _is_buff_changed = true;
@@ -191,7 +191,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->fillTriangle(x0, y0, x1, y1, x2, y2, color);
+    _output.fillTriangle(x0, y0, x1, y1, x2, y2, color);
 #else
     _canvas.fillTriangle(x0, y0, x1, y1, x2, y2, color);
     _is_buff_changed = true;
@@ -203,7 +203,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->drawCircle(x, y, r, color);
+    _output.drawCircle(x, y, r, color);
 #else
     _canvas.drawCircle(x, y, r, color);
     _is_buff_changed = true;
@@ -215,7 +215,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->fillCircle(x, y, r, color);
+    _output.fillCircle(x, y, r, color);
 #else
     _canvas.fillCircle(x, y, r, color);
     _is_buff_changed = true;
@@ -227,7 +227,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->drawRect(x, y, w, h, color);
+    _output.drawRect(x, y, w, h, color);
 #else
     _canvas.drawRect(x, y, w, h, color);
     _is_buff_changed = true;
@@ -239,7 +239,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->fillRect(x, y, w, h, color);
+    _output.fillRect(x, y, w, h, color);
 #else
     _canvas.fillRect(x, y, w, h, color);
     _is_buff_changed = true;
@@ -251,7 +251,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->drawRoundRect(x, y, w, h, radius, color);
+    _output.drawRoundRect(x, y, w, h, radius, color);
 #else
     _canvas.drawRoundRect(x, y, w, h, radius, color);
     _is_buff_changed = true;
@@ -263,7 +263,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->fillRoundRect(x, y, w, h, radius, color);
+    _output.fillRoundRect(x, y, w, h, radius, color);
 #else
     _canvas.fillRoundRect(x, y, w, h, radius, color);
     _is_buff_changed = true;
@@ -275,7 +275,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->draw16bitRGBBitmap(x, y, bitmap, w, h);
+    _output.draw16bitRGBBitmap(x, y, bitmap, w, h);
 #else
     _canvas.draw16bitRGBBitmap(x, y, bitmap, w, h);
     _is_buff_changed = true;
@@ -287,7 +287,7 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    _output->draw16bitRGBBitmapWithTranColor(x, y, bitmap, COLOR_TRANSPARENT, w, h);
+    _output.draw16bitRGBBitmapWithTranColor(x, y, bitmap, COLOR_TRANSPARENT, w, h);
 #else
     _canvas.draw16bitRGBBitmapWithTranColor(x, y, bitmap, COLOR_TRANSPARENT, w, h);
     _is_buff_changed = true;
@@ -421,9 +421,9 @@ namespace pixeler
     }
 
 #ifdef DIRECT_DRAWING
-    _output->begin(BUSS_FREQUENCY);
-    _output->setUTF8Print(true);
-    _output->setTextWrap(false);
+    _output.begin(BUSS_FREQUENCY);
+    _output.setUTF8Print(true);
+    _output.setTextWrap(false);
 #else
     _canvas.begin(BUSS_FREQUENCY);
     _canvas.setUTF8Print(true);
@@ -431,10 +431,10 @@ namespace pixeler
 #endif  // #ifdef DIRECT_DRAWING
 
 #ifdef INVERT_COLORS
-    _output->invertDisplay(INVERT_COLORS);
+    _output.invertDisplay(INVERT_COLORS);
 #endif  //  #ifdef INVERT_COLORS
 
-    _output->setRotation(DISPLAY_ROTATION);
+    _output.setRotation(DISPLAY_ROTATION);
 
 #if ROTATE_CANVAS
 #ifndef DIRECT_DRAWING
