@@ -43,15 +43,15 @@ namespace pixeler
     IGameScene2D& operator=(const IGameScene2D& rhs) = delete;
 
     /**
-     * @brief Додає задачу до черги, яка буде виконана
+     * @brief Додає функцію до черги, яку буде опрацьовано
      * в потоці сцени під час наступного виклику update().
      * Може викликатись з будь-якої FreeRTOS-задачі.
      *
-     * @param task Функція без аргументів і повернення результату,
+     * @param task Функція без аргументів та повернення результату,
      * яка повинна бути виконана в потоці UI
      * @param timeout_ms Максимальний час очікування(мілісекунд) вільного місця в черзі,
      * за замовчуванням - неблокуючий виклик
-     * @return true - якщо задачу успішно додано в чергу
+     * @return true - якщо функцію успішно додано в чергу.
      * @return false - якщо черга переповнена і час очікування вичерпано
      */
     bool post(std::function<void()> task, unsigned long timeout_ms = 0);
@@ -242,10 +242,10 @@ namespace pixeler
     std::vector<IGameObject2D*> _game_objs;  // Список усіх ігрових об'єктів на сцені, які повинні взаємодіяти один з одним
 
   protected:
-    DataStream& _stored_objs;              // Контейнер для перенесення відбитків об'єктів до наступної сцени
-    IGameUI* _game_UI{nullptr};            // Шар ігрового UI. Тут можуть виводитися графічні елементи інтерфейса
-    IGameMenu* _game_menu{nullptr};        // Шар ігрового меню, якщо в ньому є необхідність
-    IGameObject2D* _main_obj{nullptr};     // Об'єкт, за яким завжди слідує камера
+    DataStream& _stored_objs;           // Контейнер для перенесення відбитків об'єктів до наступної сцени
+    IGameUI* _game_UI{nullptr};         // Шар ігрового UI. Тут можуть виводитися графічні елементи інтерфейса
+    IGameMenu* _game_menu{nullptr};     // Шар ігрового меню, якщо в ньому є необхідність
+    IGameObject2D* _main_obj{nullptr};  // Об'єкт, за яким завжди слідує камера
 
   private:
     TaskHandle_t _owner_task_handle{nullptr};
