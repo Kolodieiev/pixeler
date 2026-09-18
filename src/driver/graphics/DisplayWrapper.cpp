@@ -511,57 +511,57 @@ namespace pixeler
 #ifndef DIRECT_DRAWING
   void DisplayWrapper::__flush()
   {
-    if (_is_buff_changed)
-    {
-      _is_buff_changed = false;
+    if (!_is_buff_changed)
+      return;
+
+    _is_buff_changed = false;
 
 #ifdef SHOW_FPS
-      if (millis() - _frame_timer < 1000)
-      {
-        ++_temp_frame_counter;
-      }
-      else
-      {
-        _frame_counter = _temp_frame_counter + 1;
-        _temp_frame_counter = 0;
-        _frame_timer = millis();
-      }
+    if (millis() - _frame_timer < 1000)
+    {
+      ++_temp_frame_counter;
+    }
+    else
+    {
+      _frame_counter = _temp_frame_counter + 1;
+      _temp_frame_counter = 0;
+      _frame_timer = millis();
+    }
 
-      String fps_str = String(_frame_counter);
+    String fps_str = String(_frame_counter);
 
-      _canvas.setTextSize(1);
-      _canvas.setFont(font_unifont);
-      _canvas.setTextColor(COLOR_RED);
+    _canvas.setTextSize(1);
+    _canvas.setFont(font_unifont);
+    _canvas.setTextColor(COLOR_RED);
 
-      int16_t x{0};
-      int16_t y{0};
-      int16_t x_out{0};
-      int16_t y_out{0};
-      uint16_t w{0};
-      uint16_t h{0};
+    int16_t x{0};
+    int16_t y{0};
+    int16_t x_out{0};
+    int16_t y_out{0};
+    uint16_t w{0};
+    uint16_t h{0};
 
-      _canvas.getTextBounds(fps_str.c_str(), x, y, x_out, y_out, w, h);
-      //
-      uint16_t fps_x_pos = _canvas.width() / 2 - w;
-      _canvas.fillRect(fps_x_pos - 3, 0, w + 6, h + 9, COLOR_BLACK);
-      _canvas.setCursor(fps_x_pos, h + 3);
-      _canvas.print(fps_str);
+    _canvas.getTextBounds(fps_str.c_str(), x, y, x_out, y_out, w, h);
+    //
+    uint16_t fps_x_pos = _canvas.width() / 2 - w;
+    _canvas.fillRect(fps_x_pos - 3, 0, w + 6, h + 9, COLOR_BLACK);
+    _canvas.setCursor(fps_x_pos, h + 3);
+    _canvas.print(fps_str);
 #endif  // SHOW_FPS
 
-      xSemaphoreTake(_sync_mutex, portMAX_DELAY);
+    xSemaphoreTake(_sync_mutex, portMAX_DELAY);
 #ifdef DOUBLE_BUFFERRING
-      _has_frame = true;
-      _canvas.duplicateMainBuff();
+    _has_frame = true;
+    _canvas.duplicateMainBuff();
 #else
-      _canvas.flushMainBuff();
+    _canvas.flushMainBuff();
 #endif  // DOUBLE_BUFFERRING
-      xSemaphoreGive(_sync_mutex);
+    xSemaphoreGive(_sync_mutex);
 
 #ifdef ENABLE_SCREENSHOTER
-      if (_take_screenshot)
-        takeScreenshot(this);
+    if (_take_screenshot)
+      takeScreenshot(this);
 #endif  // ENABLE_SCREENSHOTER
-    }
   }
 #endif  // #ifndef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
