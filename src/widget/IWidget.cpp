@@ -102,9 +102,9 @@ namespace pixeler
       {
         bool old_state = _display.isPPAEnabled();
 
-        _display.setPPAState(true);
+        _display.switchPPA(true);
         _display.fillRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _back_color);
-        _display.setPPAState(old_state);
+        _display.switchPPA(old_state);
       }
       else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4

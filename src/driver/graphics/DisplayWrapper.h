@@ -126,7 +126,7 @@ namespace pixeler
      * НЕ ЕФЕКТИВНЕ ДЛЯ МАЛИХ БЛОКІВ.
      * @param state
      */
-    void setPPAState(bool state);
+    void switchPPA(bool state);
 
     /**
      * @brief Повертає стан активності PPA модуля.

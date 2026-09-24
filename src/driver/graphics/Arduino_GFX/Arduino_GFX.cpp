@@ -1561,7 +1561,7 @@ void Arduino_GFX::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
   }
 }
 
-void Arduino_GFX::setPPAState(bool state)
+void Arduino_GFX::switchPPA(bool state)
 {
 #if CONFIG_IDF_TARGET_ESP32P4
   _ppa_enabled = state;
