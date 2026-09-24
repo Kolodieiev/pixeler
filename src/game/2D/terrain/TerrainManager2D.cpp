@@ -29,6 +29,11 @@ namespace pixeler
     return _view_y;
   }
 
+  void TerrainManager2D::setBackColorFill(bool state)
+  {
+    _has_back_color = state;
+  }
+
   void TerrainManager2D::freeMem()
   {
     if (!_terrain)
@@ -83,20 +88,22 @@ namespace pixeler
   {
     if (_back_img)
     {
+      if (_has_back_color)
+      {
 #if CONFIG_IDF_TARGET_ESP32P4
-      if ((_back_img_w != VIEW_W || _back_img_h != VIEW_H) && VIEW_W * VIEW_H > PPA_FILL_SIZE_TRIGG)
-      {
-        bool old_state = _display.isPPAEnabled();
+        if (VIEW_W * VIEW_H > PPA_FILL_SIZE_TRIGG)
+        {
+          bool old_state = _display.isPPAEnabled();
 
-        _display.switchPPA(true);
-        _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
-        _display.switchPPA(old_state);
-      }
-      else
-#endif  // #if CONFIG_IDF_TARGET_ESP32P4
-      {
-        if (_back_img_w != VIEW_W || _back_img_h != VIEW_H)
+          _display.switchPPA(true);
           _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
+          _display.switchPPA(old_state);
+        }
+        else
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+        {
+          _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
+        }
       }
 
 #if CONFIG_IDF_TARGET_ESP32P4

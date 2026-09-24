@@ -155,6 +155,14 @@ namespace pixeler
      */
     bool isInView(uint16_t x_pos, uint16_t y_pos, uint16_t sprite_w, uint16_t sprite_h) const;
 
+    /**
+     * @brief Вмикає/вимикає заливку сцени фоновим кольором на 0-вому етапі формування сцени.
+     * За замовченням увімкнено.
+     *
+     * @param state
+     */
+    void setBackColorFill(bool state);
+
   private:
     void freeMem();
     void freeTilesDescriptionData();
@@ -178,7 +186,7 @@ namespace pixeler
     uint16_t _back_img_h{0};
     uint16_t _back_img_x_off{0};
     uint16_t _back_img_y_off{0};
-    uint16_t _back_color{0};
+    uint16_t _back_color{COLOR_BLACK};
     uint16_t _view_x{0};      // X верхнього лівого кута view-порта
     uint16_t _view_y{0};      // Y верхнього лівого кута view-порта
     uint16_t _terrain_w{0};   // Ширина ігрового рівня в пікселях
@@ -187,5 +195,7 @@ namespace pixeler
     uint16_t _tile_y_num{0};  // Кількість плиток мапи по вертикалі
 
     uint8_t _tile_side_len{0};  // Розмір сторони плитки
+
+    bool _has_back_color{true};
   };
 }  // namespace pixeler
