@@ -1,6 +1,7 @@
 #include "MenuContext.h"
 //
 #include "../WidgetCreator.h"
+#include "./res/apps.h"
 #include "./res/book.h"
 #include "./res/chip.h"
 #include "./res/headphones.h"
@@ -8,6 +9,7 @@
 #include "./res/sd.h"
 #include "./res/settings.h"
 #include "./res/wifi_ico.h"
+#include "context/apps/AppsContext.h"
 #include "context/files/FilesContext.h"
 #include "context/firmware/FirmwareContext.h"
 #include "context/games/GameListContext.h"
@@ -21,15 +23,15 @@
 #include "widget/menu/item/MenuItem.h"
 
 #define ICO_WH 35
-#define MENU_ITEMS_NUM 4
 
-const char STR_MUSIC_ITEM[] = "Музика";
-const char STR_READER_ITEM[] = "Читалка";
-const char STR_W_TALKIE_ITEM[] = "Рація";
-const char STR_FILES_ITEM[] = "Файли";
-const char STR_GAME_ITEM[] = "Ігри";
-const char STR_WIFI_ITEM[] = "Підключення";
-const char STR_FIRMWARE_ITEM[] = "Прошивка";
+static const char STR_MUSIC_ITEM[] = "Музика";
+static const char STR_APPS_ITEM[] = "Застосунки";
+static const char STR_READER_ITEM[] = "Читалка";
+static const char STR_W_TALKIE_ITEM[] = "Рація";
+static const char STR_FILES_ITEM[] = "Файли";
+static const char STR_GAME_ITEM[] = "Ігри";
+static const char STR_WIFI_ITEM[] = "Підключення";
+static const char STR_FIRMWARE_ITEM[] = "Прошивка";
 
 uint8_t MenuContext::_last_sel_item_pos;
 
@@ -82,6 +84,20 @@ MenuContext::MenuContext()
 
   Label* mp3_lbl = WidgetCreator::getItemLabel(STR_MUSIC_ITEM, font_10x20);
   mp3_item->setLabel(mp3_lbl);
+
+  // Застосунки
+  MenuItem* apps_item = WidgetCreator::getMenuItem(ID_ITEM_APPS);
+  _menu->addItem(apps_item);
+
+  Image* apps_img = new Image(1);
+  apps_item->setImage(apps_img);
+  apps_img->setTransparency(true);
+  apps_img->setWidth(ICO_WH);
+  apps_img->setHeight(ICO_WH);
+  apps_img->setSrc(APPS_IMG);
+
+  Label* apps_lbl = WidgetCreator::getItemLabel(STR_APPS_ITEM, font_10x20);
+  apps_item->setLabel(apps_lbl);
 
   // Ігри
   MenuItem* game_item = WidgetCreator::getMenuItem(ID_ITEM_GAMES);
@@ -244,6 +260,9 @@ void MenuContext::ok()
   {
     case ID_ITEM_FILES:
       context = new FilesContext();
+      break;
+    case ID_ITEM_APPS:
+      context = new AppsContext();
       break;
     case ID_ITEM_MP3:
       context = new Mp3Context();

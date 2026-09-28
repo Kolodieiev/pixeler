@@ -30,6 +30,7 @@ private:
   {
     ID_ITEM_FILES = 1,
     ID_ITEM_MP3,
+    ID_ITEM_APPS,
     ID_ITEM_GAMES,
     ID_ITEM_READER,
     ID_ITEM_WIFI,
