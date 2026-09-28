@@ -4,6 +4,7 @@
 #include "../resources/ico/battery.h"
 #include "context/menu/MenuContext.h"
 #include "manager/SettingsManager.h"
+#include "res/def_wpp.h"
 #include "util/batt_util.h"
 
 #define UPD_DISPLAY_INTERVAL_MS 5000UL
@@ -11,12 +12,16 @@
 HomeContext::HomeContext()
 {
   setCpuFrequency(FREQ_MIN);
-  
+
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
 
-  String walpp_path = SettingsManager::get(STR_WALLPP_FILENAME);
+  Image* wallpp_img = new Image(ID_WALLPAPER);
+  layout->addWidget(wallpp_img);
 
+  bool is_loaded_wpp = false;
+
+  String walpp_path = SettingsManager::get(STR_WALLPP_FILENAME);
   if (!walpp_path.isEmpty())
   {
     BmpLoader loader;
@@ -24,12 +29,18 @@ HomeContext::HomeContext()
 
     if (_wall_res)
     {
-      Image* wallpp_img = new Image(ID_WALLPAPER);
-      layout->addWidget(wallpp_img);
+      is_loaded_wpp = true;
       wallpp_img->setWidth(_wall_res->getWidth());
       wallpp_img->setHeight(_wall_res->getHeight());
       wallpp_img->setSrc(static_cast<const uint16_t*>(_wall_res->getData()));
     }
+  }
+
+  if (!is_loaded_wpp)
+  {
+    wallpp_img->setWidth(UI_WIDTH);
+    wallpp_img->setHeight(UI_HEIGHT);
+    wallpp_img->setSrc(DEF_WPP_IMG);
   }
 
   _batt_volt_lbl = new Label(ID_BAT_LVL);
