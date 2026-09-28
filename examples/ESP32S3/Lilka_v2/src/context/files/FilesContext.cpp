@@ -15,7 +15,6 @@
 
 #define UPD_TRACK_INF_INTERVAL 1000UL
 #define PADDING_BOTT 45
-#define MENU_ITEMS_NUM 4
 
 const char STR_SIZE[] = "File size:";
 const char STR_LUA_EXT[] = ".lua";

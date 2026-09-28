@@ -5,7 +5,6 @@
 #include "context/games/GameListContext.h"
 #include "scene/SokobanScene.h"
 
-#define MENU_ITEMS_NUM 10u
 #define LEVEL_NUM 70u
 
 const char STR_LVL[] = "Рівень ";
