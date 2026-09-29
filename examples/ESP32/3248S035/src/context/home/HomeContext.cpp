@@ -4,7 +4,6 @@
 #include "../resources/ico/battery.h"
 #include "context/menu/MenuContext.h"
 #include "manager/SettingsManager.h"
-#include "util/batt_util.h"
 
 #define UPD_DISPLAY_INTERVAL_MS 5000UL
 
@@ -90,7 +89,6 @@ void HomeContext::update()
 
 void HomeContext::updateBattVoltage()
 {
-  // float bat_voltage = readBattVoltage();
   float bat_voltage = 4.2f;
   String volt_str = String(bat_voltage);
   _batt_volt_lbl->setText(volt_str);

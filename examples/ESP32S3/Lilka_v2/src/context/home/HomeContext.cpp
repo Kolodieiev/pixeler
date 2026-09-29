@@ -5,9 +5,13 @@
 #include "context/menu/MenuContext.h"
 #include "manager/SettingsManager.h"
 #include "res/def_wpp.h"
-#include "util/batt_util.h"
+#include "util/volt_util.h"
 
 #define UPD_DISPLAY_INTERVAL_MS 5000UL
+
+#define PIN_VOLT 4
+#define R_DIV_K 0.7268f
+#define SAMPLES_NUM 128
 
 HomeContext::HomeContext()
 {
@@ -91,7 +95,7 @@ void HomeContext::update()
 
 void HomeContext::updateBattVoltage()
 {
-  float bat_voltage = readBattVoltage();
+  float bat_voltage = readPinVoltage(PIN_VOLT, SAMPLES_NUM, R_DIV_K);
   String volt_str = String(bat_voltage);
   _batt_volt_lbl->setText(volt_str);
 
