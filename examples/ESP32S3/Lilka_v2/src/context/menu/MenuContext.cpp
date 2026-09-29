@@ -174,12 +174,11 @@ MenuContext::MenuContext()
   _menu->setCurrFocusPos(_last_sel_item_pos);
   _scrollbar->setValue(_last_sel_item_pos);
 
-  _input.onKeyPressed(keyPressedHandler, this);
+  // _input.onKeyPressed(keyPressedHandler, this);
 }
 
 MenuContext::~MenuContext()
 {
-  _input.onKeyPressed(nullptr, nullptr);
 }
 
 bool MenuContext::loop()
@@ -208,34 +207,34 @@ void MenuContext::update()
   }
 }
 
-void MenuContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
-{
-  MenuContext* self = static_cast<MenuContext*>(arg);
+// void MenuContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
+// {
+//   MenuContext* self = static_cast<MenuContext*>(arg);
 
-  switch (event.keycode)
-  {
-    case Input::KEY_UP_ARROW:
-      self->post([self]()
-                 { self->up(); });
-      return;
+//   switch (event.keycode)
+//   {
+//     case Input::KEY_UP_ARROW:
+//       self->post([self]()
+//                  { self->up(); });
+//       return;
 
-    case Input::KEY_DOWN_ARROW:
-      self->post([self]()
-                 { self->down(); });
-      return;
+//     case Input::KEY_DOWN_ARROW:
+//       self->post([self]()
+//                  { self->down(); });
+//       return;
 
-    case Input::KEY_ESCAPE:
-      self->post([self]()
-                 { 
-                  self->_last_sel_item_pos = 0;
-                  self->openContext(new HomeContext()); });
-      return;
-    case Input::KEY_ENTER:
-      self->post([self]()
-                 { self->ok(); });
-      return;
-  }
-}
+//     case Input::KEY_ESCAPE:
+//       self->post([self]()
+//                  { 
+//                   self->_last_sel_item_pos = 0;
+//                   self->openContext(new HomeContext()); });
+//       return;
+//     case Input::KEY_ENTER:
+//       self->post([self]()
+//                  { self->ok(); });
+//       return;
+//   }
+// }
 
 void MenuContext::up()
 {
