@@ -2,11 +2,17 @@
 
 namespace pixeler
 {
-  float readPinVoltage(uint8_t pin, uint16_t samples_num, float r_div_k)
+  float readPinVoltage(uint8_t pin, uint8_t samples_num, float r_div_k)
   {
     if (r_div_k <= 0.0f)
     {
       log_e("Некоректний коефіцієнт подільника напруги: %f", r_div_k);
+      esp_restart();
+    }
+
+    if (samples_num == 0)
+    {
+      log_e("Кількість вибірок мусить бути > 0");
       esp_restart();
     }
 

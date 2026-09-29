@@ -11,5 +11,5 @@ namespace pixeler
    * @param r_div_k Коефіцієнт подільника напруги за формулою (R2 / (R1 + R2)), якщо потрібно
    * @return float
    */
-  float readPinVoltage(uint8_t pin, uint16_t samples_num, float r_div_k = 1.0f);
+  float readPinVoltage(uint8_t pin, uint8_t samples_num = 1, float r_div_k = 1.0f);
 }  // namespace pixeler
