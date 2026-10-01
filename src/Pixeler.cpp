@@ -1,5 +1,7 @@
 #include "Pixeler.h"
 
+#include <esp32-hal-ledc.h>
+
 #include "context/IContext.h"
 #include "graphics_config.h"
 #include "ui_config.h"
@@ -13,6 +15,8 @@ namespace pixeler
 
   void Pixeler::pixelerContextTask(void* params)
   {
+    ledcSetClockSource(LEDC_USE_APB_CLK);
+
     _input.__init();
 
 #ifdef GRAPHICS_ENABLED
