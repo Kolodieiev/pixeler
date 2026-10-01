@@ -55,7 +55,7 @@ HomeContext::HomeContext()
   _batt_volt_lbl->setFont(font_5x7);
   _batt_volt_lbl->setAlign(Label::ALIGN_CENTER);
   _batt_volt_lbl->setGravity(Label::GRAVITY_CENTER);
-  _batt_volt_lbl->setPos(UI_WIDTH - DISPLAY_PADDING - _batt_volt_lbl->getWidth(), DISPLAY_PADDING);
+  _batt_volt_lbl->setPos(UI_WIDTH - DISPLAY_PADDING - _batt_volt_lbl->getWidth() - DISPLAY_CUTOUT, DISPLAY_PADDING);
   _batt_volt_lbl->setTransparency(true);
 
   _batt_ico = new Image(1);
