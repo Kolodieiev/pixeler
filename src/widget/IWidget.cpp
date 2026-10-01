@@ -165,6 +165,11 @@ namespace pixeler
     return getYPos() + _height;
   }
 
+  uint16_t IWidget::getRightXPos() const
+  {
+    return getXPos() + _width;
+  }
+
   void IWidget::copyTo(IWidget* widget) const
   {
     if (!widget)
