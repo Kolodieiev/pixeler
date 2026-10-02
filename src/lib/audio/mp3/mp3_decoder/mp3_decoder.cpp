@@ -1514,7 +1514,7 @@ int32_t MP3Decoder::findSyncWord(uint8_t* buf, int32_t nBytes)
 
     if ((firstFH[2] & 0b11110000) == 0b11110000)
     {  // wrong bitrate index
-      log_d("wrong bitrate index");
+      log_i("wrong bitrate index");
       pos += mp3FHsize;
       nBytes -= mp3FHsize;
       int32_t i = findSync(buf, pos, nBytes);
@@ -1525,7 +1525,7 @@ int32_t MP3Decoder::findSyncWord(uint8_t* buf, int32_t nBytes)
 
     if ((firstFH[2] & 0b00001100) == 0b00001100)
     {  // wrong sampling rate frequency index
-      log_d("wrong sampling rate");
+      log_i("wrong sampling rate");
       pos += mp3FHsize;
       nBytes -= mp3FHsize;
       int32_t i = findSync(buf, pos, nBytes);
@@ -2137,22 +2137,22 @@ int32_t MP3Decoder::DecodeHuffmanPairs(int32_t* xy, int32_t nVals, int32_t tabId
 
   if ((nVals & 0x01))
   {
-    log_d("assert(!(nVals & 0x01))");
+    log_i("assert(!(nVals & 0x01))");
     return -1;
   }
   if (!(tabIdx < m_HUFF_PAIRTABS))
   {
-    log_d("assert(tabIdx < m_HUFF_PAIRTABS)");
+    log_i("assert(tabIdx < m_HUFF_PAIRTABS)");
     return -1;
   }
   if (!(tabIdx >= 0))
   {
-    log_d("(tabIdx >= 0)");
+    log_i("(tabIdx >= 0)");
     return -1;
   }
   if (!(tabType != invalidTab))
   {
-    log_d("(tabType != invalidTab)");
+    log_i("(tabType != invalidTab)");
     return -1;
   }
 
