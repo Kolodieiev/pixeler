@@ -358,7 +358,7 @@ void WiFiContext::showContextMenuTmpl()
     _mode = MODE_CONTEXT_MENU;
     getLayout()->addWidget(_context_menu);
     _context_menu->setHeight(_context_menu->getItemHeight() * _context_menu->getSize() + 4);
-    _context_menu->setPos(UI_WIDTH - _context_menu->getWidth(), UI_HEIGHT - _context_menu->getHeight());
+    _context_menu->setPos(UI_WIDTH - _context_menu->getWidth(), UI_HEIGHT - _context_menu->getHeight() - DISPLAY_CUTOUT);
   }
 }
 
