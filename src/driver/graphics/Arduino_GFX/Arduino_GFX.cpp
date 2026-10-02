@@ -1435,7 +1435,6 @@ void Arduino_GFX::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
       uint8_t a, b;
 
       _u8g2_target_x = x + (_u8g2_char_x * textsize_x);
-      // log_d("_u8g2_target_x: %d, _u8g2_target_y: %d", _u8g2_target_x, _u8g2_target_y);
 
       /* reset local x/y position */
       _u8g2_dx = 0;
@@ -1446,7 +1445,6 @@ void Arduino_GFX::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
       {
         a = u8g2_font_decode_get_unsigned_bits(_u8g2_bits_per_0);
         b = u8g2_font_decode_get_unsigned_bits(_u8g2_bits_per_1);
-        // log_d("a: %d, b: %d", a, b);
         do
         {
           u8g2_font_decode_len(a, 0, color, bg);
@@ -1727,8 +1725,6 @@ size_t Arduino_GFX::write(uint8_t c)
           _u8g2_char_x = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_char_x);
           _u8g2_char_y = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_char_y);
           _u8g2_delta_x = u8g2_font_decode_get_signed_bits(_u8g2_bits_per_delta_x);
-          // log_d("c: %c, _encoding: %d, _u8g2_char_width: %d, _u8g2_char_height: %d, _u8g2_char_x: %d, _u8g2_char_y: %d, _u8g2_delta_x: %d",
-          //       c, _encoding, _u8g2_char_width, _u8g2_char_height, _u8g2_char_x, _u8g2_char_y, _u8g2_delta_x);
 
           if (_u8g2_char_width > 0)
           {
@@ -1848,11 +1844,6 @@ void Arduino_GFX::setFont(const uint8_t* font)
   // uint8_t bbx_mode = pgm_read_byte(font + 1);
   _u8g2_bits_per_0 = pgm_read_byte(font + 2);
   _u8g2_bits_per_1 = pgm_read_byte(font + 3);
-  // log_d("_u8g2_glyph_cnt: %d, bbx_mode: %d, _u8g2_bits_per_0: %d, _u8g2_bits_per_1: %d",
-  //       _u8g2_glyph_cnt,
-  //       bbx_mode,
-  //       _u8g2_bits_per_0,
-  //       _u8g2_bits_per_1);
 
   /* offset 4 */
   _u8g2_bits_per_char_width = pgm_read_byte(font + 4);
@@ -1860,36 +1851,16 @@ void Arduino_GFX::setFont(const uint8_t* font)
   _u8g2_bits_per_char_x = pgm_read_byte(font + 6);
   _u8g2_bits_per_char_y = pgm_read_byte(font + 7);
   _u8g2_bits_per_delta_x = pgm_read_byte(font + 8);
-  // log_d("_u8g2_bits_per_char_width: %d, _u8g2_bits_per_char_height: %d, _u8g2_bits_per_char_x: %d, _u8g2_bits_per_char_y: %d, _u8g2_bits_per_delta_x: %d",
-  //       _u8g2_bits_per_char_width,
-  //       _u8g2_bits_per_char_height,
-  //       _u8g2_bits_per_char_x,
-  //       _u8g2_bits_per_char_y,
-  //       _u8g2_bits_per_delta_x);
 
   /* offset 9 */
   _u8g2_max_char_width = pgm_read_byte(font + 9);
   _u8g2_max_char_height = pgm_read_byte(font + 10);
-  // int8_t x_offset = pgm_read_byte(font + 11);
-  // int8_t y_offset = pgm_read_byte(font + 12);
-  // log_d("_u8g2_max_char_width: %d, _u8g2_max_char_height: %d, x_offset: %d, y_offset: %d",
-  //       _u8g2_max_char_width, _u8g2_max_char_height, x_offset, y_offset);
-
-  /* offset 13 */
-  // int8_t ascent_A = pgm_read_byte(font + 13);
-  // int8_t descent_g = pgm_read_byte(font + 14);
-  // int8_t ascent_para = pgm_read_byte(font + 15);
-  // int8_t descent_para = pgm_read_byte(font + 16);
-  // log_d("ascent_A: %d, descent_g: %d, ascent_para: %d, descent_para: %d",
-  //       ascent_A, descent_g, ascent_para, descent_para);
 
   /* offset 17 */
   _u8g2_start_pos_upper_A = u8g2_font_get_word(font, 17);
   _u8g2_start_pos_lower_a = u8g2_font_get_word(font, 19);
   _u8g2_start_pos_unicode = u8g2_font_get_word(font, 21);
   _u8g2_first_char = pgm_read_byte(font + 23);
-  // log_d("_u8g2_start_pos_upper_A: %d, _u8g2_start_pos_lower_a: %d, _u8g2_start_pos_unicode: %d, _u8g2_first_char: %d",
-  //       _u8g2_start_pos_upper_A, _u8g2_start_pos_lower_a, _u8g2_start_pos_unicode, _u8g2_first_char);
 }
 
 void Arduino_GFX::setUTF8Print(bool isEnable)
