@@ -101,7 +101,7 @@ private:
 
   // для 320х240
 #define ROWS_PER_PAGE 18
-#define CHARS_PER_LINE 30
+#define CHARS_PER_LINE 28
 #define NUM_BYTES_TO_READ ROWS_PER_PAGE * CHARS_PER_LINE * 2  //  20 рядків x 28 символів х 2 байти на символ для 320х240
 
   char _bytes_buff[NUM_BYTES_TO_READ + 1];

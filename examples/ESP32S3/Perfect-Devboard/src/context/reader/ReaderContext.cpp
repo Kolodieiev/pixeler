@@ -219,8 +219,9 @@ void ReaderContext::showReadTmpl()
   _page = new Label(ID_PAGE_LBL);
   layout->addWidget(_page);
   _page->setMultiline(true);
-  _page->setWidth(UI_WIDTH);
+  _page->setWidth(UI_WIDTH - 10);
   _page->setHeight(UI_HEIGHT - _progress_lbl->getHeight() - 5);
+  _page->setPos(5, 0);
   _page->setBackColor(COLOR_DARKGREY);
   _page->setTextColor(COLOR_WHITE);
 
