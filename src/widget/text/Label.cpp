@@ -557,6 +557,22 @@ namespace pixeler
       _back_img->drawForced();
     }
 
+    if (_is_multiline)
+    {
+      _first_draw_char_pos = 0;
+      _has_autoscroll = false;
+      _has_autoscroll_in_focus = false;
+
+      _display.setTextWrap(true);
+      _display.setTextBound(_x_pos + x_offset + 1, _y_pos + y_offset + 1, _width - 1, _height - 1);
+      _display.setCursor(_x_pos + x_offset + 1, _y_pos + y_offset + _char_hgt + 2);
+      _display.print(_text.c_str());
+      _display.resetTextBound();
+      _display.setTextWrap(false);
+
+      return;
+    }
+
     if (str_pix_num + _h_padding * 2 - 2 < _width)
     {
       _has_autoscroll = false;
@@ -564,64 +580,48 @@ namespace pixeler
       uint16_t txt_x_pos = calcXStrOffset(str_pix_num);
       _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
       _display.print(_text.c_str());
+
+      return;
     }
-    else
+
+    String sub_str;
+    uint16_t sub_str_pix_num;
+    uint16_t txt_x_pos;
+
+    sub_str_pix_num = getFitStr(sub_str, _first_draw_char_pos);
+    txt_x_pos = calcXStrOffset(sub_str_pix_num);
+
+    if (_has_autoscroll || (_has_autoscroll_in_focus && _has_focus))
     {
-      if (!_is_multiline)
+      if ((millis() - _last_autoscroll_ts) > _autoscroll_update_delay)
       {
-        String sub_str;
-        uint16_t sub_str_pix_num;
-        uint16_t txt_x_pos;
-
-        sub_str_pix_num = getFitStr(sub_str, _first_draw_char_pos);
-        txt_x_pos = calcXStrOffset(sub_str_pix_num);
-
-        if (_has_autoscroll || (_has_autoscroll_in_focus && _has_focus))
+        if (_has_full_autoscroll)
         {
-          if ((millis() - _last_autoscroll_ts) > _autoscroll_update_delay)
-          {
-            if (_has_full_autoscroll)
-            {
-              if (_first_draw_char_pos == _text_len - 1 || sub_str_pix_num == 0)
-                _first_draw_char_pos = 0;
-              else
-                ++_first_draw_char_pos;
-            }
-            else if (!_is_reverse_autoscroll)
-            {
-              if (!_text.endsWith(sub_str))
-                ++_first_draw_char_pos;
-              else
-                _is_reverse_autoscroll = true;
-            }
-            else
-            {
-              if (_first_draw_char_pos > 0)
-                --_first_draw_char_pos;
-              else
-                _is_reverse_autoscroll = false;
-            }
-
-            _last_autoscroll_ts = millis();
-          }
+          if (_first_draw_char_pos == _text_len - 1 || sub_str_pix_num == 0)
+            _first_draw_char_pos = 0;
+          else
+            ++_first_draw_char_pos;
+        }
+        else if (!_is_reverse_autoscroll)
+        {
+          if (!_text.endsWith(sub_str))
+            ++_first_draw_char_pos;
+          else
+            _is_reverse_autoscroll = true;
+        }
+        else
+        {
+          if (_first_draw_char_pos > 0)
+            --_first_draw_char_pos;
+          else
+            _is_reverse_autoscroll = false;
         }
 
-        _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
-        _display.print(sub_str.c_str());
-      }
-      else
-      {
-        _first_draw_char_pos = 0;
-        _has_autoscroll = false;
-        _has_autoscroll_in_focus = false;
-
-        _display.setTextWrap(true);
-        _display.setTextBound(_x_pos + x_offset + 1, _y_pos + y_offset + 1, _width - 1, _height - 1);
-        _display.setCursor(_x_pos + x_offset + 1, _y_pos + y_offset + _char_hgt + 2);
-        _display.print(_text.c_str());
-        _display.resetTextBound();
-        _display.setTextWrap(false);
+        _last_autoscroll_ts = millis();
       }
     }
+
+    _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
+    _display.print(sub_str.c_str());
   }
 }  // namespace pixeler
