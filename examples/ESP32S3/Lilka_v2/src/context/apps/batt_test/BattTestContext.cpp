@@ -559,7 +559,7 @@ void BattTestContext::handleProfileContextMenuState()
           _profile_edit_fun_pwm = _fun_duty;
         }
 
-        showProfileEditDialog();
+        showProfileEditTmpl();
       }
       break;
 
@@ -568,7 +568,7 @@ void BattTestContext::handleProfileContextMenuState()
         _profile_edit_min_voltage = _min_test_voltage;
         _profile_edit_max_current = _test_current;
         _profile_edit_fun_pwm = _fun_duty;
-        showProfileEditDialog();
+        showProfileEditTmpl();
         break;
 
       default:
@@ -578,9 +578,9 @@ void BattTestContext::handleProfileContextMenuState()
   }
 }
 
-void BattTestContext::showProfileEditDialog()
+void BattTestContext::showProfileEditTmpl()
 {
-  _state_handler = &BattTestContext::handleEditProfileState;
+  _state_handler = &BattTestContext::handleProfileEditState;
 
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
@@ -633,7 +633,7 @@ void BattTestContext::showProfileEditDialog()
   prof_fun_item->setLabel(prof_fun_lbl);
 }
 
-void BattTestContext::handleEditProfileState()
+void BattTestContext::handleProfileEditState()
 {
   if (_input.isPressed(BTN_BACK))
   {
@@ -747,14 +747,14 @@ void BattTestContext::handleProfileNameDialogState()
     else
     {
       _profile_edit_name = tb_text;
-      showProfileEditDialog();
+      showProfileEditTmpl();
     }
     return;
   }
 
   if (_input.isPressed(BtnID::BTN_BACK))
   {
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 
@@ -807,13 +807,13 @@ void BattTestContext::handleProfileMinVoltDialogState()
   if (_input.isReleased(BtnID::BTN_OK))
   {
     _profile_edit_min_voltage = _spinbox->getValue();
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 
   if (_input.isReleased(BtnID::BTN_BACK))
   {
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 
@@ -858,13 +858,13 @@ void BattTestContext::handleProfileMaxCurrDialogState()
   if (_input.isReleased(BtnID::BTN_OK))
   {
     _profile_edit_max_current = _spinbox->getValue();
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 
   if (_input.isReleased(BtnID::BTN_BACK))
   {
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 
@@ -909,13 +909,13 @@ void BattTestContext::handleProfileFunPwmDialogState()
   if (_input.isReleased(BtnID::BTN_OK))
   {
     _profile_edit_fun_pwm = static_cast<uint8_t>(_spinbox->getValue());
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 
   if (_input.isReleased(BtnID::BTN_BACK))
   {
-    showProfileEditDialog();
+    showProfileEditTmpl();
     return;
   }
 

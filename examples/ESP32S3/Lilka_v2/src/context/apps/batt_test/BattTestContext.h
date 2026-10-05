@@ -96,8 +96,8 @@ private:
   void showTestTmpl();
   void handleTestState();
 
-  void showProfileEditDialog();
-  void handleEditProfileState();
+  void showProfileEditTmpl();
+  void handleProfileEditState();
 
   void showProfileNameDialog();
   void handleProfileNameDialogState();
