@@ -419,8 +419,12 @@ void FilesContext::hideContextMenu()
 void FilesContext::showDialog(Mode mode)
 {
   IWidgetContainer* layout = WidgetCreator::getEmptyLayout();
+  layout->setBackColor(COLOR_BLACK);
+  setLayout(layout);
 
   _dialog_txt = new TextBox(ID_DIALOG_TXT);
+  layout->addWidget(_dialog_txt);
+
   _dialog_txt->setHPadding(5);
   _dialog_txt->setWidth(UI_WIDTH - 10);
   _dialog_txt->setHeight(40);
@@ -438,12 +442,9 @@ void FilesContext::showDialog(Mode mode)
   }
 
   _keyboard = WidgetCreator::getStandardEnKeyboard(ID_KEYBOARD);
-
-  layout->setBackColor(COLOR_BLACK);
-  layout->addWidget(_dialog_txt);
   layout->addWidget(_keyboard);
 
-  setLayout(layout);
+  _keyboard->setPos(0, _dialog_txt->getBottomYPos() + 5);
 }
 
 void FilesContext::hideDialog()
