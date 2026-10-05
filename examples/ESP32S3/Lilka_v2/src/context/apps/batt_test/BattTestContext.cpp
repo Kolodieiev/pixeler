@@ -3,6 +3,8 @@
 #include <esp32-hal-ledc.h>
 #include <math.h>
 
+#include <vector>
+
 #include "../../WidgetCreator.h"
 #include "context/apps/AppsContext.h"
 #include "manager/SettingsManager.h"
@@ -21,6 +23,13 @@ static const char STR_MANUAL_TEST_HINT[] =
     "Press B -> Вихід\n"
     "Hold Left/Right -> Змінити навантаження\n"
     "Hold Up/Down -> Змінити швидкість вентилятора";
+static const char STR_PROFILE_EDIT_HINT[] =
+    "Press A -> Зберегти\n"
+    "Press B -> Вихід";
+static const char STR_PROFILE_EDIT_SPIN_HINT[] =
+    "Hold UP/DOWN -> Змінити значення\n"
+    "Click A -> Зафіксувати\n"
+    "Click B -> Вихід";
 
 static const char STR_ITEM_SEL_PROFILE[] = "Обрати профіль тестування";
 static const char STR_ITEM_MANUAL_TESTING[] = "Ручне тестування";
@@ -29,13 +38,27 @@ static const char STR_ITEM_TEMP_PROFILE[] = "Тимчасовий профіль
 static const char STR_ITEM_RUN_PROFILE[] = "Запустити тест";
 static const char STR_ITEM_NEW_PROFILE[] = "Новий профіль";
 
+static const char STR_ITEM_PROFILE_NAME[] = "Ім'я: ";
+static const char STR_ITEM_PROFILE_VOLT[] = "Мін. V: ";
+static const char STR_ITEM_PROFILE_CURR[] = "Макс. C: ";
+static const char STR_ITEM_PROFILE_FUN[] = "FUN ШІМ: ";
+
+static const char STR_VOLTAGE_TITLE[] = "Мінімальна напруга";
+static const char STR_CURRENT_TITLE[] = "Максимальний струм";
+static const char STR_FUN_TITLE[] = "Шпаруватість вентилятора";
+
+static const char STR_ERR_INCORRECT_PROF_NAME[] = "Некоректне ім'я";
+
+static const char STR_APP_DIR[] = "batt_tester";
+
 static const float INA_MAX_CURR = 3.2f;  // Максимальний струм можливий для шунта INA219
 static const float INA_SHUNT_R = 0.1f;   // Значення опору шунта INA219
 
 static const float MIN_WARNING_CURRENT = 0.035f;  // Мінімальний струм спокою, при якому модуль вважається пошкодженим
-static const float MIN_PG_VOLT = 0.4f;            // Мінімальна напргуа на піні PG при якому акум вважається підключеним
+static const float MIN_PG_VOLT = 0.4f;            // Мінімальна напруга на піні PG при якому акум вважається підключеним
 static const float MIN_TEST_VOLT = 0.4f;          // Мінімальна можлива напруга тестування акума
-static const float MAX_VOLT_DIFF = 0.2f;          // Максимальне допустиме значення розбіжності напруг на модулі та PG
+static const float MAX_TEST_VOLT = 12.6f;
+static const float MAX_VOLT_DIFF = 0.2f;  // Максимальне допустиме значення розбіжності напруг на модулі та PG
 
 static const float R_DIV = 0.0917f;  // Точний коефіцієнт подільника на піні PG
 
@@ -52,6 +75,8 @@ static const uint16_t MAX_OPA_DUTY = 1024;
 static const uint8_t INA_ADDR = 0x40;  // Адреса модуля INA219
 
 static const uint8_t PWM_FUN_RES = 8;
+static const uint8_t MAX_FUN_DUTY = 100;
+
 static const uint8_t PWM_OPA_RES = 10;
 
 static const uint8_t PIN_PG = 14;
@@ -151,6 +176,21 @@ void BattTestContext::handleErrState()
 
 // -----------------------------------------------------------------------------------------------------------------------
 
+void BattTestContext::addInstruction(const String& text, uint8_t line_num)
+{
+  Label* instruction_lbl = new Label(ID_INSTRUCTION_LBL);
+  getLayout()->addWidget(instruction_lbl);
+  instruction_lbl->setText(text);
+  instruction_lbl->setFont(font_6x12);
+  instruction_lbl->setWidth(UI_WIDTH - DISPLAY_CUTOUT * 2);
+  instruction_lbl->setMultiline(true);
+  instruction_lbl->setHeight(instruction_lbl->getCharHgt() * line_num);
+  instruction_lbl->setPos(DISPLAY_CUTOUT, UI_HEIGHT - instruction_lbl->getHeight());
+  instruction_lbl->setBackColor(getLayout()->getBackColor());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------
+
 void BattTestContext::showMainTmpl()
 {
   _state_handler = &BattTestContext::handleMainState;
@@ -170,17 +210,7 @@ void BattTestContext::showMainTmpl()
   _voltage_lbl->setAlign(IWidget::ALIGN_CENTER);
   _voltage_lbl->setGravity(IWidget::GRAVITY_CENTER);
 
-  Label* instruction_lbl = new Label(ID_INSTRUCTION_LBL);
-  layout->addWidget(instruction_lbl);
-
-  instruction_lbl->setText(STR_MAIN_HINT);
-
-  instruction_lbl->setFont(font_unifont);
-  instruction_lbl->setWidth(UI_WIDTH - DISPLAY_CUTOUT * 2);
-  instruction_lbl->setMultiline(true);
-  instruction_lbl->setHeight(instruction_lbl->getCharHgt() * 3);
-  instruction_lbl->setPos(DISPLAY_CUTOUT, _voltage_lbl->getBottomYPos() + 5);
-  instruction_lbl->setBackColor(layout->getBackColor());
+  addInstruction(STR_MAIN_HINT, 3);
 }
 
 void BattTestContext::handleMainState()
@@ -211,7 +241,7 @@ void BattTestContext::showContextMenu()
 {
   _state_handler = &BattTestContext::handleContextMenuState;
 
-  _context_menu = WidgetCreator::getContextMenu(ID_MAIN_CONTEXT);
+  _context_menu = WidgetCreator::getContextMenu(ID_C_MENU);
   getLayout()->addWidget(_context_menu);
 
   // Обрати профіль тестування
@@ -236,7 +266,7 @@ void BattTestContext::showContextMenu()
 
 void BattTestContext::hideContextMenu()
 {
-  getLayout()->delWidgetByID(ID_MAIN_CONTEXT);
+  getLayout()->delWidgetByID(ID_C_MENU);
   _state_handler = &BattTestContext::handleMainState;
 }
 
@@ -290,8 +320,9 @@ void BattTestContext::showProfileSelectTmpl()
   _menu->setHeight(UI_HEIGHT - DISPLAY_CUTOUT * 2 - DISPLAY_PADDING * 2);
   _menu->setItemHeight(_menu->getHeight() / MENU_ITEMS_NUM - 2);
   _menu->setPos(DISPLAY_PADDING, DISPLAY_CUTOUT + DISPLAY_PADDING);
+  _menu->setLooped(true);
 
-  _prof_hint_lbl = new Label(ID_PROF_HINT_LABEL);
+  _prof_hint_lbl = new Label(ID_PROF_HINT_LBL);
   layout->addWidget(_prof_hint_lbl);
   _prof_hint_lbl->setFont(font_8x13);
   _prof_hint_lbl->setWidth(UI_WIDTH - DISPLAY_CUTOUT * 2);
@@ -300,8 +331,6 @@ void BattTestContext::showProfileSelectTmpl()
   _prof_hint_lbl->setGravity(IWidget::GRAVITY_CENTER);
   _prof_hint_lbl->setBackColor(layout->getBackColor());
 
-  updateProfileHint();
-
   // Тимчасовий профіль
   MenuItem* temp_item = WidgetCreator::getMenuItem(ID_ITEM_TEMP_PROFILE);
   _menu->addItem(temp_item);
@@ -309,10 +338,26 @@ void BattTestContext::showProfileSelectTmpl()
   Label* temp_lbl = WidgetCreator::getItemLabel(STR_ITEM_TEMP_PROFILE, font_10x20);
   temp_item->setLabel(temp_lbl);
 
+  updateProfileHint();
+
   if (!_fs.isMounted())
     return;
 
-  // TODO завантажити інші профілі, якщо карта примонтована
+  String dir_path = SettingsManager::getSettingsDirPath(STR_APP_DIR);
+  std::vector<FileInfo> profiles = _fs.indexFiles(dir_path.c_str());
+
+  uint16_t i = ID_ITEM_TEMP_PROFILE + 1;
+  for (const FileInfo& f_info : profiles)
+  {
+    if (!f_info.isDir())
+    {
+      MenuItem* item = WidgetCreator::getMenuItem(i);
+      _menu->addItem(item);
+
+      Label* itemp_lbl = WidgetCreator::getItemLabel(f_info.getName(), font_10x20);
+      item->setLabel(itemp_lbl);
+    }
+  }
 }
 
 void BattTestContext::handleProfileSelectState()
@@ -343,22 +388,33 @@ void BattTestContext::updateProfileHint()
 {
   uint16_t item_id = _menu->getCurrItemID();
 
+  float hint_voltage = 999.0f;
+  float hint_current = 0.0f;
+  uint8_t hint_fun = 0;
+
   if (item_id == ID_ITEM_TEMP_PROFILE)
   {
-    _min_test_voltage = TEMP_PROF_MIN_VOLT;
+    hint_voltage = _min_test_voltage;
+    hint_current = _test_current;
+    hint_fun = _fun_duty;
   }
   else
   {
-    // TODO завантажити параметри конкретного профілю з карти памяті
-    // Додати структуру для збереження параметрів групою в файлі
+    ProfileSetup prof_setup;
+    if (SettingsManager::load(&prof_setup, sizeof(prof_setup), _menu->getCurrItemText(), STR_APP_DIR))
+    {
+      hint_voltage = prof_setup.min_voltage;
+      hint_current = prof_setup.max_current;
+      hint_fun = prof_setup.fun_duty;
+    }
   }
 
-  String hint_str = String(_min_test_voltage);
+  String hint_str = String(hint_voltage);
   hint_str += "V  ";
-  hint_str += _test_current;
+  hint_str += hint_current;
   hint_str += "A  ";
   hint_str += "Fun: ";
-  hint_str += _fun_duty;
+  hint_str += hint_fun;
 
   _prof_hint_lbl->setText(hint_str);
 }
@@ -369,7 +425,7 @@ void BattTestContext::showProfileContextMenu()
 {
   _state_handler = &BattTestContext::handleProfileContextMenuState;
 
-  _context_menu = WidgetCreator::getContextMenu(ID_PROFILE_CONTEXT);
+  _context_menu = WidgetCreator::getContextMenu(ID_C_MENU);
   getLayout()->addWidget(_context_menu);
 
   // Запустити тест
@@ -416,7 +472,7 @@ void BattTestContext::showProfileContextMenu()
 
 void BattTestContext::hideProfileContextMenu()
 {
-  getLayout()->delWidgetByID(ID_PROFILE_CONTEXT);
+  getLayout()->delWidgetByID(ID_C_MENU);
   _state_handler = &BattTestContext::handleProfileSelectState;
 }
 
@@ -439,18 +495,80 @@ void BattTestContext::handleProfileContextMenuState()
     uint16_t item_id = _context_menu->getCurrItemID();
     switch (item_id)
     {
-      case ID_ITEM_RUN_PROFILE:  // TODO
-        break;
+      case ID_ITEM_RUN_PROFILE:
+      {
+        String profile_name = _menu->getCurrItemText();
 
-      case ID_ITEM_DELETE_PROFILE:  // TODO
+        bool result = true;
+        if (!profile_name.equals(STR_ITEM_TEMP_PROFILE))
+        {
+          ProfileSetup prof_setup;
+          result = SettingsManager::load(&prof_setup, sizeof(prof_setup), _menu->getCurrItemText(), STR_APP_DIR);
+          if (!result)
+          {
+            showToast(STR_FAIL);
+          }
+          else
+          {
+            _min_test_voltage = prof_setup.min_voltage;
+            _test_current = prof_setup.max_current;
+            _fun_duty = prof_setup.fun_duty;
+          }
+        }
+
+        if (result)
+          showTestTmpl();
+      }
+
+      break;
+
+      case ID_ITEM_DELETE_PROFILE:
+        if (!SettingsManager::remove(_menu->getCurrItemText(), STR_APP_DIR))
+        {
+          showToast(STR_FAIL);
+        }
+        else
+        {
+          showProfileSelectTmpl();
+          showToast(STR_SUCCESS);
+        }
         break;
 
       case ID_ITEM_EDIT_PROFILE:
-        showProfileEditDialog(_menu->getCurrItemText(), _min_test_voltage, _test_current, _fun_duty);
-        break;
+      {
+        _profile_edit_name = _menu->getCurrItemText();
+
+        ProfileSetup prof_setup;
+        if (!_profile_edit_name.equals(STR_ITEM_TEMP_PROFILE))
+        {
+          if (!SettingsManager::load(&prof_setup, sizeof(prof_setup), _profile_edit_name, STR_APP_DIR))
+          {
+            showToast(STR_FAIL);
+          }
+          else
+          {
+            _profile_edit_min_voltage = prof_setup.min_voltage;
+            _profile_edit_max_current = prof_setup.max_current;
+            _profile_edit_fun_pwm = prof_setup.fun_duty;
+          }
+        }
+        else
+        {
+          _profile_edit_min_voltage = _min_test_voltage;
+          _profile_edit_max_current = _test_current;
+          _profile_edit_fun_pwm = _fun_duty;
+        }
+
+        showProfileEditDialog();
+      }
+      break;
 
       case ID_ITEM_NEW_PROFILE:
-        showProfileEditDialog(STR_ITEM_NEW_PROFILE, _min_test_voltage, _test_current, _fun_duty);
+        _profile_edit_name = STR_ITEM_NEW_PROFILE;
+        _profile_edit_min_voltage = _min_test_voltage;
+        _profile_edit_max_current = _test_current;
+        _profile_edit_fun_pwm = _fun_duty;
+        showProfileEditDialog();
         break;
 
       default:
@@ -460,17 +578,351 @@ void BattTestContext::handleProfileContextMenuState()
   }
 }
 
-void BattTestContext::showProfileEditDialog(const String& profile_name, float min_voltage, float test_current, uint8_t fun_pwm)  // TODO
+void BattTestContext::showProfileEditDialog()
 {
   _state_handler = &BattTestContext::handleEditProfileState;
+
+  EmptyLayout* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  _menu = new FixedMenu(ID_MENU);
+  layout->addWidget(_menu);
+  _menu->setBackColor(COLOR_MAIN_BACK);
+  _menu->setWidth(UI_WIDTH - SCROLLBAR_WIDTH - DISPLAY_PADDING * 2);
+  _menu->setHeight(UI_HEIGHT - DISPLAY_CUTOUT * 2 - DISPLAY_PADDING * 2);
+  _menu->setItemHeight(_menu->getHeight() / MENU_ITEMS_NUM - 2);
+  _menu->setPos(DISPLAY_PADDING, DISPLAY_CUTOUT + DISPLAY_PADDING);
+  _menu->setLooped(true);
+
+  addInstruction(STR_PROFILE_EDIT_HINT, 3);
+
+  // Ім'я профіля
+  MenuItem* prof_name_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_NAME_ITEM);
+  _menu->addItem(prof_name_item);
+
+  String prof_name_text = STR_ITEM_PROFILE_NAME;
+  prof_name_text += _profile_edit_name;
+  Label* prof_name_lbl = WidgetCreator::getItemLabel(prof_name_text, font_10x20);
+  prof_name_item->setLabel(prof_name_lbl);
+
+  // Мінімальна напруга
+  MenuItem* prof_volt_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_VOLT_ITEM);
+  _menu->addItem(prof_volt_item);
+
+  String prof_volt_text = STR_ITEM_PROFILE_VOLT;
+  prof_volt_text += _profile_edit_min_voltage;
+  Label* prof_volt_lbl = WidgetCreator::getItemLabel(prof_volt_text, font_10x20);
+  prof_volt_item->setLabel(prof_volt_lbl);
+
+  // Максимальний струм
+  MenuItem* prof_curr_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_CURR_ITEM);
+  _menu->addItem(prof_curr_item);
+
+  String prof_curr_text = STR_ITEM_PROFILE_CURR;
+  prof_curr_text += _profile_edit_max_current;
+  Label* prof_curr_lbl = WidgetCreator::getItemLabel(prof_curr_text, font_10x20);
+  prof_curr_item->setLabel(prof_curr_lbl);
+
+  // ШІМ вентилятора
+  MenuItem* prof_fun_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_FUN_ITEM);
+  _menu->addItem(prof_fun_item);
+
+  String prof_fun_text = STR_ITEM_PROFILE_FUN;
+  prof_fun_text += _profile_edit_fun_pwm;
+  Label* prof_fun_lbl = WidgetCreator::getItemLabel(prof_fun_text, font_10x20);
+  prof_fun_item->setLabel(prof_fun_lbl);
 }
 
-void BattTestContext::handleEditProfileState()  // TODO
+void BattTestContext::handleEditProfileState()
 {
-  // Перемикатися між полями вводу. Якщо профіль не тимчасовий, Додати шаблон вводу імені.
-  // Перевіряти щоб введене імя не було "Тимчасовий профіль"
-  // зберігати профіль
-  // PRESS_ОК - відкриває showProfileEditDialog з введеним іменем, PRESS_BACK - з тимчасово збереженим старим іменем
+  if (_input.isPressed(BTN_BACK))
+  {
+    showProfileSelectTmpl();
+    return;
+  }
+
+  if (_input.isPressed(BTN_OK))
+  {
+    if (_profile_edit_name.equals(STR_ITEM_TEMP_PROFILE))
+    {
+      _min_test_voltage = _profile_edit_min_voltage;
+      _test_current = _profile_edit_max_current;
+      _fun_duty = _profile_edit_fun_pwm;
+      showToast(STR_SUCCESS);
+    }
+    else
+    {
+      ProfileSetup prof_setup{
+          .min_voltage = _profile_edit_min_voltage,
+          .max_current = _profile_edit_max_current,
+          .fun_duty = _profile_edit_fun_pwm};
+
+      if (!SettingsManager::save(&prof_setup, sizeof(prof_setup), _profile_edit_name, STR_APP_DIR))
+      {
+        showToast(STR_FAIL);
+      }
+      else
+      {
+        showProfileSelectTmpl();
+        showToast(STR_SUCCESS);
+      }
+    }
+
+    showProfileSelectTmpl();
+    return;
+  }
+
+  if (_input.isReleased(BTN_UP))
+  {
+    _menu->focusUp();
+  }
+  else if (_input.isReleased(BTN_DOWN))
+  {
+    _menu->focusDown();
+  }
+  else if (_input.isReleased(BTN_OK))
+  {
+    uint16_t item_id = _menu->getCurrItemID();
+    switch (item_id)
+    {
+      case ID_PROF_EDIT_NAME_ITEM:
+        if (!_menu->getCurrItemText().equals(STR_ITEM_TEMP_PROFILE))
+          showProfileNameDialog();
+        break;
+
+      case ID_PROF_EDIT_VOLT_ITEM:
+        showProfileMinVoltDialog();
+        break;
+
+      case ID_PROF_EDIT_CURR_ITEM:
+        showProfileMaxCurrDialog();
+        break;
+
+      case ID_PROF_EDIT_FUN_ITEM:
+        showProfileFunPwmDialog();
+        break;
+
+      default:
+        log_e("Не реалізована функція");
+        break;
+    }
+  }
+}
+
+void BattTestContext::showProfileNameDialog()
+{
+  _state_handler = &BattTestContext::handleProfileNameDialogState;
+
+  IWidgetContainer* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  _profile_name_tb = new TextBox(ID_PROF_NAME_TB);
+  layout->addWidget(_profile_name_tb);
+
+  _profile_name_tb->setText(_profile_edit_name);
+  _profile_name_tb->setHPadding(5);
+  _profile_name_tb->setWidth(UI_WIDTH - 10);
+  _profile_name_tb->setHeight(40);
+  _profile_name_tb->setBackColor(COLOR_WHITE);
+  _profile_name_tb->setTextColor(COLOR_BLACK);
+  _profile_name_tb->setTextSize(2);
+  _profile_name_tb->setPos(5, DISPLAY_CUTOUT);
+  _profile_name_tb->setCornerRadius(3);
+
+  _keyboard = WidgetCreator::getStandardEnKeyboard(ID_PROF_NAME_KB);
+  layout->addWidget(_keyboard);
+
+  _keyboard->setPos(0, _profile_name_tb->getBottomYPos() + 5);
+}
+
+void BattTestContext::handleProfileNameDialogState()
+{
+  if (_input.isPressed(BtnID::BTN_OK))
+  {
+    String tb_text = _profile_name_tb->getText();
+    if (tb_text.isEmpty() || tb_text.equals(STR_ITEM_TEMP_PROFILE))
+    {
+      showToast(STR_ERR_INCORRECT_PROF_NAME);
+    }
+    else
+    {
+      _profile_edit_name = tb_text;
+      showProfileEditDialog();
+    }
+    return;
+  }
+
+  if (_input.isPressed(BtnID::BTN_BACK))
+  {
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isHolded(BtnID::BTN_UP))
+    _keyboard->focusUp();
+  else if (_input.isHolded(BtnID::BTN_DOWN))
+    _keyboard->focusDown();
+  else if (_input.isHolded(BtnID::BTN_RIGHT))
+    _keyboard->focusRight();
+  else if (_input.isHolded(BtnID::BTN_LEFT))
+    _keyboard->focusLeft();
+  else if (_input.isReleased(BtnID::BTN_OK))
+    _profile_name_tb->addChars(_keyboard->getCurrBtnTxt().c_str());
+  else if (_input.isReleased(BtnID::BTN_BACK))
+    _profile_name_tb->removeLastChar();
+}
+
+void BattTestContext::showProfileMinVoltDialog()
+{
+  _state_handler = &BattTestContext::handleProfileMinVoltDialogState;
+
+  EmptyLayout* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  Label* title_lbl = WidgetCreator::getWindowHeader(ID_PROF_EDIT_TITILE_LBL, STR_VOLTAGE_TITLE);
+  layout->addWidget(title_lbl);
+
+  _spinbox = new SpinBox(ID_PROF_SPINBOX);
+  layout->addWidget(_spinbox);
+
+  _spinbox->setFont(font_inr30);
+  _spinbox->setBackColor(COLOR_WHITE);
+  _spinbox->setTextColor(COLOR_BLACK);
+  _spinbox->setCornerRadius(5);
+
+  _spinbox->setType(SpinBox::TYPE_FLOAT);
+  _spinbox->setStep(0.1f);
+  _spinbox->setMin(MIN_TEST_VOLT);
+  _spinbox->setMax(MAX_TEST_VOLT);
+  _spinbox->setValue(_profile_edit_min_voltage);
+  _spinbox->setWidth(130);
+  _spinbox->setHeight(_spinbox->getHeight() + 5);
+  _spinbox->setPos(getCenterX(_spinbox), getCenterY(_spinbox));
+
+  addInstruction(STR_PROFILE_EDIT_SPIN_HINT, 4);
+}
+
+void BattTestContext::handleProfileMinVoltDialogState()
+{
+  if (_input.isReleased(BtnID::BTN_OK))
+  {
+    _profile_edit_min_voltage = _spinbox->getValue();
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isReleased(BtnID::BTN_BACK))
+  {
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isHolded(BtnID::BTN_UP))
+    _spinbox->up();
+  else if (_input.isHolded(BtnID::BTN_DOWN))
+    _spinbox->down();
+}
+
+void BattTestContext::showProfileMaxCurrDialog()
+{
+  _state_handler = &BattTestContext::handleProfileMaxCurrDialogState;
+
+  EmptyLayout* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  Label* title_lbl = WidgetCreator::getWindowHeader(ID_PROF_EDIT_TITILE_LBL, STR_CURRENT_TITLE);
+  layout->addWidget(title_lbl);
+
+  _spinbox = new SpinBox(ID_PROF_SPINBOX);
+  layout->addWidget(_spinbox);
+
+  _spinbox->setFont(font_inr30);
+  _spinbox->setBackColor(COLOR_WHITE);
+  _spinbox->setTextColor(COLOR_BLACK);
+  _spinbox->setCornerRadius(5);
+
+  _spinbox->setType(SpinBox::TYPE_FLOAT);
+  _spinbox->setStep(0.1f);
+  _spinbox->setMin(0.0f);
+  _spinbox->setMax(INA_MAX_CURR);
+  _spinbox->setValue(_profile_edit_max_current);
+  _spinbox->setWidth(130);
+  _spinbox->setHeight(_spinbox->getHeight() + 5);
+  _spinbox->setPos(getCenterX(_spinbox), getCenterY(_spinbox));
+
+  addInstruction(STR_PROFILE_EDIT_SPIN_HINT, 4);
+}
+
+void BattTestContext::handleProfileMaxCurrDialogState()
+{
+  if (_input.isReleased(BtnID::BTN_OK))
+  {
+    _profile_edit_max_current = _spinbox->getValue();
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isReleased(BtnID::BTN_BACK))
+  {
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isHolded(BtnID::BTN_UP))
+    _spinbox->up();
+  else if (_input.isHolded(BtnID::BTN_DOWN))
+    _spinbox->down();
+}
+
+void BattTestContext::showProfileFunPwmDialog()
+{
+  _state_handler = &BattTestContext::handleProfileFunPwmDialogState;
+
+  EmptyLayout* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  Label* title_lbl = WidgetCreator::getWindowHeader(ID_PROF_EDIT_TITILE_LBL, STR_FUN_TITLE);
+  layout->addWidget(title_lbl);
+
+  _spinbox = new SpinBox(ID_PROF_SPINBOX);
+  layout->addWidget(_spinbox);
+
+  _spinbox->setFont(font_inr30);
+  _spinbox->setBackColor(COLOR_WHITE);
+  _spinbox->setTextColor(COLOR_BLACK);
+  _spinbox->setCornerRadius(5);
+
+  _spinbox->setType(SpinBox::TYPE_INT);
+  _spinbox->setStep(1.0f);
+  _spinbox->setMin(0.0f);
+  _spinbox->setMax(MAX_FUN_DUTY);
+  _spinbox->setValue(_profile_edit_fun_pwm);
+  _spinbox->setWidth(130);
+  _spinbox->setHeight(_spinbox->getHeight() + 5);
+  _spinbox->setPos(getCenterX(_spinbox), getCenterY(_spinbox));
+
+  addInstruction(STR_PROFILE_EDIT_SPIN_HINT, 4);
+}
+
+void BattTestContext::handleProfileFunPwmDialogState()
+{
+  if (_input.isReleased(BtnID::BTN_OK))
+  {
+    _profile_edit_fun_pwm = static_cast<uint8_t>(_spinbox->getValue());
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isReleased(BtnID::BTN_BACK))
+  {
+    showProfileEditDialog();
+    return;
+  }
+
+  if (_input.isHolded(BtnID::BTN_UP))
+    _spinbox->up();
+  else if (_input.isHolded(BtnID::BTN_DOWN))
+    _spinbox->down();
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -513,15 +965,7 @@ void BattTestContext::showManualTestTmpl()
   layout->addWidget(_opa_pwm_lbl);
   _opa_pwm_lbl->setPos(_current_lbl->getRightXPos() + 5, _current_lbl->getYPos());
 
-  Label* instruction_lbl = new Label(ID_INSTRUCTION_LBL);
-  layout->addWidget(instruction_lbl);
-  instruction_lbl->setText(STR_MANUAL_TEST_HINT);
-  instruction_lbl->setFont(font_5x7);
-  instruction_lbl->setWidth(UI_WIDTH - DISPLAY_CUTOUT * 2);
-  instruction_lbl->setMultiline(true);
-  instruction_lbl->setHeight(instruction_lbl->getCharHgt() * 5);
-  instruction_lbl->setPos(DISPLAY_CUTOUT, _power_lbl->getBottomYPos() + 5);
-  instruction_lbl->setBackColor(layout->getBackColor());
+  addInstruction(STR_MANUAL_TEST_HINT, 5);
 
   turnOnFun();
   updateFunPwmLbl();
@@ -567,6 +1011,7 @@ void BattTestContext::handleManualTestState()
 void BattTestContext::showTestTmpl()  // TODO
 {
   _state_handler = &BattTestContext::handleTestState;
+  // TODO відображати задані показники і реальні
 }
 
 void BattTestContext::handleTestState()  // TODO
@@ -592,7 +1037,7 @@ void BattTestContext::incFunSpeed()
 
 void BattTestContext::decFunSpeed()
 {
-  if (_fun_duty == 100)
+  if (_fun_duty == MAX_FUN_DUTY)
     return;
 
   ++_fun_duty;
@@ -662,14 +1107,14 @@ void BattTestContext::updateReadings()
 
 void BattTestContext::updateFunPwmLbl()
 {
-  String fun_pwm_str{"Fun PWM: "};
+  String fun_pwm_str{STR_ITEM_PROFILE_FUN};
   fun_pwm_str += _fun_duty;
   _fun_pwm_lbl->setText(fun_pwm_str);
 }
 
 void BattTestContext::updateOpaPwmLbl()
 {
-  String opa_pwm_str{"OPA PWM: "};
+  String opa_pwm_str{"OPA ШІМ: "};
   opa_pwm_str += _opa_duty;
   _opa_pwm_lbl->setText(opa_pwm_str);
 }
