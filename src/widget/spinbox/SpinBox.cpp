@@ -15,8 +15,8 @@ namespace pixeler
     Label::copyTo(widget);
 
     SpinBox* clone = static_cast<SpinBox*>(widget);
-    clone->_min = _min;
-    clone->_max = _max;
+    clone->_min_val = _min_val;
+    clone->_max_val = _max_val;
     clone->_value = _value;
     clone->_step = _step;
     clone->_spin_type = _spin_type;
@@ -39,43 +39,40 @@ namespace pixeler
 
   void SpinBox::setMin(float min)
   {
-    _min = min;
+    _min_val = min;
 
-    if (_value < _min)
-    {
-      _value = _min;
-    }
+    if (_value < _min_val)
+      _value = _min_val;
 
     setSpinValToDraw();
   }
 
   float SpinBox::getMin() const
   {
-    return _min;
+    return _min_val;
   }
 
   void SpinBox::setMax(float max)
   {
-    _max = max;
-    if (_value > _max)
-    {
-      _value = _max;
-    }
+    _max_val = max;
+
+    if (_value > _max_val)
+      _value = _max_val;
 
     setSpinValToDraw();
   }
 
   float SpinBox::getMax() const
   {
-    return _max;
+    return _max_val;
   }
 
   void SpinBox::setValue(float value)
   {
-    if (value < _min)
-      _value = _min;
-    else if (value > _max)
-      _value = _max;
+    if (value < _min_val)
+      _value = _min_val;
+    else if (value > _max_val)
+      _value = _max_val;
     else
       _value = value;
 
@@ -100,7 +97,7 @@ namespace pixeler
 
   void SpinBox::setStep(float step)
   {
-    _step = __builtin_abs(step);
+    _step = std::abs(step);
     _is_changed = true;
   }
 
@@ -124,8 +121,12 @@ namespace pixeler
 
   void SpinBox::up()
   {
-    if (_value + _step > _max)
-      _value = _min;
+    log_i("_value: %f", _value);
+    log_i("_step: %f", _step);
+    log_i("_max_val: %f", _max_val);
+
+    if (_value + _step > _max_val)
+      _value = _min_val;
     else
       _value += _step;
 
@@ -134,8 +135,12 @@ namespace pixeler
 
   void SpinBox::down()
   {
-    if (_value - _step < _min)
-      _value = _max;
+    log_i("_value: %f", _value);
+    log_i("_step: %f", _step);
+    log_i("_min_val: %f", _min_val);
+
+    if (_value - _step < _min_val)
+      _value = _max_val;
     else
       _value -= _step;
 

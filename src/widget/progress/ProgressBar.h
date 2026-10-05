@@ -124,7 +124,7 @@ namespace pixeler
 
   private:
     uint32_t _progress{1};
-    uint32_t _max{1};
+    uint32_t _max_val{1};
     uint32_t _prev_progress{1};
     uint16_t _progress_color{COLOR_WHITE};
     //

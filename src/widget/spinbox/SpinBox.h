@@ -89,6 +89,8 @@ namespace pixeler
 
     /**
      * @brief Встановлює поточне значення.
+     * Можна викликати тільки після встановлення мінімального та максимального значень,
+     * інакше початкове значення буде скинуте до 0.
      *
      * @param value
      */
@@ -153,8 +155,8 @@ namespace pixeler
     void setSpinValToDraw();
 
   private:
-    float _min = 0.0f;
-    float _max = 0.0f;
+    float _min_val = 0.0f;
+    float _max_val = 0.0f;
     float _value = 0.0f;
     float _step = 0.0f;
 

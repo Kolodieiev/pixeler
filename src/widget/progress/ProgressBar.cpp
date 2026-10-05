@@ -10,17 +10,17 @@ namespace pixeler
   void ProgressBar::setMax(uint32_t max)
   {
     if (max < 1)
-      _max = 1;
+      _max_val = 1;
     else
-      _max = max;
+      _max_val = max;
 
     _is_changed = true;
   }
 
   void ProgressBar::setProgress(uint32_t progress)
   {
-    if (progress > _max)
-      _progress = _max;
+    if (progress > _max_val)
+      _progress = _max_val;
     else if (progress < 1)
       _progress = 1;
     else
@@ -47,7 +47,7 @@ namespace pixeler
 
     ProgressBar* clone = static_cast<ProgressBar*>(widget);
     clone->_progress = _progress;
-    clone->_max = _max;
+    clone->_max_val = _max_val;
     clone->_progress_color = _progress_color;
     clone->_orientation = _orientation;
     clone->_prev_progress = _prev_progress;
@@ -92,13 +92,13 @@ namespace pixeler
 
     if (_orientation == HORIZONTAL)
     {
-      uint16_t progressW = static_cast<uint32_t>(_width) * _progress / _max;
+      uint16_t progressW = static_cast<uint32_t>(_width) * _progress / _max_val;
       if (progressW < 3)
         progressW = 3;
 
       if (!_is_first_draw)
       {
-        uint16_t next_prgrs_pos = static_cast<uint32_t>(_width) * _prev_progress / _max;
+        uint16_t next_prgrs_pos = static_cast<uint32_t>(_width) * _prev_progress / _max_val;
 
         if (_progress > _prev_progress)  // Заливка тільки прогресу
         {
@@ -148,13 +148,13 @@ namespace pixeler
     }
     else  // orientation == vertical
     {
-      uint16_t progressH = static_cast<uint32_t>(_height) * _progress / _max;
+      uint16_t progressH = static_cast<uint32_t>(_height) * _progress / _max_val;
       if (progressH < 3)
         progressH = 3;
 
       if (!_is_first_draw)
       {
-        uint16_t next_prgrs_pos = static_cast<uint32_t>(_height) * _prev_progress / _max;
+        uint16_t next_prgrs_pos = static_cast<uint32_t>(_height) * _prev_progress / _max_val;
 
         if (_progress > _prev_progress)  // Заливка тільки прогресу
         {
@@ -249,7 +249,7 @@ namespace pixeler
 
   uint32_t ProgressBar::getProgressAt(uint16_t x, uint16_t y) const
   {
-    if (_max == 1)
+    if (_max_val == 1)
       return 0;
 
     if (_orientation == HORIZONTAL)
@@ -260,7 +260,7 @@ namespace pixeler
         return 0;
 
       uint32_t relative_x = x - x_pos;
-      return relative_x * _max / _width;
+      return relative_x * _max_val / _width;
     }
     else
     {
@@ -269,12 +269,12 @@ namespace pixeler
         return 0;
 
       uint32_t relative_y = y - y_pos;
-      return relative_y * _max / _height;
+      return relative_y * _max_val / _height;
     }
   }
 
   uint32_t ProgressBar::getMax() const
   {
-    return _max;
+    return _max_val;
   }
 }  // namespace pixeler
