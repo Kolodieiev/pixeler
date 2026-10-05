@@ -33,8 +33,12 @@ private:
   {
     ID_STATE_LBL = 1,
     ID_VOLTAGE_LBL,
+    ID_MIN_VOLTAGE_LBL,
     ID_CURRENT_LBL,
+    ID_MAX_CURRENT_LBL,
     ID_POWER_LBL,
+    ID_CAPACITY_LBL,
+    ID_TEST_TIME_LBL,
     ID_FUN_PWM_LBL,
     ID_OPA_PWM_LBL,
     ID_INSTRUCTION_LBL,
@@ -115,7 +119,7 @@ private:
 
   float readPG();
 
-  void turnOnFun();
+  void turnOnFun(uint8_t duty = 0);
   void turnOffFun();
 
   void turnOnLoad(uint16_t pwm_duty);
@@ -129,9 +133,13 @@ private:
 
   bool checkVoltageDiff(float bus_voltage, float pg_voltage);
 
-  void updateReadings();
+  void updateReadings(bool update_capacity = false);
+  void updateCapacity(float current);
+  void updateTestTime();
   void updateFunPwmLbl();
   void updateOpaPwmLbl();
+
+  void adjustOpaPWM();
 
 private:
   INA219 _ina;
@@ -140,9 +148,13 @@ private:
 
   StateHandler _state_handler{nullptr};
 
+  double _capacity_mah = 0.0;
+
   pixeler::Label* _voltage_lbl{nullptr};
   pixeler::Label* _current_lbl{nullptr};
   pixeler::Label* _power_lbl{nullptr};
+  pixeler::Label* _capacity_lbl{nullptr};
+  pixeler::Label* _test_time_lbl{nullptr};
 
   pixeler::Label* _fun_pwm_lbl{nullptr};
   pixeler::Label* _opa_pwm_lbl{nullptr};
@@ -159,16 +171,23 @@ private:
 
   float _min_test_voltage;
   float _test_current = 0.0f;
+  float _max_current = 0.0f;
+  float _prev_current = 0.0f;
+  float _ina_bus_voltage = 0.0f;
 
   float _profile_edit_min_voltage;  // Глобальна змінна для простого перенесення значення між вікнами GUI
   float _profile_edit_max_current;  // Глобальна змінна для простого перенесення значення між вікнами GUI
 
   unsigned long _readings_upd_ts = 0;
+  unsigned long _test_start_ts = 0;
+  unsigned long _upd_test_time_ts = 0;
 
   uint16_t _opa_duty = 0;
   uint8_t _fun_duty = 0;
 
   uint8_t _profile_edit_fun_pwm;  // Глобальна змінна для простого перенесення значення між вікнами GUI
+
+  bool _is_working = false;
 
   pixeler::I2C_Bus _i2c;
 };

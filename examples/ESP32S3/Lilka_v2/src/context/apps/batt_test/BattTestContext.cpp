@@ -58,26 +58,26 @@ static const float MIN_WARNING_CURRENT = 0.035f;  // Мінімальний ст
 static const float MIN_PG_VOLT = 0.4f;            // Мінімальна напруга на піні PG при якому акум вважається підключеним
 static const float MIN_TEST_VOLT = 0.4f;          // Мінімальна можлива напруга тестування акума
 static const float MAX_TEST_VOLT = 12.6f;
-static const float MAX_VOLT_DIFF = 0.2f;  // Максимальне допустиме значення розбіжності напруг на модулі та PG
+static const float MAX_VOLT_DIFF = 0.3f;  // Максимальне допустиме значення розбіжності напруг на модулі та PG
 
 static const float R_DIV = 0.0917f;  // Точний коефіцієнт подільника на піні PG
 
 static const float TEMP_PROF_MIN_VOLT = 3.0f;  // Мінімальна напруга тимчасового профіля
 
-static const unsigned long UPD_READINGS_DELAY = 500LU;  // Затримка між оновленням показників в UI
+static const unsigned long UPD_READINGS_DELAY = 100LU;  // Затримка між оновленням показників в UI
 
 static const uint32_t FUN_PWM_FREQ = 40000;
-static const uint32_t OPA_PWM_FREQ = 70000;
+static const uint32_t OPA_PWM_FREQ = 17000;
 
 static const uint16_t SAMPLES_NUM = 128;
-static const uint16_t MAX_OPA_DUTY = 1024;
+static const uint16_t MAX_OPA_DUTY = 4096;
 
 static const uint8_t INA_ADDR = 0x40;  // Адреса модуля INA219
 
 static const uint8_t PWM_FUN_RES = 8;
 static const uint8_t MAX_FUN_DUTY = 100;
 
-static const uint8_t PWM_OPA_RES = 10;
+static const uint8_t PWM_OPA_RES = 12;
 
 static const uint8_t PIN_PG = 14;
 static const uint8_t PIN_FUN_PWM = 13;
@@ -129,6 +129,8 @@ BattTestContext::BattTestContext() : _ina{INA_ADDR},
   }
 
   _ina.setMaxCurrentShunt(INA_MAX_CURR, INA_SHUNT_R);
+  _ina.setShuntSamples(5);
+  _ina.setBusSamples(5);
 
   float current = _ina.getCurrent();
   if (current > MIN_WARNING_CURRENT)
@@ -356,6 +358,7 @@ void BattTestContext::showProfileSelectTmpl()
 
       Label* itemp_lbl = WidgetCreator::getItemLabel(f_info.getName(), font_10x20);
       item->setLabel(itemp_lbl);
+      ++i;
     }
   }
 }
@@ -511,7 +514,7 @@ void BattTestContext::handleProfileContextMenuState()
           else
           {
             _min_test_voltage = prof_setup.min_voltage;
-            _test_current = prof_setup.max_current;
+            _max_current = prof_setup.max_current;
             _fun_duty = prof_setup.fun_duty;
           }
         }
@@ -939,11 +942,11 @@ void BattTestContext::showManualTestTmpl()
   _voltage_lbl->setText(STR_EMPTY_BAT);
   _voltage_lbl->setFont(font_inr30);
   _voltage_lbl->setWidth(UI_WIDTH / 2 - 5);
-  _voltage_lbl->setHeight(_voltage_lbl->getHeight() + 6);
+  _voltage_lbl->setHeight((UI_HEIGHT - 16) / 4);
   _voltage_lbl->setBackColor(COLOR_RED);
   _voltage_lbl->setAlign(IWidget::ALIGN_CENTER);
   _voltage_lbl->setGravity(IWidget::GRAVITY_CENTER);
-  _voltage_lbl->setCornerRadius(5);
+  _voltage_lbl->setCornerRadius(10);
 
   _current_lbl = _voltage_lbl->clone(ID_CURRENT_LBL);
   layout->addWidget(_current_lbl);
@@ -965,24 +968,43 @@ void BattTestContext::showManualTestTmpl()
   layout->addWidget(_opa_pwm_lbl);
   _opa_pwm_lbl->setPos(_current_lbl->getRightXPos() + 5, _current_lbl->getYPos());
 
+  _test_time_lbl = _fun_pwm_lbl->clone(ID_TEST_TIME_LBL);
+  layout->addWidget(_test_time_lbl);
+  _test_time_lbl->setPos(_power_lbl->getRightXPos() + 5, _power_lbl->getYPos());
+
   addInstruction(STR_MANUAL_TEST_HINT, 5);
 
-  turnOnFun();
+  turnOnFun(_fun_duty);
+  turnOnLoad(_opa_duty);
+
   updateFunPwmLbl();
   updateOpaPwmLbl();
+
+  _test_start_ts = millis();
+  updateTestTime();
 }
 
 void BattTestContext::handleManualTestState()
 {
-  if (readPG() < MIN_PG_VOLT || _input.isPressed(BTN_BACK))
+  updateReadings();
+  updateTestTime();
+
+  float pg_voltage = readPG();
+  if (!checkVoltageDiff(_ina_bus_voltage, pg_voltage) || pg_voltage < MIN_PG_VOLT)
   {
+    turnOffLoad();
+    turnOffFun();
+    return;
+  }
+
+  if (_input.isPressed(BTN_BACK))
+  {
+    _readings_upd_ts = 0;
     turnOffLoad();
     turnOffFun();
     showMainTmpl();
     return;
   }
-
-  updateReadings();
 
   if (_input.isHolded(BTN_RIGHT))
   {
@@ -1008,15 +1030,119 @@ void BattTestContext::handleManualTestState()
 
 // -----------------------------------------------------------------------------------------------------------------------
 
-void BattTestContext::showTestTmpl()  // TODO
+void BattTestContext::showTestTmpl()
 {
   _state_handler = &BattTestContext::handleTestState;
-  // TODO відображати задані показники і реальні
+
+  EmptyLayout* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  _voltage_lbl = new Label(ID_VOLTAGE_LBL);
+  layout->addWidget(_voltage_lbl);
+  _voltage_lbl->setText(STR_EMPTY_BAT);
+  _voltage_lbl->setFont(font_inr30);
+  _voltage_lbl->setWidth(UI_WIDTH / 2 - 5);
+  _voltage_lbl->setHeight((UI_HEIGHT - 16) / 4);
+  _voltage_lbl->setBackColor(COLOR_RED);
+  _voltage_lbl->setAlign(IWidget::ALIGN_CENTER);
+  _voltage_lbl->setGravity(IWidget::GRAVITY_CENTER);
+  _voltage_lbl->setCornerRadius(10);
+
+  _current_lbl = _voltage_lbl->clone(ID_CURRENT_LBL);
+  layout->addWidget(_current_lbl);
+  _current_lbl->setPos(0, _voltage_lbl->getBottomYPos() + 5);
+  _current_lbl->setBackColor(COLOR_BLUE);
+
+  _power_lbl = _voltage_lbl->clone(ID_POWER_LBL);
+  layout->addWidget(_power_lbl);
+  _power_lbl->setPos(0, _current_lbl->getBottomYPos() + 5);
+  _power_lbl->setBackColor(COLOR_GREEN);
+
+  Label* min_voltage_lbl = _voltage_lbl->clone(ID_MIN_VOLTAGE_LBL);
+  layout->addWidget(min_voltage_lbl);
+  min_voltage_lbl->setFont(font_10x20);
+  min_voltage_lbl->setPos(_voltage_lbl->getRightXPos() + 5, _voltage_lbl->getYPos());
+  min_voltage_lbl->setBackColor(COLOR_LIGHTGREY);
+
+  String min_volt_str = "Min: ";
+  min_volt_str += _min_test_voltage;
+  min_volt_str += "V";
+  min_voltage_lbl->setText(min_volt_str);
+
+  Label* max_current_lbl = min_voltage_lbl->clone(ID_MAX_CURRENT_LBL);
+  layout->addWidget(max_current_lbl);
+  max_current_lbl->setPos(min_voltage_lbl->getXPos(), min_voltage_lbl->getBottomYPos() + 5);
+
+  String max_cur_str = "Max: ";
+  max_cur_str += _max_current;
+  max_cur_str += "A";
+  max_current_lbl->setText(max_cur_str);
+
+  _capacity_lbl = min_voltage_lbl->clone(ID_CAPACITY_LBL);
+  layout->addWidget(_capacity_lbl);
+  _capacity_lbl->setPos(max_current_lbl->getXPos(), max_current_lbl->getBottomYPos() + 5);
+
+  _test_time_lbl = min_voltage_lbl->clone(ID_TEST_TIME_LBL);
+  layout->addWidget(_test_time_lbl);
+  _test_time_lbl->setPos(_capacity_lbl->getXPos(), _capacity_lbl->getBottomYPos() + 5);
+
+  _test_start_ts = millis();
+  _is_working = true;
+  updateTestTime();
+  turnOnFun(_fun_duty);
 }
 
-void BattTestContext::handleTestState()  // TODO
+void BattTestContext::handleTestState()
 {
-  //  коригувати шім під струм та перевіряти умови
+  if (_input.isPressed(BTN_BACK))
+  {
+    _readings_upd_ts = 0;
+    turnOffLoad();
+    turnOffFun();
+    showMainTmpl();
+    return;
+  }
+
+  if (_input.isHolded(BTN_UP))
+    incFunSpeed();
+  else if (_input.isHolded(BTN_DOWN))
+    decFunSpeed();
+
+  updateReadings(true);
+
+  if (!_is_working)
+    return;
+
+  updateTestTime();
+
+  float pg_voltage = readPG();
+  if (!checkVoltageDiff(_ina_bus_voltage, pg_voltage) || pg_voltage < MIN_PG_VOLT)
+  {
+    turnOffLoad();
+    turnOffFun();
+    return;
+  }
+
+  if (_ina_bus_voltage <= _min_test_voltage)
+  {
+    turnOffLoad();
+    turnOffFun();
+    return;
+  }
+
+  adjustOpaPWM();
+}
+
+void BattTestContext::adjustOpaPWM()
+{
+  if (_test_current > _max_current + 0.01)
+  {
+    decOpaPwm();
+  }
+  else if (_test_current < _max_current - 0.01)
+  {
+    incOpaPwm();
+  }
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -1049,9 +1175,9 @@ void BattTestContext::incOpaPwm()
   if (_opa_duty == MAX_OPA_DUTY)
     return;
 
-  if (_opa_duty < 200)  // Менше 2-3 В немає сенсу точно налаштовувати
+  if (_opa_duty < 1000)  // З низькою напругою немає сенсу точно налаштовувати
     _opa_duty += 40;
-  else if (_opa_duty < 300)
+  else if (_opa_duty < 1200)
     _opa_duty += 20;
   else
     ++_opa_duty;
@@ -1081,12 +1207,13 @@ bool BattTestContext::checkVoltageDiff(float bus_voltage, float pg_voltage)
   return true;
 }
 
-void BattTestContext::updateReadings()
+void BattTestContext::updateReadings(bool update_capacity)
 {
   if (millis() - _readings_upd_ts < UPD_READINGS_DELAY)
     return;
 
   float voltage = _ina.getBusVoltage();
+  _ina_bus_voltage = voltage;  // Зберігаємо для перевірки стану INA219
   String volt_str = String(voltage);
   volt_str += "V";
   _voltage_lbl->setText(volt_str);
@@ -1102,7 +1229,59 @@ void BattTestContext::updateReadings()
   power_str += "W";
   _power_lbl->setText(power_str);
 
+  if (update_capacity)
+    updateCapacity(current);
+
   _readings_upd_ts = millis();
+}
+
+void BattTestContext::updateCapacity(float current)
+{
+  if (_readings_upd_ts == 0)
+  {
+    _capacity_mah = 0;
+    _prev_current = current;
+    return;
+  }
+
+  // Метод трапецій(середнє арифметичне)
+  const double average_current = 0.5 * (static_cast<double>(_prev_current) + current);
+  _prev_current = current;
+
+  const uint32_t elapsed_ms = millis() - _readings_upd_ts;
+  _capacity_mah += fabs(average_current) * elapsed_ms / 3600.0;
+
+  String capacity_str = String(_capacity_mah);
+  capacity_str += "mAh";
+  _capacity_lbl->setText(capacity_str);
+}
+
+void BattTestContext::updateTestTime()
+{
+  if (millis() - _upd_test_time_ts < 1000)
+    return;
+
+  const unsigned int total_time = millis() - _test_start_ts;
+  String test_time_str;
+
+  uint32_t minutes = floor(static_cast<float>(total_time) / 60000);
+  if (minutes < 100)
+    test_time_str += "0";
+  if (minutes < 10)
+    test_time_str += "0";
+  test_time_str += String(minutes);
+
+  test_time_str += ":";
+
+  uint32_t sec = static_cast<float>(total_time - minutes * 60000) / 1000;
+
+  if (sec < 10)
+    test_time_str += "0";
+  test_time_str += String(sec);
+
+  _test_time_lbl->setText(test_time_str);
+
+  _upd_test_time_ts = millis();
 }
 
 void BattTestContext::updateFunPwmLbl()
@@ -1121,9 +1300,9 @@ void BattTestContext::updateOpaPwmLbl()
 
 // -----------------------------------------------------------------------------------------------------------------------
 
-void BattTestContext::turnOnFun()
+void BattTestContext::turnOnFun(uint8_t duty)
 {
-  ledcWrite(PIN_FUN_PWM, 0);
+  ledcWrite(PIN_FUN_PWM, duty);
 }
 
 void BattTestContext::turnOffFun()
@@ -1134,14 +1313,19 @@ void BattTestContext::turnOffFun()
 void BattTestContext::turnOnLoad(uint16_t pwm_duty)
 {
   if (pwm_duty > MAX_OPA_DUTY)
-    pwm_duty = MAX_OPA_DUTY;
+  {
+    log_e("Некоректне значення opa_duty: %u", pwm_duty);
+    pwm_duty = 0;
+  }
 
-  _opa_duty = pwm_duty;
-  ledcWrite(PIN_OPA_PWM, _opa_duty);
+  ledcWrite(PIN_OPA_PWM, pwm_duty);
 }
 
 void BattTestContext::turnOffLoad()
 {
+  _is_working = false;
+  _opa_duty = 0;
+  
   ledcWrite(PIN_OPA_PWM, 0);
 }
 // -----------------------------------------------------------------------------------------------------------------------
