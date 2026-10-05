@@ -59,7 +59,6 @@ namespace pixeler
     }
 
     String path = getSettingsDirPath(subdir);
-
     if (path.isEmpty())
       return emptyString;
 
@@ -121,5 +120,26 @@ namespace pixeler
       return false;
 
     return _fs.writeFile(sets_path.c_str(), data_struct, data_struct_size) == data_struct_size;
+  }
+
+  bool SettingsManager::remove(const String& pref_name, const String& subdir)
+  {
+    if (!_fs.isMounted())
+      return false;
+
+    if (pref_name.isEmpty())
+    {
+      log_e("%s", STR_EMPTY_PREF_VAL);
+      return false;
+    }
+
+    String path = getSettingsDirPath(subdir);
+    if (path.isEmpty())
+      return false;
+
+    path += "/";
+    path += pref_name;
+
+    return _fs.rmFile(path.c_str());
   }
 }  // namespace pixeler

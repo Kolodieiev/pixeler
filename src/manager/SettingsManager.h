@@ -43,7 +43,7 @@ namespace pixeler
      * @brief Повертає повний шлях до файлу в каталозі налаштувань.
      * Якщо каталог налаштувань не існує, буде виконана спроба його створення.
      *
-     * @param pref_name Шлях до файлу з налаштуваннями
+     * @param pref_name Шлях до файлу з налаштуванням
      * @param subdir Ім'я підкаталогу з налаштуваннями
      * @return String - Рядок, що містить повний шлях до файлу, або порожній рядок, у разі помилки
      */
@@ -78,5 +78,14 @@ namespace pixeler
      * @return true - якщо розмір даних збігається з розміром записаних даних. false - інакше
      */
     static bool save(const void* data_struct, size_t data_struct_size, const String& filename, const String& subdir = emptyString);
+
+    /**
+     * @brief Видаляє файл налаштування з карти пам'яті.
+     *
+     * @param pref_name Шлях до файлу з налаштуванням
+     * @param subdir Ім'я підкаталогу в каталозі налаштувань, якщо потрібно
+     * @return true - якщо файл налаштувань видалено успішно. false - інакше
+     */
+    static bool remove(const String& pref_name, const String& subdir = emptyString);
   };
 }  // namespace pixeler

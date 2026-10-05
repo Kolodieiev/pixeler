@@ -85,14 +85,7 @@ namespace pixeler
       return emptyString;
     }
 
-    String ssid_keys_path = SettingsManager::getSettingsFilePath(ssid, STR_WIFI_SUBDIR);
-    if (ssid_keys_path.isEmpty())
-    {
-      log_e("%s %s", STR_ERR_UNKNOWN_SSID, ssid.c_str());
-      return false;
-    }
-
-    return _fs.rmFile(ssid_keys_path.c_str());
+    return SettingsManager::remove(ssid, STR_WIFI_SUBDIR);
   }
 
   bool WiFiManager::hasKnownSSID(const String& ssid) const
