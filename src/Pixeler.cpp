@@ -15,7 +15,11 @@ namespace pixeler
 
   void Pixeler::pixelerContextTask(void* params)
   {
+#if SOC_LEDC_SUPPORT_APB_CLOCK
     ledcSetClockSource(LEDC_USE_APB_CLK);
+#elif SOC_LEDC_SUPPORT_PLL_DIV_CLOCK
+    ledcSetClockSource(LEDC_USE_PLL_DIV_CLK);
+#endif  // SOC_LEDC_SUPPORT_APB_CLOCK
 
     _input.__init();
 
