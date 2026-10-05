@@ -686,7 +686,7 @@ void BattTestContext::handleProfileEditState()
     switch (item_id)
     {
       case ID_PROF_EDIT_NAME_ITEM:
-        if (!_menu->getCurrItemText().equals(STR_ITEM_TEMP_PROFILE))
+        if (!_profile_edit_name.equals(STR_ITEM_TEMP_PROFILE))
           showProfileNameDialog();
         break;
 
