@@ -115,35 +115,35 @@ namespace pixeler
     /**
      * @brief Індексує тільки бінарні файли з указаним розширенням у вказаній папці без обходу вкладених директорій.
      *
-     * @param out_vec Адреса об'єкта вектора, в який буде записано інформацію про виявленні бінарні файли
      * @param dir_path Шлях до папки, в якій повинна бути виконана індексація, вказаний без точки монтування
      * @param file_ext Розширення бінарних файлів, які повинні бути проіндексовані
+     * @return std::vector<FileInfo> Вектор, в який буде записано інформацію про виявленні бінарні файли
      */
-    void indexFilesByExt(std::vector<FileInfo>& out_vec, const char* dir_path, const std::vector<String>& file_ext);
+    std::vector<FileInfo> indexFilesByExt(const char* dir_path, const std::vector<String>& file_ext);
 
     /**
      * @brief Індексує усі бінарні файли у вказаній папці без обходу вкладених директорій.
      *
-     * @param out_vec Адреса об'єкта вектора, в який буде записано інформацію про виявленні бінарні файли
-     * @param dir_path Шлях до папки, в якій повинна бути виконана індексація, вказаний без точки монтування
+     * @param dir_path  Шлях до папки, в якій повинна бути виконана індексація, вказаний без точки монтування
+     * @return std::vector<FileInfo> Вектор, в який буде записано інформацію про виявленні бінарні файли
      */
-    void indexFiles(std::vector<FileInfo>& out_vec, const char* dir_path);
+    std::vector<FileInfo> indexFiles(const char* dir_path);
 
     /**
      * @brief Індексує усі папки у вказаній папці без обходу вкладених директорій.
      *
-     * @param out_vec Адреса об'єкта вектора, в який буде записано інформацію про папки
      * @param dir_path Шлях до папки, в якій повинна бути виконана індексація, вказаний без точки монтування
+     * @return std::vector<FileInfo> Вектор, в який буде записано інформацію про папки
      */
-    void indexDirs(std::vector<FileInfo>& out_vec, const char* dir_path);
+    std::vector<FileInfo> indexDirs(const char* dir_path);
 
     /**
      * @brief Індексує усі папки та бінарні файли у вказаній папці без обходу вкладених директорій.
      *
-     * @param out_vec Адреса об'єкта вектора, в який буде записано інформацію про папки та бінарні файли
      * @param dir_path Шлях до папки, в якій повинна бути виконана індексація, вказаний без точки монтування
+     * @return std::vector<FileInfo> Вектор, в який буде записано інформацію про папки та бінарні файли
      */
-    void indexAll(std::vector<FileInfo>& out_vec, const char* dir_path);
+    std::vector<FileInfo> indexAll(const char* dir_path);
 
     /**
      * @brief Намагається створити та запустити задачу FreeRTOS, в процесі роботи якої, буде виконана спроба
@@ -414,7 +414,7 @@ namespace pixeler
 
     uint8_t getEntryTypeUnlocked(const char* path, dirent* entry = nullptr);
     //
-    void index(std::vector<FileInfo>& out_vec, const char* dir_path, IndexMode mode, const std::vector<String>& file_ext);
+    std::vector<FileInfo> index(const char* dir_path, IndexMode mode, const std::vector<String>& file_ext);
     //
     void rm();
     void copyFile();

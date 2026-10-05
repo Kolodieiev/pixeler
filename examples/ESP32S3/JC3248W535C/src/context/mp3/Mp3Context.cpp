@@ -768,7 +768,7 @@ void Mp3Context::click()
 void Mp3Context::indexPlaylists()
 {
   String playlists_path = ROOT_PATH;
-  _fs.indexDirs(_playlists, playlists_path.c_str());
+  _playlists = _fs.indexDirs(playlists_path.c_str());
 }
 
 void Mp3Context::indexTracks()
@@ -779,7 +779,7 @@ void Mp3Context::indexTracks()
   String playlist_path = ROOT_PATH;
   playlist_path += "/";
   playlist_path += _playlist_name;
-  _fs.indexFilesByExt(_tracks, playlist_path.c_str(), {AUDIO_EXT});
+  _tracks = _fs.indexFilesByExt(playlist_path.c_str(), {AUDIO_EXT});
 }
 
 IWidget* Mp3Context::getSelectedItem(IMenu* menu)

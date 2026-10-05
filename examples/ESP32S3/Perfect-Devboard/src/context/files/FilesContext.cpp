@@ -824,7 +824,7 @@ void FilesContext::openPrevlevel()
 void FilesContext::indexCurDir()
 {
   String dir_path = makePathFromBreadcrumbs();
-  _fs.indexAll(_files, dir_path.c_str());
+  _files = _fs.indexAll(dir_path.c_str());
 }
 
 void FilesContext::fillFilesTmpl()

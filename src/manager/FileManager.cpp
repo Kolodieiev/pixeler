@@ -38,7 +38,7 @@ namespace pixeler
   {
     String full_path = SD_MOUNTPOINT;
     full_path += path;
-    
+
     return full_path;
   }
 
@@ -886,13 +886,13 @@ namespace pixeler
     }
   }
 
-  void FileManager::index(std::vector<FileInfo>& out_vec, const char* dir_path, IndexMode mode, const std::vector<String>& file_ext)
+  std::vector<FileInfo> FileManager::index(const char* dir_path, IndexMode mode, const std::vector<String>& file_ext)
   {
-    out_vec.clear();
-    out_vec.reserve(40);
+    std::vector<FileInfo> result_vec;
+    result_vec.reserve(40);
 
     if (!dirExist(dir_path))
-      return;
+      return result_vec;
 
     String full_path = makeFullPath(dir_path);
 
@@ -901,7 +901,7 @@ namespace pixeler
     if (!dir)
     {
       log_e("Помилка відкриття директорії %s", full_path.c_str());
-      return;
+      return result_vec;
     }
 
     dirent* dir_entry{nullptr};
@@ -938,27 +938,27 @@ namespace pixeler
       {
         case INDX_MODE_DIR:
           if (is_dir)
-            out_vec.emplace_back(filename, true);
+            result_vec.emplace_back(filename, true);
           break;
         case INDX_MODE_FILES:
           if (!is_dir)
-            out_vec.emplace_back(filename, false);
+            result_vec.emplace_back(filename, false);
           break;
         case INDX_MODE_FILES_EXT:
           for (const String& i : file_ext)
           {
             if (!is_dir && filename.endsWith(i))
             {
-              out_vec.emplace_back(filename, false);
+              result_vec.emplace_back(filename, false);
               break;
             }
           }
           break;
         case INDX_MODE_ALL:
           if (is_dir)
-            out_vec.emplace_back(filename, true);
+            result_vec.emplace_back(filename, true);
           else
-            out_vec.emplace_back(filename, false);
+            result_vec.emplace_back(filename, false);
           break;
       }
 
@@ -969,31 +969,33 @@ namespace pixeler
       }
     }
 
-    out_vec.shrink_to_fit();
-    std::sort(out_vec.begin(), out_vec.end());
+    result_vec.shrink_to_fit();
+    std::sort(result_vec.begin(), result_vec.end());
 
     if (dir)
       closedir(dir);
+
+    return result_vec;
   }
 
-  void FileManager::indexFilesByExt(std::vector<FileInfo>& out_vec, const char* dir_path, const std::vector<String>& file_ext)
+  std::vector<FileInfo> FileManager::indexFilesByExt(const char* dir_path, const std::vector<String>& file_ext)
   {
-    return index(out_vec, dir_path, INDX_MODE_FILES_EXT, file_ext);
+    return index(dir_path, INDX_MODE_FILES_EXT, file_ext);
   }
 
-  void FileManager::indexFiles(std::vector<FileInfo>& out_vec, const char* dir_path)
+  std::vector<FileInfo> FileManager::indexFiles(const char* dir_path)
   {
-    return index(out_vec, dir_path, INDX_MODE_FILES, {});
+    return index(dir_path, INDX_MODE_FILES, {});
   }
 
-  void FileManager::indexDirs(std::vector<FileInfo>& out_vec, const char* dir_path)
+  std::vector<FileInfo> FileManager::indexDirs(const char* dir_path)
   {
-    return index(out_vec, dir_path, INDX_MODE_DIR, {});
+    return index(dir_path, INDX_MODE_DIR, {});
   }
 
-  void FileManager::indexAll(std::vector<FileInfo>& out_vec, const char* dir_path)
+  std::vector<FileInfo> FileManager::indexAll(const char* dir_path)
   {
-    return index(out_vec, dir_path, INDX_MODE_ALL, {});
+    return index(dir_path, INDX_MODE_ALL, {});
   }
 
   void FileManager::invokeTaskDone(bool result)

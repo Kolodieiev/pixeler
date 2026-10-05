@@ -207,9 +207,7 @@ namespace pixeler
       html += SEND_TITLE_STR;  // Заголовок
       html += MID_HTML;
 
-      std::vector<FileInfo> f_infos;
-      _fs.indexFiles(f_infos, _server_path.c_str());
-
+      std::vector<FileInfo> f_infos = _fs.indexFiles(_server_path.c_str());
       for (const auto& info : f_infos)
       {
         html += HREF_HTML;
