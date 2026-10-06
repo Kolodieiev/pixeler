@@ -53,6 +53,7 @@ static const char STR_APP_DIR[] = "batt_tester";
 
 static const float INA_MAX_CURR = 3.2f;  // Максимальний струм можливий для шунта INA219
 static const float INA_SHUNT_R = 0.1f;   // Значення опору шунта INA219
+static const float MAX_CUR_DEV = 0.02f;  // Максимальне можливе відхилення від заданого струму в режимі тестування
 
 static const float MIN_WARNING_CURRENT = 0.035f;  // Мінімальний струм спокою, при якому модуль вважається пошкодженим
 static const float MIN_PG_VOLT = 0.4f;            // Мінімальна напруга на піні PG при якому акум вважається підключеним
@@ -1135,11 +1136,11 @@ void BattTestContext::handleTestState()
 
 void BattTestContext::adjustOpaPWM()
 {
-  if (_test_current > _max_current + 0.01)
+  if (_test_current > _max_current + MAX_CUR_DEV)
   {
     decOpaPwm();
   }
-  else if (_test_current < _max_current - 0.01)
+  else if (_test_current < _max_current - MAX_CUR_DEV)
   {
     incOpaPwm();
   }
@@ -1325,7 +1326,7 @@ void BattTestContext::turnOffLoad()
 {
   _is_working = false;
   _opa_duty = 0;
-  
+
   ledcWrite(PIN_OPA_PWM, 0);
 }
 // -----------------------------------------------------------------------------------------------------------------------
