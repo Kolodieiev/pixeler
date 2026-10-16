@@ -118,7 +118,7 @@ BattTestContext::BattTestContext() : _ina{INA_ADDR},
   float pg_voltage = readPG();
 
   _i2c.begin();
-  if (!_ina.begin())
+  if (!_ina.begin() || !_i2c.hasConnect(INA_ADDR))
   {
     log_e("Модуль INA219 не відповідає за вказаною адресою: 0x%02X", INA_ADDR);
     if (pg_voltage > MIN_PG_VOLT)
