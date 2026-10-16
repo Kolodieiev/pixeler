@@ -2431,7 +2431,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 115.57) (xy 189.23 115.57)
+			(xy 180.34 115.57) (xy 201.93 115.57)
 		)
 		(stroke
 			(width 0)
@@ -2692,7 +2692,7 @@
 	)
 	(wire
 		(pts
-			(xy 195.58 130.81) (xy 213.36 130.81)
+			(xy 195.58 130.81) (xy 222.25 130.81)
 		)
 		(stroke
 			(width 0)
@@ -2729,16 +2729,6 @@
 			(type default)
 		)
 		(uuid "747848af-414e-4029-8ab2-67f86772d0f4")
-	)
-	(wire
-		(pts
-			(xy 218.44 130.81) (xy 222.25 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7590f516-4fe6-448f-afd7-86349377c920")
 	)
 	(wire
 		(pts
@@ -2799,16 +2789,6 @@
 			(type default)
 		)
 		(uuid "7fe2902f-50e4-46b9-acf0-878085b9325c")
-	)
-	(wire
-		(pts
-			(xy 194.31 115.57) (xy 201.93 115.57)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "831f32e5-27e7-46bb-8ad1-9dadec9b4858")
 	)
 	(wire
 		(pts
@@ -5238,74 +5218,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Small")
-		(at 191.77 115.57 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "a42597db-dabf-4781-842e-1ba886451d61")
-		(property "Reference" "R10"
-			(at 191.77 110.49 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 191.77 113.03 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 191.77 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 191.77 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 191.77 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "da7999cc-85c9-406a-8dcf-01a62d574176")
-		)
-		(pin "2"
-			(uuid "ea30e16e-6439-49f2-8cdc-467888cdc4c2")
-		)
-		(instances
-			(project "test_battery"
-				(path "/21f56d4c-c23c-4f64-b5d5-a4783ab5b75c"
-					(reference "R10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 224.79 96.52 0)
 		(mirror y)
@@ -5467,74 +5379,6 @@
 			(project "test_battery"
 				(path "/21f56d4c-c23c-4f64-b5d5-a4783ab5b75c"
 					(reference "Q3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 215.9 130.81 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "bb92759e-e58f-4123-943d-196ae53250f5")
-		(property "Reference" "R11"
-			(at 215.9 125.73 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 215.9 128.27 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 215.9 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 215.9 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 215.9 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "29c381a9-5ee2-40aa-a33f-506707d756fc")
-		)
-		(pin "2"
-			(uuid "7731d1da-ea37-4025-9676-90ffb742e363")
-		)
-		(instances
-			(project "test_battery"
-				(path "/21f56d4c-c23c-4f64-b5d5-a4783ab5b75c"
-					(reference "R11")
 					(unit 1)
 				)
 			)
