@@ -188,6 +188,4 @@ private:
   uint8_t _profile_edit_fun_pwm;  // Глобальна змінна для простого перенесення значення між вікнами GUI
 
   bool _is_working = false;
-
-  pixeler::I2C_Bus _i2c;
 };
