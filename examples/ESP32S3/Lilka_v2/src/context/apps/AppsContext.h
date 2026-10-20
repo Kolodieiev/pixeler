@@ -24,6 +24,7 @@ private:
   enum ItemID : uint8_t
   {
     ID_ITEM_TEST_BATT = 1,
+    ID_ITEM_BATT_CHARGER,
   };
 
   pixeler::FixedMenu* _menu;

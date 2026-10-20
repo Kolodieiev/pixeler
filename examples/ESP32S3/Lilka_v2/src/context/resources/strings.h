@@ -112,10 +112,11 @@ const char STR_WAITING_GAME[] = "Очікуйте запуск гри";
 const char STR_CLIENT_DISCONNECTED[] = "Втрачено з'єднання з сервером";
 //
 const char STR_ERR_INCORRECT_SERVER[] = "Некоректний сервер гри";
-const char STR_ERR_INCORRECT_NAME[] = "Некоректний нікнейм";
+const char STR_ERR_INCORRECT_NICKNAME[] = "Некоректний нікнейм";
 const char STR_ERR_ACCESS_DENIED[] = "В приєднанні відмовлено";
 const char STR_ERR_SERVER_BUSY[] = "Сервер зайнятий";
 const char STR_ERR_UNKNOWN[] = "Невідома помилка";
+const char STR_ERR_INCORRECT_NAME[] = "Некоректне ім'я";
 //
 const char STR_EMPTY_BAT[] = "0.00";
 //
@@ -124,3 +125,14 @@ const char STR_WALLPP_FILENAME[] = "wallpp";
 //
 const char STR_CHESS_GAME_DIR[] = "chess";
 const char STR_CHESS_GAME_ID[] = "chess_server";
+
+//
+
+const char STR_TEMP_PROFILE[] = "Тимчасовий профіль";
+const char STR_NEW_PROFILE[] = "Новий профіль";
+const char STR_ERR_INA219[] = "INA219 не відповідає";
+
+//
+
+const char STR_ERR_UNIMPLEMENTED_FUNC[] = "Не реалізована функція";
+const char STR_ERR_START_TASK[] = "Помилка запуску задачі";

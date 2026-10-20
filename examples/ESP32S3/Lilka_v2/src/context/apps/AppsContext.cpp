@@ -1,12 +1,14 @@
 #include "AppsContext.h"
 
 #include "../WidgetCreator.h"
+#include "batt_charger/BattChargerContext.h"
 #include "batt_test/BattTestContext.h"
 #include "context/menu/MenuContext.h"
 #include "widget/layout/EmptyLayout.h"
 #include "widget/menu/item/MenuItem.h"
 
 static const char STR_BATT_TEST_ITEM[] = "Тест акумуляторів";
+static const char STR_BATT_CHARG_ITEM[] = "Зярядник акумуляторів";
 
 using namespace pixeler;
 
@@ -38,6 +40,13 @@ AppsContext::AppsContext()
 
   Label* test_batt_lbl = WidgetCreator::getItemLabel(STR_BATT_TEST_ITEM, font_10x20);
   test_batt_item->setLabel(test_batt_lbl);
+
+  // Заряд акумів
+  MenuItem* charg_batt_item = WidgetCreator::getMenuItem(ID_ITEM_BATT_CHARGER);
+  _menu->addItem(charg_batt_item);
+
+  Label* charg_batt_lbl = WidgetCreator::getItemLabel(STR_BATT_CHARG_ITEM, font_10x20);
+  charg_batt_item->setLabel(charg_batt_lbl);
 
   //------------------------
 
@@ -88,6 +97,11 @@ void AppsContext::ok()
     case ID_ITEM_TEST_BATT:
       context = new BattTestContext();
       break;
+
+    case ID_ITEM_BATT_CHARGER:
+      context = new BattChargerContext();
+      break;
+
     default:
       log_e("Невідомий ідентифікатор контексту: %u", id);
       break;
