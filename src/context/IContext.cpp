@@ -70,7 +70,6 @@ namespace pixeler
 
   void IContext::openContext(IContext* context)
   {
-    _input.reset();
     _next_context = context;
     _is_released = true;
   }

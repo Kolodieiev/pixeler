@@ -66,6 +66,8 @@ namespace pixeler
 
   void Input::__update()
   {
+    reset();
+
 #ifdef TOUCHSCREEN_SUPPORT
     _touchscreen->__update();
 #endif  // #ifdef TOUCHSCREEN_SUPPORT

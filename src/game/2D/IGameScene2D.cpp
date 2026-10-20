@@ -192,7 +192,6 @@ namespace pixeler
 
   void IGameScene2D::openSceneByID(uint16_t scene_ID)
   {
-    _input.reset();
     _next_scene_ID = scene_ID;
     _is_released = true;
   }

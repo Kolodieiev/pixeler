@@ -578,8 +578,6 @@ namespace sokoban
         _input.setHoldLockTime(20);
       else
         _input.setHoldLockTime(HOLD_LOCK_TIME_MS);
-
-      _input.reset();
     }
 
     if (_is_ghost_selected)

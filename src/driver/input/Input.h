@@ -67,13 +67,6 @@ namespace pixeler
     void __update();
 
     /**
-     * @brief Скидає стан вводу. Метод викликається контекстом перед його першим оновленням,
-     * щоб уникнути захоплення стану вводу з попереднього контексту.
-     *
-     */
-    void reset();
-
-    /**
      * @brief Вмикає фізичний пін та ініціалізує його в тому режимі, який було передано в конструктор під час створення об'єкта віртуального піна з цим номером.
      *
      * @param btn_id Номер віртуального піна
@@ -212,6 +205,8 @@ namespace pixeler
 #endif  // #if defined(KEYBOARD_SUPPORT)
 
   private:
+    void reset();
+
 #if defined(KEYBOARD_SUPPORT)
     static void keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg);
 
