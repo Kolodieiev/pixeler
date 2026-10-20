@@ -398,7 +398,7 @@ namespace chess
         err_msg = STR_ERR_INCORRECT_SERVER;
         break;
       case GameClient::Error::ERR_INCORRECT_NAME:
-        err_msg = STR_ERR_INCORRECT_NAME;
+        err_msg = STR_ERR_INCORRECT_NICKNAME;
         break;
       case GameClient::Error::ERR_ACCESS_DENIED:
         err_msg = STR_ERR_ACCESS_DENIED;
