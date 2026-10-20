@@ -61,6 +61,7 @@ static const float R_DIV = 0.0917f;  // Точний коефіцієнт под
 static const float TEMP_PROF_MIN_VOLT = 3.0f;  // Мінімальна напруга тимчасового профіля
 
 static const unsigned long UPD_READINGS_DELAY = 100LU;  // Затримка між оновленням показників в UI
+static const unsigned long WDT_CHECK_DELAY = 2000UL;
 
 static const uint32_t FUN_PWM_FREQ = 40000;
 static const uint32_t OPA_PWM_FREQ = 17000;
@@ -597,7 +598,7 @@ void BattTestContext::showProfileEditTmpl()
   addInstruction(STR_PROFILE_EDIT_HINT, 3);
 
   // Ім'я профіля
-  MenuItem* prof_name_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_NAME_ITEM);
+  MenuItem* prof_name_item = WidgetCreator::getMenuItem(ID_ITEM_PROF_EDIT_NAME);
   _menu->addItem(prof_name_item);
 
   String prof_name_text = STR_ITEM_PROFILE_NAME;
@@ -606,7 +607,7 @@ void BattTestContext::showProfileEditTmpl()
   prof_name_item->setLabel(prof_name_lbl);
 
   // Мінімальна напруга
-  MenuItem* prof_volt_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_VOLT_ITEM);
+  MenuItem* prof_volt_item = WidgetCreator::getMenuItem(ID_ITEM_PROF_EDIT_VOLT);
   _menu->addItem(prof_volt_item);
 
   String prof_volt_text = STR_ITEM_PROFILE_VOLT;
@@ -615,7 +616,7 @@ void BattTestContext::showProfileEditTmpl()
   prof_volt_item->setLabel(prof_volt_lbl);
 
   // Максимальний струм
-  MenuItem* prof_curr_item = WidgetCreator::getMenuItem(ID_PROF_EDIT_CURR_ITEM);
+  MenuItem* prof_curr_item = WidgetCreator::getMenuItem(ID_ITEM_PROF_EDIT_CURR);
   _menu->addItem(prof_curr_item);
 
   String prof_curr_text = STR_ITEM_PROFILE_CURR;
@@ -680,16 +681,16 @@ void BattTestContext::handleProfileEditState()
     uint16_t item_id = _menu->getCurrItemID();
     switch (item_id)
     {
-      case ID_PROF_EDIT_NAME_ITEM:
+      case ID_ITEM_PROF_EDIT_NAME:
         if (!_profile_edit_name.equals(STR_TEMP_PROFILE))
           showProfileNameDialog();
         break;
 
-      case ID_PROF_EDIT_VOLT_ITEM:
+      case ID_ITEM_PROF_EDIT_VOLT:
         showProfileMinVoltDialog();
         break;
 
-      case ID_PROF_EDIT_CURR_ITEM:
+      case ID_ITEM_PROF_EDIT_CURR:
         showProfileMaxCurrDialog();
         break;
 
@@ -1024,6 +1025,14 @@ void BattTestContext::handleManualTestState()
 
 void BattTestContext::showTestTmpl()
 {
+  xTaskCreatePinnedToCore(wdt_task, "test_wdt", 4 * 512, this, 10, &_wdt_task_handle, 0);
+  if (!_wdt_task_handle)
+  {
+    log_e("%s", STR_ERR_START_TASK);
+    showErrLabelTmpl(STR_ERR_START_TASK);
+    return;
+  }
+
   _state_handler = &BattTestContext::handleTestState;
 
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
@@ -1086,8 +1095,12 @@ void BattTestContext::showTestTmpl()
 
 void BattTestContext::handleTestState()
 {
+  _was_wdt_fed = true;
+
   if (_input.isPressed(BTN_BACK))
   {
+    vTaskDelete(_wdt_task_handle);
+    _wdt_task_handle = nullptr;
     _readings_upd_ts = 0;
     turnOffLoad();
     turnOffFun();
@@ -1321,3 +1334,22 @@ void BattTestContext::turnOffLoad()
   ledcWrite(PIN_OPA_PWM, 0);
 }
 // -----------------------------------------------------------------------------------------------------------------------
+
+void BattTestContext::wdt_task(void* arg)
+{
+  BattTestContext* self = static_cast<BattTestContext*>(arg);
+
+  while (1)
+  {
+    delay(WDT_CHECK_DELAY);
+    if (!self->_was_wdt_fed)
+    {
+      self->turnOffLoad();
+      self->turnOffFun();
+      log_e("Основна задача не відповідає. Можливо, датчики несправні. Тестування зупинено");
+      esp_restart();
+    }
+
+    self->_was_wdt_fed = false;
+  }
+}

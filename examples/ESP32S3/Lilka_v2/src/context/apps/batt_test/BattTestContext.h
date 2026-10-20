@@ -69,9 +69,9 @@ private:
     ID_ITEM_DELETE_PROFILE,
     ID_ITEM_NEW_PROFILE,
 
-    ID_PROF_EDIT_NAME_ITEM,
-    ID_PROF_EDIT_VOLT_ITEM,
-    ID_PROF_EDIT_CURR_ITEM,
+    ID_ITEM_PROF_EDIT_NAME,
+    ID_ITEM_PROF_EDIT_VOLT,
+    ID_ITEM_PROF_EDIT_CURR,
     ID_PROF_EDIT_FUN_ITEM,
   };
 
@@ -141,6 +141,8 @@ private:
 
   void adjustOpaPWM();
 
+  static void wdt_task(void* arg);
+
 private:
   INA219 _ina;
 
@@ -149,7 +151,7 @@ private:
   StateHandler _state_handler{nullptr};
 
   double _capacity_mah = 0.0;
-
+  TaskHandle_t _wdt_task_handle{nullptr};
   pixeler::Label* _voltage_lbl{nullptr};
   pixeler::Label* _current_lbl{nullptr};
   pixeler::Label* _power_lbl{nullptr};
@@ -188,4 +190,5 @@ private:
   uint8_t _profile_edit_fun_pwm;  // Глобальна змінна для простого перенесення значення між вікнами GUI
 
   bool _is_working = false;
+  bool _was_wdt_fed = false;
 };
