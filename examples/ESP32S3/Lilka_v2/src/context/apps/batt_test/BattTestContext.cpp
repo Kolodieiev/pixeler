@@ -12,7 +12,6 @@
 
 using namespace pixeler;
 
-static const char STR_ERR_INA219[] = "INA219 не відповідає";
 static const char STR_ERR_MODULE_BROKEN[] = "Модуль пошкоджено, негайно від'єднайте АКБ!";
 static const char STR_ERR_VOLT_DIFF[] = "Помилка читання напруги АКБ";
 
@@ -34,9 +33,7 @@ static const char STR_PROFILE_EDIT_SPIN_HINT[] =
 static const char STR_ITEM_SEL_PROFILE[] = "Обрати профіль тестування";
 static const char STR_ITEM_MANUAL_TESTING[] = "Ручне тестування";
 
-static const char STR_ITEM_TEMP_PROFILE[] = "Тимчасовий профіль";
 static const char STR_ITEM_RUN_PROFILE[] = "Запустити тест";
-static const char STR_ITEM_NEW_PROFILE[] = "Новий профіль";
 
 static const char STR_ITEM_PROFILE_NAME[] = "Ім'я: ";
 static const char STR_ITEM_PROFILE_VOLT[] = "Мін. V: ";
@@ -46,8 +43,6 @@ static const char STR_ITEM_PROFILE_FUN[] = "FUN ШІМ: ";
 static const char STR_VOLTAGE_TITLE[] = "Мінімальна напруга";
 static const char STR_CURRENT_TITLE[] = "Максимальний струм";
 static const char STR_FUN_TITLE[] = "Шпаруватість вентилятора";
-
-static const char STR_ERR_INCORRECT_PROF_NAME[] = "Некоректне ім'я";
 
 static const char STR_APP_DIR[] = "batt_tester";
 
@@ -301,7 +296,7 @@ void BattTestContext::handleContextMenuState()
         break;
 
       default:
-        log_e("Не реалізована функція");
+        log_e("%s", STR_ERR_UNIMPLEMENTED_FUNC);
         break;
     }
   }
@@ -338,7 +333,7 @@ void BattTestContext::showProfileSelectTmpl()
   MenuItem* temp_item = WidgetCreator::getMenuItem(ID_ITEM_TEMP_PROFILE);
   _menu->addItem(temp_item);
 
-  Label* temp_lbl = WidgetCreator::getItemLabel(STR_ITEM_TEMP_PROFILE, font_10x20);
+  Label* temp_lbl = WidgetCreator::getItemLabel(STR_TEMP_PROFILE, font_10x20);
   temp_item->setLabel(temp_lbl);
 
   updateProfileHint();
@@ -347,6 +342,9 @@ void BattTestContext::showProfileSelectTmpl()
     return;
 
   String dir_path = SettingsManager::getSettingsDirPath(STR_APP_DIR);
+  if (dir_path.isEmpty())
+    return;
+
   std::vector<FileInfo> profiles = _fs.indexFiles(dir_path.c_str());
 
   uint16_t i = ID_ITEM_TEMP_PROFILE + 1;
@@ -465,7 +463,7 @@ void BattTestContext::showProfileContextMenu()
     MenuItem* new_profile_item = WidgetCreator::getMenuItem(ID_ITEM_NEW_PROFILE);
     _context_menu->addItem(new_profile_item);
 
-    Label* new_profile_lbl = WidgetCreator::getItemLabel(STR_ITEM_NEW_PROFILE, font_unifont);
+    Label* new_profile_lbl = WidgetCreator::getItemLabel(STR_NEW_PROFILE, font_unifont);
     new_profile_item->setLabel(new_profile_lbl);
     new_profile_lbl->setHPadding(1);
   }
@@ -502,15 +500,14 @@ void BattTestContext::handleProfileContextMenuState()
       case ID_ITEM_RUN_PROFILE:
       {
         String profile_name = _menu->getCurrItemText();
-
-        bool result = true;
-        if (!profile_name.equals(STR_ITEM_TEMP_PROFILE))
+        if (!profile_name.equals(STR_TEMP_PROFILE))
         {
           ProfileSetup prof_setup;
-          result = SettingsManager::load(&prof_setup, sizeof(prof_setup), _menu->getCurrItemText(), STR_APP_DIR);
+          bool result = SettingsManager::load(&prof_setup, sizeof(prof_setup), _menu->getCurrItemText(), STR_APP_DIR);
           if (!result)
           {
             showToast(STR_FAIL);
+            return;
           }
           else
           {
@@ -520,8 +517,7 @@ void BattTestContext::handleProfileContextMenuState()
           }
         }
 
-        if (result)
-          showTestTmpl();
+        showTestTmpl();
       }
 
       break;
@@ -543,7 +539,7 @@ void BattTestContext::handleProfileContextMenuState()
         _profile_edit_name = _menu->getCurrItemText();
 
         ProfileSetup prof_setup;
-        if (!_profile_edit_name.equals(STR_ITEM_TEMP_PROFILE))
+        if (!_profile_edit_name.equals(STR_TEMP_PROFILE))
         {
           if (!SettingsManager::load(&prof_setup, sizeof(prof_setup), _profile_edit_name, STR_APP_DIR))
           {
@@ -568,7 +564,7 @@ void BattTestContext::handleProfileContextMenuState()
       break;
 
       case ID_ITEM_NEW_PROFILE:
-        _profile_edit_name = STR_ITEM_NEW_PROFILE;
+        _profile_edit_name = STR_NEW_PROFILE;
         _profile_edit_min_voltage = _min_test_voltage;
         _profile_edit_max_current = _test_current;
         _profile_edit_fun_pwm = _fun_duty;
@@ -576,7 +572,7 @@ void BattTestContext::handleProfileContextMenuState()
         break;
 
       default:
-        log_e("Не реалізована функція");
+        log_e("%s", STR_ERR_UNIMPLEMENTED_FUNC);
         break;
     }
   }
@@ -647,7 +643,7 @@ void BattTestContext::handleProfileEditState()
 
   if (_input.isPressed(BTN_OK))
   {
-    if (_profile_edit_name.equals(STR_ITEM_TEMP_PROFILE))
+    if (_profile_edit_name.equals(STR_TEMP_PROFILE))
     {
       _min_test_voltage = _profile_edit_min_voltage;
       _test_current = _profile_edit_max_current;
@@ -662,14 +658,9 @@ void BattTestContext::handleProfileEditState()
           .fun_duty = _profile_edit_fun_pwm};
 
       if (!SettingsManager::save(&prof_setup, sizeof(prof_setup), _profile_edit_name, STR_APP_DIR))
-      {
         showToast(STR_FAIL);
-      }
       else
-      {
-        showProfileSelectTmpl();
         showToast(STR_SUCCESS);
-      }
     }
 
     showProfileSelectTmpl();
@@ -690,7 +681,7 @@ void BattTestContext::handleProfileEditState()
     switch (item_id)
     {
       case ID_PROF_EDIT_NAME_ITEM:
-        if (!_profile_edit_name.equals(STR_ITEM_TEMP_PROFILE))
+        if (!_profile_edit_name.equals(STR_TEMP_PROFILE))
           showProfileNameDialog();
         break;
 
@@ -707,7 +698,7 @@ void BattTestContext::handleProfileEditState()
         break;
 
       default:
-        log_e("Не реалізована функція");
+        log_e("%s", STR_ERR_UNIMPLEMENTED_FUNC);
         break;
     }
   }
@@ -744,9 +735,9 @@ void BattTestContext::handleProfileNameDialogState()
   if (_input.isPressed(BtnID::BTN_OK))
   {
     String tb_text = _profile_name_tb->getText();
-    if (tb_text.isEmpty() || tb_text.equals(STR_ITEM_TEMP_PROFILE))
+    if (tb_text.isEmpty() || tb_text.equals(STR_TEMP_PROFILE))
     {
-      showToast(STR_ERR_INCORRECT_PROF_NAME);
+      showToast(STR_ERR_INCORRECT_NAME);
     }
     else
     {
