@@ -197,6 +197,6 @@ int AacDecoder::decode(uint8_t* inbuf, int32_t* bytesLeft, short* outbuf)
 //----------------------------------------------------------------------------------------------------------------------
 const char* AacDecoder::getErrorMessage(int8_t err)
 {
-  return NeAACDecGetErrorMessage(__builtin_abs(err));
+  return NeAACDecGetErrorMessage(abs(err));
 }
 //----------------------------------------------------------------------------------------------------------------------

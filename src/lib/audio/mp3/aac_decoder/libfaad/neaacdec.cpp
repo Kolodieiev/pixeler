@@ -2685,8 +2685,8 @@ void drm_calc_sa_side_signal(drm_ps_info* ps, qmf_t X[38][64]) {
             /* NOTE: all input is scaled by 2^(-5) because of fixed point QMF
              * meaning that P will be scaled by 2^(-10) compared to floating point version
              */
-            in_re = ((__builtin_abs(RE(in)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
-            in_im = ((__builtin_abs(IM(in)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
+            in_re = ((abs(RE(in)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
+            in_im = ((abs(IM(in)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
             power = in_re * in_re + in_im * in_im;
     #else
             power = MUL_R(RE(in), RE(in)) + MUL_R(IM(in), IM(in));
@@ -3644,7 +3644,7 @@ void vcb11_check_LAV(uint8_t cb, int16_t* sp) {
     uint16_t              max = 0;
     if(cb < 16 || cb > 31) return;
     max = vcb11_LAV_tab[cb - 16];
-    if((__builtin_abs(sp[0]) > max) || (__builtin_abs(sp[1]) > max)) {
+    if((abs(sp[0]) > max) || (abs(sp[1]) > max)) {
         sp[0] = 0;
         sp[1] = 0;
     }
@@ -10961,8 +10961,8 @@ void ps_decorrelate(ps_info* ps, qmf_t X_left[38][64], qmf_t X_right[38][64], qm
                 /* NOTE: all input is scaled by 2^(-5) because of fixed point QMF
                  * meaning that P will be scaled by 2^(-10) compared to floating point version
                  */
-                in_re = ((__builtin_abs(RE(inputLeft)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
-                in_im = ((__builtin_abs(IM(inputLeft)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
+                in_re = ((abs(RE(inputLeft)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
+                in_im = ((abs(IM(inputLeft)) + (1 << (REAL_BITS - 1))) >> REAL_BITS);
                 P[n][bk] += in_re * in_re + in_im * in_im;
     #else
                 P[n][bk] += MUL_R(RE(inputLeft), RE(inputLeft)) + MUL_R(IM(inputLeft), IM(inputLeft));
@@ -11363,14 +11363,14 @@ void ps_mix_phase(ps_info* ps, qmf_t X_left[38][64], qmf_t X_right[38][64], qmf_
                 gamma = (real_t)atan(sqrt((1.0f-sqrt(mu))/(1.0f+sqrt(mu))));
                 */
                 if(ps->iid_mode >= 3) {
-                    uint8_t abs_iid = __builtin_abs(ps->iid_index[env][bk]);
+                    uint8_t abs_iid = abs(ps->iid_index[env][bk]);
                     cosa = sincos_alphas_B_fine[no_iid_steps + ps->iid_index[env][bk]][ps->icc_index[env][bk]];
                     sina = sincos_alphas_B_fine[30 - (no_iid_steps + ps->iid_index[env][bk])][ps->icc_index[env][bk]];
                     cosg = cos_gammas_fine[abs_iid][ps->icc_index[env][bk]];
                     sing = sin_gammas_fine[abs_iid][ps->icc_index[env][bk]];
                 }
                 else {
-                    uint8_t abs_iid = __builtin_abs(ps->iid_index[env][bk]);
+                    uint8_t abs_iid = abs(ps->iid_index[env][bk]);
                     cosa = sincos_alphas_B_normal[no_iid_steps + ps->iid_index[env][bk]][ps->icc_index[env][bk]];
                     sina = sincos_alphas_B_normal[14 - (no_iid_steps + ps->iid_index[env][bk])][ps->icc_index[env][bk]];
                     cosg = cos_gammas_normal[abs_iid][ps->icc_index[env][bk]];
@@ -11401,10 +11401,10 @@ void ps_mix_phase(ps_info* ps, qmf_t X_left[38][64], qmf_t X_right[38][64], qmf_
                 IM(tempRight) = MUL_F(IM(ps->opd_prev[bk][i]), FRAC_CONST(0.25));
     #endif
                 /* save current value */
-                RE(ps->ipd_prev[bk][i]) = ipdopd_cos_tab[__builtin_abs(ps->ipd_index[env][bk])];
-                IM(ps->ipd_prev[bk][i]) = ipdopd_sin_tab[__builtin_abs(ps->ipd_index[env][bk])];
-                RE(ps->opd_prev[bk][i]) = ipdopd_cos_tab[__builtin_abs(ps->opd_index[env][bk])];
-                IM(ps->opd_prev[bk][i]) = ipdopd_sin_tab[__builtin_abs(ps->opd_index[env][bk])];
+                RE(ps->ipd_prev[bk][i]) = ipdopd_cos_tab[abs(ps->ipd_index[env][bk])];
+                IM(ps->ipd_prev[bk][i]) = ipdopd_sin_tab[abs(ps->ipd_index[env][bk])];
+                RE(ps->opd_prev[bk][i]) = ipdopd_cos_tab[abs(ps->opd_index[env][bk])];
+                IM(ps->opd_prev[bk][i]) = ipdopd_sin_tab[abs(ps->opd_index[env][bk])];
                 /* add current value */
                 RE(tempLeft) += RE(ps->ipd_prev[bk][i]);
                 IM(tempLeft) += IM(ps->ipd_prev[bk][i]);

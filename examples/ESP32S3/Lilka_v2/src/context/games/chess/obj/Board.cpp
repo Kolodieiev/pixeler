@@ -129,7 +129,7 @@ namespace chess
       Position check_pos = is_king ? move : king_pos;
 
       // Перевірка рокіровки
-      if (is_king && __builtin_abs(static_cast<int>(move.x) - static_cast<int>(pos.x)) > 1)
+      if (is_king && abs(static_cast<int>(move.x) - static_cast<int>(pos.x)) > 1)
       {
         // Первірка чи ходив король
         KingObj* king_castlable = reinterpret_cast<KingObj*>(piece);
@@ -428,7 +428,7 @@ namespace chess
     {
       destroyPiece(y_from, x_to);
     }
-    else if (piece->getTypeID() == TYPE_KING && __builtin_abs(static_cast<int>(x_to) - static_cast<int>(x_from)) > 1)  // Рокіровка
+    else if (piece->getTypeID() == TYPE_KING && abs(static_cast<int>(x_to) - static_cast<int>(x_from)) > 1)  // Рокіровка
     {
       _has_castling = true;
 

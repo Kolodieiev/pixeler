@@ -3027,8 +3027,8 @@ void MP3Decoder::MidSideProc(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t nSamps
     xr = x[1][i];
     x[0][i] = xl + xr;
     x[1][i] = xl - xr;
-    mOutL |= __builtin_abs(x[0][i]);
-    mOutR |= __builtin_abs(x[1][i]);
+    mOutL |= abs(x[0][i]);
+    mOutR |= abs(x[1][i]);
   }
   mOut[0] |= mOutL;
   mOut[1] |= mOutR;
@@ -3107,10 +3107,10 @@ void MP3Decoder::IntensityProcMPEG1(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t
     {
       xr = MULSHIFT32(fr, x[0][i]) << 2;
       x[1][i] = xr;
-      mOutR |= __builtin_abs(xr);
+      mOutR |= abs(xr);
       xl = MULSHIFT32(fl, x[0][i]) << 2;
       x[0][i] = xl;
-      mOutL |= __builtin_abs(xl);
+      mOutL |= abs(xl);
       sampsLeft--;
     }
   }
@@ -3136,22 +3136,22 @@ void MP3Decoder::IntensityProcMPEG1(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t
     {
       xr = MULSHIFT32(frs[0], x[0][i + 0]) << 2;
       x[1][i + 0] = xr;
-      mOutR |= __builtin_abs(xr);
+      mOutR |= abs(xr);
       xl = MULSHIFT32(fls[0], x[0][i + 0]) << 2;
       x[0][i + 0] = xl;
-      mOutL |= __builtin_abs(xl);
+      mOutL |= abs(xl);
       xr = MULSHIFT32(frs[1], x[0][i + 1]) << 2;
       x[1][i + 1] = xr;
-      mOutR |= __builtin_abs(xr);
+      mOutR |= abs(xr);
       xl = MULSHIFT32(fls[1], x[0][i + 1]) << 2;
       x[0][i + 1] = xl;
-      mOutL |= __builtin_abs(xl);
+      mOutL |= abs(xl);
       xr = MULSHIFT32(frs[2], x[0][i + 2]) << 2;
       x[1][i + 2] = xr;
-      mOutR |= __builtin_abs(xr);
+      mOutR |= abs(xr);
       xl = MULSHIFT32(fls[2], x[0][i + 2]) << 2;
       x[0][i + 2] = xl;
-      mOutL |= __builtin_abs(xl);
+      mOutL |= abs(xl);
       sampsLeft -= 3;
     }
   }
@@ -3233,10 +3233,10 @@ void MP3Decoder::IntensityProcMPEG2(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t
       {
         xr = MULSHIFT32(fr, x[0][i]) << 2;
         x[1][i] = xr;
-        mOutR |= __builtin_abs(xr);
+        mOutR |= abs(xr);
         xl = MULSHIFT32(fl, x[0][i]) << 2;
         x[0][i] = xl;
-        mOutL |= __builtin_abs(xl);
+        mOutL |= abs(xl);
       }
       /* early exit once we've used all the non-zero samples */
       sampsLeft -= n;
@@ -3276,10 +3276,10 @@ void MP3Decoder::IntensityProcMPEG2(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t
         {
           xr = MULSHIFT32(fr, x[0][i]) << 2;
           x[1][i] = xr;
-          mOutR |= __builtin_abs(xr);
+          mOutR |= abs(xr);
           xl = MULSHIFT32(fl, x[0][i]) << 2;
           x[0][i] = xl;
-          mOutL |= __builtin_abs(xl);
+          mOutL |= abs(xl);
         }
       }
     }
@@ -3509,12 +3509,12 @@ int32_t MP3Decoder::FreqInvertRescale(int32_t* y, int32_t* xPrev, int32_t blockI
       d = *y;
       CLIP_2N(d, (31 - es));
       *y = d << es;
-      mOut |= __builtin_abs(*y);
+      mOut |= abs(*y);
       y += m_NBANDS;
       d = -*y;
       CLIP_2N(d, (31 - es));
       *y = d << es;
-      mOut |= __builtin_abs(*y);
+      mOut |= abs(*y);
       y += m_NBANDS;
       d = *xPrev;
       CLIP_2N(d, (31 - es));
@@ -3528,12 +3528,12 @@ int32_t MP3Decoder::FreqInvertRescale(int32_t* y, int32_t* xPrev, int32_t blockI
       d = *y;
       CLIP_2N(d, (31 - es));
       *y = d << es;
-      mOut |= __builtin_abs(*y);
+      mOut |= abs(*y);
       y += m_NBANDS;
       d = *y;
       CLIP_2N(d, (31 - es));
       *y = d << es;
-      mOut |= __builtin_abs(*y);
+      mOut |= abs(*y);
       y += m_NBANDS;
       d = *xPrev;
       CLIP_2N(d, (31 - es));
@@ -3726,8 +3726,8 @@ int32_t MP3Decoder::IMDCT36(int32_t* xCurr, int32_t* xPrev, int32_t* y, int32_t 
       yHi = (s + (MULSHIFT32(t, *wp++) << 2));
       y[(i)*m_NBANDS] = yLo;
       y[(17 - i) * m_NBANDS] = yHi;
-      mOut |= __builtin_abs(yLo);
-      mOut |= __builtin_abs(yHi);
+      mOut |= abs(yLo);
+      mOut |= abs(yHi);
     }
   }
   else
@@ -3754,8 +3754,8 @@ int32_t MP3Decoder::IMDCT36(int32_t* xCurr, int32_t* xPrev, int32_t* y, int32_t 
       yHi = (xPrevWin[17 - i] + MULSHIFT32(d, wp[17 - i])) << 2;
       y[(i)*m_NBANDS] = yLo;
       y[(17 - i) * m_NBANDS] = yHi;
-      mOut |= __builtin_abs(yLo);
-      mOut |= __builtin_abs(yHi);
+      mOut |= abs(yLo);
+      mOut |= abs(yHi);
     }
   }
 
@@ -3881,22 +3881,22 @@ int32_t MP3Decoder::IMDCT12x3(int32_t* xCurr, int32_t* xPrev, int32_t* y, int32_
   for (i = 0; i < 3; i++)
   {
     yLo = (xPrevWin[0 + i] << 2);
-    mOut |= __builtin_abs(yLo);
+    mOut |= abs(yLo);
     y[(0 + i) * m_NBANDS] = yLo;
     yLo = (xPrevWin[3 + i] << 2);
-    mOut |= __builtin_abs(yLo);
+    mOut |= abs(yLo);
     y[(3 + i) * m_NBANDS] = yLo;
     yLo = (xPrevWin[6 + i] << 2) + (MULSHIFT32(wp[0 + i], xBuf[3 + i]));
-    mOut |= __builtin_abs(yLo);
+    mOut |= abs(yLo);
     y[(6 + i) * m_NBANDS] = yLo;
     yLo = (xPrevWin[9 + i] << 2) + (MULSHIFT32(wp[3 + i], xBuf[5 - i]));
-    mOut |= __builtin_abs(yLo);
+    mOut |= abs(yLo);
     y[(9 + i) * m_NBANDS] = yLo;
     yLo = (xPrevWin[12 + i] << 2) + (MULSHIFT32(wp[6 + i], xBuf[2 - i]) + MULSHIFT32(wp[0 + i], xBuf[(6 + 3) + i]));
-    mOut |= __builtin_abs(yLo);
+    mOut |= abs(yLo);
     y[(12 + i) * m_NBANDS] = yLo;
     yLo = (xPrevWin[15 + i] << 2) + (MULSHIFT32(wp[9 + i], xBuf[0 + i]) + MULSHIFT32(wp[3 + i], xBuf[(6 + 5) - i]));
-    mOut |= __builtin_abs(yLo);
+    mOut |= abs(yLo);
     y[(15 + i) * m_NBANDS] = yLo;
   }
 
@@ -3995,14 +3995,14 @@ int32_t MP3Decoder::HybridTransform(int32_t* xCurr, int32_t* xPrev, int32_t y[m_
       xp = xPrevWin[2 * j + 0] << 2; /* << 2 temp for scaling */
       nonZero |= xp;
       y[2 * j + 0][i] = xp;
-      mOut |= __builtin_abs(xp);
+      mOut |= abs(xp);
 
       /* frequency inversion on odd blocks/odd samples (flip sign if i odd, j odd) */
       xp = xPrevWin[2 * j + 1] << 2;
       xp = (xp ^ (fiBit >> 31)) + (i & 0x01);
       nonZero |= xp;
       y[2 * j + 1][i] = xp;
-      mOut |= __builtin_abs(xp);
+      mOut |= abs(xp);
 
       xPrev[j] = 0;
     }

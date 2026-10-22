@@ -60,9 +60,9 @@ namespace pixeler
         int x_diff = _x_s - _x_e;
         int y_diff = _y_s - _y_e;
 
-        if (__builtin_abs(x_diff) > 30 || __builtin_abs(y_diff) > 30)
+        if (abs(x_diff) > 30 || abs(y_diff) > 30)
         {
-          if (__builtin_abs(x_diff) >= __builtin_abs(y_diff))
+          if (abs(x_diff) >= abs(y_diff))
           {
             _swipe = (_x_s > _x_e) ? SWIPE_R : SWIPE_L;
           }

@@ -398,7 +398,7 @@ unsigned char* Mask_mask(int width, unsigned char* frame, QRecLevel level)
     blacks = maskMakers[i](width, frame, mask);
     blacks += Mask_writeFormatInformation(width, mask, i, level);
     bratio = (200 * blacks + w2) / w2 / 2; /* (int)(100*blacks/w2+0.5) */
-    demerit = (__builtin_abs(bratio - 50) / 5) * N4;
+    demerit = (abs(bratio - 50) / 5) * N4;
     //		n4 = demerit;
     demerit += Mask_evaluateSymbol(width, mask);
     //		printf("(%d,%d,%d,%d)=%d\n", n1, n2, n3 ,n4, demerit);

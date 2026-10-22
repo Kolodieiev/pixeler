@@ -62,10 +62,10 @@ namespace chess
       const Board::LastMove& last = board.getLastMove();
 
       // Якщо останній хід був зроблений ворожим пішаком на 2 клітинки
-      if (last.piece_type == TYPE_PAWN && __builtin_abs(last.from_y - last.to_y) == 2)
+      if (last.piece_type == TYPE_PAWN && abs(last.from_y - last.to_y) == 2)
       {
         // І цей пішак стоїть ліворуч або праворуч від нашого
-        if (last.to_y == y_pos && __builtin_abs(last.to_x - x_pos) == 1)
+        if (last.to_y == y_pos && abs(last.to_x - x_pos) == 1)
         {
           // Додаємо хід по діагоналі "за спину" ворогу
           moves.push_back({static_cast<uint16_t>(last.to_x), static_cast<uint16_t>(y_pos + direction)});

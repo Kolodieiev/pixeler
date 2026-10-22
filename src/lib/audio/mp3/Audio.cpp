@@ -5768,7 +5768,7 @@ void Audio::printDecodeError(int r)
   }
   if (m_codec == CODEC_AAC || m_codec == CODEC_M4A)
   {
-    e = aac_decoder.getErrorMessage(__builtin_abs(r));
+    e = aac_decoder.getErrorMessage(abs(r));
     log_i("AAC decode error %d : %s", r, e);
   }
   if (m_codec == CODEC_FLAC)
@@ -6070,8 +6070,8 @@ void Audio::computeVUlevel(int16_t sample[2])
 
   if (!cnt0)
   {
-    uvlvl_sampleArray[LEFTCHANNEL][0][cnt1] = __builtin_abs(filtered[LEFTCHANNEL] >> 7);
-    uvlvl_sampleArray[RIGHTCHANNEL][0][cnt1] = __builtin_abs(filtered[RIGHTCHANNEL] >> 7);
+    uvlvl_sampleArray[LEFTCHANNEL][0][cnt1] = abs(filtered[LEFTCHANNEL] >> 7);
+    uvlvl_sampleArray[RIGHTCHANNEL][0][cnt1] = abs(filtered[RIGHTCHANNEL] >> 7);
   }
   if (!cnt1)
   {
@@ -6156,7 +6156,7 @@ void Audio::computeLimit()
   }
   else if (m_balance < 0)
   {
-    l -= (double)__builtin_abs(m_balance) / 16;
+    l -= (double)abs(m_balance) / 16;
   }
 
   switch (m_curve)

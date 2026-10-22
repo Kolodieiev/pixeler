@@ -1201,7 +1201,7 @@ void BattTestContext::decOpaPwm()
 
 bool BattTestContext::checkVoltageDiff(float bus_voltage, float pg_voltage)
 {
-  float volt_diff = std::abs(bus_voltage - pg_voltage);
+  float volt_diff = abs(bus_voltage - pg_voltage);
   if (volt_diff > MAX_VOLT_DIFF)
   {
     log_e("Показники напруги INA219 та PG відрізняються на %f В", volt_diff);
@@ -1223,7 +1223,7 @@ void BattTestContext::updateReadings(bool update_capacity)
   volt_str += "V";
   _voltage_lbl->setText(volt_str);
 
-  float current = std::abs(_ina.getCurrent());
+  float current = abs(_ina.getCurrent());
   _test_current = current;  // Зберігаємо для тимчасового/нового профілю
   String current_str = String(current);
   current_str += "A";

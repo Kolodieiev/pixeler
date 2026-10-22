@@ -97,7 +97,7 @@ namespace pixeler
 
   void SpinBox::setStep(float step)
   {
-    _step = std::abs(step);
+    _step = abs(step);
     _is_changed = true;
   }
 

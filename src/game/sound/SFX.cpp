@@ -28,7 +28,7 @@ namespace pixeler
     int16_t raw_sample = *reinterpret_cast<const int16_t*>(_data_buf + _current_sample);
     int32_t sample = (static_cast<int32_t>(raw_sample) * _volume) >> 8;
 
-    if (__builtin_abs(sample) < _cached_threshold)
+    if (abs(sample) < _cached_threshold)
       sample = 0;
 
     _current_sample += 2;
