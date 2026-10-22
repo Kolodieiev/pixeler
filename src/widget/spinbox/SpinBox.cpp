@@ -121,10 +121,6 @@ namespace pixeler
 
   void SpinBox::up()
   {
-    log_i("_value: %f", _value);
-    log_i("_step: %f", _step);
-    log_i("_max_val: %f", _max_val);
-
     if (_value + _step > _max_val)
       _value = _min_val;
     else
@@ -135,10 +131,6 @@ namespace pixeler
 
   void SpinBox::down()
   {
-    log_i("_value: %f", _value);
-    log_i("_step: %f", _step);
-    log_i("_min_val: %f", _min_val);
-
     if (_value - _step < _min_val)
       _value = _max_val;
     else
