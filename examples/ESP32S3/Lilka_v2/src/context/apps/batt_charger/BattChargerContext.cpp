@@ -1073,7 +1073,7 @@ void BattChargerContext::handleChargeState()
 
   updateReadings();
 
-  if (!checkOutVoltageDiff())
+  if (_is_working && !checkOutVoltageDiff())
     return;
 
   if (millis() - _readings_upd_ts > UPD_READINGS_DELAY_MS)
