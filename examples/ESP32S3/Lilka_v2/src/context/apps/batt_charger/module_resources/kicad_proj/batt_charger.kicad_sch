@@ -2556,7 +2556,7 @@
 		(uuid "02187422-3136-4863-9d4b-ea6ff6fa4bb5")
 	)
 	(junction
-		(at 87.63 208.28)
+		(at 168.91 160.02)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "08e9397c-3a07-41a0-981f-963e79fbc2cb")
@@ -2580,7 +2580,7 @@
 		(uuid "1f8dc39a-b814-463a-a3c7-fd9eb5cc79a6")
 	)
 	(junction
-		(at 87.63 243.84)
+		(at 168.91 195.58)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "28c6fd18-193d-464c-b6a1-4ebed5691fdc")
@@ -2610,7 +2610,7 @@
 		(uuid "436d2644-fce8-4792-8b7b-1ca2c2020209")
 	)
 	(junction
-		(at 87.63 199.39)
+		(at 168.91 151.13)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4477cadd-8d24-42ba-a48b-fea83f67802d")
@@ -2640,19 +2640,19 @@
 		(uuid "689a8a40-2c80-48d3-a009-07263e27228d")
 	)
 	(junction
-		(at 87.63 217.17)
+		(at 168.91 168.91)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6c29210c-707c-4642-9f52-71caaadbd6fe")
 	)
 	(junction
-		(at 87.63 251.46)
+		(at 168.91 203.2)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "6c7853dd-e7d1-45bd-ab07-54231025b7da")
 	)
 	(junction
-		(at 87.63 226.06)
+		(at 168.91 177.8)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7fca8070-6008-4400-9748-6b33e8f75a49")
@@ -2670,7 +2670,7 @@
 		(uuid "9ea90a9c-deac-46d6-b2a5-12b62889ba21")
 	)
 	(junction
-		(at 87.63 234.95)
+		(at 168.91 186.69)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a88c98f7-4060-4518-8357-386647d3794d")
@@ -2763,7 +2763,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 203.2) (xy 87.63 203.2)
+			(xy 172.72 154.94) (xy 168.91 154.94)
 		)
 		(stroke
 			(width 0)
@@ -2773,7 +2773,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 217.17) (xy 87.63 217.17)
+			(xy 160.02 168.91) (xy 168.91 168.91)
 		)
 		(stroke
 			(width 0)
@@ -2813,7 +2813,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 229.87) (xy 87.63 229.87)
+			(xy 172.72 181.61) (xy 168.91 181.61)
 		)
 		(stroke
 			(width 0)
@@ -2853,7 +2853,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 255.27) (xy 91.44 255.27)
+			(xy 168.91 207.01) (xy 172.72 207.01)
 		)
 		(stroke
 			(width 0)
@@ -2923,7 +2923,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 208.28) (xy 91.44 208.28)
+			(xy 168.91 160.02) (xy 172.72 160.02)
 		)
 		(stroke
 			(width 0)
@@ -3003,7 +3003,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 226.06) (xy 91.44 226.06)
+			(xy 168.91 177.8) (xy 172.72 177.8)
 		)
 		(stroke
 			(width 0)
@@ -3013,7 +3013,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 229.87) (xy 87.63 226.06)
+			(xy 168.91 181.61) (xy 168.91 177.8)
 		)
 		(stroke
 			(width 0)
@@ -3033,7 +3033,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 243.84) (xy 76.2 231.14)
+			(xy 157.48 195.58) (xy 157.48 182.88)
 		)
 		(stroke
 			(width 0)
@@ -3043,7 +3043,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 212.09) (xy 87.63 208.28)
+			(xy 168.91 163.83) (xy 168.91 160.02)
 		)
 		(stroke
 			(width 0)
@@ -3053,7 +3053,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 212.09) (xy 87.63 212.09)
+			(xy 172.72 163.83) (xy 168.91 163.83)
 		)
 		(stroke
 			(width 0)
@@ -3063,7 +3063,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 234.95) (xy 87.63 234.95)
+			(xy 160.02 186.69) (xy 168.91 186.69)
 		)
 		(stroke
 			(width 0)
@@ -3153,7 +3153,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 223.52) (xy 78.74 223.52)
+			(xy 154.94 175.26) (xy 160.02 175.26)
 		)
 		(stroke
 			(width 0)
@@ -3184,7 +3184,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 217.17) (xy 91.44 217.17)
+			(xy 168.91 168.91) (xy 172.72 168.91)
 		)
 		(stroke
 			(width 0)
@@ -3204,7 +3204,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 199.39) (xy 91.44 199.39)
+			(xy 168.91 151.13) (xy 172.72 151.13)
 		)
 		(stroke
 			(width 0)
@@ -3274,7 +3274,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 243.84) (xy 91.44 243.84)
+			(xy 168.91 195.58) (xy 172.72 195.58)
 		)
 		(stroke
 			(width 0)
@@ -3314,7 +3314,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 251.46) (xy 87.63 251.46)
+			(xy 172.72 203.2) (xy 168.91 203.2)
 		)
 		(stroke
 			(width 0)
@@ -3344,7 +3344,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 217.17) (xy 87.63 220.98)
+			(xy 168.91 168.91) (xy 168.91 172.72)
 		)
 		(stroke
 			(width 0)
@@ -3374,7 +3374,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 243.84) (xy 87.63 243.84)
+			(xy 157.48 195.58) (xy 168.91 195.58)
 		)
 		(stroke
 			(width 0)
@@ -3384,7 +3384,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 220.98) (xy 91.44 220.98)
+			(xy 168.91 172.72) (xy 172.72 172.72)
 		)
 		(stroke
 			(width 0)
@@ -3394,7 +3394,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 226.06) (xy 87.63 226.06)
+			(xy 154.94 177.8) (xy 168.91 177.8)
 		)
 		(stroke
 			(width 0)
@@ -3404,7 +3404,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 208.28) (xy 87.63 208.28)
+			(xy 157.48 160.02) (xy 168.91 160.02)
 		)
 		(stroke
 			(width 0)
@@ -3464,7 +3464,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 199.39) (xy 87.63 199.39)
+			(xy 154.94 151.13) (xy 168.91 151.13)
 		)
 		(stroke
 			(width 0)
@@ -3495,7 +3495,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 228.6) (xy 78.74 228.6)
+			(xy 154.94 180.34) (xy 160.02 180.34)
 		)
 		(stroke
 			(width 0)
@@ -3505,7 +3505,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 243.84) (xy 87.63 247.65)
+			(xy 168.91 195.58) (xy 168.91 199.39)
 		)
 		(stroke
 			(width 0)
@@ -3525,7 +3525,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 223.52) (xy 78.74 217.17)
+			(xy 160.02 175.26) (xy 160.02 168.91)
 		)
 		(stroke
 			(width 0)
@@ -3625,7 +3625,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 251.46) (xy 73.66 251.46)
+			(xy 168.91 203.2) (xy 154.94 203.2)
 		)
 		(stroke
 			(width 0)
@@ -3685,7 +3685,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 238.76) (xy 91.44 238.76)
+			(xy 168.91 190.5) (xy 172.72 190.5)
 		)
 		(stroke
 			(width 0)
@@ -3695,7 +3695,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 247.65) (xy 91.44 247.65)
+			(xy 168.91 199.39) (xy 172.72 199.39)
 		)
 		(stroke
 			(width 0)
@@ -3775,7 +3775,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 203.2) (xy 87.63 199.39)
+			(xy 168.91 154.94) (xy 168.91 151.13)
 		)
 		(stroke
 			(width 0)
@@ -3835,7 +3835,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 208.28) (xy 76.2 220.98)
+			(xy 157.48 160.02) (xy 157.48 172.72)
 		)
 		(stroke
 			(width 0)
@@ -3917,7 +3917,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 234.95) (xy 91.44 234.95)
+			(xy 168.91 186.69) (xy 172.72 186.69)
 		)
 		(stroke
 			(width 0)
@@ -3937,7 +3937,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 228.6) (xy 78.74 234.95)
+			(xy 160.02 180.34) (xy 160.02 186.69)
 		)
 		(stroke
 			(width 0)
@@ -3987,7 +3987,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 220.98) (xy 76.2 220.98)
+			(xy 154.94 172.72) (xy 157.48 172.72)
 		)
 		(stroke
 			(width 0)
@@ -3997,7 +3997,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 231.14) (xy 76.2 231.14)
+			(xy 154.94 182.88) (xy 157.48 182.88)
 		)
 		(stroke
 			(width 0)
@@ -4077,7 +4077,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 218.44) (xy 73.66 199.39)
+			(xy 154.94 170.18) (xy 154.94 151.13)
 		)
 		(stroke
 			(width 0)
@@ -4097,7 +4097,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 251.46) (xy 87.63 255.27)
+			(xy 168.91 203.2) (xy 168.91 207.01)
 		)
 		(stroke
 			(width 0)
@@ -4177,7 +4177,7 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 233.68) (xy 73.66 251.46)
+			(xy 154.94 185.42) (xy 154.94 203.2)
 		)
 		(stroke
 			(width 0)
@@ -4197,7 +4197,7 @@
 	)
 	(wire
 		(pts
-			(xy 87.63 234.95) (xy 87.63 238.76)
+			(xy 168.91 186.69) (xy 168.91 190.5)
 		)
 		(stroke
 			(width 0)
@@ -4207,7 +4207,7 @@
 	)
 	(global_label "Lilka_DC_IN_EN"
 		(shape output)
-		(at 91.44 229.87 0)
+		(at 172.72 181.61 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4218,7 +4218,7 @@
 		)
 		(uuid "0ef128b2-a4d3-4076-88ba-507981e39e11")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 108.758 229.87 0)
+			(at 190.038 181.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4230,7 +4230,7 @@
 	)
 	(global_label "3V3"
 		(shape output)
-		(at 91.44 243.84 0)
+		(at 172.72 195.58 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4240,7 +4240,7 @@
 		)
 		(uuid "1127eaf5-e56e-4851-a769-2351b33d9f19")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.9328 243.84 0)
+			(at 179.2128 195.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4298,7 +4298,7 @@
 	)
 	(global_label "Lilka_3V3"
 		(shape output)
-		(at 91.44 247.65 0)
+		(at 172.72 199.39 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4309,7 +4309,7 @@
 		)
 		(uuid "48ddc3b7-2cad-47fe-b782-9b425adb6800")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 103.3756 247.65 0)
+			(at 184.6556 199.39 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4321,7 +4321,7 @@
 	)
 	(global_label "Lilka_DC_OUT_EN"
 		(shape output)
-		(at 91.44 220.98 0)
+		(at 172.72 172.72 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4332,7 +4332,7 @@
 		)
 		(uuid "56062763-0a11-40a0-ac3c-a6d7e71f2b99")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 110.4513 220.98 0)
+			(at 191.7313 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4459,7 +4459,7 @@
 	)
 	(global_label "13"
 		(shape bidirectional)
-		(at 91.44 226.06 0)
+		(at 172.72 177.8 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4469,7 +4469,7 @@
 		)
 		(uuid "89253efe-d65d-4310-b15a-7f40e3cbe525")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.9555 226.06 0)
+			(at 179.2355 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4504,7 +4504,7 @@
 	)
 	(global_label "14"
 		(shape bidirectional)
-		(at 91.44 217.17 0)
+		(at 172.72 168.91 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4514,7 +4514,7 @@
 		)
 		(uuid "8d6bbca2-0b95-4e52-ae97-3a63c2efff3a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.9555 217.17 0)
+			(at 179.2355 168.91 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4549,7 +4549,7 @@
 	)
 	(global_label "GND"
 		(shape input)
-		(at 91.44 251.46 0)
+		(at 172.72 203.2 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4559,7 +4559,7 @@
 		)
 		(uuid "9659ee99-a63e-4bcd-b0d0-8434299dccf6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.2957 251.46 0)
+			(at 179.5757 203.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4617,7 +4617,7 @@
 	)
 	(global_label "12"
 		(shape bidirectional)
-		(at 91.44 234.95 0)
+		(at 172.72 186.69 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4627,7 +4627,7 @@
 		)
 		(uuid "a3310e0a-8371-42cc-a8b3-955185ec7fee")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.9555 234.95 0)
+			(at 179.2355 186.69 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4662,7 +4662,7 @@
 	)
 	(global_label "Lilka SDA"
 		(shape bidirectional)
-		(at 91.44 212.09 0)
+		(at 172.72 163.83 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4673,7 +4673,7 @@
 		)
 		(uuid "b484c128-df51-445e-85c3-e285320814e3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.5474 212.09 0)
+			(at 185.8274 163.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4731,7 +4731,7 @@
 	)
 	(global_label "Lilka SCL"
 		(shape input)
-		(at 91.44 203.2 0)
+		(at 172.72 154.94 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4742,7 +4742,7 @@
 		)
 		(uuid "c9dc3aef-398c-41c5-b08e-05ab4423676e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 103.3756 203.2 0)
+			(at 184.6556 154.94 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4777,7 +4777,7 @@
 	)
 	(global_label "21"
 		(shape bidirectional)
-		(at 91.44 208.28 0)
+		(at 172.72 160.02 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4787,7 +4787,7 @@
 		)
 		(uuid "dc199747-2532-4ebd-ac26-403d16d318fa")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.9555 208.28 0)
+			(at 179.2355 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4799,7 +4799,7 @@
 	)
 	(global_label "47"
 		(shape bidirectional)
-		(at 91.44 199.39 0)
+		(at 172.72 151.13 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4809,7 +4809,7 @@
 		)
 		(uuid "e491dbd2-c760-42ae-b2e9-daed98345b38")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.9555 199.39 0)
+			(at 179.2355 151.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4821,7 +4821,7 @@
 	)
 	(global_label "Lilka_VOUT_PWM"
 		(shape input)
-		(at 91.44 238.76 0)
+		(at 172.72 190.5 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4832,7 +4832,7 @@
 		)
 		(uuid "e4c7702a-1c92-4ff0-ae0d-93d3914f97e2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 109.7256 238.76 0)
+			(at 191.0056 190.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4867,7 +4867,7 @@
 	)
 	(global_label "Lilka_GND"
 		(shape output)
-		(at 91.44 255.27 0)
+		(at 172.72 207.01 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4878,7 +4878,7 @@
 		)
 		(uuid "f618cc8a-fcc9-43a0-8a8a-6134b7ef478e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 103.7385 255.27 0)
+			(at 185.0185 207.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7222,7 +7222,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x07_Pin")
-		(at 68.58 226.06 0)
+		(at 149.86 177.8 0)
 		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7231,7 +7231,7 @@
 		(dnp no)
 		(uuid "a54f0bce-6b13-4252-95ec-3cc62ed48927")
 		(property "Reference" "J1"
-			(at 67.056 211.582 0)
+			(at 148.336 163.322 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7239,7 +7239,7 @@
 			)
 		)
 		(property "Value" "Lilka_PINS"
-			(at 67.056 214.376 0)
+			(at 148.336 166.116 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7247,7 +7247,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical"
-			(at 68.58 226.06 0)
+			(at 149.86 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7256,7 +7256,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 68.58 226.06 0)
+			(at 149.86 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7265,7 +7265,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x07, script generated"
-			(at 68.58 226.06 0)
+			(at 149.86 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
