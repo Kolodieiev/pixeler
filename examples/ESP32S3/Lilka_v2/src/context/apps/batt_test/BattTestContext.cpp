@@ -60,8 +60,8 @@ static const float R_DIV = 0.0917f;  // Точний коефіцієнт под
 
 static const float TEMP_PROF_MIN_VOLT = 3.0f;  // Мінімальна напруга тимчасового профіля
 
-static const unsigned long UPD_READINGS_DELAY = 100LU;  // Затримка між оновленням показників в UI
-static const unsigned long WDT_CHECK_DELAY = 2000UL;
+static const unsigned long UPD_READINGS_DELAY_MS = 100LU;  // Затримка між оновленням показників в UI
+static const unsigned long WDT_CHECK_DELAY_MS = 2000UL;
 
 static const uint32_t FUN_PWM_FREQ = 40000;
 static const uint32_t OPA_PWM_FREQ = 17000;
@@ -214,7 +214,7 @@ void BattTestContext::showMainTmpl()
 
 void BattTestContext::handleMainState()
 {
-  if (millis() - _readings_upd_ts > UPD_READINGS_DELAY)
+  if (millis() - _readings_upd_ts > UPD_READINGS_DELAY_MS)
   {
     float voltage = _ina.getBusVoltage();
     String volt_str = String(voltage);
@@ -648,6 +648,7 @@ void BattTestContext::handleProfileEditState()
     {
       _min_test_voltage = _profile_edit_min_voltage;
       _test_current = _profile_edit_max_current;
+      _max_current = _profile_edit_max_current;
       _fun_duty = _profile_edit_fun_pwm;
       showToast(STR_SUCCESS);
     }
@@ -1214,7 +1215,7 @@ bool BattTestContext::checkVoltageDiff(float bus_voltage, float pg_voltage)
 
 void BattTestContext::updateReadings(bool update_capacity)
 {
-  if (millis() - _readings_upd_ts < UPD_READINGS_DELAY)
+  if (millis() - _readings_upd_ts < UPD_READINGS_DELAY_MS)
     return;
 
   float voltage = _ina.getBusVoltage();
@@ -1341,7 +1342,7 @@ void BattTestContext::wdt_task(void* arg)
 
   while (1)
   {
-    delay(WDT_CHECK_DELAY);
+    delay(WDT_CHECK_DELAY_MS);
     if (!self->_was_wdt_fed)
     {
       self->turnOffLoad();
