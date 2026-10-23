@@ -22,6 +22,7 @@ protected:
 
 private:
   using StateHandler = void (BattChargerContext::*)();
+  using ChargeStageHandler = void (BattChargerContext::*)();
 
   enum BatType : uint8_t
   {
@@ -48,9 +49,11 @@ private:
     ID_STATE_LBL = 1,
     ID_MAX_VOLTAGE_LBL,
     ID_MAX_CURRENT_LBL,
-    ID_POWER_LBL,
+    ID_VOLTAGE_LBL,
+    ID_CURRENT_LBL,
     ID_CAPACITY_LBL,
     ID_CHARGE_TIME_LBL,
+    ID_CHARG_STATE_LBL,
     ID_INSTRUCTION_LBL,
     ID_C_MENU,
     ID_MENU,
@@ -97,7 +100,20 @@ private:
   void handleProfileContextMenuState();
 
   void showChargeTmpl();
+  void setupCharging();
+
   void handleChargeState();
+  void handleVoltageLevelingStage();
+
+  void handlePrechargeStage();
+  void handleChargeStage();
+  void handleStabilizationStage();
+  void handleFinishStage();
+  bool checkVoltageDynamics();
+  bool checkCurrentDynamics();
+
+  void adjustCurrentTo(float current);
+  void stabilizeVoltage();
 
   void showProfileEditTmpl();
   void handleProfileEditState();
@@ -114,7 +130,10 @@ private:
   void showProfileBatTypeDialog();
   void handleProfileBatTypeDialogState();
 
-  void updateVoltages();
+  void updateReadings();
+  void updateReadingsUI();
+  void updateBatCapacity();
+  void updateChargingTime();
 
   void turnOnDcIn();
   void turnOffDcIn();
@@ -122,17 +141,11 @@ private:
   void turnOnDcOut();
   void turnOffDcOut();
 
-  void incVoltagePwm();
-  void decVoltagePwm();
+  uint16_t getPwmStepByDiff(float voltage_diff);
+  void incOutVoltagePwm(uint16_t inc_step);
+  void decOutVoltagePwm(uint16_t dec_step);
 
   bool checkOutVoltageDiff();
-
-  void updateReadings();
-
-  void updateCapacity(float current);
-  void updateChargeTime();
-
-  void adjustOutVoltagePWM();
 
   void addInstruction(const String& text, uint8_t line_num);
 
@@ -143,25 +156,33 @@ private:
 private:
   String _profile_edit_name;  // Глобальна змінна для простого перенесення значення між вікнами GUI
   INA219 _ina;
-  Adafruit_ADS1X15 _ads;
+  Adafruit_ADS1115 _ads;
   StateHandler _state_handler{nullptr};
+  ChargeStageHandler _stage_handler{nullptr};
 
   ProfileSetup _profile;
   ProfileSetup _profile_edit;  // Глобальна змінна для простого перенесення значення між вікнами GUI
 
   double _capacity_mah = 0.0;
 
-  float _prev_current = 0.0f;
+  float _current_now = 0.0f;
+  float _current_prev = 0.0f;
   float _ads_out_voltage = 0.0f;
-  float _ina_out_voltage = 0.0f;
+  float _ina_bat_voltage = 0.0f;
   float _bat_voltage = 0.0f;
+
+  float _min_voltage = 0.0f;
+  float _max_voltage = 0.0f;
+
+  float _last_voltage_check = 0.0f;
+  float _last_current_check = 0.0f;
 
   TaskHandle_t _wdt_task_handle{nullptr};
   pixeler::Label* _voltage_lbl{nullptr};
   pixeler::Label* _current_lbl{nullptr};
-  pixeler::Label* _power_lbl{nullptr};
   pixeler::Label* _capacity_lbl{nullptr};
-  pixeler::Label* _test_time_lbl{nullptr};
+  pixeler::Label* _charge_state_lbl{nullptr};
+  pixeler::Label* _charge_time_lbl{nullptr};
 
   pixeler::FixedMenu* _menu{nullptr};
   pixeler::FixedMenu* _context_menu{nullptr};
@@ -174,10 +195,13 @@ private:
   pixeler::SpinBox* _spinbox{nullptr};
 
   unsigned long _readings_upd_ts = 0;
-  unsigned long _test_start_ts = 0;
-  unsigned long _upd_test_time_ts = 0;
+  unsigned long _charg_start_ts = 0;
+  unsigned long _dynamics_ts = 0;
+  unsigned long _volt_alarm_ts = 0;
 
   uint16_t _vout_pwm_duty = 0;
 
   bool _was_wdt_fed = false;
+  bool _is_working = false;
+  bool _volt_alarm = false;
 };

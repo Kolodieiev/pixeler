@@ -6,6 +6,8 @@
 
 static const char STR_ERR_ADS[] = "ADS не відповідає";
 static const char STR_ERR_VOLT_DIFF[] = "Напруга на датчиках відрізняється";
+static const char STR_ERR_MODULE_BROKEN[] = "Модуль пошкоджено, негайно від'єднайте АКБ!";
+static const char STR_ERR_ACCUM_BROKEN[] = "АКБ не заряджаєтся коректно. Процесс зупинено дочасно";
 
 static const char STR_ITEM_RUN_PROFILE[] = "Розпочати заряджання";
 
@@ -27,6 +29,13 @@ static const char STR_BAT_TYPE_LIP[] = "Літій-іон/полімер";
 static const char STR_BAT_TYPE_HVLIP[] = "Літій 4.4В";
 static const char STR_BAT_TYPE_LIFEPO[] = "Літій-залізо-фосфат";
 
+static const char STR_CHARGE_STAGE_SETUP[] = "Налаштування";
+static const char STR_CHARGE_STAGE_REPAIR[] = "Відновлення";
+static const char STR_CHARGE_STAGE_CHARGING[] = "Заряджання";
+static const char STR_CHARGE_STAGE_STABILIZATION[] = "Стабілізація";
+static const char STR_CHARGE_STAGE_CHARGED[] = "Заряджено";
+static const char STR_CHARGE_STAGE_STOPPED[] = "Перервано";
+
 static const char STR_PROFILE_EDIT_HINT[] =
     "Press A -> Зберегти\n"
     "Press B -> Вихід";
@@ -40,21 +49,29 @@ static const char STR_PROFILE_EDIT_SPIN_HINT[] =
     "Click A -> Зафіксувати\n"
     "Click B -> Вихід";
 
-static const float INA_MAX_CURR = 3.2f;           // Максимальний струм можливий для шунта INA219
+static const float INA_MAX_CURR = 3.2f;           // Максимальний можливий струм для шунта INA219
 static const float INA_SHUNT_R = 0.1f;            // Значення опору шунта INA219
-static const float MAX_CUR_DEV = 0.02f;           // Максимальне можливе відхилення від заданого струму в режимі тестування
-static const float MAX_VOLT_DIFF = 0.05f;         // Максимальне допустиме значення розбіжності напруги акума на модулях-датчиках
+static const float MAX_CUR_DEV = 0.002f;          // Максимальне можливе відхилення від заданого струму
+static const float MAX_VOLT_DEV = 0.005f;         // Максимальне можливе відхилення від заданої напруги
+static const float MAX_VOLT_DIFF = 0.35f;         // Максимальне допустиме значення розбіжності напруги виходу при першій перевірці
 static const float TEMP_PROF_MAX_VOLT = 4.2f;     // Максимальна напруга тимчасового профіля
 static const float TEMP_PROF_MAX_CURRENT = 0.1f;  // Максимальний струм тимчасового профіля
-static const float MIN_CHARG_VOLT = 1.5f;
-static const float MAX_CHARG_CURRENT = 2.0f;
+static const float MIN_WARNING_CURRENT = 0.01f;   // Мінімальний струм спокою, при якому модуль вважається пошкодженим
+static const float MIN_VOLTAGE_GROWTH = 0.01f;    // Мінімальний приріст напруги за інтервал CHECK_INTERVAL_MS
+static const float MAX_CHARG_CURRENT = 2.0f;      // Максимально можливий струм заряду
 
 static const float MAX_VOLT_LIP = 4.2f;
 static const float MAX_VOLT_HVLIP = 4.4f;
 static const float MAX_VOLT_LIFEPO = 3.6f;
 
-static const unsigned long UPD_READINGS_DELAY = 100LU;  // Затримка між оновленням показників в UI
-static const unsigned long WDT_CHECK_DELAY = 2000UL;
+static const float MIN_VOLT_LIP = 2.9f;
+static const float MIN_VOLT_HVLIP = 3.0f;
+static const float MIN_VOLT_LIFEPO = 2.4f;
+
+static const unsigned long UPD_READINGS_DELAY_MS = 200LU;  // Затримка між оновленням показників в UI
+static const unsigned long WDT_CHECK_DELAY_MS = 2000UL;
+static const unsigned long CHECK_INTERVAL_MS = 30UL * 60UL * 1000UL;
+static const unsigned long VOLT_ALARM_MS = 5000UL;
 
 static const uint32_t PWM_VOUT_FREQ = 17000;
 
@@ -109,9 +126,14 @@ BattChargerContext::BattChargerContext() : _ina{INA_ADDR}, _profile{.max_voltage
   _ina.setShuntSamples(5);
   _ina.setBusSamples(5);
 
-  updateVoltages();
-  if (!checkOutVoltageDiff())
+  updateReadings();
+
+  if (_current_now > MIN_WARNING_CURRENT)
+  {
+    log_e("Виявлено витік струму в стані спокою: %f A", _current_now);
+    showErrLabelTmpl(STR_ERR_MODULE_BROKEN);
     return;
+  }
 
   showMainTmpl();
 }
@@ -128,6 +150,14 @@ BattChargerContext::~BattChargerContext()
 
 void BattChargerContext::showErrLabelTmpl(const String& msg_str)
 {
+  turnOffDcIn();
+
+  if (_wdt_task_handle)
+  {
+    vTaskDelete(_wdt_task_handle);
+    _wdt_task_handle = nullptr;
+  }
+
   _state_handler = &BattChargerContext::handleErrState;
 
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
@@ -641,19 +671,21 @@ void BattChargerContext::showProfileMaxVoltDialog()
 
   _spinbox->setType(SpinBox::TYPE_FLOAT);
   _spinbox->setStep(0.1f);
-  _spinbox->setMin(MIN_CHARG_VOLT);
 
   switch (_profile_edit.batt_type)
   {
     case BatType::BATT_TYPE_LIP:
+      _spinbox->setMin(MIN_VOLT_LIP);
       _spinbox->setMax(MAX_VOLT_LIP);
       break;
 
     case BatType::BATT_TYPE_HVLIP:
+      _spinbox->setMin(MIN_VOLT_HVLIP);
       _spinbox->setMax(MAX_VOLT_HVLIP);
       break;
 
     case BatType::BATT_TYPE_LIFEPO:
+      _spinbox->setMin(MIN_VOLT_LIFEPO);
       _spinbox->setMax(MAX_VOLT_LIFEPO);
       break;
 
@@ -828,24 +860,200 @@ void BattChargerContext::handleProfileBatTypeDialogState()
 
 // -----------------------------------------------------------------------------------------------------------------------
 
-void BattChargerContext::updateVoltages()
+void BattChargerContext::updateReadings()
 {
   int16_t adc = _ads.readADC_SingleEnded(0);
   _bat_voltage = _ads.computeVolts(adc);
-  // log_i("Bat voltage: %f V", _bat_voltage);
 
   adc = _ads.readADC_SingleEnded(2);
   _ads_out_voltage = _ads.computeVolts(adc);
-  // log_i("Out voltage(ads): %f V", _ads_out_voltage);
 
-  _ina_out_voltage = _ina.getBusVoltage();
-  // log_i("Out voltage(ina): %f V", _ina_out_voltage);
+  _ina_bat_voltage = _ina.getBusVoltage();
+  _current_now = _ina.getCurrent();
+
+  // log_i("Bat voltage: %f V", _bat_voltage);
+  // log_i("Out voltage(ads): %f V", _ads_out_voltage);
+  // log_i("Out voltage(ina): %f V", _ina_bat_voltage);
+  // log_i("Charge curent: %f A", _current_now);
+  // log_i();
+}
+
+void BattChargerContext::updateReadingsUI()
+{
+  String volt_str = String(_bat_voltage);
+  volt_str += "V";
+  _voltage_lbl->setText(volt_str);
+
+  // -------------
+
+  String current_str = String(abs(_current_now), 3);
+  current_str += "A";
+  _current_lbl->setText(current_str);
+
+  // -------------
+
+  if (_stage_handler == &BattChargerContext::handleFinishStage)
+    return;
+}
+
+void BattChargerContext::updateBatCapacity()
+{
+  const double average_current = 0.5 * (static_cast<double>(_current_prev) + _current_now);
+  _current_prev = _current_now;
+
+  const uint32_t elapsed_ms = millis() - _readings_upd_ts;
+  _capacity_mah += fabs(average_current) * elapsed_ms / 3600.0;
+
+  String capacity_str = String(_capacity_mah);
+  capacity_str += "mAh";
+  _capacity_lbl->setText(capacity_str);
+}
+
+void BattChargerContext::updateChargingTime()
+{
+  const unsigned int total_time = millis() - _charg_start_ts;
+  String charge_time_str;
+
+  uint32_t minutes = floor(static_cast<float>(total_time) / 60000);
+  if (minutes < 100)
+    charge_time_str += "0";
+  if (minutes < 10)
+    charge_time_str += "0";
+  charge_time_str += String(minutes);
+
+  charge_time_str += ":";
+
+  uint32_t sec = static_cast<float>(total_time - minutes * 60000) / 1000;
+
+  if (sec < 10)
+    charge_time_str += "0";
+  charge_time_str += String(sec);
+
+  _charge_time_lbl->setText(charge_time_str);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
 
-void BattChargerContext::showChargeTmpl()  // TODO
+void BattChargerContext::showChargeTmpl()
 {
+  _state_handler = &BattChargerContext::handleChargeState;
+
+  EmptyLayout* layout = WidgetCreator::getEmptyLayout();
+  setLayout(layout);
+
+  // Поточна напруга акб
+  _voltage_lbl = new Label(ID_VOLTAGE_LBL);
+  layout->addWidget(_voltage_lbl);
+  _voltage_lbl->setText(STR_EMPTY_BAT);
+  _voltage_lbl->setFont(font_inr30);
+  _voltage_lbl->setWidth(UI_WIDTH / 2 - 5);
+  _voltage_lbl->setHeight((UI_HEIGHT - 16) / 4);
+  _voltage_lbl->setBackColor(COLOR_RED);
+  _voltage_lbl->setAlign(IWidget::ALIGN_CENTER);
+  _voltage_lbl->setGravity(IWidget::GRAVITY_CENTER);
+  _voltage_lbl->setCornerRadius(10);
+
+  // Поточний струм заряду
+  _current_lbl = _voltage_lbl->clone(ID_CURRENT_LBL);
+  layout->addWidget(_current_lbl);
+  _current_lbl->setPos(0, _voltage_lbl->getBottomYPos() + 5);
+  _current_lbl->setBackColor(COLOR_BLUE);
+  _current_lbl->setFont(font_inr24);
+
+  // Отриманий заряд
+  _capacity_lbl = _voltage_lbl->clone(ID_CAPACITY_LBL);
+  layout->addWidget(_capacity_lbl);
+  _capacity_lbl->setFont(font_10x20);
+  _capacity_lbl->setPos(_current_lbl->getXPos(), _current_lbl->getBottomYPos() + 5);
+  _capacity_lbl->setBackColor(COLOR_MAROON);
+
+  // Час заряджання
+  _charge_time_lbl = _capacity_lbl->clone(ID_CHARGE_TIME_LBL);
+  layout->addWidget(_charge_time_lbl);
+  _charge_time_lbl->setPos(_capacity_lbl->getXPos(), _capacity_lbl->getBottomYPos() + 5);
+  _charge_time_lbl->setBackColor(COLOR_DARKGREEN);
+
+  // Очікувана напруга
+  Label* max_voltage_lbl = _voltage_lbl->clone(ID_MAX_VOLTAGE_LBL);
+  layout->addWidget(max_voltage_lbl);
+  max_voltage_lbl->setFont(font_10x20);
+  max_voltage_lbl->setPos(_voltage_lbl->getRightXPos() + 5, _voltage_lbl->getYPos());
+  max_voltage_lbl->setBackColor(COLOR_LIGHTGREY);
+
+  String max_volt_str = "Max: ";
+  max_volt_str += _profile.max_voltage;
+  max_volt_str += "V";
+  max_voltage_lbl->setText(max_volt_str);
+
+  // Максимальний струм
+  Label* max_current_lbl = max_voltage_lbl->clone(ID_MAX_CURRENT_LBL);
+  layout->addWidget(max_current_lbl);
+  max_current_lbl->setPos(max_voltage_lbl->getXPos(), max_voltage_lbl->getBottomYPos() + 5);
+
+  String max_cur_str = "Max: ";
+  max_cur_str += _profile.max_current;
+  max_cur_str += "A";
+  max_current_lbl->setText(max_cur_str);
+
+  // Стан процесу
+  _charge_state_lbl = max_current_lbl->clone(ID_CHARG_STATE_LBL);
+  layout->addWidget(_charge_state_lbl);
+  _charge_state_lbl->setPos(max_current_lbl->getXPos(), max_current_lbl->getBottomYPos() + 5);
+  _charge_state_lbl->setText(STR_CHARGE_STAGE_SETUP);
+
+  setupCharging();
+}
+
+void BattChargerContext::setupCharging()
+{
+  _charg_start_ts = millis();
+  updateReadings();
+
+  // Струм протікає самостійно до початку заряджання
+  if (_current_now > MIN_WARNING_CURRENT)
+  {
+    log_e("Виявлено витік струму в стані спокою: %f A", _current_now);
+    showErrLabelTmpl(STR_ERR_MODULE_BROKEN);
+    return;
+  }
+
+  // Спеціально не скидаємо акумулятор ємності, щоб лишився результат попереднього заряджання
+  // до виходу з застосунку
+  // _capacity_mah = 0;
+
+  _current_prev = _current_now;
+
+  if (_bat_voltage >= _profile.max_voltage)
+  {
+    _charge_state_lbl->setText(STR_CHARGE_STAGE_STOPPED);
+    turnOffDcIn();
+    _stage_handler = &BattChargerContext::handleFinishStage;
+    return;
+  }
+
+  switch (_profile.batt_type)
+  {
+    case BATT_TYPE_LIP:
+      _min_voltage = MIN_VOLT_LIP;
+      _max_voltage = MAX_VOLT_LIP;
+      break;
+
+    case BATT_TYPE_HVLIP:
+      _min_voltage = MIN_VOLT_HVLIP;
+      _max_voltage = MAX_VOLT_HVLIP;
+      break;
+
+    case BATT_TYPE_LIFEPO:
+      _min_voltage = MIN_VOLT_LIFEPO;
+      _max_voltage = MAX_VOLT_LIFEPO;
+      break;
+
+    default:
+      log_e("Невідомий тип акумулятора");
+      esp_restart();
+      break;
+  }
+
   xTaskCreatePinnedToCore(wdt_task, "charg_wdt", 4 * 512, this, 10, &_wdt_task_handle, 0);
   if (!_wdt_task_handle)
   {
@@ -854,23 +1062,214 @@ void BattChargerContext::showChargeTmpl()  // TODO
     return;
   }
 
-  _state_handler = &BattChargerContext::handleChargeState;
+  turnOnDcIn();
+
+  _stage_handler = &BattChargerContext::handleVoltageLevelingStage;
 }
 
-void BattChargerContext::handleChargeState()  // TODO
+void BattChargerContext::handleChargeState()
 {
   _was_wdt_fed = true;
 
-  // if (_input.isPressed(BTN_BACK))
-  // {
-  //   vTaskDelete(_wdt_task_handle);
-  //  _wdt_task_handle = nullptr;
-  //   _readings_upd_ts = 0;
-  //   // turnOffLoad();
-  //   // turnOffFun();
-  //   showMainTmpl();
-  //   return;
-  // }
+  updateReadings();
+
+  if (!checkOutVoltageDiff())
+    return;
+
+  if (millis() - _readings_upd_ts > UPD_READINGS_DELAY_MS)
+  {
+    updateReadingsUI();
+
+    if (_is_working)
+    {
+      updateBatCapacity();
+      updateChargingTime();
+    }
+
+    _readings_upd_ts = millis();
+  }
+
+  (this->*_stage_handler)();
+
+  if (_input.isPressed(BTN_BACK))
+  {
+    if (_wdt_task_handle)
+    {
+      vTaskDelete(_wdt_task_handle);
+      _wdt_task_handle = nullptr;
+    }
+
+    turnOffDcIn();
+    showMainTmpl();
+    return;
+  }
+}
+
+void BattChargerContext::handleVoltageLevelingStage()
+{
+  if (_ads_out_voltage > _bat_voltage + MAX_VOLT_DEV)
+  {
+    incOutVoltagePwm(getPwmStepByDiff(_ads_out_voltage - _bat_voltage));
+  }
+  else if (_ads_out_voltage < _bat_voltage - MAX_VOLT_DEV)
+  {
+    decOutVoltagePwm(getPwmStepByDiff(_ads_out_voltage - _bat_voltage));
+  }
+  else
+  {
+    _dynamics_ts = millis();
+    _last_voltage_check = _bat_voltage;
+
+    turnOnDcOut();
+
+    _dynamics_ts = millis();
+    _last_voltage_check = _bat_voltage;
+
+    if (_bat_voltage < _min_voltage)
+    {
+      _charge_state_lbl->setText(STR_CHARGE_STAGE_REPAIR);
+      _stage_handler = &BattChargerContext::handlePrechargeStage;
+    }
+    else
+    {
+      _charge_state_lbl->setText(STR_CHARGE_STAGE_CHARGING);
+      _stage_handler = &BattChargerContext::handleChargeStage;
+    }
+  }
+}
+
+void BattChargerContext::handlePrechargeStage()
+{
+  if (!checkVoltageDynamics())
+    return;
+
+  if (_bat_voltage >= _min_voltage)
+  {
+    // Переходимо до основного заряджання
+    _charge_state_lbl->setText(STR_CHARGE_STAGE_CHARGING);
+    _stage_handler = &BattChargerContext::handleChargeStage;
+  }
+
+  // Заряджаємо струмом 1/10 від заданого користувачем
+  adjustCurrentTo(_profile.max_current * 0.1f);
+}
+
+void BattChargerContext::handleChargeStage()
+{
+  if (!checkVoltageDynamics())
+    return;
+
+  if (_bat_voltage >= _profile.max_voltage)
+  {
+    // Якщо напруга задана користувачем менша за максимальну для акума, просто завершуємо заряджання
+    if (_profile.max_voltage < _max_voltage)
+    {
+      _charge_state_lbl->setText(STR_CHARGE_STAGE_CHARGED);
+      turnOffDcIn();
+      _stage_handler = &BattChargerContext::handleFinishStage;
+      return;
+    }
+
+    // Переходимо до стадії стабілізації напруги
+    _dynamics_ts = millis();
+    _last_current_check = _current_now;
+    _charge_state_lbl->setText(STR_CHARGE_STAGE_STABILIZATION);
+    _stage_handler = &BattChargerContext::handleStabilizationStage;
+  }
+
+  adjustCurrentTo(_profile.max_current);
+}
+
+void BattChargerContext::handleStabilizationStage()
+{
+  if (!checkCurrentDynamics())
+    return;
+
+  if (_current_now < _profile.max_current * 0.1f)
+  {
+    _charge_state_lbl->setText(STR_CHARGE_STAGE_CHARGED);
+    turnOffDcIn();
+    _stage_handler = &BattChargerContext::handleFinishStage;
+    return;
+  }
+
+  stabilizeVoltage();
+}
+
+void BattChargerContext::handleFinishStage()
+{
+  // Stub
+}
+
+void BattChargerContext::stabilizeVoltage()
+{
+  if (_bat_voltage > _max_voltage + MAX_VOLT_DEV)
+    incOutVoltagePwm(1);
+  else if (_bat_voltage < _max_voltage - MAX_VOLT_DEV)
+    decOutVoltagePwm(1);
+}
+
+void BattChargerContext::adjustCurrentTo(float current)
+{
+  if (_current_now < 0.0f)
+  {
+    // Якщо акум розряджається в схему, одразу збільшуємо вихідну напругу
+    decOutVoltagePwm(20);
+    return;
+  }
+
+  float diff = current - _current_now;
+  float abs_diff = abs(diff);
+  if (abs_diff <= MAX_CUR_DEV)
+    return;
+
+  uint16_t pwm_step = 1;
+  if (abs_diff > 0.5f)
+    pwm_step = 20;
+  else if (abs_diff > 0.3f)
+    pwm_step = 10;
+  else if (abs_diff > 0.1f)
+    pwm_step = 5;
+
+  if (diff < 0)
+    incOutVoltagePwm(pwm_step);  // Струму забагато опускаємо вихідну напругу
+  else if (_bat_voltage < _max_voltage)
+    decOutVoltagePwm(pwm_step);  // Струму замало піднімаємо вихідну напругу
+}
+
+bool BattChargerContext::checkVoltageDynamics()
+{
+  if (millis() - _dynamics_ts < CHECK_INTERVAL_MS)
+    return true;
+
+  if ((_bat_voltage - _last_voltage_check) < MIN_VOLTAGE_GROWTH)
+  {
+    showErrLabelTmpl(STR_ERR_ACCUM_BROKEN);
+    return false;
+  }
+
+  _last_voltage_check = _bat_voltage;
+  _dynamics_ts = millis();
+
+  return true;
+}
+
+bool BattChargerContext::checkCurrentDynamics()
+{
+  if (millis() - _dynamics_ts < CHECK_INTERVAL_MS)
+    return true;
+
+  if (_current_now >= _last_current_check * 0.97f)  // Якщо струм майже не змінився або виріс
+  {
+    log_e("Струм не спадає у режимі CV. Можливо акумулятор зношений");
+    showErrLabelTmpl(STR_ERR_ACCUM_BROKEN);
+    return false;
+  }
+
+  _last_current_check = _current_now;
+  _dynamics_ts = millis();
+
+  return true;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -888,31 +1287,53 @@ void BattChargerContext::turnOffDcIn()
 
 void BattChargerContext::turnOnDcOut()
 {
+  _is_working = true;
   digitalWrite(PIN_DC_OUT_EN, HIGH);
 }
 
 void BattChargerContext::turnOffDcOut()
 {
+  _is_working = false;
   digitalWrite(PIN_DC_OUT_EN, LOW);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
 
-void BattChargerContext::incVoltagePwm()
+uint16_t BattChargerContext::getPwmStepByDiff(float voltage_diff)
 {
-  if (_vout_pwm_duty == MAX_VOUT_PWM_DUTY)
-    return;
+  float abs_diff = abs(voltage_diff);
 
-  ++_vout_pwm_duty;
+  if (abs_diff > 1.0f)
+    return 50;
+
+  if (abs_diff > 0.5f)
+    return 20;
+
+  if (abs_diff > 0.15f)
+    return 5;
+
+  return 1;
+}
+
+void BattChargerContext::incOutVoltagePwm(uint16_t inc_step)
+{
+  int next_val = _vout_pwm_duty + inc_step;
+  if (next_val > MAX_VOUT_PWM_DUTY)
+    _vout_pwm_duty = MAX_VOUT_PWM_DUTY;
+  else
+    _vout_pwm_duty += inc_step;
+
   ledcWrite(PIN_VOUT_PWM, _vout_pwm_duty);
 }
 
-void BattChargerContext::decVoltagePwm()
+void BattChargerContext::decOutVoltagePwm(uint16_t dec_step)
 {
-  if (_vout_pwm_duty == 0)
-    return;
+  int next_val = _vout_pwm_duty - dec_step;
+  if (next_val < 0)
+    _vout_pwm_duty = 0;
+  else
+    _vout_pwm_duty -= dec_step;
 
-  --_vout_pwm_duty;
   ledcWrite(PIN_VOUT_PWM, _vout_pwm_duty);
 }
 
@@ -920,31 +1341,36 @@ void BattChargerContext::decVoltagePwm()
 
 bool BattChargerContext::checkOutVoltageDiff()
 {
-  float volt_diff = std::abs(_ads_out_voltage - _ina_out_voltage);
-  if (volt_diff > MAX_VOLT_DIFF)
+  const float diff = abs(_bat_voltage - _ina_bat_voltage);
+
+  if (diff < MAX_VOLT_DIFF)
   {
-    log_e("Показники вихідної напруги INA219 та ADS відрізняються на %f В", volt_diff);
-    showErrLabelTmpl(STR_ERR_VOLT_DIFF);
-    return false;
+    if (_volt_alarm)
+    {
+      log_i("Напруги вирівнялись тривогу скинуто");
+      _volt_alarm = false;
+    }
+
+    return true;
   }
 
-  return true;
-}
+  // При першому виявленому відхиленні вмикаємо тривогу
+  if (!_volt_alarm)
+  {
+    _volt_alarm = true;
+    _volt_alarm_ts = millis();
+    log_i("Виявлено розбіжність напруги на датчиках %.3f В", diff);
+    return true;
+  }
 
-void BattChargerContext::updateReadings()  // TODO
-{
-}
+  // Тривога триває
+  if (millis() - _volt_alarm_ts < VOLT_ALARM_MS)
+    return true;
 
-void BattChargerContext::updateCapacity(float current)
-{
-}
-
-void BattChargerContext::updateChargeTime()
-{
-}
-
-void BattChargerContext::adjustOutVoltagePWM()
-{
+  // Час вийшов, а напруги так і не вирівнялись
+  log_e("Покази INA та ADS розходяться на %.3f В. Один з датчиків несправний", diff);
+  showErrLabelTmpl(STR_ERR_VOLT_DIFF);
+  return false;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -971,11 +1397,13 @@ const char* BattChargerContext::getNameByBattType(BatType batt_type)
 
 void BattChargerContext::wdt_task(void* arg)
 {
+  log_i("wdt_task працює");
+
   BattChargerContext* self = static_cast<BattChargerContext*>(arg);
 
   while (1)
   {
-    delay(WDT_CHECK_DELAY);
+    delay(WDT_CHECK_DELAY_MS);
     if (!self->_was_wdt_fed)
     {
       self->turnOffDcIn();
