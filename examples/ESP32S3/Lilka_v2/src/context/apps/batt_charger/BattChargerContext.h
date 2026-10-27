@@ -141,7 +141,7 @@ private:
   void turnOnDcOut();
   void turnOffDcOut();
 
-  uint16_t getPwmStepByDiff(float voltage_diff);
+  uint16_t getPwmStepByDiffVolt(float voltage_diff);
   void incOutVoltagePwm(uint16_t inc_step);
   void decOutVoltagePwm(uint16_t dec_step);
 
@@ -168,11 +168,10 @@ private:
   float _current_now = 0.0f;
   float _current_prev = 0.0f;
   float _ads_out_voltage = 0.0f;
-  float _ina_bat_voltage = 0.0f;
+  float _ina_out_voltage = 0.0f;
   float _bat_voltage = 0.0f;
 
   float _min_voltage = 0.0f;
-  float _max_voltage = 0.0f;
 
   float _last_voltage_check = 0.0f;
   float _last_current_check = 0.0f;

@@ -8,6 +8,8 @@ static const char STR_ERR_ADS[] = "ADS не відповідає";
 static const char STR_ERR_VOLT_DIFF[] = "Напруга на датчиках відрізняється";
 static const char STR_ERR_MODULE_BROKEN[] = "Модуль пошкоджено, негайно від'єднайте АКБ!";
 static const char STR_ERR_ACCUM_BROKEN[] = "АКБ не заряджаєтся коректно. Процесс зупинено дочасно";
+static const char STR_ERR_ACCUM_LOW_VOLT[] = "Мінімальна допустима напруга АКБ - 1.3В";
+static const char STR_ERR_ELECTRICITY_DISCONN[] = "Зафіксовано відключення електромережі";
 
 static const char STR_ITEM_RUN_PROFILE[] = "Розпочати заряджання";
 
@@ -58,7 +60,9 @@ static const float TEMP_PROF_MAX_VOLT = 4.2f;     // Максимальна на
 static const float TEMP_PROF_MAX_CURRENT = 0.1f;  // Максимальний струм тимчасового профіля
 static const float MIN_WARNING_CURRENT = 0.01f;   // Мінімальний струм спокою, при якому модуль вважається пошкодженим
 static const float MIN_VOLTAGE_GROWTH = 0.01f;    // Мінімальний приріст напруги за інтервал CHECK_INTERVAL_MS
-static const float MAX_CHARG_CURRENT = 2.0f;      // Максимально можливий струм заряду
+
+static const float MAX_CHARGE_CURRENT = 3.0f;
+static const float MIN_CHARGE_VOLT = 1.3f;
 
 static const float MAX_VOLT_LIP = 4.2f;
 static const float MAX_VOLT_HVLIP = 4.4f;
@@ -134,6 +138,9 @@ BattChargerContext::BattChargerContext() : _ina{INA_ADDR}, _profile{.max_voltage
     showErrLabelTmpl(STR_ERR_MODULE_BROKEN);
     return;
   }
+
+  if (!checkOutVoltageDiff())
+    return;
 
   showMainTmpl();
 }
@@ -746,7 +753,7 @@ void BattChargerContext::showProfileMaxCurrDialog()
   _spinbox->setType(SpinBox::TYPE_FLOAT);
   _spinbox->setStep(0.01f);
   _spinbox->setMin(0.01f);
-  _spinbox->setMax(MAX_CHARG_CURRENT);
+  _spinbox->setMax(MAX_CHARGE_CURRENT);
   _spinbox->setValue(_profile_edit.max_current);
   _spinbox->setWidth(130);
   _spinbox->setHeight(_spinbox->getHeight() + 5);
@@ -868,12 +875,12 @@ void BattChargerContext::updateReadings()
   adc = _ads.readADC_SingleEnded(2);
   _ads_out_voltage = _ads.computeVolts(adc);
 
-  _ina_bat_voltage = _ina.getBusVoltage();
+  _ina_out_voltage = _ina.getBusVoltage();
   _current_now = _ina.getCurrent();
 
   // log_i("Bat voltage: %f V", _bat_voltage);
   // log_i("Out voltage(ads): %f V", _ads_out_voltage);
-  // log_i("Out voltage(ina): %f V", _ina_bat_voltage);
+  // log_i("Out voltage(ina): %f V", _ina_out_voltage);
   // log_i("Charge curent: %f A", _current_now);
   // log_i();
 }
@@ -1023,6 +1030,13 @@ void BattChargerContext::setupCharging()
 
   _current_prev = _current_now;
 
+  if (_bat_voltage < MIN_CHARGE_VOLT)
+  {
+    log_e("%s. Поточна напруга: %f", STR_ERR_ACCUM_LOW_VOLT, _bat_voltage);
+    showErrLabelTmpl(STR_ERR_ACCUM_LOW_VOLT);
+    return;
+  }
+
   if (_bat_voltage >= _profile.max_voltage)
   {
     _charge_state_lbl->setText(STR_CHARGE_STAGE_STOPPED);
@@ -1035,17 +1049,14 @@ void BattChargerContext::setupCharging()
   {
     case BATT_TYPE_LIP:
       _min_voltage = MIN_VOLT_LIP;
-      _max_voltage = MAX_VOLT_LIP;
       break;
 
     case BATT_TYPE_HVLIP:
       _min_voltage = MIN_VOLT_HVLIP;
-      _max_voltage = MAX_VOLT_HVLIP;
       break;
 
     case BATT_TYPE_LIFEPO:
       _min_voltage = MIN_VOLT_LIFEPO;
-      _max_voltage = MAX_VOLT_LIFEPO;
       break;
 
     default:
@@ -1072,6 +1083,12 @@ void BattChargerContext::handleChargeState()
   _was_wdt_fed = true;
 
   updateReadings();
+
+  if (_is_working && _ads_out_voltage < 1.1f)
+  {
+    showErrLabelTmpl(STR_ERR_ELECTRICITY_DISCONN);
+    return;
+  }
 
   if (_is_working && !checkOutVoltageDiff())
     return;
@@ -1109,11 +1126,11 @@ void BattChargerContext::handleVoltageLevelingStage()
 {
   if (_ads_out_voltage > _bat_voltage + MAX_VOLT_DEV)
   {
-    incOutVoltagePwm(getPwmStepByDiff(_ads_out_voltage - _bat_voltage));
+    incOutVoltagePwm(getPwmStepByDiffVolt(_ads_out_voltage - _bat_voltage));
   }
   else if (_ads_out_voltage < _bat_voltage - MAX_VOLT_DEV)
   {
-    decOutVoltagePwm(getPwmStepByDiff(_ads_out_voltage - _bat_voltage));
+    decOutVoltagePwm(getPwmStepByDiffVolt(_ads_out_voltage - _bat_voltage));
   }
   else
   {
@@ -1161,15 +1178,6 @@ void BattChargerContext::handleChargeStage()
 
   if (_bat_voltage >= _profile.max_voltage)
   {
-    // Якщо напруга задана користувачем менша за максимальну для акума, просто завершуємо заряджання
-    if (_profile.max_voltage < _max_voltage)
-    {
-      _charge_state_lbl->setText(STR_CHARGE_STAGE_CHARGED);
-      turnOffDcIn();
-      _stage_handler = &BattChargerContext::handleFinishStage;
-      return;
-    }
-
     // Переходимо до стадії стабілізації напруги
     _dynamics_ts = millis();
     _last_current_check = _current_now;
@@ -1203,10 +1211,10 @@ void BattChargerContext::handleFinishStage()
 
 void BattChargerContext::stabilizeVoltage()
 {
-  if (_bat_voltage > _max_voltage + MAX_VOLT_DEV)
-    incOutVoltagePwm(1);
-  else if (_bat_voltage < _max_voltage - MAX_VOLT_DEV)
-    decOutVoltagePwm(1);
+  if (_bat_voltage > _profile.max_voltage + MAX_VOLT_DEV)
+    incOutVoltagePwm(getPwmStepByDiffVolt(_profile.max_voltage - _bat_voltage));
+  else if (_bat_voltage < _profile.max_voltage - MAX_VOLT_DEV)
+    decOutVoltagePwm(getPwmStepByDiffVolt(_profile.max_voltage - _bat_voltage));
 }
 
 void BattChargerContext::adjustCurrentTo(float current)
@@ -1233,7 +1241,7 @@ void BattChargerContext::adjustCurrentTo(float current)
 
   if (diff < 0)
     incOutVoltagePwm(pwm_step);  // Струму забагато опускаємо вихідну напругу
-  else if (_bat_voltage < _max_voltage)
+  else if (_bat_voltage < _profile.max_voltage)
     decOutVoltagePwm(pwm_step);  // Струму замало піднімаємо вихідну напругу
 }
 
@@ -1299,7 +1307,7 @@ void BattChargerContext::turnOffDcOut()
 
 // -----------------------------------------------------------------------------------------------------------------------
 
-uint16_t BattChargerContext::getPwmStepByDiff(float voltage_diff)
+uint16_t BattChargerContext::getPwmStepByDiffVolt(float voltage_diff)
 {
   float abs_diff = abs(voltage_diff);
 
@@ -1341,7 +1349,7 @@ void BattChargerContext::decOutVoltagePwm(uint16_t dec_step)
 
 bool BattChargerContext::checkOutVoltageDiff()
 {
-  const float diff = abs(_bat_voltage - _ina_bat_voltage);
+  const float diff = abs(_ads_out_voltage - _ina_out_voltage);
 
   if (diff < MAX_VOLT_DIFF)
   {
