@@ -3,6 +3,7 @@
 !library.json
 !partitions-s3.csv
 !platformio.ini
+!AGENTS.md
 
 !.gitignore
 !.clang-format
