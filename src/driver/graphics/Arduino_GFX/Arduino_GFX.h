@@ -173,7 +173,7 @@ public:
    * НЕ ЕФЕКТИВНЕ ДЛЯ МАЛИХ БЛОКІВ.
    * @param state
    */
-  void switchPPA(bool state);
+  void setPPA(bool state);
 
   /**
    * @brief Повертає стан активності PPA модуля.

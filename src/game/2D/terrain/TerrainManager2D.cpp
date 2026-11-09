@@ -95,9 +95,9 @@ namespace pixeler
         {
           bool old_state = _display.isPPAEnabled();
 
-          _display.switchPPA(true);
+          _display.setPPA(true);
           _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
-          _display.switchPPA(old_state);
+          _display.setPPA(old_state);
         }
         else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
@@ -111,9 +111,9 @@ namespace pixeler
       {
         bool old_state = _display.isPPAEnabled();
 
-        _display.switchPPA(true);
+        _display.setPPA(true);
         _display.drawBitmap(_back_img_x_off, _back_img_y_off, _back_img, _back_img_w, _back_img_h);
-        _display.switchPPA(old_state);
+        _display.setPPA(old_state);
       }
       else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
@@ -157,9 +157,9 @@ namespace pixeler
               {
                 bool old_state = _display.isPPAEnabled();
 
-                _display.switchPPA(true);
+                _display.setPPA(true);
                 _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
-                _display.switchPPA(old_state);
+                _display.setPPA(old_state);
               }
               else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
