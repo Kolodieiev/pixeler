@@ -122,7 +122,14 @@ namespace chess
 
   void IChessScene::buildTerrain()
   {
-    _terrain.setBackImg(SPRITE_CHESS_BOARD, SPRITE_CHESS_BOARD_SZ, SPRITE_CHESS_BOARD_SZ, COLOR_GREY, BOARD_IMG_GLOB_OFF_X, BOARD_IMG_GLOB_OFF_Y);
+    TerrainManager2D::ParallaxLayer board_layer =
+        TerrainManager2D::ParallaxLayer::makeStatic(SPRITE_CHESS_BOARD,
+                                                    SPRITE_CHESS_BOARD_SZ,
+                                                    SPRITE_CHESS_BOARD_SZ,
+                                                    BOARD_IMG_GLOB_OFF_X,
+                                                    BOARD_IMG_GLOB_OFF_Y);
+    _terrain.addParallaxLayer(board_layer);
+    _terrain.setBackColor(COLOR_GREY);
   }
 
   void IChessScene::createMainObj()

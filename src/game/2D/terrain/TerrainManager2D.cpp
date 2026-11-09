@@ -1,6 +1,8 @@
 #pragma GCC optimize("O3")
 #include "TerrainManager2D.h"
 
+// #include "../IGameScene2D.h"
+
 namespace pixeler
 {
   TerrainManager2D::~TerrainManager2D()
@@ -9,27 +11,7 @@ namespace pixeler
     freeTilesDescriptionData();
   }
 
-  uint16_t TerrainManager2D::getWidth() const
-  {
-    return _terrain_w;
-  }
-
-  uint16_t TerrainManager2D::getHeight() const
-  {
-    return _terrain_h;
-  }
-
-  uint16_t TerrainManager2D::getViewX() const
-  {
-    return _view_x;
-  }
-
-  uint16_t TerrainManager2D::getViewY() const
-  {
-    return _view_y;
-  }
-
-  void TerrainManager2D::setBackColorFill(bool state)
+  void TerrainManager2D::setBackColorFilling(bool state)
   {
     _has_back_color = state;
   }
@@ -59,18 +41,18 @@ namespace pixeler
     // X
     if (x < HALF_VIEW_W)
       _view_x = 0;
-    else if (x < _terrain_w - HALF_VIEW_W)
+    else if (x < _width - HALF_VIEW_W)
       _view_x = x - HALF_VIEW_W;
     else
-      _view_x = _terrain_w - VIEW_W;
+      _view_x = _width - VIEW_W;
 
     // Y
     if (y < HALF_VIEW_H)
       _view_y = 0;
-    else if (y < _terrain_h - HALF_VIEW_H)
+    else if (y < _height - HALF_VIEW_H)
       _view_y = y - HALF_VIEW_H;
     else
-      _view_y = _terrain_h - VIEW_H;
+      _view_y = _height - VIEW_H;
   }
 
   uint16_t TerrainManager2D::coordToTilePos(uint16_t coord) const
@@ -84,43 +66,27 @@ namespace pixeler
     return rounded_div;
   }
 
-  void TerrainManager2D::onDraw() const
+  void TerrainManager2D::onDraw()
   {
-    if (_back_img)
+    if (_has_back_color)
     {
-      if (_has_back_color)
-      {
 #if CONFIG_IDF_TARGET_ESP32P4
-        if (VIEW_W * VIEW_H > PPA_FILL_SIZE_TRIGG)
-        {
-          bool old_state = _display.isPPAEnabled();
-
-          _display.setPPA(true);
-          _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
-          _display.setPPA(old_state);
-        }
-        else
-#endif  // #if CONFIG_IDF_TARGET_ESP32P4
-        {
-          _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
-        }
-      }
-
-#if CONFIG_IDF_TARGET_ESP32P4
-      if (_back_img_w * _back_img_h > PPA_IMG_SIZE_TRIGG)
+      if (VIEW_W * VIEW_H > PPA_FILL_SIZE_TRIGG)
       {
         bool old_state = _display.isPPAEnabled();
 
         _display.setPPA(true);
-        _display.drawBitmap(_back_img_x_off, _back_img_y_off, _back_img, _back_img_w, _back_img_h);
+        _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
         _display.setPPA(old_state);
       }
       else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
       {
-        _display.drawBitmap(_back_img_x_off, _back_img_y_off, _back_img, _back_img_w, _back_img_h);
+        _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
       }
     }
+
+    renderParallax();
 
     if (_terrain)
     {
@@ -182,14 +148,72 @@ namespace pixeler
     }
   }
 
-  void TerrainManager2D::setBackImg(const uint16_t* img_data, uint16_t img_width, uint16_t img_height, uint16_t back_color, uint16_t x_offset, uint16_t y_offset)
+  void TerrainManager2D::renderParallax()
   {
-    _back_img = img_data;
-    _back_img_w = img_width;
-    _back_img_h = img_height;
-    _back_color = back_color;
-    _back_img_x_off = x_offset;
-    _back_img_y_off = y_offset;
+    if (_parallax_layers.empty())
+      return;
+
+#if CONFIG_IDF_TARGET_ESP32P4
+    const bool old_ppa_state = _display.isPPAEnabled();
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
+    for (auto& layer : _parallax_layers)
+    {
+      // Оновлюємо авторух по X (робимо це до перевірки по Y, щоб хмари рухались поза кадром)
+      if (layer.speed_x != 0.0f)
+      {
+        layer.accum_x += layer.speed_x;
+        if (layer.accum_x >= layer.width)
+          layer.accum_x -= layer.width;
+        else if (layer.accum_x <= -static_cast<float>(layer.width))
+          layer.accum_x += layer.width;
+      }
+
+      // Перевіряємо видимість по Y
+      int32_t draw_y = layer.offset_y - static_cast<int32_t>(_view_y * layer.scroll_ratio);
+      if (draw_y + layer.height <= 0 || draw_y >= VIEW_H)
+        continue;  // Шар повністю вище або нижче екрана
+
+#if CONFIG_IDF_TARGET_ESP32P4
+      // Обчислюємо один раз кількість видимих пікселів по висоті
+      const int32_t vis_y1 = draw_y < 0 ? 0 : draw_y;
+      const int32_t vis_y2 = draw_y + layer.height > VIEW_H ? VIEW_H : draw_y + layer.height;
+      const uint32_t vis_h = static_cast<uint32_t>(vis_y2 - vis_y1);
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
+      // Обчислюємо координати по X
+      int32_t raw_x = layer.offset_x - static_cast<int32_t>(_view_x * layer.scroll_ratio) + static_cast<int32_t>(layer.accum_x);
+
+      int32_t start_x = raw_x;
+      int32_t end_x = raw_x + 1;
+
+      if (layer.repeat_x)
+      {
+        start_x = raw_x % static_cast<int32_t>(layer.width);
+        if (start_x > 0)
+          start_x -= layer.width;
+        end_x = VIEW_W;
+      }
+
+      // Відмальовуємо видимі частини зображення
+      for (int32_t draw_x = start_x; draw_x < end_x; draw_x += layer.width)
+      {
+        if (draw_x + layer.width <= 0 || draw_x >= VIEW_W)
+          continue;
+
+#if CONFIG_IDF_TARGET_ESP32P4
+        int32_t vis_x1 = draw_x < 0 ? 0 : draw_x;
+        int32_t vis_x2 = draw_x + layer.width > VIEW_W ? VIEW_W : draw_x + layer.width;
+        _display.switchPPA((static_cast<uint32_t>(vis_x2 - vis_x1) * vis_h) > PPA_IMG_SIZE_TRIGG);
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
+        _display.drawBitmap(draw_x, draw_y, layer.img_data, layer.width, layer.height);
+      }
+    }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+    _display.switchPPA(old_ppa_state);
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
   }
 
   void TerrainManager2D::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_tmpl)
@@ -212,10 +236,10 @@ namespace pixeler
       esp_restart();
     }
 
-    _terrain_w = tiles_w_num * tile_side_len;
-    _terrain_h = tiles_h_num * tile_side_len;
+    _width = tiles_w_num * tile_side_len;
+    _height = tiles_h_num * tile_side_len;
 
-    if (_terrain_w < VIEW_W || _terrain_h < VIEW_H)
+    if (_width < VIEW_W || _height < VIEW_H)
     {
       log_e("Розмір ігрового рівня не може бути меншим за ViewPort");
       esp_restart();
@@ -267,7 +291,7 @@ namespace pixeler
                                  const PhysicsState& physics,
                                  const SpriteGeometry& geometry) const
   {
-    if (x_to > _terrain_w || y_to > _terrain_h || !_terrain)
+    if (x_to > _width || y_to > _height || !_terrain)
       return false;
 
     if (!physics.is_rigid)
@@ -355,7 +379,7 @@ namespace pixeler
 
   TileType TerrainManager2D::getTileType(uint16_t x, uint16_t y) const
   {
-    if (x > _terrain_w || y > _terrain_h || !_terrain)
+    if (x > _width || y > _height || !_terrain)
       return TILE_TYPE_NONE;
 
     uint16_t tile_y_pos = coordToTilePos(y);
@@ -371,7 +395,27 @@ namespace pixeler
     return true;
   }
 
-  void TerrainManager2D::addTileDesc(uint16_t sprite_id, TileType type, const uint16_t* sprite_src)
+  void TerrainManager2D::addParallaxLayer(const ParallaxLayer& layer)
+  {
+    _parallax_layers.emplace_back(layer);
+  }
+
+  void TerrainManager2D::clearParallaxLayers()
+  {
+    _parallax_layers.clear();
+  }
+
+  void TerrainManager2D::setBackColor(uint16_t color)
+  {
+    _back_color = color;
+  }
+
+  uint16_t TerrainManager2D::getBackColor() const
+  {
+    return _back_color;
+  }
+
+  void TerrainManager2D::addTileInfo(uint16_t sprite_id, TileType type, const uint16_t* sprite_src)
   {
     try
     {
@@ -385,7 +429,7 @@ namespace pixeler
     }
   }
 
-  void TerrainManager2D::clearTilesDesc()
+  void TerrainManager2D::clearTilesInfos()
   {
     freeTilesDescriptionData();
   }
