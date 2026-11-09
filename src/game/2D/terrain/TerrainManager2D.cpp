@@ -110,6 +110,11 @@ namespace pixeler
 
       int32_t temp_x_draw_pos = x_draw_pos;
 
+#if CONFIG_IDF_TARGET_ESP32P4
+      const bool old_state = _display.isPPAEnabled();
+      _display.setPPA(_tile_side_len * _tile_side_len > PPA_IMG_SIZE_TRIGG);
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
+
       for (uint16_t h = first_tile_y_pos; h < last_tile_y_pos; ++h)
       {
         for (uint16_t w = first_tile_x_pos; w < last_tile_x_pos; ++w)
@@ -117,26 +122,9 @@ namespace pixeler
           if (_terrain[h][w]->_type != TILE_TYPE_NONE)
           {
             if (!_terrain[h][w]->_has_transparency)
-            {
-#if CONFIG_IDF_TARGET_ESP32P4
-              if (_tile_side_len * _tile_side_len > PPA_IMG_SIZE_TRIGG)
-              {
-                bool old_state = _display.isPPAEnabled();
-
-                _display.setPPA(true);
-                _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
-                _display.setPPA(old_state);
-              }
-              else
-#endif  // #if CONFIG_IDF_TARGET_ESP32P4
-              {
-                _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
-              }
-            }
+              _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
             else
-            {
               _display.drawBitmapTransp(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
-            }
           }
 
           temp_x_draw_pos += _tile_side_len;
@@ -146,6 +134,10 @@ namespace pixeler
         y_draw_pos += _tile_side_len;
       }
     }
+
+#if CONFIG_IDF_TARGET_ESP32P4
+    _display.setPPA(old_state);
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
   }
 
   void TerrainManager2D::renderParallax()
