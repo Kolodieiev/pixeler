@@ -103,7 +103,7 @@ namespace pixeler
 
       const uint16_t* bmp_data = getBmpDataByID(tile_id);
       if (bmp_data)
-        terrain.addTileDesc(tile_id, getTileTypeByID(tile_id), bmp_data);
+        terrain.addTileInfo(tile_id, getTileTypeByID(tile_id), bmp_data);
     }
 
     terrain.build(_terrain_width, _terrain_height, tile_side_len, _terrain_tmpl);  // Побудувати мапу на основі даних шаблону

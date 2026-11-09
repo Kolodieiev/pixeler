@@ -95,24 +95,24 @@ namespace pixeler
         {
           if (obj != _main_obj)
           {
-            obj->_x_local = obj->_x_global - _terrain.getViewX();
-            obj->_y_local = obj->_y_global - _terrain.getViewY();
+            obj->_x_local = obj->_x_global - _terrain._view_x;
+            obj->_y_local = obj->_y_global - _terrain._view_y;
           }
           else
           {
             if (_main_obj->_x_global < _terrain.HALF_VIEW_W)
               _main_obj->_x_local = _main_obj->_x_global;
-            else if (_main_obj->_x_global < _terrain.getWidth() - _terrain.HALF_VIEW_W)
+            else if (_main_obj->_x_global < _terrain._width - _terrain.HALF_VIEW_W)
               _main_obj->_x_local = _terrain.HALF_VIEW_W;
             else
-              _main_obj->_x_local = _terrain.VIEW_W + _main_obj->_x_global - _terrain.getWidth();
+              _main_obj->_x_local = _terrain.VIEW_W + _main_obj->_x_global - _terrain._width;
 
             if (_main_obj->_y_global < _terrain.HALF_VIEW_H)
               _main_obj->_y_local = _main_obj->_y_global;
-            else if (_main_obj->_y_global < _terrain.getHeight() - _terrain.HALF_VIEW_H)
+            else if (_main_obj->_y_global < _terrain._height - _terrain.HALF_VIEW_H)
               _main_obj->_y_local = _terrain.HALF_VIEW_H;
             else
-              _main_obj->_y_local = _terrain.VIEW_H + _main_obj->_y_global - _terrain.getHeight();
+              _main_obj->_y_local = _terrain.VIEW_H + _main_obj->_y_global - _terrain._height;
           }
           view_objs.push_back(obj);
         }

@@ -578,8 +578,6 @@ namespace sokoban
         _input.setHoldLockTime(20);
       else
         _input.setHoldLockTime(HOLD_LOCK_TIME_MS);
-
-      _input.reset();
     }
 
     if (_is_ghost_selected)
@@ -658,8 +656,8 @@ namespace sokoban
   void SokobanScene::buildTerrain()
   {
     // Створити опис кожної плитки мапи.
-    _terrain.addTileDesc(0, TILE_TYPE_GROUND, IMG_TILE_0);
-    _terrain.addTileDesc(1, TILE_TYPE_WALL, IMG_TILE_1);
+    _terrain.addTileInfo(0, TILE_TYPE_GROUND, IMG_TILE_0);
+    _terrain.addTileInfo(1, TILE_TYPE_WALL, IMG_TILE_1);
 
     uint8_t tiles_x_num{LVL_SIZE[_level][0]};  // Кількість плиток мапи по ширині
     uint8_t tiles_y_num{LVL_SIZE[_level][1]};  // Кількість плиток мапи по висоті
