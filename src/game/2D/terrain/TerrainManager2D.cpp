@@ -73,11 +73,10 @@ namespace pixeler
 #if CONFIG_IDF_TARGET_ESP32P4
       if (VIEW_W * VIEW_H > PPA_FILL_SIZE_TRIGG)
       {
-        bool old_state = _display.isPPAEnabled();
-
+        const bool old_ppa_state = _display.isPPAEnabled();
         _display.setPPA(true);
         _display.fillRect(0, 0, VIEW_W, VIEW_H, _back_color);
-        _display.setPPA(old_state);
+        _display.setPPA(old_ppa_state);
       }
       else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
@@ -111,7 +110,7 @@ namespace pixeler
       int32_t temp_x_draw_pos = x_draw_pos;
 
 #if CONFIG_IDF_TARGET_ESP32P4
-      const bool old_state = _display.isPPAEnabled();
+      const bool old_ppa_state = _display.isPPAEnabled();
       _display.setPPA(_tile_side_len * _tile_side_len > PPA_IMG_SIZE_TRIGG);
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
 
@@ -133,11 +132,11 @@ namespace pixeler
         temp_x_draw_pos = x_draw_pos;
         y_draw_pos += _tile_side_len;
       }
-    }
 
 #if CONFIG_IDF_TARGET_ESP32P4
-    _display.setPPA(old_state);
+      _display.setPPA(old_ppa_state);
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
+    }
   }
 
   void TerrainManager2D::renderParallax()
@@ -196,7 +195,7 @@ namespace pixeler
 #if CONFIG_IDF_TARGET_ESP32P4
         int32_t vis_x1 = draw_x < 0 ? 0 : draw_x;
         int32_t vis_x2 = draw_x + layer.width > VIEW_W ? VIEW_W : draw_x + layer.width;
-        _display.switchPPA((static_cast<uint32_t>(vis_x2 - vis_x1) * vis_h) > PPA_IMG_SIZE_TRIGG);
+        _display.setPPA((static_cast<uint32_t>(vis_x2 - vis_x1) * vis_h) > PPA_IMG_SIZE_TRIGG);
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
 
         _display.drawBitmap(draw_x, draw_y, layer.img_data, layer.width, layer.height);
@@ -204,7 +203,7 @@ namespace pixeler
     }
 
 #if CONFIG_IDF_TARGET_ESP32P4
-    _display.switchPPA(old_ppa_state);
+    _display.setPPA(old_ppa_state);
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
   }
 
