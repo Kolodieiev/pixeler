@@ -49,7 +49,7 @@
 | **Lilka v2** | Alternative firmware built on Pixeler | [`examples/ESP32S3/Lilka_v2`](examples/ESP32S3/Lilka_v2) |
 | **pixeler4pc** | Ported GUI engine for fast desktop UI development | [`Kolodieiev/pixeler4pc`](https://github.com/Kolodieiev/pixeler4pc) |
 
-### 🚀 Quick Start (PlatformIO / Pioarduino)
+### 🚀 Quick Start (Pioarduino)
 
 Add Pixeler to your `platformio.ini` or explore the ready-to-build firmware projects in [`examples/`](examples/):
 
