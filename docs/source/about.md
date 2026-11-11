@@ -62,4 +62,4 @@
 
 Якщо ви знайшли баг у коді фреймворку або неточність у цій документації, будь ласка, створіть звернення в репозиторії проєкту:
 
-👉 [**Створити Issue на GitHub**](https://github.com/Kolodieiev/pixeler/issues/new)
+👉 <a href="https://github.com/Kolodieiev/pixeler/issues/new" target="_blank"><b>Створити issue на Github</b></a>
