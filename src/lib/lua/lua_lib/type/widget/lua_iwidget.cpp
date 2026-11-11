@@ -83,8 +83,8 @@ const char STR_COLOR_WHITE[] = "COLOR_WHITE";
 const char STR_COLOR_RED[] = "COLOR_RED";
 const char STR_COLOR_GREEN[] = "COLOR_GREEN";
 const char STR_COLOR_GREY[] = "COLOR_GREY";
-const char STR_COLOR_BLUE[] = "TFT_BLUE";
-const char STR_COLOR_YELLOW[] = "TFT_YELLOW";
+const char STR_COLOR_BLUE[] = "COLOR_BLUE";
+const char STR_COLOR_YELLOW[] = "COLOR_YELLOW";
 const char STR_COLOR_ORANGE[] = "COLOR_ORANGE";
 
 void init_color_constants(lua_State* L)
