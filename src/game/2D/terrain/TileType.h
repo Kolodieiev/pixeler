@@ -15,17 +15,19 @@ namespace pixeler
 {
   enum TileType : uint16_t
   {
-    TILE_TYPE_NONE = 0,             // none
-    TILE_TYPE_WALL = 1 << 0,        // wall
-    TILE_TYPE_GROUND = 1 << 1,      // ground
-    TILE_TYPE_WATER = 1 << 2,       // water
-    TILE_TYPE_AIR = 1 << 3,         // air
-    TILE_TYPE_FIRE = 1 << 4,        // fire
-    TILE_TYPE_SNOW = 1 << 5,        // snow
-    TILE_TYPE_MUD = 1 << 6,         // mud
-    TILE_TYPE_ROAD = 1 << 7,        // road
-    TILE_TYPE_TREE = 1 << 8,        // tree
-    TILE_TYPE_IMPASSABLE = 1 << 9,  // impass
+    TILE_TYPE_NONE = 0,               // none
+    TILE_TYPE_WALL = 1u << 0,         // wall
+    TILE_TYPE_GROUND = 1u << 1,       // ground
+    TILE_TYPE_WATER = 1u << 2,        // water
+    TILE_TYPE_AIR = 1u << 3,          // air
+    TILE_TYPE_FIRE = 1u << 4,         // fire
+    TILE_TYPE_SNOW = 1u << 5,         // snow
+    TILE_TYPE_MUD = 1u << 6,          // mud
+    TILE_TYPE_ROAD = 1u << 7,         // road
+    TILE_TYPE_TREE = 1u << 8,         // tree
+    TILE_TYPE_ICE = 1u << 9,          // ice
+    TILE_TYPE_LAVA = 1u << 10,        // lava
+    TILE_TYPE_IMPASSABLE = 1u << 15,  // impass
     TILE_TYPE_ALL = 0xFFFF
   };
 

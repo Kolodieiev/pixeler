@@ -27,6 +27,10 @@ namespace pixeler
       return TILE_TYPE_ROAD;
     if (len == 4 && strncmp(&str[start], "tree", 4) == 0)
       return TILE_TYPE_TREE;
+    if (len == 4 && strncmp(&str[start], "ice", 3) == 0)
+      return TILE_TYPE_ICE;
+    if (len == 4 && strncmp(&str[start], "lava", 4) == 0)
+      return TILE_TYPE_LAVA;
     if (len == 6 && strncmp(&str[start], "impass", 6) == 0)
       return TILE_TYPE_IMPASSABLE;
 
