@@ -39,7 +39,7 @@ namespace pixeler
     /**
      * @brief Збирає поверхню сцени на основі завантажених раніше даних.
      *
-     * @param terrain Менеджер поверхні сцени.
+     * @param terrain Вказівник на об'єкт поверхні сцени.
      * @param tile_side_len Розмір однієї зі сторін плитки, з яких формується поточна поверхня.
      */
     void buildTerrain(Terrain2D& terrain, uint16_t tile_side_len);
