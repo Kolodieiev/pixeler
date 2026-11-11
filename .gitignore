@@ -21,3 +21,6 @@
 
 !mock/
 !mock/**
+
+!.github/
+!.github/**
