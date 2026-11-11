@@ -35,6 +35,6 @@ sudo apt install python3-venv xz-utils liblzma-dev
 
 Щоб не витрачати час на постійну компіляцію та перепрошивання мікроконтролера під час верстки екранів і налаштування віджетів, рекомендується скористатися портованою на Linux графічною частиною фреймворку:
 
-👉 [**Репозиторій Pixeler4PC на GitHub**](https://github.com/Kolodieiev/pixeler4pc)
+👉 <a href="https://github.com/Kolodieiev/pixeler4pc" target="_blank"><b>Репозиторій Pixeler4PC на GitHub</b></a>
 
 Створений у `Pixeler4PC` код макетів та віджетів можна без змін переносити в основну прошивку мікроконтролера.
