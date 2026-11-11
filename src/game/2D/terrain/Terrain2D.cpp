@@ -1,22 +1,22 @@
 #pragma GCC optimize("O3")
-#include "TerrainManager2D.h"
+#include "Terrain2D.h"
 
 // #include "../IGameScene2D.h"
 
 namespace pixeler
 {
-  TerrainManager2D::~TerrainManager2D()
+  Terrain2D::~Terrain2D()
   {
     freeMem();
     freeTilesDescriptionData();
   }
 
-  void TerrainManager2D::setBackColorFilling(bool state)
+  void Terrain2D::setBackColorFilling(bool state)
   {
     _has_back_color = state;
   }
 
-  void TerrainManager2D::freeMem()
+  void Terrain2D::freeMem()
   {
     if (!_terrain)
       return;
@@ -28,7 +28,7 @@ namespace pixeler
     _terrain = nullptr;
   }
 
-  void TerrainManager2D::freeTilesDescriptionData()
+  void Terrain2D::freeTilesDescriptionData()
   {
     for (auto it = _tile_descr.begin(), last_it = _tile_descr.end(); it != last_it; ++it)
       delete it->second;
@@ -36,7 +36,7 @@ namespace pixeler
     _tile_descr.clear();
   }
 
-  void TerrainManager2D::setCameraPos(uint16_t x, uint16_t y)
+  void Terrain2D::setCameraPos(uint16_t x, uint16_t y)
   {
     // X
     if (x < HALF_VIEW_W)
@@ -55,7 +55,7 @@ namespace pixeler
       _view_y = _height - VIEW_H;
   }
 
-  uint16_t TerrainManager2D::coordToTilePos(uint16_t coord) const
+  uint16_t Terrain2D::coordToTilePos(uint16_t coord) const
   {
     float temp_float_div = (float)coord / _tile_side_len;
     uint16_t rounded_div = round(temp_float_div);
@@ -66,7 +66,7 @@ namespace pixeler
     return rounded_div;
   }
 
-  void TerrainManager2D::onDraw()
+  void Terrain2D::onDraw()
   {
     if (_has_back_color)
     {
@@ -139,7 +139,7 @@ namespace pixeler
     }
   }
 
-  void TerrainManager2D::renderParallax()
+  void Terrain2D::renderParallax()
   {
     if (_parallax_layers.empty())
       return;
@@ -207,7 +207,7 @@ namespace pixeler
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
   }
 
-  void TerrainManager2D::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_tmpl)
+  void Terrain2D::build(uint16_t tiles_w_num, uint16_t tiles_h_num, uint16_t tile_side_len, const uint16_t* tiles_pos_tmpl)
   {
     if (tiles_w_num == 0 || tiles_h_num == 0 || tile_side_len == 0 || !tiles_pos_tmpl)
     {
@@ -275,7 +275,7 @@ namespace pixeler
     }
   }
 
-  bool TerrainManager2D::canPass(uint16_t x_from,
+  bool Terrain2D::canPass(uint16_t x_from,
                                  uint16_t y_from,
                                  uint16_t x_to,
                                  uint16_t y_to,
@@ -368,7 +368,7 @@ namespace pixeler
     return false;
   }
 
-  TileType TerrainManager2D::getTileType(uint16_t x, uint16_t y) const
+  TileType Terrain2D::getTileType(uint16_t x, uint16_t y) const
   {
     if (x > _width || y > _height || !_terrain)
       return TILE_TYPE_NONE;
@@ -378,7 +378,7 @@ namespace pixeler
     return _terrain[tile_y_pos][tile_x_pos]->_type;
   }
 
-  bool TerrainManager2D::isInView(uint16_t x_pos, uint16_t y_pos, uint16_t sprite_w, uint16_t sprite_h) const
+  bool Terrain2D::isInView(uint16_t x_pos, uint16_t y_pos, uint16_t sprite_w, uint16_t sprite_h) const
   {
     if (x_pos + sprite_w < _view_x || y_pos + sprite_h < _view_y || x_pos > _view_x + VIEW_W || y_pos > _view_y + VIEW_H)
       return false;
@@ -386,27 +386,27 @@ namespace pixeler
     return true;
   }
 
-  void TerrainManager2D::addParallaxLayer(const ParallaxLayer& layer)
+  void Terrain2D::addParallaxLayer(const ParallaxLayer& layer)
   {
     _parallax_layers.emplace_back(layer);
   }
 
-  void TerrainManager2D::clearParallaxLayers()
+  void Terrain2D::clearParallaxLayers()
   {
     _parallax_layers.clear();
   }
 
-  void TerrainManager2D::setBackColor(uint16_t color)
+  void Terrain2D::setBackColor(uint16_t color)
   {
     _back_color = color;
   }
 
-  uint16_t TerrainManager2D::getBackColor() const
+  uint16_t Terrain2D::getBackColor() const
   {
     return _back_color;
   }
 
-  void TerrainManager2D::addTileInfo(uint16_t sprite_id, TileType type, const uint16_t* sprite_src)
+  void Terrain2D::addTileInfo(uint16_t sprite_id, TileType type, const uint16_t* sprite_src)
   {
     try
     {
@@ -420,7 +420,7 @@ namespace pixeler
     }
   }
 
-  void TerrainManager2D::clearTilesInfos()
+  void Terrain2D::clearTilesInfos()
   {
     freeTilesDescriptionData();
   }

@@ -5,7 +5,7 @@
 
 #include <unordered_map>
 
-#include "TerrainManager2D.h"
+#include "Terrain2D.h"
 #include "TileType.h"
 #include "defines.h"
 #include "manager/ResManager.h"
@@ -42,7 +42,7 @@ namespace pixeler
      * @param terrain Менеджер поверхні сцени.
      * @param tile_side_len Розмір однієї зі сторін плитки, з яких формується поточна поверхня.
      */
-    void buildTerrain(TerrainManager2D& terrain, uint16_t tile_side_len);
+    void buildTerrain(Terrain2D& terrain, uint16_t tile_side_len);
 
   private:
     String loadFile(const char* path);

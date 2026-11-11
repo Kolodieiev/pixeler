@@ -22,7 +22,7 @@
 #include "IGameObject2D.h"
 #include "sprite/SpriteTemplate.h"
 #include "terrain/TerrainLoader2D.h"
-#include "terrain/TerrainManager2D.h"
+#include "terrain/Terrain2D.h"
 
 namespace pixeler
 {
@@ -232,7 +232,7 @@ namespace pixeler
     void processPostedTasks();
 
   protected:
-    TerrainManager2D _terrain;  // Самий нижній шар сцени
+    Terrain2D _terrain;  // Самий нижній шар сцени
     SfxPlayer _sfx_player;      // Плеєр звукових ефектів
     ResManager _res_manager;    // Менеджер ресурсів
   private:

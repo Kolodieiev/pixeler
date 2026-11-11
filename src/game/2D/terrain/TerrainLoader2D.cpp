@@ -87,7 +87,7 @@ namespace pixeler
     _is_terrain_loaded = false;
   }
 
-  void TerrainLoader2D::buildTerrain(TerrainManager2D& terrain, uint16_t tile_side_len)
+  void TerrainLoader2D::buildTerrain(Terrain2D& terrain, uint16_t tile_side_len)
   {
     if (!_is_terrain_loaded)
     {

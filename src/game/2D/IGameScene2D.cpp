@@ -9,7 +9,7 @@ namespace pixeler
   uint32_t IGameScene2D::_obj_id_counter = 0;
 
   IGameScene2D::IGameScene2D(DataStream& stored_objs)
-      : _terrain{TerrainManager2D()},
+      : _terrain{Terrain2D()},
         _stored_objs{stored_objs},
         _task_queue{xQueueCreate(SCENE_TASK_QUEUE_DEPTH, sizeof(std::function<void()>*))}
 

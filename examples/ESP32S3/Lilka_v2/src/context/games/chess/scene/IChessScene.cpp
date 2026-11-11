@@ -122,8 +122,8 @@ namespace chess
 
   void IChessScene::buildTerrain()
   {
-    TerrainManager2D::ParallaxLayer board_layer =
-        TerrainManager2D::ParallaxLayer::makeStatic(SPRITE_CHESS_BOARD,
+    Terrain2D::ParallaxLayer board_layer =
+        Terrain2D::ParallaxLayer::makeStatic(SPRITE_CHESS_BOARD,
                                                     SPRITE_CHESS_BOARD_SZ,
                                                     SPRITE_CHESS_BOARD_SZ,
                                                     BOARD_IMG_GLOB_OFF_X,

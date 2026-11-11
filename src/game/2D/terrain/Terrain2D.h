@@ -1,6 +1,5 @@
 #pragma once
 #pragma GCC optimize("O3")
-#include <cmath>
 #include <unordered_map>
 
 #include "../sprite/PhysicsState.h"
@@ -13,7 +12,7 @@ namespace pixeler
 {
   class IGameScene2D;
 
-  class TerrainManager2D
+  class Terrain2D
   {
   public:
     struct ParallaxLayer
@@ -126,18 +125,18 @@ namespace pixeler
 
 //
 #ifdef GRAPHICS_ENABLED
-    TerrainManager2D() : VIEW_W{UI_WIDTH},
+    Terrain2D() : VIEW_W{UI_WIDTH},
                          VIEW_H{UI_HEIGHT},
                          HALF_VIEW_W{static_cast<uint16_t>(UI_WIDTH * 0.5f)},
                          HALF_VIEW_H{static_cast<uint16_t>(UI_HEIGHT * 0.5f)} {}
 #else
     // Заглушка, щоб не видаляти рушій, якщо графіку вимкнуто
-    TerrainManager2D() : VIEW_W{10},
+    Terrain2D() : VIEW_W{10},
                          VIEW_H{10},
                          HALF_VIEW_W{static_cast<uint16_t>(5)},
                          HALF_VIEW_H{static_cast<uint16_t>(5)} {}
 #endif  // #ifdef GRAPHICS_ENABLED
-    ~TerrainManager2D();
+    ~Terrain2D();
 
     /**
      * @brief Додає новий шар з зображенням, який буде відмальовуватися
