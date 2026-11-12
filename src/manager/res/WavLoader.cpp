@@ -33,7 +33,7 @@ namespace pixeler
       return nullptr;
     }
 
-    size_t bytes_read = _fs.readFile(path, data, header.data_size, sizeof(WavHeader));
+    const size_t bytes_read = _fs.readFile(path, data, header.data_size, sizeof(WavHeader));
 
     if (bytes_read != header.data_size)
     {
