@@ -5,7 +5,10 @@
 
 namespace pixeler
 {
-  IResource::IResource(const String& name, void* data, ResType type) : _data{data}, _RES_TYPE{type}, _NAME_LEN{name.length()}
+  IResource::IResource(const String& name, void* data, size_t data_size, ResType type) : _data{data},
+                                                                                         _DATA_SIZE{data_size},
+                                                                                         _RES_TYPE{type},
+                                                                                         _NAME_LEN{name.length()}
   {
     if (psramInit())
       _name = static_cast<char*>(ps_malloc(_NAME_LEN + 1));
@@ -14,7 +17,7 @@ namespace pixeler
 
     if (!_name)
     {
-      log_e("Помилка виділення буферу");
+      log_e("Помилка виділення буферу ресурса");
       esp_restart();
     }
 
@@ -36,6 +39,11 @@ namespace pixeler
   const void* IResource::getData() const
   {
     return _data;
+  }
+
+  const size_t IResource::getDataSize() const
+  {
+    return _DATA_SIZE;
   }
 
   IResource::ResType IResource::getType() const

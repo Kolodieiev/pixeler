@@ -8,7 +8,8 @@ namespace pixeler
   class ImageResource : public IResource
   {
   public:
-    ImageResource(const char* name, void* data, uint16_t width, uint16_t height) : IResource(name, data, TYPE_IMAGE), _WIDTH{width}, _HEIGHT{height}
+    ImageResource(const char* name, void* data, size_t data_size, uint16_t width, uint16_t height)
+        : IResource(name, data, data_size, TYPE_IMAGE), _WIDTH{width}, _HEIGHT{height}
     {
     }
 

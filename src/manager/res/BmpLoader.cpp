@@ -36,12 +36,12 @@ namespace pixeler
       return nullptr;
     }
     //
-    bool is_flipped = bmp_header.height > 0;
+    const bool is_flipped = bmp_header.height > 0;
 
-    uint16_t width = static_cast<uint16_t>(bmp_header.width);
-    uint16_t height = static_cast<uint16_t>(abs(bmp_header.height));
+    const uint16_t width = static_cast<uint16_t>(bmp_header.width);
+    const uint16_t height = static_cast<uint16_t>(abs(bmp_header.height));
     //
-    size_t data_size = static_cast<size_t>(width * height * 2);
+    const size_t data_size = static_cast<size_t>(width * height * 2);
     //
     uint8_t* data = static_cast<uint8_t*>(ps_malloc(data_size));
     if (!data)
@@ -87,7 +87,7 @@ namespace pixeler
     }
 
     const char* res_name = name ? name : path;
-    return new ImageResource(res_name, data, width, height);
+    return new ImageResource(res_name, data, data_size, width, height);
   }
 
   bool BmpLoader::saveBmp(BmpHeader& header, const uint16_t* buff, const char* path_to_bmp, bool swap_data_bytes)
