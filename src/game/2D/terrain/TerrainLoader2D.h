@@ -54,8 +54,6 @@ namespace pixeler
     const uint16_t* getBmpDataByID(uint16_t tile_id);
 
   private:
-    ResManager _res_manager;
-
     std::unordered_map<uint16_t, TileType> _tile_type_data;
     std::unordered_map<uint16_t, uint32_t> _terr_bmp_data;
 

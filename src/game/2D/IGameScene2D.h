@@ -21,8 +21,8 @@
 #include "../ui/IGameUI.h"
 #include "IGameObject2D.h"
 #include "sprite/SpriteTemplate.h"
-#include "terrain/TerrainLoader2D.h"
 #include "terrain/Terrain2D.h"
+#include "terrain/TerrainLoader2D.h"
 
 namespace pixeler
 {
@@ -232,9 +232,8 @@ namespace pixeler
     void processPostedTasks();
 
   protected:
-    Terrain2D _terrain;  // Самий нижній шар сцени
-    SfxPlayer _sfx_player;      // Плеєр звукових ефектів
-    ResManager _res_manager;    // Менеджер ресурсів
+    Terrain2D _terrain;     // Самий нижній шар сцени
+    SfxPlayer _sfx_player;  // Плеєр звукових ефектів
   private:
     std::unordered_map<uint16_t, SpriteTemplate> _sprite_templates;  // Мапа зв'язування шаблонів спрайтів з типами ігрових об'єктів
 
