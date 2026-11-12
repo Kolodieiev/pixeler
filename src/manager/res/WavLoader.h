@@ -1,3 +1,7 @@
+/**
+ * @file WavLoader.h
+ * @brief Завантажувач звукових файлів формату WAV (16-bit PCM).
+ */
 #pragma once
 #pragma GCC optimize("O3")
 
@@ -39,6 +43,14 @@ namespace pixeler
     WavLoader() {}
     virtual ~WavLoader() override {}
 
+    /**
+     * @brief Зчитує WAV-файл із носія, перевіряє коректність його заголовка
+     * та завантажує секцію аудіоданих у пам'ять.
+     *
+     * @param path Шлях до .wav файлу у файловій системі.
+     * @param name Необов'язкове символьне ім'я для створеного аудіоресурсу.
+     * @return AudioResource* Вказівник на завантажений звуковий ресурс, або nullptr у разі помилки.
+     */
     virtual AudioResource* load(const char* path, const char* name = nullptr) override;
 
   private:

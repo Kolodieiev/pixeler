@@ -1,3 +1,7 @@
+/**
+ * @file IResLoader.h
+ * @brief Базовий інтерфейс для завантажувачів ресурсів різних форматів.
+ */
 #pragma once
 #pragma GCC optimize("O3")
 #include <stdint.h>
@@ -14,11 +18,12 @@ namespace pixeler
     virtual ~IResLoader() = 0;
 
     /**
-     * @brief Завантажує ресурс з диску.
+     * @brief Завантажує ресурс із файлової системи в оперативну пам'ять.
      *
-     * @param path Шлях до ресурса на диску.
-     * @return IResource* - Якщо ресурс успішно розпізнано та завантажено.
-     * @return nullptr - Інакше.
+     * @param path Шлях до файлу ресурсу на диску.
+     * @param name Необов'язкове символьне ім'я, яке буде присвоєно створеному ресурсу.
+     * @return IResource* Вказівник на створений ресурс, якщо файл успішно розпізнано та завантажено.
+     * @return nullptr У разі помилки читання або невідповідності формату.
      */
     virtual IResource* load(const char* path, const char* name = nullptr) = 0;
 
