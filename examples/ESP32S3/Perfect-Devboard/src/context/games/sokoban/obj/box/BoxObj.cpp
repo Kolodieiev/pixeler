@@ -72,33 +72,6 @@ namespace sokoban
     _x_global = x;
     _y_global = y;
 
-    // Відтворення звуку по його ідентфікатору //TODO переписати відповідно до нового менеджера ресурсів
-
-    // int start = 0;
-    // int end = 4;
-
-    // // Отримати випадковий звук переміщення
-    // uint8_t track_ID = rand() % (end - start + 1) + start;
-    // WavData *s_data = _res_manager.getWav(track_ID);
-
-    // if (s_data && s_data->size > 0)
-    // {
-    //     SFX *track = new SFX(s_data->data_ptr, s_data->size);
-    //     track->setVolume(4);
-
-    //     if (!track)
-    //     {
-    //         log_e("Помилка виділення пам'яті");
-    //         esp_restart();
-    //     }
-
-    //     _sfx_player.addSFX(track);
-    // }
-    // else
-    // {
-    //     log_e("Звукові дані з таким ID{%d} відсутні", track_ID);
-    // }
-
     return true;
   }
 }  // namespace sokoban

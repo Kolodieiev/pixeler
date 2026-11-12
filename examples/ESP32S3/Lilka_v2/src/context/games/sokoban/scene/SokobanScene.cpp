@@ -703,15 +703,5 @@ namespace sokoban
 
   void SokobanScene::loadFX()
   {
-    // std::unordered_map<uint16_t, const char *> fx_descr;
-    // // Підготувати список звукових файлів, які необхідно завантажити
-    // fx_descr.insert(std::pair<uint16_t, const char *>(FX_ID_STEP_1, FX_PATH_STEP_1));
-    // fx_descr.insert(std::pair<uint16_t, const char *>(FX_ID_STEP_2, FX_PATH_STEP_2));
-    // fx_descr.insert(std::pair<uint16_t, const char *>(FX_ID_STEP_3, FX_PATH_STEP_3));
-    // fx_descr.insert(std::pair<uint16_t, const char *>(FX_ID_STEP_4, FX_PATH_STEP_4));
-    // fx_descr.insert(std::pair<uint16_t, const char *>(FX_ID_STEP_5, FX_PATH_STEP_5));
-
-    // // Завантажити звукові дані до менеджера ресурсів
-    // _res_manager.loadWavs(fx_descr);
   }
 }  // namespace sokoban
