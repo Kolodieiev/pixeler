@@ -8,13 +8,14 @@
 - Do not delete files or code, or create commits, without explicit approval.
 
 ## Naming Conventions
-- `I` prefix: abstract types (e.g. `IWidget`).
-- `__` prefix: methods not intended for direct user calls (e.g. `__tick()`).
-- `_` prefix: global objects or fields (e.g. `_fs`).
-- `UPPER_SNAKE_CASE`: macros, definitions, and constants.
-- `UpperCamelCase`: types.
-- `lowerCamelCase`: methods.
-- `snake_case`: variables and type fields.
+- `I` prefix: abstract types / interfaces (e.g. `IWidget`).
+- `__` prefix: internal/system methods not intended for direct user calls (e.g. `__tick()`).
+- `_` + `snake_case`: global objects or mutable class fields (e.g. `_fs`, `_menu`).
+- `_` + `UPPER_SNAKE_CASE`: `const` (immutable) class member fields initialized via constructor (e.g. `_LENGTH`, `_RES_TYPE`).
+- `UPPER_SNAKE_CASE`: macros, `enum` values, and compile-time constants (e.g. `UI_WIDTH`).
+- `UpperCamelCase`: concrete types (classes, structs, enums).
+- `lowerCamelCase`: public and protected methods.
+- `snake_case`: local variables, function parameters, and plain struct fields.
 - Use clear, conventional, self-explanatory names familiar to programmers.
 
 ## Code Quality and Resources
