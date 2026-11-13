@@ -17,7 +17,6 @@
 #include <WiFiClientSecure.h>
 #include <driver/i2s_std.h>
 #include <esp32-hal-log.h>
-#include <esp_arduino_version.h>
 #include <libb64/cencode.h>
 
 #include <atomic>
@@ -76,8 +75,6 @@ protected:
 
 class Audio : private AudioBuffer
 {
-  AudioBuffer InBuff;  // instance of input buffer
-
 public:
   Audio();
   ~Audio();
@@ -515,7 +512,6 @@ private:
   // ——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
 private:
-  const char* codecname[8] = {"unknown", "WAV", "MP3", "AAC", "M4A", "FLAC", "AACP", "OGG"};
   enum : int
   {
     APLL_AUTO = -1,
@@ -596,24 +592,13 @@ private:
     LEFTCHANNEL = 0,
     RIGHTCHANNEL = 1
   } SampleIndex;
-  typedef enum
-  {
-    LOWSHELF = 0,
-    PEAKEQ = 1,
-    HIFGSHELF = 2
-  } FilterType;
 
-  typedef struct _filter
-  {
-    float a0;
-    float a1;
-    float a2;
-    float b1;
-    float b2;
-  } filter_t;
+  static constexpr size_t TS_PACKET_SIZE = 188;
+  static constexpr size_t PID_ARRAY_LEN = 4;
 
-#define TS_PACKET_SIZE 188
-#define PID_ARRAY_LEN 4
+  AudioBuffer InBuff;  // instance of input buffer
+  const char* codecname[8] = {"unknown", "WAV", "MP3", "AAC", "M4A", "FLAC", "AACP", "OGG"};
+
   typedef struct _pis_array
   {
     int number;
@@ -751,7 +736,6 @@ private:
   char* m_lastM3U8host = NULL;
   char* m_playlistBuff = NULL;             // stores playlistdata
   const uint16_t m_plsBuffEntryLen = 256;  // length of each entry in playlistBuff
-  filter_t m_filter[3];                    // digital filters
   int m_LFcount = 0;                       // Detection of end of header
   uint32_t m_sampleRate = 16000;
   uint32_t m_bitRate = 0;        // current bitrate given fom decoder
@@ -773,7 +757,6 @@ private:
   uint8_t m_m3u8Codec = CODEC_AAC;         // codec of m3u8 stream
   uint8_t m_expectedCodec = CODEC_NONE;    // set in connecttohost (e.g. http://url.mp3 -> CODEC_MP3)
   uint8_t m_expectedPlsFmt = FORMAT_NONE;  // set in connecttohost (e.g. streaming01.m3u) -> FORMAT_M3U)
-  uint8_t m_filterType[2];                 // lowpass, highpass
   uint8_t m_streamType = ST_NONE;
   uint8_t m_ID3Size = 0;  // lengt of ID3frame - ID3header
   uint8_t m_vulvl = 0;    // average value of samples, left channel
@@ -845,11 +828,9 @@ private:
   uint8_t m_f_channelEnabled = 3;  //
   uint32_t m_audioFileDuration = 0;
   float m_audioCurrentTime = 0;
-  uint32_t m_audioDataStart = 0;   // in bytes
-  size_t m_audioDataSize = 0;      //
-  float m_filterBuff[3][2][2][2];  // IIR filters memory for Audio DSP
-  float m_corr = 1.0;              // correction factor for level adjustment
-  size_t m_i2s_bytesWritten = 0;   // set in i2s_write() but not used
+  uint32_t m_audioDataStart = 0;  // in bytes
+  size_t m_audioDataSize = 0;     //
+  size_t m_i2s_bytesWritten = 0;  // set in i2s_write() but not used
 
   MP3Decoder mp3_decoder;
   FlacDecoder flac_decoder;
