@@ -26,7 +26,7 @@
 using namespace pixeler;
 
 typedef struct
-{  // --- EntityMap Definition ---
+{
   const char* name;
   uint32_t codepoint;
 } EntityMap;
@@ -293,14 +293,6 @@ bool Audio::begin()
 
   m_sampleRate = 44100;
 
-  for (int i = 0; i < 3; i++)
-  {
-    m_filter[i].a0 = 1;
-    m_filter[i].a1 = 0;
-    m_filter[i].a2 = 0;
-    m_filter[i].b1 = 0;
-    m_filter[i].b2 = 0;
-  }
   computeLimit();  // first init, vol = 21, vol_steps = 21
 
   return _i2s_out.init(m_sampleRate);
@@ -425,6 +417,7 @@ void Audio::setDefaults()
   m_ID3Size = 0;
   m_haveNewFilePos = 0;
   m_validSamples = 0;
+  playchunk_count = 0;
   m_M4A_chConfig = 0;
   m_M4A_objectType = 0;
   m_M4A_sampleRate = 0;
@@ -1142,8 +1135,6 @@ exit:
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void Audio::htmlToUTF8(char* str)
 {  // convert HTML to UTF-8
-
-  // --- EntityMap Lookup ---
   auto find_entity = [&](const char* p, uint32_t* codepoint, int* entity_len)
   {
     for (size_t i = 0; i < sizeof(entities) / sizeof(entities[0]); i++)
@@ -2533,8 +2524,6 @@ uint32_t Audio::stopSong()
     _fs.closeFile(_audio_file);
   }
 
-  memset(m_filterBuff, 0, sizeof(m_filterBuff));  // Clear FilterBuffer
-
   if (m_codec == CODEC_MP3)
     mp3_decoder.freeBuffers();
   else if (m_codec == CODEC_AAC)
@@ -2566,6 +2555,7 @@ bool Audio::pauseResume()
     {
       memset(m_outBuff, 0, m_outbuffSize * sizeof(int16_t));  // Clear OutputBuffer
       m_validSamples = 0;
+      playchunk_count = 0;
     }
   }
   return retVal;
@@ -2618,12 +2608,9 @@ void Audio::playChunk()
   m_validSamples -= i2s_bytesConsumed / SAMPLE_SIZE;
   playchunk_count += i2s_bytesConsumed / 2;
 
-  if (m_validSamples < 0)
+  if (m_validSamples < 0 || m_validSamples == 0)
   {
     m_validSamples = 0;
-  }
-  else if (m_validSamples == 0)
-  {
     playchunk_count = 0;
   }
 }
@@ -3351,15 +3338,6 @@ const char* Audio::parsePlaylist_M3U8()
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const char* Audio::m3u8redirection(uint8_t* codec)
 {
-  // example: redirection
-  // #EXTM3U
-  // #EXT-X-STREAM-INF:BANDWIDTH=117500,AVERAGE-BANDWIDTH=117000,CODECS="mp4a.40.2"
-  // 112/playlist.m3u8?hlssid=7562d0e101b84aeea0fa35f8b963a174
-  // #EXT-X-STREAM-INF:BANDWIDTH=69500,AVERAGE-BANDWIDTH=69000,CODECS="mp4a.40.5"
-  // 64/playlist.m3u8?hlssid=7562d0e101b84aeea0fa35f8b963a174
-  // #EXT-X-STREAM-INF:BANDWIDTH=37500,AVERAGE-BANDWIDTH=37000,CODECS="mp4a.40.29"
-  // 32/playlist.m3u8?hlssid=7562d0e101b84aeea0fa35f8b963a174
-
   if (!m_lastHost)
   {
     log_e("m_lastHost is NULL");
@@ -3422,17 +3400,6 @@ const char* Audio::m3u8redirection(uint8_t* codec)
     }
   }
 
-  // if((!endsWith(m_playlistContent[choosenLine], "m3u8") && indexOf(m_playlistContent[choosenLine], "m3u8?") == -1)) {
-  //     // we have a new m3u8 playlist, skip to next line
-  //     int pos = indexOf(m_playlistContent[choosenLine - 1], "CODECS=\"mp4a", 18);
-  //     if(pos < 0) { // not found
-  //         int pos1 = indexOf(m_playlistContent[choosenLine - 1], "CODECS=", 18);
-  //         if(pos1 < 0) pos1 = 0;
-  //         log_e("codec %s in m3u8 playlist not supported", m_playlistContent[choosenLine - 1] + pos1);
-  //         goto exit;
-  //     }
-  // }
-
   if (!startsWith(m_playlistContent[choosenLine], "http"))
   {
     // http://livees.com/prog_index.m3u8 and prog_index48347.aac -->
@@ -3477,39 +3444,7 @@ const char* Audio::m3u8redirection(uint8_t* codec)
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 uint64_t Audio::m3u8_findMediaSeqInURL()
-{  // We have no clue what the media sequence is
-   /*
-   myList:     #EXTM3U
-               #EXT-X-VERSION:3
-               #EXT-X-TARGETDURATION:4
-               #EXT-X-MEDIA-SEQUENCE:227213779
-               #EXT-X-DISCONTINUITY-SEQUENCE:0
-               #EXTINF:3.008,
-               #MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316100954"
-               media-ur748eh1d_b192000_227213779.aac
-               #EXTINF:3.008,
-               #MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316100957"
-               media-ur748eh1d_b192000_227213780.aac
-               #EXTINF:3.008,
-               #MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101000"
-               media-ur748eh1d_b192000_227213781.aac
-               #EXTINF:3.008,
-               #MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101003"
-               media-ur748eh1d_b192000_227213782.aac
-               #EXTINF:3.008,
-               #MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101006"
-               media-ur748eh1d_b192000_227213783.aac
-               #EXTINF:3.008,
-               #MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101009"
-               media-ur748eh1d_b192000_227213784.aac
- 
-   result:     m_linesWithSeqNr[0] = #EXTINF:3.008,#MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316100954"media-ur748eh1d_b192000_227213779.aac
-               m_linesWithSeqNr[1] = #EXTINF:3.008,#MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316100957"media-ur748eh1d_b192000_227213780.aac
-               m_linesWithSeqNr[2] = #EXTINF:3.008,#MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101000"media-ur748eh1d_b192000_227213781.aac
-               m_linesWithSeqNr[3] = #EXTINF:3.008,#MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101003"media-ur748eh1d_b192000_227213782.aac
-               m_linesWithSeqNr[4] = #EXTINF:3.008,#MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101006"media-ur748eh1d_b192000_227213783.aac
-               m_linesWithSeqNr[5] = #EXTINF:3.008,#MY-USER-CHUNK-DATA-1:ON-TEXT-DATA="20250316101009"media-ur748eh1d_b192000_227213784.aac */
-
+{
   std::vector<char*> m_linesWithSeqNr;
   bool addNextLine = false;
   int idx = -1;
@@ -3596,13 +3531,6 @@ uint64_t Audio::m3u8_findMediaSeqInURL()
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 bool Audio::STfromEXTINF(char* str)
 {
-  // the result is copied in chbuf!!
-  // extraxt StreamTitle from m3u #EXTINF line to icy-format
-  // orig: #EXTINF:10,title="text="TitleName",artist="ArtistName"
-  // conv: StreamTitle=TitleName - ArtistName
-  // orig: #EXTINF:10,title="text=\"Spot Block End\" amgTrackId=\"9876543\"",artist=" ",url="length=\"00:00:00\""
-  // conv: StreamTitle=text=\"Spot Block End\" amgTrackId=\"9876543\" -
-
   int t1, t2, t3, n0 = 0, n1 = 0, n2 = 0;
 
   t1 = indexOf(str, "title", 0);
@@ -3695,21 +3623,34 @@ void Audio::processLocalFile()
     return;
   }
 
-  availableBytes = InBuff.writeSpace();
-  bytesAddedToBuffer = _fs.readFromFile(_audio_file, InBuff.getWritePtr(), availableBytes);
-
-  if (bytesAddedToBuffer > 0)
+  if (!m_f_allDataReceived)
   {
-    loc_byteCounter += bytesAddedToBuffer;
-    InBuff.bytesWritten(bytesAddedToBuffer);
-  }
+    size_t currentFilePos = _fs.getPos(_audio_file);
+    if (currentFilePos < _file_size)
+    {
+      size_t bytesLeftInFile = _file_size - currentFilePos;
+      availableBytes = min((size_t)InBuff.writeSpace(), bytesLeftInFile);
 
-  if (m_audioDataSize && loc_byteCounter >= m_audioDataSize)
-  {
-    if (!m_f_allDataReceived)
+      if (availableBytes > 0)
+      {
+        bytesAddedToBuffer = _fs.readFromFile(_audio_file, InBuff.getWritePtr(), availableBytes);
+        if (bytesAddedToBuffer > 0)
+        {
+          loc_byteCounter += bytesAddedToBuffer;
+          InBuff.bytesWritten(bytesAddedToBuffer);
+        }
+      }
+
+      if (_fs.getPos(_audio_file) >= _file_size)
+      {
+        m_f_allDataReceived = true;
+      }
+    }
+    else
+    {
       m_f_allDataReceived = true;
+    }
   }
-  // log_e("byteCounter %u >= m_audioDataSize %u, m_f_allDataReceived % i", byteCounter, m_audioDataSize, m_f_allDataReceived);
 
   if (loc_newFilePos)
   {  // we have a new file position
@@ -3792,7 +3733,7 @@ void Audio::processLocalFile()
         }
         if (!m_audioDataSize)
           m_audioDataSize = _file_size;
-        loc_byteCounter = getFilePos();
+        loc_byteCounter = getFilePos() - m_audioDataStart;
       }
       return;
     }
@@ -5990,7 +5931,6 @@ void Audio::reconfigI2S()
 
   _i2s_out.reconfigSampleRate(sample_rate);
 
-  memset(m_filterBuff, 0, sizeof(m_filterBuff));  // Clear FilterBuffer
   return;
 }
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -6895,24 +6835,6 @@ void Audio::seek_m4a_ilst()
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void Audio::seek_m4a_stsz()
 {
-  // stsz says what size each sample is in bytes. This is important for the decoder to be able to start at a chunk,
-  // and then go through each sample by its size. The stsz atom can be behind the audio block. Therefore, searching
-  // for the stsz atom is only applicable to local files.
-
-  /* atom hierarchy (example)_________________________________________________________________________________________
-
-    ftyp -> moov -> trak -> tkhd
-            free    udta    mdia -> mdhd
-            mdat                    hdlr
-            mvhd                    minf -> smhd
-                                            dinf
-                                            stbl -> stsd
-                                                    stts
-                                                    stsc
-                                                    stsz -> determine and return the position and number of entries
-                                                    stco
-    __________________________________________________________________________________________________________________*/
-
   struct m4a_Atom
   {
     int pos;
@@ -6920,7 +6842,6 @@ void Audio::seek_m4a_stsz()
     char name[5] = {0};
   } atom, at, tmp;
 
-  // c99 has no inner functions, lambdas are only allowed from c11, please don't use ancient compiler
   auto atomItems = [&](uint32_t startPos) {  // lambda, inner function
     _fs.seekPos(_audio_file, startPos);
     char temp[5] = {0};
