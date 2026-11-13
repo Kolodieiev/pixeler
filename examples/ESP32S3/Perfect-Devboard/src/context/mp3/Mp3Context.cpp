@@ -33,7 +33,7 @@ static const char STR_STOPPED[] = "Зупинено";
 bool Mp3Context::loop()
 {
   _audio.loop();
-  if (_is_vu_metr_en)
+  if (_is_vu_metr_en && _audio.isRunning())
     updateVU(_audio.getVUlevel());
   return true;
 }
@@ -682,6 +682,7 @@ bool Mp3Context::playTrack(bool contn)
   String track_path = getTrackPath(_playlist_name.c_str(), _track_name.c_str());
   if (_track_name.endsWith(AUDIO_RADIO_EXT))
   {
+    setCpuFrequency(FREQ_MAX);
     String station_link = _fs.readFileToStr(track_path);
     station_link.trim();
     result = _audio.connecttohost(station_link.c_str());
@@ -689,6 +690,7 @@ bool Mp3Context::playTrack(bool contn)
   }
   else
   {
+    setCpuFrequency(FREQ_BALANCED);
     result = _audio.connecttoFS(track_path.c_str());
     _is_radio_mode = false;
   }
@@ -753,6 +755,8 @@ void Mp3Context::setStopState()
   _cur_track_time_lbl->setText(STR_ZERO_TRACK_TIME);
   _gen_track_time_lbl->setText(STR_ZERO_TRACK_TIME);
   _progress->reset();
+
+  setCpuFrequency(FREQ_BALANCED);
 }
 
 bool Mp3Context::updateTrackDuration()
