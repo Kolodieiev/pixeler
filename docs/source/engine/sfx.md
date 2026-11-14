@@ -72,8 +72,6 @@
 
 Менеджер автоматично визначає тип файлу за його розширенням (`.wav` або `.bmp`), викликає відповідний завантажувач (`WavLoader` або `BmpLoader`) і повертає унікальний числовий ідентифікатор ресурсу (`uint32_t res_id > 0`). Додатково ресурсу можна присвоїти текстове ім'я (`res_name`), щоб пізніше знаходити або видаляти його за назвою.
 
-Для роботи зі звуком отриманий ресурс `const IResource*` приводиться до похідного типу **`const AudioResource*`** (`#include "res/AudioResource.h"`), який надає вказівник на сирі аудіодані (`getData()`) та їхню довжину в байтах (`getLen()`):
-
 ```cpp
 #include "manager/ResManager.h"
 #include "res/AudioResource.h"
@@ -100,8 +98,7 @@ void MyGameScene::initAudio()
   }
 
   // Або отримуємо ресурс за його текстовим іменем ("hit")
-  uint32_t out_id = 0;
-  const IResource* res_hit = _res.getResByName("hit", out_id);
+  const IResource* res_hit = _res.getResByName("hit");
   if (res_hit && res_hit->getType() == IResource::TYPE_AUDIO)
   {
     // Створюємо еталонний шаблон для короткого звуку удару
