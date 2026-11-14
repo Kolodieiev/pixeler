@@ -1,9 +1,9 @@
 #pragma GCC optimize("O3")
 #include "ResManager.h"
 
-#include "util/string_util.h"
 #include "res/BmpLoader.h"
 #include "res/WavLoader.h"
+#include "util/string_util.h"
 
 namespace pixeler
 {
@@ -49,7 +49,7 @@ namespace pixeler
     _resources.erase(it);
   }
 
-  const IResource* ResManager::getResByName(const char* res_name, uint32_t& out_id) const
+  const IResource* ResManager::getResByName(const char* res_name) const
   {
     if (!res_name)
     {
@@ -60,10 +60,7 @@ namespace pixeler
     for (const auto& it : _resources)
     {
       if (it.second->hasName(res_name))
-      {
-        out_id = it.first;
         return it.second;
-      }
     }
 
     log_e("Не знайдено ресурс з іменем: %s", res_name);

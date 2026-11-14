@@ -37,10 +37,9 @@ namespace pixeler
      * @brief Знаходить раніше завантажений ресурс за його символьним іменем.
      *
      * @param res_name Ім'я ресурсу, вказане під час завантаження.
-     * @param out_id Вихідний параметр, у який буде записано числовий ідентифікатор знайденого ресурсу.
      * @return const IResource* Вказівник на ресурс, або nullptr, якщо ресурс із таким іменем не знайдено.
      */
-    const IResource* getResByName(const char* res_name, uint32_t& out_id) const;
+    const IResource* getResByName(const char* res_name) const;
 
     /**
      * @brief Знаходить раніше завантажений ресурс за його числовим ідентифікатором.
