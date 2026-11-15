@@ -363,11 +363,10 @@ namespace pixeler
 
   bool IWidget::hitTest(uint16_t x, uint16_t y) const
   {
-    if (_parent)
-      return (x > _parent->getXPos() + _x_pos && x < _parent->getXPos() + _x_pos + _width) &&
-          (y > _parent->getYPos() + _y_pos && y < _parent->getYPos() + _y_pos + _height);
-    else
-      return (x > _x_pos && x < _x_pos + _width) && (y > _y_pos && y < _y_pos + _height);
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
+
+    return (x > abs_x && x < abs_x + _width) && (y > abs_y && y < abs_y + _height);
   }
 
   void IWidget::setTouchable(bool state)
