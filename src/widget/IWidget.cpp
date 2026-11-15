@@ -346,6 +346,7 @@ namespace pixeler
   void IWidget::setTransparency(bool state)
   {
     _is_transparent = state;
+    _is_changed = true;
   }
 
   bool IWidget::isTransparent() const
