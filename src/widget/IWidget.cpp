@@ -84,7 +84,7 @@ namespace pixeler
     _is_changed = true;
   }
 
-  void IWidget::clear(bool keep_border)
+  void IWidget::clear()
   {
     if (_is_transparent)
       return;
@@ -97,7 +97,7 @@ namespace pixeler
 #if CONFIG_IDF_TARGET_ESP32P4
       if (static_cast<uint32_t>(_width) * _height > PPA_FILL_SIZE_TRIGG)
       {
-        bool old_state = _display.isPPAEnabled();
+        const bool old_state = _display.isPPAEnabled();
         _display.setPPA(true);
         _display.fillRect(abs_x, abs_y, _width, _height, _back_color);
         _display.setPPA(old_state);
@@ -109,14 +109,14 @@ namespace pixeler
       }
 
       _need_clear_border = false;
-      if (keep_border && _has_border)
+      if (_has_border)
         _display.drawRect(abs_x, abs_y, _width, _height, _border_color);
     }
     else
     {
       _display.fillRoundRect(abs_x, abs_y, _width, _height, _corner_radius, _back_color);
 
-      if (keep_border && _has_border)
+      if (_has_border)
       {
         _display.drawRoundRect(abs_x, abs_y, _width, _height, _corner_radius, _border_color);
       }
