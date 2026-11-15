@@ -232,7 +232,7 @@ namespace pixeler
 
   uint16_t Label::calcXStrOffset(uint16_t str_pix_num) const
   {
-    if (_width - RESERVE_PIX_WIDTH <= str_pix_num + _h_padding * 2)
+    if (_width <= str_pix_num + _h_padding * 2 + RESERVE_PIX_WIDTH)
       return 1;
 
     if (_has_autoscroll)
@@ -243,7 +243,7 @@ namespace pixeler
       case ALIGN_START:
         return _h_padding + 1;
       case ALIGN_CENTER:
-        return static_cast<uint16_t>((static_cast<float>(_width - str_pix_num)) / 2);
+        return (_width - str_pix_num) / 2;
       case ALIGN_END:
         return _width - str_pix_num - _h_padding - RESERVE_PIX_WIDTH / 2;
       default:
