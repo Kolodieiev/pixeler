@@ -62,7 +62,7 @@ namespace pixeler
       INVISIBLE,
     };
 
-    IWidget(uint16_t widget_ID, TypeID type_ID, bool is_container = false);
+    IWidget(uint16_t widget_ID, TypeID type_ID);
     virtual ~IWidget() = 0;
 
     /**

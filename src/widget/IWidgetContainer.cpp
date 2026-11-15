@@ -3,7 +3,7 @@
 
 namespace pixeler
 {
-  IWidgetContainer::IWidgetContainer(uint16_t widget_ID, TypeID type_ID) : IWidget(widget_ID, type_ID, true) {}
+  IWidgetContainer::IWidgetContainer(uint16_t widget_ID, TypeID type_ID) : IWidget(widget_ID, type_ID) {}
 
   IWidgetContainer::~IWidgetContainer()
   {

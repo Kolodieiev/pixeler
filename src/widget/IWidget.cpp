@@ -3,8 +3,8 @@
 
 namespace pixeler
 {
-  IWidget::IWidget(uint16_t widget_ID, TypeID type_ID, bool is_container) : _id{widget_ID},
-                                                                            _type_ID{type_ID}
+  IWidget::IWidget(uint16_t widget_ID, TypeID type_ID) : _id{widget_ID},
+                                                         _type_ID{type_ID}
 
   {
     if (widget_ID == 0)
