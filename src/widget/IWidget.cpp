@@ -71,6 +71,9 @@ namespace pixeler
 
   void IWidget::setBorder(bool state)
   {
+    if (_has_border && !state)
+      _need_clear_border = true;
+
     _has_border = state;
     _is_changed = true;
   }
@@ -86,47 +89,41 @@ namespace pixeler
     if (_is_transparent)
       return;
 
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
-
-    if (_parent)
-    {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-    }
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
     if (_corner_radius == 0)
     {
 #if CONFIG_IDF_TARGET_ESP32P4
-      if (_width * _height > PPA_FILL_SIZE_TRIGG)
+      if (static_cast<uint32_t>(_width) * _height > PPA_FILL_SIZE_TRIGG)
       {
         bool old_state = _display.isPPAEnabled();
-
         _display.setPPA(true);
-        _display.fillRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _back_color);
+        _display.fillRect(abs_x, abs_y, _width, _height, _back_color);
         _display.setPPA(old_state);
       }
       else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
       {
-        _display.fillRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _back_color);
+        _display.fillRect(abs_x, abs_y, _width, _height, _back_color);
       }
 
+      _need_clear_border = false;
       if (keep_border && _has_border)
-        _display.drawRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _border_color);
+        _display.drawRect(abs_x, abs_y, _width, _height, _border_color);
     }
     else
     {
-      _display.fillRoundRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _corner_radius, _back_color);
+      _display.fillRoundRect(abs_x, abs_y, _width, _height, _corner_radius, _back_color);
 
       if (keep_border && _has_border)
       {
-        _display.drawRoundRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _corner_radius, _border_color);
+        _display.drawRoundRect(abs_x, abs_y, _width, _height, _corner_radius, _border_color);
       }
       else if (_need_clear_border)
       {
         _need_clear_border = false;
-        _display.drawRoundRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _corner_radius, _back_color);
+        _display.drawRoundRect(abs_x, abs_y, _width, _height, _corner_radius, _back_color);
       }
     }
   }
@@ -136,27 +133,22 @@ namespace pixeler
     if (_is_transparent)
       return;
 
-    uint16_t back_color{0};
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
-
-    if (_parent)
-    {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-      back_color = _parent->getBackColor();
-    }
+    const uint16_t back_color = _parent ? _parent->getBackColor() : COLOR_BLACK;
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
     if (_corner_radius == 0)
-      _display.fillRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, back_color);
+    {
+      _display.fillRect(abs_x, abs_y, _width, _height, back_color);
+    }
     else
     {
       if (_has_border || _need_clear_border)
       {
         _need_clear_border = false;
-        _display.drawRoundRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _corner_radius, back_color);
+        _display.drawRoundRect(abs_x, abs_y, _width, _height, _corner_radius, back_color);
       }
-      _display.fillRoundRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _corner_radius, back_color);
+      _display.fillRoundRect(abs_x, abs_y, _width, _height, _corner_radius, back_color);
     }
   }
 
