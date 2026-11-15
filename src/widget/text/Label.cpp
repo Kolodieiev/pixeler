@@ -35,11 +35,7 @@ namespace pixeler
     clone->_is_reverse_autoscroll = _is_reverse_autoscroll;
 
     clone->setText(_text);
-
-    if (_back_img)
-    {
-      clone->_back_img = _back_img->clone(_back_img->getID());
-    }
+    clone->_back_img = _back_img;
   }
 
   Label* Label::clone(uint16_t id) const
