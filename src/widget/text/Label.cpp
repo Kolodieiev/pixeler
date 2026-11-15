@@ -516,26 +516,14 @@ namespace pixeler
 
     if (_temp_width > 0)
     {
-      if (_temp_width > _width)
-      {
-        _width = _temp_width;
-        clear();
-      }
-      else
-      {
-        clear(false);
-        _width = _temp_width;
+      if (_temp_width < _width)
+        hide();
 
-        if (_has_border)
-          clear();
-      }
-
+      _width = _temp_width;
       _temp_width = 0;
     }
-    else
-    {
-      clear();
-    }
+
+    clear();
 
     _display.setTextColor(_text_color);
 
