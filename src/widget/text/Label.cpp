@@ -392,43 +392,41 @@ namespace pixeler
 
   uint16_t Label::getFitStr(String& ret_str, uint16_t start_pos) const
   {
-    if (_text.isEmpty())
-    {
-      ret_str = "";
+    ret_str = "";
+
+    if (_text.isEmpty() || start_pos >= _text_len)
       return 0;
-    }
 
-    uint16_t len = _text.length();
-
-    if (start_pos >= len)
-    {
-      ret_str = "";
+    const uint16_t avail_width = _h_padding * 2 + 2;
+    if (_width <= avail_width)
       return 0;
-    }
 
-    const uint8_t* ch_str_p8 = reinterpret_cast<uint8_t*>(const_cast<char*>(_text.c_str()));
+    const uint16_t max_text_width = _width - avail_width;
+    const uint16_t byte_len = _text.length();
+    const uint8_t* ch_str_p8 = reinterpret_cast<const uint8_t*>(_text.c_str());
+
     uint16_t cur_byte_pos = charPosToByte(ch_str_p8, start_pos);
-    const uint16_t start_byte_pos{cur_byte_pos};
+    const uint16_t start_byte_pos = cur_byte_pos;
+    uint16_t last_valid_byte_pos = start_byte_pos;
 
     uint16_t pix_sum{0};
-    uint16_t chars_counter{0};
-
     int16_t x1, y1;
     uint16_t w, h;
     String new_str;
-    while (cur_byte_pos < len)
+
+    while (cur_byte_pos < byte_len)
     {
-      uint32_t code = utf8ToUnicode(ch_str_p8, cur_byte_pos, len - cur_byte_pos);
+      const uint32_t code = utf8ToUnicode(ch_str_p8, cur_byte_pos, byte_len - cur_byte_pos);
       if (code == 0)
         continue;
 
       new_str = _text.substring(start_byte_pos, cur_byte_pos);
       _display.calcTextBounds(new_str.c_str(), 0, 0, x1, y1, w, h);
 
-      if (w < _width - _h_padding * 2 - 2)
+      if (w < max_text_width)
       {
         pix_sum = w;
-        ++chars_counter;
+        last_valid_byte_pos = cur_byte_pos;
       }
       else
       {
@@ -436,7 +434,8 @@ namespace pixeler
       }
     }
 
-    ret_str = getSubStr(_text, start_pos, chars_counter);
+    if (last_valid_byte_pos > start_byte_pos)
+      ret_str = _text.substring(start_byte_pos, last_valid_byte_pos);
 
     return pix_sum;
   }
