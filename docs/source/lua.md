@@ -413,7 +413,7 @@ end
 
 | Клас (`initType`) | Успадковує | Доступні методи в Lua |
 | :--- | :--- | :--- |
-| **`IWidget`** | — *(базовий)* | `setPos(x, y)`, `getXPos()`, `getYPos()`, `setWidth(w)`, `getWidth()`, `setHeight(h)`, `getHeight()`, `getID()`, `setBackColor(c)`, `setCornerRadius(r)`, `setBorder(bool)`, `setBorderColor(c)`, `setChangingBorder(bool)`, `setChangingBack(bool)`, `setFocusBorderColor(c)`, `setFocusBackColor(c)`, `setFocus()`, `removeFocus()`, `setVisibility(v)`, `setTransparency(bool)`, `drawForced()` |
+| **`IWidget`** | — *(базовий)* | `setPos(x, y)`, `getXPos()`, `getYPos()`, `setWidth(w)`, `getWidth()`, `setHeight(h)`, `getHeight()`, `getID()`, `setBackColor(c)`, `setCornerRadius(r)`, `setBorder(bool)`, `setBorderColor(c)`, `setChangingBorder(bool)`, `setChangingBack(bool)`, `setFocusBorderColor(c)`, `setFocusBackColor(c)`, `setFocus()`, `removeFocus()`, `setVisibility(v)`, `setTransparent(bool)`, `drawForced()` |
 | **`IWidgetContainer`** | `IWidget` | `addWidget(w)`, `delWidgetByID(id)`, `getWidgetByID(id)`, `getWidgetByIndx(i)`, `findTouchableAt(x, y)`, `delWidgets()`, `getSize()`, `enable()`, `disable()` |
 | **`EmptyLayout`** | `IWidgetContainer` | `EmptyLayout:new(id)`, `clone(new_id)` + усі методи `IWidgetContainer` |
 | **`Label`** | `IWidget` | `Label:new(id)`, `clone(new_id)`, `setText(str)`, `getText()`, `getLen()`, `setTextSize(s)`, `setTextColor(c)`, `setFont(f)`, `setGravity(g)`, `setAlign(a)`, `setHPadding(p)`, `initWidthToFit([add_w])`, `updateWidthToFit([add_w])`, `setAutoscroll(bool)`, `setAutoscrollInFocus(bool)`, `setAutoscrollDelay(ms)`, `setBackImg(img)`, `setMultiline(bool)` |

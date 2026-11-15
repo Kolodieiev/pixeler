@@ -57,7 +57,7 @@ MenuContext::MenuContext()
 
   Image* files_img = new Image(1);
   files_item->setImage(files_img);
-  files_img->setTransparency(true);
+  files_img->setTransparent(true);
   files_img->setWidth(ICO_WH);
   files_img->setHeight(ICO_WH);
   files_img->setSrc(SD_IMG);
@@ -71,7 +71,7 @@ MenuContext::MenuContext()
 
   Image* wifi_img = new Image(1);
   wifi_item->setImage(wifi_img);
-  wifi_img->setTransparency(true);
+  wifi_img->setTransparent(true);
   wifi_img->setWidth(ICO_WH);
   wifi_img->setHeight(ICO_WH);
   wifi_img->setSrc(WIFI_IMG);

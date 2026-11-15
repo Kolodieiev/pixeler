@@ -44,7 +44,7 @@ GameListContext::GameListContext()
   soko_img->setWidth(32);
   soko_img->setHeight(32);
   soko_img->setCornerRadius(5);
-  soko_img->setTransparency(true);
+  soko_img->setTransparent(true);
   soko_img->setSrc(ICO_SOKOBAN);
 
   Label* soko_lbl = WidgetCreator::getItemLabel(STR_SOKOBAN_ITEM, font_10x20);
@@ -61,7 +61,7 @@ GameListContext::GameListContext()
   chess_img->setWidth(32);
   chess_img->setHeight(32);
   chess_img->setCornerRadius(5);
-  chess_img->setTransparency(true);
+  chess_img->setTransparent(true);
   chess_img->setSrc(ICO_CHESS);
 
   Label* chess_lbl = WidgetCreator::getItemLabel(STR_CHESS_ITEM, font_10x20);

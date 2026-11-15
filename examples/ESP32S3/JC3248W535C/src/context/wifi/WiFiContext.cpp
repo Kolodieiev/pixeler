@@ -160,7 +160,7 @@ void WiFiContext::addCurrNetItem()
   conn_ico->setWidth(16);
   conn_ico->setHeight(16);
   conn_ico->setCornerRadius(1);
-  conn_ico->setTransparency(true);
+  conn_ico->setTransparent(true);
   conn_ico->setSrc(ICO_CONNECT);
 
   Label* conn_lbl = WidgetCreator::getItemLabel(ssid_name.c_str(), font_10x20);

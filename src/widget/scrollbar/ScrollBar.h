@@ -122,7 +122,7 @@ namespace pixeler
 
   private:
     using IWidget::isTransparent;
-    using IWidget::setTransparency;
+    using IWidget::setTransparent;
 
   private:
     uint16_t _max_value{1};

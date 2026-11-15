@@ -59,11 +59,10 @@ FilesContext::FilesContext()
   setCpuFrequency(FREQ_MAX);
 
   _dir_img = new Image(1);
-  _dir_img->setTransparency(true);
+  _dir_img->setTransparent(true);
   _dir_img->setWidth(16);
   _dir_img->setHeight(16);
   _dir_img->setSrc(FOLDER_IMG);
-  _dir_img->setTransparency(true);
 
   _lua_img = _dir_img->clone(1);
   _lua_img->setSrc(LUA_IMG);

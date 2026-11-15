@@ -65,7 +65,7 @@ _img_back_normal->setWidth(IMG_W);
 _img_back_normal->setHeight(IMG_H);
 _img_back_normal->setSrc(BTN_BACK_NORMAL);
 _img_back_normal->setBackColor(COLOR_MAIN_BACK);
-_img_back_normal->setTransparency(true);
+_img_back_normal->setTransparent(true);
 
 // Налаштовуємо перший текстовий віджет
 Label* lbl_online = new Label(1);

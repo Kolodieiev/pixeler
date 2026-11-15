@@ -61,7 +61,7 @@ MenuContext::MenuContext()
 
   Image* files_img = new Image(1);
   files_item->setImage(files_img);
-  files_img->setTransparency(true);
+  files_img->setTransparent(true);
   files_img->setWidth(ICO_WH);
   files_img->setHeight(ICO_WH);
   files_img->setSrc(SD_IMG);
@@ -75,7 +75,7 @@ MenuContext::MenuContext()
 
   Image* mp3_img = new Image(1);
   mp3_item->setImage(mp3_img);
-  mp3_img->setTransparency(true);
+  mp3_img->setTransparent(true);
   mp3_img->setWidth(ICO_WH);
   mp3_img->setHeight(ICO_WH);
   mp3_img->setSrc(HEADPHONES_IMG);
@@ -89,7 +89,7 @@ MenuContext::MenuContext()
 
   Image* game_img = new Image(1);
   game_item->setImage(game_img);
-  game_img->setTransparency(true);
+  game_img->setTransparent(true);
   game_img->setWidth(ICO_WH);
   game_img->setHeight(ICO_WH);
   game_img->setSrc(JOYSTICK_IMG);
@@ -103,7 +103,7 @@ MenuContext::MenuContext()
 
   Image* read_img = new Image(1);
   read_item->setImage(read_img);
-  read_img->setTransparency(true);
+  read_img->setTransparent(true);
   read_img->setWidth(ICO_WH);
   read_img->setHeight(ICO_WH);
   read_img->setSrc(BOOK_IMG);
@@ -117,7 +117,7 @@ MenuContext::MenuContext()
 
   Image* wifi_img = new Image(1);
   wifi_item->setImage(wifi_img);
-  wifi_img->setTransparency(true);
+  wifi_img->setTransparent(true);
   wifi_img->setWidth(ICO_WH);
   wifi_img->setHeight(ICO_WH);
   wifi_img->setSrc(WIFI_IMG);
@@ -131,7 +131,7 @@ MenuContext::MenuContext()
 
   Image* pref_img = new Image(1);
   pref_item->setImage(pref_img);
-  pref_img->setTransparency(true);
+  pref_img->setTransparent(true);
   pref_img->setWidth(ICO_WH);
   pref_img->setHeight(ICO_WH);
   pref_img->setSrc(SETTINGS_IMG);
@@ -145,7 +145,7 @@ MenuContext::MenuContext()
 
   Image* firm_img = new Image(1);
   firm_item->setImage(firm_img);
-  firm_img->setTransparency(true);
+  firm_img->setTransparent(true);
   firm_img->setWidth(ICO_WH);
   firm_img->setHeight(ICO_WH);
   firm_img->setSrc(CHIP_IMG);

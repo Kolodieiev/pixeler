@@ -274,7 +274,7 @@ void Mp3Context::showPlaying()
   _play_btn->setHeight(32);
   _play_btn->setSrc(PAUSE_IMG);
   _play_btn->setBackColor(COLOR_MAIN_BACK);
-  _play_btn->setTransparency(true);
+  _play_btn->setTransparent(true);
   _play_btn->setPos(getCenterX(_play_btn), getCenterY(_play_btn));
 
   Image* forward_img = new Image(ID_FORWARD_IMG);
@@ -283,7 +283,7 @@ void Mp3Context::showPlaying()
   forward_img->setHeight(24);
   forward_img->setSrc(FORWARD_IMG);
   forward_img->setBackColor(COLOR_MAIN_BACK);
-  forward_img->setTransparency(true);
+  forward_img->setTransparent(true);
   forward_img->setPos(_play_btn->getXPos() + 32 * 2, _play_btn->getYPos() + 4);
 
   Image* rewind_img = new Image(ID_REWIND_IMG);
@@ -292,7 +292,7 @@ void Mp3Context::showPlaying()
   rewind_img->setHeight(24);
   rewind_img->setSrc(REWIND_IMG);
   rewind_img->setBackColor(COLOR_MAIN_BACK);
-  rewind_img->setTransparency(true);
+  rewind_img->setTransparent(true);
   rewind_img->setPos(_play_btn->getXPos() - 32 - 24, _play_btn->getYPos() + 4);
 
   //
@@ -321,7 +321,7 @@ void Mp3Context::showPlaying()
   volume_img->setHeight(16);
   volume_img->setSrc(SPEAKER_IMG);
   volume_img->setBackColor(COLOR_MAIN_BACK);
-  volume_img->setTransparency(true);
+  volume_img->setTransparent(true);
   volume_img->setPos(getCenterX(volume_img) - volume_img->getWidth() / 2, _volume_lbl->getYPos());
 
   _mode = MODE_AUDIO_PLAY;

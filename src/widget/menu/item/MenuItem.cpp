@@ -132,6 +132,6 @@ namespace pixeler
     _label->setBackColor(_back_color);
     _label->setFocusBackColor(_focus_back_color);
     _label->setChangingBack(true);
-    _label->setTransparency(_is_transparent);
+    _label->setTransparent(_is_transparent);
   }
 }  // namespace pixeler

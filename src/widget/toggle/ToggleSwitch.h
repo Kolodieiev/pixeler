@@ -129,7 +129,7 @@ namespace pixeler
     using IWidget::getBackColor;
     using IWidget::isTransparent;
     using IWidget::setBackColor;
-    using IWidget::setTransparency;
+    using IWidget::setTransparent;
 
     uint16_t _lever_color{COLOR_WHITE};
     uint16_t _on_color{COLOR_GREEN};

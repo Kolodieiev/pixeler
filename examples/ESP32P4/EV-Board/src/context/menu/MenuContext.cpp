@@ -56,7 +56,7 @@ MenuContext::MenuContext()
 
   Image* files_img = new Image(1);
   files_item->setImage(files_img);
-  files_img->setTransparency(true);
+  files_img->setTransparent(true);
   files_img->setWidth(ICO_WH);
   files_img->setHeight(ICO_WH);
   files_img->setSrc(SD_IMG);
@@ -70,7 +70,7 @@ MenuContext::MenuContext()
 
   Image* mp3_img = new Image(1);
   mp3_item->setImage(mp3_img);
-  mp3_img->setTransparency(true);
+  mp3_img->setTransparent(true);
   mp3_img->setWidth(ICO_WH);
   mp3_img->setHeight(ICO_WH);
   mp3_img->setSrc(HEADPHONES_IMG);

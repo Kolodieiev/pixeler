@@ -343,7 +343,7 @@ namespace pixeler
     return _visibility;
   }
 
-  void IWidget::setTransparency(bool state)
+  void IWidget::setTransparent(bool state)
   {
     _is_transparent = state;
     _is_changed = true;

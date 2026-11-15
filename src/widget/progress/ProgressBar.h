@@ -120,7 +120,7 @@ namespace pixeler
 
   private:
     using IWidget::isTransparent;
-    using IWidget::setTransparency;
+    using IWidget::setTransparent;
 
   private:
     uint32_t _progress{1};
