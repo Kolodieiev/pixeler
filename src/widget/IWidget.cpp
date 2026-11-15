@@ -3,8 +3,8 @@
 
 namespace pixeler
 {
-  IWidget::IWidget(uint16_t widget_ID, TypeID type_ID) : _id{widget_ID},
-                                                         _type_ID{type_ID}
+  IWidget::IWidget(uint16_t widget_ID, TypeID type_ID) : _ID{widget_ID},
+                                                         _TYPE_ID{type_ID}
 
   {
     if (widget_ID == 0)
@@ -18,7 +18,7 @@ namespace pixeler
 
   IWidget::TypeID IWidget::getTypeID() const
   {
-    return _type_ID;
+    return _TYPE_ID;
   }
 
   void IWidget::drawForced()
@@ -166,7 +166,7 @@ namespace pixeler
   {
     if (!widget)
     {
-      log_e("Спроба копіювати властивості (id: %u) до nullptr", _id);
+      log_e("Спроба копіювати властивості (id: %u) до nullptr", _ID);
       esp_restart();
     }
 
@@ -227,7 +227,7 @@ namespace pixeler
 
   uint16_t IWidget::getID() const
   {
-    return _id;
+    return _ID;
   }
 
   uint16_t IWidget::getHeight() const

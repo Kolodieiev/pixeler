@@ -419,7 +419,7 @@ namespace pixeler
     uint16_t _old_back_color{COLOR_WHITE};
 
   private:
-    const uint16_t _id;
+    const uint16_t _ID;
 
   protected:
     Visibility _visibility{VISIBLE};
@@ -436,7 +436,7 @@ namespace pixeler
     bool _need_change_back{false};
 
   private:
-    const TypeID _type_ID;
+    const TypeID _TYPE_ID;
   };
 
   /**
@@ -450,9 +450,9 @@ namespace pixeler
   template <typename T>
   inline T* IWidget::castTo()
   {
-    if (_type_ID != T::getTypeID())
+    if (_TYPE_ID != T::getTypeID())
     {
-      log_e("Неможливо привести тип віджета %u до %u", _type_ID, T::getTypeID());
+      log_e("Неможливо привести тип віджета %u до %u", _TYPE_ID, T::getTypeID());
       esp_restart();
     }
 

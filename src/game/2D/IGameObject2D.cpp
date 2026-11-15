@@ -10,10 +10,10 @@ namespace pixeler
   IGameObject2D::IGameObject2D(uint32_t id, uint16_t type_id, IGameScene2D& game_scene, SfxPlayer& audio)
       : _scene{game_scene},
         _sfx_player{audio},
-        _obj_ID{id},
-        _type_ID{type_id}
+        _OBJ_ID{id},
+        _TYPE_ID{type_id}
   {
-    _sprite_tmpl = _scene.getSpriteTemplate(_type_ID);
+    _sprite_tmpl = _scene.getSpriteTemplate(_TYPE_ID);
   }
 
   IGameObject2D::~IGameObject2D()
@@ -22,12 +22,12 @@ namespace pixeler
 
   uint32_t IGameObject2D::getID() const
   {
-    return _obj_ID;
+    return _OBJ_ID;
   }
 
   uint16_t IGameObject2D::getTypeID() const
   {
-    return _type_ID;
+    return _TYPE_ID;
   }
 
   void IGameObject2D::__onDraw()
@@ -190,7 +190,7 @@ namespace pixeler
   {
     if (_sprite_tmpl->animation_variants.size() <= anim_variant_ID)
     {
-      log_e("Відсутня анімація з ID [%u] для Type_ID [%u]", anim_variant_ID, _type_ID);
+      log_e("Відсутня анімація з ID [%u] для Type_ID [%u]", anim_variant_ID, _TYPE_ID);
       esp_restart();
     }
 
@@ -202,7 +202,7 @@ namespace pixeler
   {
     if (_sprite_tmpl->img_variants.size() <= img_variant_ID)
     {
-      log_e("Відсутнє зображення спрайта з ID [%u] для Type_ID [%u]", img_variant_ID, _type_ID);
+      log_e("Відсутнє зображення спрайта з ID [%u] для Type_ID [%u]", img_variant_ID, _TYPE_ID);
       esp_restart();
     }
 
@@ -213,7 +213,7 @@ namespace pixeler
   {
     if (_sprite_tmpl->geometry_variants.size() <= geometry_variant_ID)
     {
-      log_e("Відсутня геометрія спрайта з ID [%u] для Type_ID [%u]", geometry_variant_ID, _type_ID);
+      log_e("Відсутня геометрія спрайта з ID [%u] для Type_ID [%u]", geometry_variant_ID, _TYPE_ID);
       esp_restart();
     }
 

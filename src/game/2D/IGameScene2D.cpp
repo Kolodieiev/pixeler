@@ -249,7 +249,7 @@ namespace pixeler
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id)
+          if (obj->_TYPE_ID == id)
           {
             ret_objs.push_back(obj);
             break;
@@ -272,7 +272,7 @@ namespace pixeler
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id)
+          if (obj->_TYPE_ID == id)
           {
             ret_objs.push_back(obj);
             break;
@@ -295,7 +295,7 @@ namespace pixeler
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id)
+          if (obj->_TYPE_ID == id)
           {
             ret_objs.push_back(obj);
             break;
@@ -318,7 +318,7 @@ namespace pixeler
       {
         for (const uint16_t id : type_ID)
         {
-          if (obj->_type_ID == id)
+          if (obj->_TYPE_ID == id)
           {
             ret_objs.push_back(obj);
             break;
