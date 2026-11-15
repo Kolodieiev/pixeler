@@ -47,14 +47,6 @@ namespace pixeler
     }
 
     /**
-     * @brief Встановлює прапор, який змінює поведінку виводу зображення на дисплей.
-     *
-     * @param state Якщо true зображення буде виводитися з ігноруванням кольору COLOR_TRANSPARENT.
-     * Інакше буде виводитись, як є.
-     */
-    void setTransparency(bool state);
-
-    /**
      * @brief Встановлює вказівник на буффер з даними зображення.
      * Буфер не буде видалено разом із віджетом.
      *
@@ -72,7 +64,6 @@ namespace pixeler
 
   private:
     const uint16_t* _img_data{nullptr};
-    bool _has_transparency{false};
   };
 
 }  // namespace pixeler

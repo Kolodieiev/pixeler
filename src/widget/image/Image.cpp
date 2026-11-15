@@ -5,19 +5,12 @@ namespace pixeler
 {
   Image::Image(uint16_t widget_ID) : IWidget(widget_ID, TYPE_IMAGE) {}
 
-  void Image::setTransparency(bool state)
-  {
-    _has_transparency = state;
-    _is_changed = true;
-  }
-
   void Image::copyTo(IWidget* widget) const
   {
     IWidget::copyTo(widget);
 
     Image* clone = static_cast<Image*>(widget);
     clone->_img_data = _img_data;
-    clone->_has_transparency = _has_transparency;
   }
 
   Image* Image::clone(uint16_t id) const
@@ -69,7 +62,7 @@ namespace pixeler
 
     if (_img_data)
     {
-      if (!_has_transparency)
+      if (!_is_transparent)
       {
 #if CONFIG_IDF_TARGET_ESP32P4
         if (_width * _height > PPA_IMG_SIZE_TRIGG)
