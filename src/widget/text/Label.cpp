@@ -286,6 +286,9 @@ namespace pixeler
 
   uint16_t Label::calcTextPixels(uint16_t char_pos) const
   {
+    if (_text.isEmpty())
+      return 0;
+
     int16_t x1{0};
     int16_t y1{0};
     uint16_t w{0};
@@ -394,11 +397,8 @@ namespace pixeler
   {
     ret_str = "";
 
-    if (_text.isEmpty() || start_pos >= _text_len)
-      return 0;
-
     const uint16_t avail_width = _h_padding * 2 + 2;
-    if (_width <= avail_width)
+    if (start_pos >= _text_len || _width <= avail_width)
       return 0;
 
     const uint16_t max_text_width = _width - avail_width;
@@ -520,25 +520,22 @@ namespace pixeler
 
     clear();
 
-    _display.setTextColor(_text_color);
-
-    uint16_t txtYPos = calcYStrOffset();
-    uint16_t str_pix_num = calcTextPixels();
-
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
-
-    if (_parent)
-    {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-    }
-
     if (_back_img)
     {
       _back_img->setParent(this);
       _back_img->drawForced();
     }
+
+    if (_text.isEmpty())
+      return;
+
+    _display.setTextColor(_text_color);
+
+    const uint16_t txt_y_pos = calcYStrOffset();
+    const uint16_t str_pix_num = calcTextPixels();
+
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
     if (_is_multiline)
     {
@@ -547,8 +544,8 @@ namespace pixeler
       _has_autoscroll_in_focus = false;
 
       _display.setTextWrap(true);
-      _display.setTextBound(_x_pos + x_offset + 1, _y_pos + y_offset + 1, _width - 1, _height - 1);
-      _display.setCursor(_x_pos + x_offset + 1, _y_pos + y_offset + _char_hgt + 2);
+      _display.setTextBound(abs_x + 1, abs_y + 1, _width - 1, _height - 1);
+      _display.setCursor(abs_x + 1, abs_y + _char_hgt + 2);
       _display.print(_text.c_str());
       _display.resetTextBound();
       _display.setTextWrap(false);
@@ -560,19 +557,16 @@ namespace pixeler
     {
       _has_autoscroll = false;
       _has_autoscroll_in_focus = false;
-      uint16_t txt_x_pos = calcXStrOffset(str_pix_num);
-      _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
+      const uint16_t txt_x_pos = calcXStrOffset(str_pix_num);
+      _display.setCursor(abs_x + txt_x_pos, abs_y + txt_y_pos - _y_char_offset);
       _display.print(_text.c_str());
 
       return;
     }
 
     String sub_str;
-    uint16_t sub_str_pix_num;
-    uint16_t txt_x_pos;
-
-    sub_str_pix_num = getFitStr(sub_str, _first_draw_char_pos);
-    txt_x_pos = calcXStrOffset(sub_str_pix_num);
+    const uint16_t sub_str_pix_num = getFitStr(sub_str, _first_draw_char_pos);
+    const uint16_t txt_x_pos = calcXStrOffset(sub_str_pix_num);
 
     if (_has_autoscroll || (_has_autoscroll_in_focus && _has_focus))
     {
@@ -604,7 +598,7 @@ namespace pixeler
       }
     }
 
-    _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
+    _display.setCursor(abs_x + txt_x_pos, abs_y + txt_y_pos - _y_char_offset);
     _display.print(sub_str.c_str());
   }
 }  // namespace pixeler
