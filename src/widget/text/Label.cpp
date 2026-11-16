@@ -92,7 +92,7 @@ namespace pixeler
     _is_changed = true;
   }
 
-  String Label::getText() const
+  const String& Label::getText() const
   {
     return _text;
   }
@@ -297,7 +297,7 @@ namespace pixeler
     uint32_t byte_pos{0};
     if (char_pos > 0)
     {
-      const uint8_t* ch_str_p8 = reinterpret_cast<uint8_t*>(const_cast<char*>(_text.c_str()));
+      const uint8_t* ch_str_p8 = reinterpret_cast<const uint8_t*>(_text.c_str());
       byte_pos = charPosToByte(ch_str_p8, char_pos);
     }
 

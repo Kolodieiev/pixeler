@@ -76,7 +76,7 @@ namespace pixeler
      *
      * @return String
      */
-    String getText() const;
+    const String& getText() const;
 
     /**
      * @brief Встановлює розмір тексту.
