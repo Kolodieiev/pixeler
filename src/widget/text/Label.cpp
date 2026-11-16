@@ -1,8 +1,8 @@
 #pragma GCC optimize("O3")
 #include "Label.h"
 
-#define RESERVE_PIX_WIDTH 7
-#define RESERVE_PIX_HEIGHT 4
+constexpr static uint16_t RESERVE_PIX_WIDTH = 7;
+constexpr static uint16_t RESERVE_PIX_HEIGHT = 4;
 
 namespace pixeler
 {
