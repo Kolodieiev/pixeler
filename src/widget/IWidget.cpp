@@ -48,7 +48,11 @@ namespace pixeler
 
   void IWidget::setBackColor(uint16_t back_color)
   {
-    _back_color = back_color;
+    if (_has_focus && _need_change_back)
+      _old_back_color = back_color;
+    else
+      _back_color = back_color;
+
     _is_changed = true;
   }
 
@@ -71,16 +75,28 @@ namespace pixeler
 
   void IWidget::setBorder(bool state)
   {
-    if (_has_border && !state)
-      _need_clear_border = true;
+    if (_has_focus && _need_change_border)
+    {
+      _old_border_state = state;
+    }
+    else
+    {
+      if (_has_border && !state)
+        _need_clear_border = true;
 
-    _has_border = state;
+      _has_border = state;
+    }
+
     _is_changed = true;
   }
 
   void IWidget::setBorderColor(uint16_t color)
   {
-    _border_color = color;
+    if (_has_focus && _need_change_border)
+      _old_border_color = color;
+    else
+      _border_color = color;
+
     _is_changed = true;
   }
 
