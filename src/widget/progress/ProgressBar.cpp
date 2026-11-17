@@ -213,31 +213,29 @@ namespace pixeler
 
   void ProgressBar::reset()
   {
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
-
-    if (_parent)
-    {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-    }
-
     _progress = 1;
+    _prev_progress = 1;
+
+    if (_visibility == INVISIBLE || _is_first_draw)
+      return;
+
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
     if (_orientation == HORIZONTAL)
     {
-      _display.fillRect(_x_pos + x_offset + 3,
-                        _y_pos + y_offset + 1,
-                        _width - 4,
+      _display.fillRect(abs_x + 2,
+                        abs_y + 1,
+                        _width - 3,
                         _height - 2,
                         _back_color);
     }
     else
     {
-      _display.fillRect(_x_pos + x_offset + 1,
-                        _y_pos + y_offset + 3,
+      _display.fillRect(abs_x + 1,
+                        abs_y + 2,
                         _width - 2,
-                        _height - 4,
+                        _height - 3,
                         _back_color);
     }
   }
