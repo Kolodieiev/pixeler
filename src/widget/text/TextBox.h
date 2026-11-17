@@ -111,6 +111,7 @@ namespace pixeler
     using Label::updateWidthToFit;
 
     uint16_t getFitStr(String& ret_str) const;
+    String getSubStr(const String& str, uint16_t start, uint16_t length) const;
 
   private:
     FieldType _type{TYPE_TEXT};

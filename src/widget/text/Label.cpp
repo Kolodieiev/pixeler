@@ -445,22 +445,6 @@ namespace pixeler
     return pix_sum;
   }
 
-  String Label::getSubStr(const String& str, uint16_t start, uint16_t length) const
-  {
-    if (length == 0 || str.isEmpty())
-      return emptyString;
-
-    const uint8_t* buf = reinterpret_cast<const uint8_t*>(str.c_str());
-    const uint16_t start_byte = charPosToByte(buf, start);
-
-    if (start_byte >= str.length())
-      return emptyString;
-
-    const uint16_t end_byte = start_byte + charPosToByte(buf + start_byte, length);
-
-    return str.substring(start_byte, end_byte);
-  }
-
   void Label::onDraw()
   {
     if (!_is_changed)

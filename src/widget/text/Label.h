@@ -244,7 +244,6 @@ namespace pixeler
     uint32_t calcRealStrLen(const String& str) const;
     uint16_t calcTextPixels(uint16_t char_pos = 0) const;
     uint16_t getFitStr(String& ret_str, uint16_t start_pos = 0) const;
-    String getSubStr(const String& str, uint16_t start, uint16_t length) const;
     uint32_t utf8ToUnicode(const uint8_t* buf, uint16_t& byte_pos, uint16_t remaining) const;
     uint16_t charPosToByte(const uint8_t* buf, uint16_t char_pos) const;
     void updateHeight();
