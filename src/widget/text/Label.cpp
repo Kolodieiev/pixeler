@@ -529,10 +529,9 @@ namespace pixeler
     if (_text.isEmpty())
       return;
 
+    _display.setFont(_font);
+    _display.setTextSize(_text_size);
     _display.setTextColor(_text_color);
-
-    const uint16_t txt_y_pos = calcYStrOffset();
-    const uint16_t str_pix_num = calcTextPixels();
 
     const uint16_t abs_x = getXPos();
     const uint16_t abs_y = getYPos();
@@ -553,7 +552,10 @@ namespace pixeler
       return;
     }
 
-    if (str_pix_num + _h_padding * 2 - 2 < _width)
+    const uint16_t txt_y_pos = calcYStrOffset();
+    const uint16_t str_pix_num = calcTextPixels();
+
+    if (str_pix_num + _h_padding * 2 < _width + 2)
     {
       _has_autoscroll = false;
       _has_autoscroll_in_focus = false;
