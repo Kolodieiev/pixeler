@@ -8,6 +8,7 @@ namespace pixeler
   {
     setAlign(IWidget::ALIGN_CENTER);
     setGravity(IWidget::GRAVITY_CENTER);
+    setSpinValToDraw();
   }
 
   void SpinBox::copyTo(IWidget* widget) const
@@ -42,9 +43,10 @@ namespace pixeler
     _min_val = min;
 
     if (_value < _min_val)
+    {
       _value = _min_val;
-
-    setSpinValToDraw();
+      setSpinValToDraw();
+    }
   }
 
   float SpinBox::getMin() const
@@ -57,9 +59,10 @@ namespace pixeler
     _max_val = max;
 
     if (_value > _max_val)
+    {
       _value = _max_val;
-
-    setSpinValToDraw();
+      setSpinValToDraw();
+    }
   }
 
   float SpinBox::getMax() const
@@ -70,12 +73,14 @@ namespace pixeler
   void SpinBox::setValue(float value)
   {
     if (value < _min_val)
-      _value = _min_val;
+      value = _min_val;
     else if (value > _max_val)
-      _value = _max_val;
-    else
-      _value = value;
+      value = _max_val;
 
+    if (_value == value)
+      return;
+
+    _value = value;
     setSpinValToDraw();
   }
 
@@ -86,6 +91,9 @@ namespace pixeler
 
   void SpinBox::setType(SpinType spin_type)
   {
+    if (_spin_type == spin_type)
+      return;
+
     _spin_type = spin_type;
     setSpinValToDraw();
   }
@@ -98,7 +106,6 @@ namespace pixeler
   void SpinBox::setStep(float step)
   {
     _step = abs(step);
-    _is_changed = true;
   }
 
   float SpinBox::getStep() const
