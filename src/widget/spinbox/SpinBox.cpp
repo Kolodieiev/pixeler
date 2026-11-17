@@ -117,7 +117,7 @@ namespace pixeler
   {
     if (_spin_type == TYPE_INT)
     {
-      int64_t temp = _value;
+      int32_t temp = _value;
       setText(String(temp));
     }
     else
