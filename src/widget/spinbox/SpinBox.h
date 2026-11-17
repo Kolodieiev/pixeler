@@ -150,6 +150,7 @@ namespace pixeler
     using Label::setAutoscrollInFocus;
     using Label::setGravity;
     using Label::setMultiline;
+    using Label::setText;
     using Label::updateWidthToFit;
 
     void setSpinValToDraw();
