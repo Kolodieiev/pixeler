@@ -82,7 +82,7 @@ namespace pixeler
 
   IWidget* IWidgetContainer::findTouchableAt(uint16_t x, uint16_t y)
   {
-    if (!hitTest(x, y))
+    if (!_is_enabled || _visibility == INVISIBLE || !hitTest(x, y))
       return nullptr;
 
     for (auto i_b = _widgets.rbegin(), i_e = _widgets.rend(); i_b != i_e; ++i_b)
