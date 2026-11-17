@@ -239,21 +239,22 @@ namespace pixeler
 
     if (_orientation == HORIZONTAL)
     {
-      uint16_t x_pos = getXPos();
+      const uint16_t x_pos = getXPos();
 
       if (x >= x_pos + _width || x <= x_pos)
         return 0;
 
-      uint32_t relative_x = x - x_pos;
+      const uint32_t relative_x = x - x_pos;
       return relative_x * _max_val / _width;
     }
     else
     {
-      uint16_t y_pos = getYPos();
-      if (y >= getYPos() + _height || y <= y_pos)
+      const uint16_t y_pos = getYPos();
+
+      if (y >= y_pos + _height || y <= y_pos)
         return 0;
 
-      uint32_t relative_y = y - y_pos;
+      const uint32_t relative_y = y - y_pos;
       return relative_y * _max_val / _height;
     }
   }
