@@ -77,69 +77,60 @@ namespace pixeler
 
     if (_visibility == INVISIBLE)
     {
+      _is_first_draw = true;
       hide();
       return;
     }
 
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
-
-    if (_parent)
-    {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-    }
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
     if (_orientation == HORIZONTAL)
     {
-      uint16_t progressW = static_cast<uint32_t>(_width) * _progress / _max_val;
-      if (progressW < 3)
-        progressW = 3;
+      uint16_t progress_w = static_cast<uint32_t>(_width) * _progress / _max_val;
+      if (progress_w < 3)
+        progress_w = 3;
 
       if (!_is_first_draw)
       {
-        uint16_t next_prgrs_pos = static_cast<uint32_t>(_width) * _prev_progress / _max_val;
+        uint16_t prev_prgrs_pos = static_cast<uint32_t>(_width) * _prev_progress / _max_val;
+        if (prev_prgrs_pos < 3)
+          prev_prgrs_pos = 3;
 
-        if (_progress > _prev_progress)  // Заливка тільки прогресу
+        if (progress_w > prev_prgrs_pos)  // Заливка тільки прогресу
         {
-          uint16_t x = _x_pos + x_offset + next_prgrs_pos;
-          if (next_prgrs_pos < 2)
-            ++x;
-          else
-            --x;
-
-          _display.fillRect(x,
-                            _y_pos + y_offset + 1,
-                            progressW - next_prgrs_pos,
+          _display.fillRect(abs_x + prev_prgrs_pos - 1,
+                            abs_y + 1,
+                            progress_w - prev_prgrs_pos,
                             _height - 2,
                             _progress_color);
         }
-        else if (_progress < _prev_progress)  // Заливка тільки фону
+        else if (progress_w < prev_prgrs_pos)  // Заливка тільки фону
         {
-          _display.fillRect(_x_pos + x_offset + progressW - 1,
-                            _y_pos + y_offset + 1,
-                            next_prgrs_pos - progressW,
+          _display.fillRect(abs_x + progress_w - 1,
+                            abs_y + 1,
+                            prev_prgrs_pos - progress_w,
                             _height - 2,
                             _back_color);
         }
       }
       else
       {
-        _display.drawRect(_x_pos + x_offset,
-                          _y_pos + y_offset,
+        _display.drawRect(abs_x,
+                          abs_y,
                           _width,
                           _height,
                           _border_color);  // рамка
 
-        _display.fillRect(_x_pos + x_offset + 1,
-                          _y_pos + y_offset + 1,
-                          progressW - 2,
+        _display.fillRect(abs_x + 1,
+                          abs_y + 1,
+                          progress_w - 2,
                           _height - 2,
                           _progress_color);  // прогрес
 
-        _display.fillRect(_x_pos + x_offset + 1 + progressW - 2,
-                          _y_pos + y_offset + 1,
-                          _width - progressW,
+        _display.fillRect(abs_x + progress_w - 1,
+                          abs_y + 1,
+                          _width - progress_w,
                           _height - 2,
                           _back_color);  // фон
 
@@ -148,55 +139,51 @@ namespace pixeler
     }
     else  // orientation == vertical
     {
-      uint16_t progressH = static_cast<uint32_t>(_height) * _progress / _max_val;
-      if (progressH < 3)
-        progressH = 3;
+      uint16_t progress_h = static_cast<uint32_t>(_height) * _progress / _max_val;
+      if (progress_h < 3)
+        progress_h = 3;
 
       if (!_is_first_draw)
       {
-        uint16_t next_prgrs_pos = static_cast<uint32_t>(_height) * _prev_progress / _max_val;
+        uint16_t prev_prgrs_pos = static_cast<uint32_t>(_height) * _prev_progress / _max_val;
+        if (prev_prgrs_pos < 3)
+          prev_prgrs_pos = 3;
 
-        if (_progress > _prev_progress)  // Заливка тільки прогресу
+        if (progress_h > prev_prgrs_pos)  // Заливка тільки прогресу
         {
-          uint16_t y = _y_pos + y_offset + next_prgrs_pos;
-          if (next_prgrs_pos < 2)
-            ++y;
-          else
-            --y;
-
-          _display.fillRect(_x_pos + x_offset + 1,
-                            y,
+          _display.fillRect(abs_x + 1,
+                            abs_y + prev_prgrs_pos - 1,
                             _width - 2,
-                            progressH - next_prgrs_pos + 1,
+                            progress_h - prev_prgrs_pos,
                             _progress_color);
         }
-        else if (_progress < _prev_progress)  // Заливка тільки фону
+        else if (progress_h < prev_prgrs_pos)  // Заливка тільки фону
         {
-          _display.fillRect(_x_pos + x_offset + 1,
-                            _y_pos + y_offset + progressH - 1,
+          _display.fillRect(abs_x + 1,
+                            abs_y + progress_h - 1,
                             _width - 2,
-                            next_prgrs_pos - progressH,
+                            prev_prgrs_pos - progress_h,
                             _back_color);
         }
       }
       else
       {
-        _display.drawRect(_x_pos + x_offset,
-                          _y_pos + y_offset,
+        _display.drawRect(abs_x,
+                          abs_y,
                           _width,
                           _height,
                           _border_color);  // рамка
 
-        _display.fillRect(_x_pos + x_offset + 1,
-                          _y_pos + y_offset + 1,
+        _display.fillRect(abs_x + 1,
+                          abs_y + 1,
                           _width - 2,
-                          progressH - 2,
+                          progress_h - 2,
                           _progress_color);  // прогрес
 
-        _display.fillRect(_x_pos + x_offset + 1,
-                          _y_pos + y_offset + progressH - 2,
+        _display.fillRect(abs_x + 1,
+                          abs_y + progress_h - 1,
                           _width - 2,
-                          _height - progressH + 1,
+                          _height - progress_h,
                           _back_color);  // фон
 
         _is_first_draw = false;
