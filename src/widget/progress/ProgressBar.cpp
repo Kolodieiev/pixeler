@@ -10,34 +10,48 @@ namespace pixeler
   void ProgressBar::setMax(uint32_t max)
   {
     if (max < 1)
-      _max_val = 1;
-    else
-      _max_val = max;
+      max = 1;
 
+    if (_max_val == max)
+      return;
+
+    _max_val = max;
+
+    if (_progress > _max_val)
+      _progress = _max_val;
+
+    _is_first_draw = true;
     _is_changed = true;
   }
 
   void ProgressBar::setProgress(uint32_t progress)
   {
     if (progress > _max_val)
-      _progress = _max_val;
+      progress = _max_val;
     else if (progress < 1)
-      _progress = 1;
-    else
-      _progress = progress;
+      progress = 1;
 
+    if (_progress == progress)
+      return;
+
+    _progress = progress;
     _is_changed = true;
   }
 
   void ProgressBar::setProgressColor(uint16_t color)
   {
     _progress_color = color;
+    _is_first_draw = true;
     _is_changed = true;
   }
 
   void ProgressBar::setOrientation(Orientation orientation)
   {
+    if (_orientation == orientation)
+      return;
+
     _orientation = orientation;
+    _is_first_draw = true;
     _is_changed = true;
   }
 
