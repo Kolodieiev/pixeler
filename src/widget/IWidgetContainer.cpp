@@ -26,11 +26,11 @@ namespace pixeler
       esp_restart();
     }
 
-    for (const IWidget* widget : _widgets)
+    for (const IWidget* child : _widgets)
     {
-      if (widget->getID() == search_ID)
+      if (child->getID() == search_ID)
       {
-        log_e("Контейнер: %u. WidgetID повинен бути унікальним. Повторюється з: %u.", getID(), widget->getID());
+        log_e("Контейнер: %u. WidgetID повинен бути унікальним. Повторюється з: %u.", getID(), child->getID());
         esp_restart();
       }
     }
@@ -62,9 +62,7 @@ namespace pixeler
     for (auto& widget : _widgets)
     {
       if (widget->getID() == widget_ID)
-      {
         return widget;
-      }
     }
 
     return nullptr;
@@ -131,7 +129,7 @@ namespace pixeler
     IWidgetContainer* clone = static_cast<IWidgetContainer*>(widget);
     clone->_is_enabled = _is_enabled;
 
-    for (const auto& widget : _widgets)
-      clone->addWidget(widget->clone(widget->getID()));
+    for (const auto& child : _widgets)
+      clone->addWidget(child->clone(child->getID()));
   }
 }  // namespace pixeler
