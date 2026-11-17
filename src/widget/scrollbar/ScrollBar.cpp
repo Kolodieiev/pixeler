@@ -188,75 +188,79 @@ namespace pixeler
 
   bool ScrollBar::scrollDown()
   {
-    if (_cur_value < _max_value - 1)
+    if (_cur_value >= _max_value - 1)
+      return false;
+
+    ++_cur_value;
+
+    if (!_smart_scroll_enabled)
     {
       _is_changed = true;
-      ++_cur_value;
-
-      if (_smart_scroll_enabled)
-      {
-        if (_scroll_direction == 0)
-        {
-          if (_steps_counter < _steps_to_scroll - 1)
-          {
-            ++_steps_counter;
-          }
-          else
-          {
-            _steps_counter = 0;
-            ++_smart_value;
-          }
-        }
-        else if (_steps_counter > 0)
-        {
-          --_steps_counter;
-        }
-        else
-        {
-          _scroll_direction = 0;
-          _steps_counter = 1;
-        }
-      }
-
       return true;
     }
-    return false;
+
+    if (_scroll_direction == 0)
+    {
+      if (_steps_counter < _steps_to_scroll - 1)
+      {
+        ++_steps_counter;
+      }
+      else
+      {
+        _steps_counter = 0;
+        ++_smart_value;
+        _is_changed = true;
+      }
+    }
+    else if (_steps_counter > 0)
+    {
+      --_steps_counter;
+    }
+    else
+    {
+      _scroll_direction = 0;
+      _steps_counter = 1;
+    }
+
+    return true;
   }
 
   bool ScrollBar::scrollUp()
   {
-    if (_cur_value > 0)
+    if (_cur_value == 0)
+      return false;
+
+    --_cur_value;
+
+    if (!_smart_scroll_enabled)
     {
       _is_changed = true;
-      --_cur_value;
-
-      if (_smart_scroll_enabled)
-      {
-        if (_scroll_direction == 1)
-        {
-          if (_steps_counter < _steps_to_scroll - 1)
-          {
-            ++_steps_counter;
-          }
-          else
-          {
-            _steps_counter = 0;
-            --_smart_value;
-          }
-        }
-        else if (_steps_counter > 0)
-        {
-          --_steps_counter;
-        }
-        else
-        {
-          _scroll_direction = 1;
-          _steps_counter = 1;
-        }
-      }
-
       return true;
     }
-    return false;
+
+    if (_scroll_direction == 1)
+    {
+      if (_steps_counter < _steps_to_scroll - 1)
+      {
+        ++_steps_counter;
+      }
+      else
+      {
+        _steps_counter = 0;
+        --_smart_value;
+        _is_changed = true;
+      }
+    }
+    else if (_steps_counter > 0)
+    {
+      --_steps_counter;
+    }
+    else
+    {
+      _scroll_direction = 1;
+      _steps_counter = 1;
+    }
+
+    return true;
   }
 }  // namespace pixeler
