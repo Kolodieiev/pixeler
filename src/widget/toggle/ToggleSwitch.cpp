@@ -66,65 +66,63 @@ namespace pixeler
 
   void ToggleSwitch::onDraw()
   {
-    if (_is_changed)
+    if (!_is_changed)
+      return;
+
+    _is_changed = false;
+
+    if (_visibility == INVISIBLE)
     {
-      _is_changed = false;
+      hide();
+      return;
+    }
 
-      if (_visibility == INVISIBLE)
-      {
-        hide();
-        return;
-      }
+    _back_color = _is_on ? _on_color : _off_color;
 
-      if (_is_on)
-        _back_color = _on_color;
-      else
-        _back_color = _off_color;
+    clear();
 
-      clear();
+    if (_width < 7 || _height < 7)
+      return;
 
-      //
-      uint16_t lever_w;
-      uint16_t lever_h;
+    uint16_t lever_w;
+    uint16_t lever_h;
 
-      if (_width > _height)
-      {
-        lever_w = _height - 2;
-        lever_h = lever_w - 4;
-      }
-      else
-      {
-        lever_h = _width - 2;
-        lever_w = lever_h - 4;
-      }
+    if (_width > _height)
+    {
+      lever_w = _height - 2;
+      lever_h = _height - 6;
+    }
+    else
+    {
+      lever_h = _width - 2;
+      lever_w = _width - 6;
+    }
 
-      uint16_t lever_x;
-      uint16_t lever_y;
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
-      if (_orientation == HORIZONTAL)
-      {
-        lever_x = _is_on ? _x_pos + _width - lever_w - 3 : _x_pos + 3;
-        lever_y = _y_pos + 3;
-      }
-      else
-      {
-        lever_x = _x_pos + 3;
-        lever_y = _is_on ? _y_pos + 3 : _y_pos + _height - lever_h - 3;
-      }
+    uint16_t lever_x;
+    uint16_t lever_y;
 
-      uint16_t x_offset{0};
-      uint16_t y_offset{0};
+    if (_orientation == HORIZONTAL)
+    {
+      lever_x = _is_on ? (abs_x + _width - lever_w - 3) : (abs_x + 3);
+      lever_y = abs_y + 3;
+    }
+    else
+    {
+      lever_x = abs_x + 3;
+      lever_y = _is_on ? (abs_y + 3) : (abs_y + _height - lever_h - 3);
+    }
 
-      if (_parent)
-      {
-        x_offset = _parent->getXPos();
-        y_offset = _parent->getYPos();
-      }
-
-      if (_corner_radius == 0)
-        _display.fillRect(lever_x + x_offset, lever_y + y_offset, lever_w, lever_h, _lever_color);
-      else
-        _display.fillRoundRect(lever_x + x_offset, lever_y + y_offset, lever_w, lever_h, _corner_radius, _lever_color);
+    if (_corner_radius == 0)
+    {
+      _display.fillRect(lever_x, lever_y, lever_w, lever_h, _lever_color);
+    }
+    else
+    {
+      const uint8_t lever_radius = (_corner_radius > 2) ? (_corner_radius - 2) : 1;
+      _display.fillRoundRect(lever_x, lever_y, lever_w, lever_h, lever_radius, _lever_color);
     }
   }
 
