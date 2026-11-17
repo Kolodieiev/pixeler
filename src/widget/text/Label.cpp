@@ -403,7 +403,9 @@ namespace pixeler
 
     const uint16_t max_text_width = _width - avail_width;
     const uint16_t byte_len = _text.length();
-    const uint8_t* ch_str_p8 = reinterpret_cast<const uint8_t*>(_text.c_str());
+
+    char* ch_str = const_cast<char*>(_text.c_str());
+    const uint8_t* ch_str_p8 = reinterpret_cast<const uint8_t*>(ch_str);
 
     uint16_t cur_byte_pos = charPosToByte(ch_str_p8, start_pos);
     const uint16_t start_byte_pos = cur_byte_pos;
@@ -412,7 +414,6 @@ namespace pixeler
     uint16_t pix_sum{0};
     int16_t x1, y1;
     uint16_t w, h;
-    String new_str;
 
     while (cur_byte_pos < byte_len)
     {
@@ -420,8 +421,12 @@ namespace pixeler
       if (code == 0)
         continue;
 
-      new_str = _text.substring(start_byte_pos, cur_byte_pos);
-      _display.calcTextBounds(new_str.c_str(), 0, 0, x1, y1, w, h);
+      const char temp_char = ch_str[cur_byte_pos];
+      ch_str[cur_byte_pos] = '\0';
+
+      _display.calcTextBounds(ch_str + start_byte_pos, 0, 0, x1, y1, w, h);
+
+      ch_str[cur_byte_pos] = temp_char;
 
       if (w < max_text_width)
       {
