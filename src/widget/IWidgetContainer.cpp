@@ -70,12 +70,10 @@ namespace pixeler
 
   IWidget* IWidgetContainer::getWidgetByIndx(uint16_t widget_indx)
   {
-    IWidget* result{nullptr};
+    if (widget_indx < _widgets.size())
+      return _widgets[widget_indx];
 
-    if (_widgets.size() > widget_indx)
-      result = _widgets[widget_indx];
-
-    return result;
+    return nullptr;
   }
 
   IWidget* IWidgetContainer::findTouchableAt(uint16_t x, uint16_t y)
