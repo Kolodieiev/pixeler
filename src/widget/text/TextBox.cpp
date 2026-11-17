@@ -77,15 +77,15 @@ namespace pixeler
   {
     uint16_t first_char_pos{1};
 
-    const char* ch_str = _text.c_str();
-
-    while (first_char_pos < _text_len - 1)
+    while (first_char_pos < _text_len)
     {
       uint16_t pix_num = calcTextPixels(first_char_pos);
 
       if (pix_num < _width - H_PADDINGS)
       {
-        ret_str = getSubStr(ch_str, first_char_pos, calcRealStrLen(ch_str) - 1);
+        const uint8_t* ch_str_p8 = reinterpret_cast<const uint8_t*>(_text.c_str());
+        const uint16_t byte_pos = charPosToByte(ch_str_p8, first_char_pos);
+        ret_str = _text.substring(byte_pos);
         return pix_num;
       }
 
@@ -101,70 +101,78 @@ namespace pixeler
       return;
 
     _is_changed = false;
-
     clear();
 
     _display.setFont(_font);
     _display.setTextSize(_text_size);
     _display.setTextColor(_text_color);
 
-    uint16_t txtYPos = calcYStrOffset();
-    uint16_t str_pix_num = calcTextPixels();
+    const uint16_t txt_y_pos = calcYStrOffset();
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
 
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
+    uint16_t str_pix_num = 0;
 
-    if (_parent)
+    if (_type == TYPE_PASSWORD && !_text.isEmpty())
     {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-    }
+      // Отримуємо ширину однієї зірочки у поточному шрифті
+      int16_t x1, y1;
+      uint16_t w, h;
+      _display.calcTextBounds("*", 0, 0, x1, y1, w, h);
 
-    if (str_pix_num + H_PADDINGS < _width)
-    {
-      uint16_t txt_x_pos = calcXStrOffset(str_pix_num);
-
-      if (_type == TYPE_TEXT)
-      {
-        _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
-        _display.print(_text.c_str());
-      }
-      else  // pwd
-      {
-        uint32_t txt_len = calcRealStrLen(_text);
-
-        String pwd_str;
-
-        for (uint32_t i = 0; i < txt_len; ++i)
-          pwd_str += "*";
-
-        _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
-        _display.print(pwd_str.c_str());
-      }
+      str_pix_num = w * _text_len;
     }
     else
     {
-      String sub_str;
-      uint16_t sub_str_pix_num = getFitStr(sub_str);
-      uint16_t txt_x_pos = calcXStrOffset(sub_str_pix_num);
+      str_pix_num = calcTextPixels();
+    }
 
-      if (_type == TYPE_TEXT)
+    uint16_t txt_x_pos = 0;
+    String draw_str;
+
+    uint16_t visible_stars = 0;
+
+    // Визначаємо зміщення та текст, який вміщується у віджет
+    if (str_pix_num + H_PADDINGS < _width)
+    {
+      txt_x_pos = calcXStrOffset(str_pix_num);
+      if (_type != TYPE_PASSWORD)
+        draw_str = _text;
+    }
+    else
+    {
+      if (_type == TYPE_PASSWORD)
       {
-        _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
-        _display.print(sub_str.c_str());
+        // Підраховуємо кількість зірочок, які вмістяться у віджет
+        int16_t x1, y1;
+        uint16_t star_w, h;
+        _display.calcTextBounds("*", 0, 0, x1, y1, star_w, h);
+
+        const uint16_t avail_width = _width - H_PADDINGS;
+        visible_stars = (star_w > 0) ? (avail_width / star_w) : 0;
+
+        // Встановлюємо ширину підрядка для правильного центрування
+        const uint16_t sub_str_pix_num = visible_stars * star_w;
+        txt_x_pos = calcXStrOffset(sub_str_pix_num);
       }
-      else  // pwd
+      else
       {
-        uint32_t txt_len = calcRealStrLen(sub_str);
-
-        String pwd_str;
-
-        for (uint32_t i = 0; i < txt_len; ++i)
-          pwd_str += "*";
-
-        _display.setCursor(_x_pos + x_offset + txt_x_pos, _y_pos + y_offset + txtYPos - _y_char_offset);
-        _display.print(pwd_str.c_str());
+        const uint16_t sub_str_pix_num = getFitStr(draw_str);
+        txt_x_pos = calcXStrOffset(sub_str_pix_num);
       }
+    }
+
+    _display.setCursor(abs_x + txt_x_pos, abs_y + txt_y_pos - _y_char_offset);
+
+    // Малюємо зірочки по одній, не виділяючи пам'ять під новий String
+    if (_type == TYPE_PASSWORD && visible_stars > 0)
+    {
+      for (uint16_t i = 0; i < visible_stars; ++i)
+        _display.print("*");
+    }
+    else if (!draw_str.isEmpty())
+    {
+      _display.print(draw_str.c_str());
     }
   }
 }  // namespace pixeler
