@@ -52,11 +52,6 @@ namespace pixeler
     return _is_on;
   }
 
-  constexpr IWidget::TypeID ToggleSwitch::getTypeID()
-  {
-    return TypeID::TYPE_TOGGLE_SWITCH;
-  }
-
   void ToggleSwitch::setOn(bool state)
   {
     _is_on = state;
