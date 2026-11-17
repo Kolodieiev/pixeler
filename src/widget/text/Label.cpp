@@ -442,50 +442,18 @@ namespace pixeler
 
   String Label::getSubStr(const String& str, uint16_t start, uint16_t length) const
   {
-    if (length == 0)
+    if (length == 0 || str.isEmpty())
       return emptyString;
 
-    int bytePos = 0;
-    int charIndex = 0;
-    int startByte = -1;
-    int endByte = -1;
+    const uint8_t* buf = reinterpret_cast<const uint8_t*>(str.c_str());
+    const uint16_t start_byte = charPosToByte(buf, start);
 
-    while (bytePos < str.length())
-    {
-      if (charIndex == start)
-        startByte = bytePos;
-
-      if (charIndex == start + length)
-      {
-        endByte = bytePos;
-        break;
-      }
-
-      unsigned char c = str[bytePos];
-      int charLen = 1;
-
-      if ((c & 0x80) == 0x00)
-        charLen = 1;
-      else if ((c & 0xE0) == 0xC0)
-        charLen = 2;
-      else if ((c & 0xF0) == 0xE0)
-        charLen = 3;
-      else if ((c & 0xF8) == 0xF0)
-        charLen = 4;
-      else
-        charLen = 1;  // Невідомий символ — вважаємо за 1 байт
-
-      bytePos += charLen;
-      ++charIndex;
-    }
-
-    if (startByte == -1)
+    if (start_byte >= str.length())
       return emptyString;
 
-    if (endByte == -1)
-      endByte = str.length();
+    const uint16_t end_byte = start_byte + charPosToByte(buf + start_byte, length);
 
-    return str.substring(startByte, endByte);
+    return str.substring(start_byte, end_byte);
   }
 
   void Label::onDraw()
