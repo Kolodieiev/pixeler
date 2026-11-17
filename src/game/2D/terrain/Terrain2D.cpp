@@ -57,13 +57,81 @@ namespace pixeler
 
   uint16_t Terrain2D::coordToTilePos(uint16_t coord) const
   {
-    float temp_float_div = (float)coord / _tile_side_len;
-    uint16_t rounded_div = round(temp_float_div);
+    return coord / _tile_side_len;
+  }
 
-    if (rounded_div > temp_float_div)
-      --rounded_div;
+  bool Terrain2D::canPass(uint16_t x_from,
+                          uint16_t y_from,
+                          uint16_t x_to,
+                          uint16_t y_to,
+                          const PhysicsState& physics,
+                          const SpriteGeometry& geometry) const
+  {
+    if (x_to > _width || y_to > _height || !_terrain)
+      return false;
 
-    return rounded_div;
+    if (!physics.is_rigid)
+      return true;
+
+    if (y_to < y_from)  // UP
+    {
+      uint16_t tile_y_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // y верхнього краю тіла
+      if (tile_y_pos >= _tile_y_num)
+        return false;
+
+      uint16_t tile_x_main_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х лівого краю тіла
+      if (tile_x_main_pos >= _tile_x_num || !(_terrain[tile_y_pos][tile_x_main_pos]->_type & physics.pass_ability_mask))
+        return false;
+
+      uint16_t tile_x_side_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // х правого краю тіла
+      if (tile_x_side_pos >= _tile_x_num || !(_terrain[tile_y_pos][tile_x_side_pos]->_type & physics.pass_ability_mask))
+        return false;
+    }
+    else if (y_to > y_from)  // DOWN
+    {
+      uint16_t tile_y_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // y куди повинна стати нижня сторона тіла
+      if (tile_y_pos >= _tile_y_num)
+        return false;
+
+      uint16_t tile_x_main_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х лівого краю тіла
+      if (tile_x_main_pos >= _tile_x_num || !(_terrain[tile_y_pos][tile_x_main_pos]->_type & physics.pass_ability_mask))
+        return false;
+
+      uint16_t tile_x_side_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // х правого краю тіла
+      if (tile_x_side_pos >= _tile_x_num || !(_terrain[tile_y_pos][tile_x_side_pos]->_type & physics.pass_ability_mask))
+        return false;
+    }
+
+    if (x_to < x_from)  // LEFT
+    {
+      uint16_t tile_x_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х куди стане ліва сторона тіла
+      if (tile_x_pos >= _tile_x_num)
+        return false;
+
+      uint16_t tile_y_main_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // у верхнього краю тіла
+      if (tile_y_main_pos >= _tile_y_num || !(_terrain[tile_y_main_pos][tile_x_pos]->_type & physics.pass_ability_mask))
+        return false;
+
+      uint16_t tile_y_side_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // у нижнього краю тіла
+      if (tile_y_side_pos >= _tile_y_num || !(_terrain[tile_y_side_pos][tile_x_pos]->_type & physics.pass_ability_mask))
+        return false;
+    }
+    else if (x_to > x_from)  // RIGHT
+    {
+      uint16_t tile_x_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // права сторона тіла тіла
+      if (tile_x_pos >= _tile_x_num)
+        return false;
+
+      uint16_t tile_y_main_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // у верхнього краю тіла
+      if (tile_y_main_pos >= _tile_y_num || !(_terrain[tile_y_main_pos][tile_x_pos]->_type & physics.pass_ability_mask))
+        return false;
+
+      uint16_t tile_y_side_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // у нижнього краю тіла
+      if (tile_y_side_pos >= _tile_y_num || !(_terrain[tile_y_side_pos][tile_x_pos]->_type & physics.pass_ability_mask))
+        return false;
+    }
+
+    return (x_to != x_from) || (y_to != y_from);
   }
 
   void Terrain2D::onDraw()
@@ -120,7 +188,7 @@ namespace pixeler
         {
           if (_terrain[h][w]->_type != TILE_TYPE_NONE)
           {
-            if (!_terrain[h][w]->_has_transparency)
+            if (!_terrain[h][w]->_is_transparent)
               _display.drawBitmap(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
             else
               _display.drawBitmapTransp(temp_x_draw_pos, y_draw_pos, _terrain[h][w]->_img_data, _tile_side_len, _tile_side_len);
@@ -273,99 +341,6 @@ namespace pixeler
         ++build_pos;
       }
     }
-  }
-
-  bool Terrain2D::canPass(uint16_t x_from,
-                                 uint16_t y_from,
-                                 uint16_t x_to,
-                                 uint16_t y_to,
-                                 const PhysicsState& physics,
-                                 const SpriteGeometry& geometry) const
-  {
-    if (x_to > _width || y_to > _height || !_terrain)
-      return false;
-
-    if (!physics.is_rigid)
-      return true;
-
-    if (y_to < y_from)  // UP
-    {
-      uint16_t tile_y_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // y верхнього краю тіла
-      if (tile_y_pos >= _tile_y_num)
-        return false;
-
-      uint16_t tile_x_main_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х лівого краю тіла
-      if (tile_x_main_pos >= _tile_x_num)
-        return false;
-
-      if (_terrain[tile_y_pos][tile_x_main_pos]->_type & physics.pass_ability_mask)  // чи проходить лівий кут тіла
-      {
-        uint16_t tile_x_side_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // х правого краю
-        if (tile_x_side_pos >= _tile_x_num)
-          return false;
-
-        return _terrain[tile_y_pos][tile_x_side_pos]->_type & physics.pass_ability_mask;  // якщо правий проходить, то тіло проходить
-      }
-    }
-    else if (y_to > y_from)  // DOWN
-    {
-      uint16_t tile_y_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // y куди повинна стати нижня сторона тіла
-      if (tile_y_pos >= _tile_y_num)
-        return false;
-
-      uint16_t tile_x_main_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х лівого краю
-      if (tile_x_main_pos >= _tile_x_num)
-        return false;
-
-      if (_terrain[tile_y_pos][tile_x_main_pos]->_type & physics.pass_ability_mask)
-      {
-        uint16_t tile_x_side_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // х правого краю
-        if (tile_x_side_pos >= _tile_x_num)
-          return false;
-
-        return _terrain[tile_y_pos][tile_x_side_pos]->_type & physics.pass_ability_mask;
-      }
-    }
-    else if (x_to < x_from)  // LEFT
-    {
-      uint16_t tile_x_pos = coordToTilePos(x_to + geometry.rigid_offsets.left);  // х куди стане ліва сторона тіла
-      if (tile_x_pos >= _tile_x_num)
-        return false;
-
-      uint16_t tile_y_main_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // у верхнього краю
-      if (tile_y_main_pos >= _tile_y_num)
-        return false;
-
-      if (_terrain[tile_y_main_pos][tile_x_pos]->_type & physics.pass_ability_mask)
-      {
-        uint16_t tile_y_side_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // у нижнього краю
-        if (tile_y_side_pos >= _tile_y_num)
-          return false;
-
-        return _terrain[tile_y_side_pos][tile_x_pos]->_type & physics.pass_ability_mask;
-      }
-    }
-    else if (x_to > x_from)  // RIGHT
-    {
-      uint16_t tile_x_pos = coordToTilePos(x_to + geometry.width - geometry.rigid_offsets.right - 1);  // права сторона тіла
-      if (tile_x_pos >= _tile_x_num)
-        return false;
-
-      uint16_t tile_y_main_pos = coordToTilePos(y_to + geometry.rigid_offsets.top);  // у верхнього краю
-      if (tile_y_main_pos >= _tile_y_num)
-        return false;
-
-      if (_terrain[tile_y_main_pos][tile_x_pos]->_type & physics.pass_ability_mask)
-      {
-        uint16_t tile_y_side_pos = coordToTilePos(y_to + geometry.height - geometry.rigid_offsets.bottom - 1);  // у нижнього краю
-        if (tile_y_side_pos >= _tile_y_num)
-          return false;
-
-        return _terrain[tile_y_side_pos][tile_x_pos]->_type & physics.pass_ability_mask;
-      }
-    }
-
-    return false;
   }
 
   TileType Terrain2D::getTileType(uint16_t x, uint16_t y) const
