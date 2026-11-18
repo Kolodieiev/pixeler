@@ -239,6 +239,7 @@ namespace pixeler
 
   private:
     std::vector<IGameObject2D*> _game_objs;  // Список усіх ігрових об'єктів на сцені, які повинні взаємодіяти один з одним
+    std::vector<IGameObject2D*> _view_objs;  // Кешований буфер видимих об'єктів для рендеру кадру
 
   protected:
     DataStream& _stored_objs;           // Контейнер для перенесення відбитків об'єктів до наступної сцени

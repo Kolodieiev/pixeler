@@ -63,10 +63,9 @@ namespace pixeler
     _terrain.setCameraPos(_main_obj->_x_global, _main_obj->_y_global);
     _terrain.onDraw();
 
-    std::vector<IGameObject2D*> view_objs;
-    view_objs.reserve(_game_objs.size());
-    IGameObject2D* obj;
+    _view_objs.clear();
 
+    IGameObject2D* obj;
     for (size_t i = 0; i < _game_objs.size();)
     {
       obj = _game_objs[i];
@@ -114,18 +113,18 @@ namespace pixeler
             else
               _main_obj->_y_local = _terrain.VIEW_H + _main_obj->_y_global - _terrain._height;
           }
-          view_objs.push_back(obj);
+          _view_objs.push_back(obj);
         }
       }
     }
 
-    std::sort(view_objs.begin(), view_objs.end(), [](IGameObject2D* a, IGameObject2D* b)
+    std::sort(_view_objs.begin(), _view_objs.end(), [](IGameObject2D* a, IGameObject2D* b)
               {
         if (a->_layer != b->_layer)
           return a->_layer < b->_layer;
         return a->_y_global + a->_geometry->height < b->_y_global + b->_geometry->height; });
 
-    for (auto const& game_obj : view_objs)
+    for (auto const& game_obj : _view_objs)
       game_obj->__onDraw();
 
     if (_game_UI)
