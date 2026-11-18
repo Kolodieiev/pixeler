@@ -7,6 +7,8 @@
 
 namespace pixeler
 {
+  static constexpr float RAD_TO_DEG_F{57.2957795f};
+
   IGameObject2D::IGameObject2D(uint32_t id, uint16_t type_id, IGameScene2D& game_scene, SfxPlayer& audio)
       : _scene{game_scene},
         _sfx_player{audio},
@@ -105,20 +107,24 @@ namespace pixeler
     return _y_global;
   }
 
-  uint16_t IGameObject2D::calcAngleToPoint(uint16_t x, uint16_t y)
+  uint16_t IGameObject2D::calcAngleToPoint(uint16_t x, uint16_t y) const
   {
-    int16_t azimut = atan2(y - _y_global - _geometry->y_pivot, x - _x_global - _geometry->x_pivot) * 180 / PI;
+    const float dy = static_cast<float>(static_cast<int32_t>(y) - _y_global - _geometry->y_pivot);
+    const float dx = static_cast<float>(static_cast<int32_t>(x) - _x_global - _geometry->x_pivot);
+
+    int16_t azimut = static_cast<int16_t>(atan2f(dy, dx) * RAD_TO_DEG_F);
     if (azimut < 0)
       azimut += 360;
+
     return azimut + 90;
   }
 
-  uint16_t IGameObject2D::calcDistToPoint(uint16_t x, uint16_t y)
+  uint16_t IGameObject2D::calcDistToPoint(uint16_t x, uint16_t y) const
   {
-    uint16_t a = abs(_x_global + _geometry->x_pivot - x);
-    uint16_t b = abs(_y_global + _geometry->y_pivot - y);
+    const float dx = static_cast<float>(static_cast<int32_t>(_x_global) + _geometry->x_pivot - x);
+    const float dy = static_cast<float>(static_cast<int32_t>(_y_global) + _geometry->y_pivot - y);
 
-    return sqrt((a * a) + (b * b));
+    return static_cast<uint16_t>(sqrtf(dx * dx + dy * dy));
   }
 
   void IGameObject2D::stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w)

@@ -147,7 +147,7 @@ namespace pixeler
      * @param y Координата точки.
      * @return uint16_t
      */
-    uint16_t calcAngleToPoint(uint16_t x, uint16_t y);
+    uint16_t calcAngleToPoint(uint16_t x, uint16_t y) const;
 
     /**
      * @brief Розраховує відстань від pivot об'єкта до вказаної точки.
@@ -156,7 +156,7 @@ namespace pixeler
      * @param y Координата точки.
      * @return uint16_t
      */
-    uint16_t calcDistToPoint(uint16_t x, uint16_t y);
+    uint16_t calcDistToPoint(uint16_t x, uint16_t y) const;
 
     /**
      * @brief Переміщує об'єкт на вказану кількість пікселів в сторону указаної точки.
