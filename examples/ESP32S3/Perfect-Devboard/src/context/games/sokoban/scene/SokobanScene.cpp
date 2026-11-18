@@ -634,23 +634,23 @@ namespace sokoban
     };
 
     SpriteTemplate none_tmpl{};
-    registerSpriteTemplate(TYPE_NONE, none_tmpl);
+    registerSpriteTemplate(TYPE_NONE, std::move(none_tmpl));
     //
     SpriteTemplate box_tmpl{};
     box_tmpl.img_variants.push_back(SPRITE_BOX_NORMAL);
     box_tmpl.img_variants.push_back(SPRITE_BOX_DOCKED);
     box_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_BOX, box_tmpl);
+    registerSpriteTemplate(TYPE_BOX, std::move(box_tmpl));
     //
     SpriteTemplate box_dock_tmpl{};
     box_dock_tmpl.img_variants.push_back(SPRITE_BOX_DOCK);
     box_dock_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_BOX_DOCK, box_dock_tmpl);
+    registerSpriteTemplate(TYPE_BOX_DOCK, std::move(box_dock_tmpl));
     //
     SpriteTemplate hero_tmpl{};
     hero_tmpl.img_variants.push_back(SPRITE_SOKOBAN);
     hero_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_HERO, hero_tmpl);
+    registerSpriteTemplate(TYPE_HERO, std::move(hero_tmpl));
   }
 
   void SokobanScene::buildTerrain()
@@ -703,6 +703,5 @@ namespace sokoban
 
   void SokobanScene::loadFX()
   {
-
   }
 }  // namespace sokoban

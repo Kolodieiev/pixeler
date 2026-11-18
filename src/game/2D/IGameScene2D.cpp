@@ -207,9 +207,9 @@ namespace pixeler
     ds.flush();
   }
 
-  const SpriteTemplate* IGameScene2D::registerSpriteTemplate(uint16_t type_ID, SpriteTemplate tmpl)
+  const SpriteTemplate* IGameScene2D::registerSpriteTemplate(uint16_t type_ID, SpriteTemplate&& tmpl)
   {
-    auto [it, inserted] = _sprite_templates.emplace(type_ID, tmpl);
+    auto [it, inserted] = _sprite_templates.emplace(type_ID, std::move(tmpl));
 
     if (!inserted)
     {

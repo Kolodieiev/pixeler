@@ -124,10 +124,10 @@ namespace chess
   {
     Terrain2D::ParallaxLayer board_layer =
         Terrain2D::ParallaxLayer::makeStatic(SPRITE_CHESS_BOARD,
-                                                    SPRITE_CHESS_BOARD_SZ,
-                                                    SPRITE_CHESS_BOARD_SZ,
-                                                    BOARD_IMG_GLOB_OFF_X,
-                                                    BOARD_IMG_GLOB_OFF_Y);
+                                             SPRITE_CHESS_BOARD_SZ,
+                                             SPRITE_CHESS_BOARD_SZ,
+                                             BOARD_IMG_GLOB_OFF_X,
+                                             BOARD_IMG_GLOB_OFF_Y);
     _terrain.addParallaxLayer(board_layer);
     _terrain.setBackColor(COLOR_GREY);
   }
@@ -238,25 +238,25 @@ namespace chess
     };
 
     SpriteTemplate none_tmpl{};
-    registerSpriteTemplate(TYPE_NONE, none_tmpl);
+    registerSpriteTemplate(TYPE_NONE, std::move(none_tmpl));
     //
     SpriteTemplate bishop_tmpl{};
     bishop_tmpl.img_variants.push_back(SPRITE_BISHOP_BLACK);
     bishop_tmpl.img_variants.push_back(SPRITE_BISHOP_WHITE);
     bishop_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_BISHOP, bishop_tmpl);
+    registerSpriteTemplate(TYPE_BISHOP, std::move(bishop_tmpl));
     //
     SpriteTemplate king_tmpl{};
     king_tmpl.img_variants.push_back(SPRITE_KING_BLACK);
     king_tmpl.img_variants.push_back(SPRITE_KING_WHITE);
     king_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_KING, king_tmpl);
+    registerSpriteTemplate(TYPE_KING, std::move(king_tmpl));
     //
     SpriteTemplate knight_tmpl{};
     knight_tmpl.img_variants.push_back(SPRITE_KNIGHT_BLACK);
     knight_tmpl.img_variants.push_back(SPRITE_KNIGHT_WHITE);
     knight_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_KNIGHT, knight_tmpl);
+    registerSpriteTemplate(TYPE_KNIGHT, std::move(knight_tmpl));
     //
     SpriteTemplate pawn_tmpl{};
     pawn_tmpl.img_variants.push_back(SPRITE_PAWN_BLACK);
@@ -264,22 +264,22 @@ namespace chess
     pawn_tmpl.img_variants.push_back(SPRITE_QUEEN_BLACK);
     pawn_tmpl.img_variants.push_back(SPRITE_QUEEN_WHITE);
     pawn_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_PAWN, pawn_tmpl);
+    registerSpriteTemplate(TYPE_PAWN, std::move(pawn_tmpl));
     //
     SpriteTemplate player_tmpl{};
-    registerSpriteTemplate(TYPE_PLAYER, player_tmpl);
+    registerSpriteTemplate(TYPE_PLAYER, std::move(player_tmpl));
     //
     SpriteTemplate queen_tmpl{};
     queen_tmpl.img_variants.push_back(SPRITE_QUEEN_BLACK);
     queen_tmpl.img_variants.push_back(SPRITE_QUEEN_WHITE);
     queen_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_QUEEN, queen_tmpl);
+    registerSpriteTemplate(TYPE_QUEEN, std::move(queen_tmpl));
     //
     SpriteTemplate rook_tmpl{};
     rook_tmpl.img_variants.push_back(SPRITE_ROOK_BLACK);
     rook_tmpl.img_variants.push_back(SPRITE_ROOK_WHITE);
     rook_tmpl.geometry_variants.push_back(sprite_geometry);
-    registerSpriteTemplate(TYPE_ROOK, rook_tmpl);
+    registerSpriteTemplate(TYPE_ROOK, std::move(rook_tmpl));
   }
 
   void IChessScene::moveCursorUp()

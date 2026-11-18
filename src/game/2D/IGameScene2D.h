@@ -187,7 +187,7 @@ namespace pixeler
      * @param tmpl Заповнений шаблон спрайта
      * @return Адреса зареєстрованого шаблону. Викликає скидання МК, якщо шаблон для вказаного типу було зареєстровано раніше
      */
-    const SpriteTemplate* registerSpriteTemplate(uint16_t type_ID, SpriteTemplate tmpl);
+    const SpriteTemplate* registerSpriteTemplate(uint16_t type_ID, SpriteTemplate&& tmpl);
 
     /**
      * @brief Повертає шаблон спрайта за ідентифікатором типу об'єкта.
