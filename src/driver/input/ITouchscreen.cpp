@@ -19,15 +19,8 @@ namespace pixeler
 
   void ITouchscreen::reset()
   {
-    _is_holded = false;
     _is_pressed = false;
     _is_released = false;
-    _has_touch = false;
-    _swipe = SWIPE_NONE;
-    _x_s = 0;
-    _y_s = 0;
-    _x_e = 0;
-    _y_e = 0;
   }
 
   void ITouchscreen::lock(unsigned long lock_duration)
