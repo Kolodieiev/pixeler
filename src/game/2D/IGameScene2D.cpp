@@ -4,7 +4,7 @@
 
 namespace pixeler
 {
-  static const uint8_t SCENE_TASK_QUEUE_DEPTH{20};
+  static constexpr uint8_t SCENE_TASK_QUEUE_DEPTH{20};
 
   IGameScene2D::IGameScene2D(DataStream& stored_objs)
       : _stored_objs{stored_objs},
