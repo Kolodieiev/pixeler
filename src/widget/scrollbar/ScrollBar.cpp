@@ -14,8 +14,6 @@ namespace pixeler
     clone->_cur_value = _cur_value;
     clone->_slider_color = _slider_color;
     clone->_orientation = _orientation;
-    clone->_slider_last_x_pos = _slider_last_x_pos;
-    clone->_slider_last_y_pos = _slider_last_y_pos;
     clone->_slider_width = _slider_width;
     clone->_slider_height = _slider_height;
     clone->_slider_step_size = _slider_step_size;
@@ -87,49 +85,33 @@ namespace pixeler
       return;
     }
 
-    uint16_t x_offset{0};
-    uint16_t y_offset{0};
-
-    if (_parent)
-    {
-      x_offset = _parent->getXPos();
-      y_offset = _parent->getYPos();
-    }
-
-    uint16_t slider_x_pos = _x_pos + x_offset;
-    uint16_t slider_y_pos = _y_pos + y_offset;
-
-    uint16_t step_value = _smart_scroll_enabled ? _smart_value : _cur_value;
+    const uint16_t abs_x = getXPos();
+    const uint16_t abs_y = getYPos();
+    const uint16_t step_value = _smart_scroll_enabled ? _smart_value : _cur_value;
+    const uint16_t offset = _slider_step_size * step_value;
 
     if (_orientation == VERTICAL)
-      slider_y_pos = _y_pos + y_offset + _slider_step_size * step_value;
+    {
+      if (offset > 0)
+        _display.fillRect(abs_x, abs_y, _width, offset, _back_color);
+
+      _display.fillRect(abs_x, abs_y + offset, _slider_width, _slider_height, _slider_color);
+
+      const uint16_t after_offset = offset + _slider_height;
+      if (after_offset < _height)
+        _display.fillRect(abs_x, abs_y + after_offset, _width, _height - after_offset, _back_color);
+    }
     else
-      slider_x_pos = _x_pos + x_offset + _slider_step_size * step_value;
+    {
+      if (offset > 0)
+        _display.fillRect(abs_x, abs_y, offset, _height, _back_color);
 
-    // fill body
-    _display.fillRect(_x_pos + x_offset, _y_pos + y_offset, _width, _height, _back_color);
+      _display.fillRect(abs_x + offset, abs_y, _slider_width, _slider_height, _slider_color);
 
-    // clear old
-    if (_slider_last_x_pos < _x_pos + x_offset)
-      _slider_last_x_pos = _x_pos + x_offset;
-    if (_slider_last_y_pos < _y_pos + y_offset)
-      _slider_last_y_pos = _y_pos + y_offset;
-
-    uint16_t old_slider_w = _slider_width;
-    if (_slider_last_x_pos + _slider_width > _x_pos + x_offset + _width)
-      old_slider_w = _x_pos + x_offset + _width - _slider_last_x_pos;
-
-    uint16_t old_slider_h = _slider_height;
-    if (_slider_last_y_pos + _slider_height > _y_pos + y_offset + _height)
-      old_slider_h = _y_pos + y_offset + _height - _slider_last_y_pos;
-
-    _display.fillRect(_slider_last_x_pos, _slider_last_y_pos, old_slider_w, old_slider_h, _back_color);
-
-    _slider_last_x_pos = slider_x_pos;
-    _slider_last_y_pos = slider_y_pos;
-
-    // draw new
-    _display.fillRect(slider_x_pos, slider_y_pos, _slider_width, _slider_height, _slider_color);
+      const uint16_t after_offset = offset + _slider_width;
+      if (after_offset < _width)
+        _display.fillRect(abs_x + after_offset, abs_y, _width - after_offset, _height, _back_color);
+    }
   }
 
   void ScrollBar::setMax(uint16_t max_value)

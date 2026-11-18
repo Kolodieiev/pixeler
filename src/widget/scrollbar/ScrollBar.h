@@ -127,8 +127,6 @@ namespace pixeler
   private:
     uint16_t _max_value{1};
     uint16_t _cur_value{0};
-    uint16_t _slider_last_x_pos{0};
-    uint16_t _slider_last_y_pos{0};
     uint16_t _slider_color{COLOR_WHITE};
     uint16_t _smart_value{0};
 
