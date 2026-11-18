@@ -220,18 +220,17 @@ namespace pixeler
 
   void FixedMenu::setPageNum(uint16_t page_pos)
   {
-    uint16_t capacity = getItemsPerPage();
+    const uint16_t capacity = getItemsPerPage();
     if (capacity == 0 || _widgets.empty())
       return;
 
-    uint32_t new_index = static_cast<uint32_t>(page_pos) * capacity;
-
-    if (new_index >= _widgets.size())
-      _first_item_index = ((_widgets.size() - 1) / capacity) * capacity;
+    const uint16_t max_pages = getPagesCount();
+    if (page_pos >= max_pages)
+      _first_item_index = (max_pages - 1) * capacity;
     else
-      _first_item_index = static_cast<uint16_t>(new_index);
+      _first_item_index = page_pos * capacity;
 
-    drawItems(_first_item_index, capacity);
+    drawItems(_first_item_index, getCyclesCount());
   }
 
   void FixedMenu::copyTo(IWidget* widget) const
