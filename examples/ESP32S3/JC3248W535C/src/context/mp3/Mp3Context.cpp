@@ -227,6 +227,7 @@ void Mp3Context::showTracksTmpl()
 
   _tracks_list->setOnNextItemsLoadHandler(onNextItemsLoad, this);
   _tracks_list->setOnPrevItemsLoadHandler(onPrevItemsLoad, this);
+  _tracks_list->setTouchSupport(true);
 
   _mode = MODE_TRACK_SEL;
 
@@ -237,17 +238,18 @@ void Mp3Context::showPlaylistsTmpl()
 {
   IWidgetContainer* layout = WidgetCreator::getEmptyLayout();
 
-  _playlists_list = new FixedMenu(ID_F_MENU);
-  layout->addWidget(_playlists_list);
-  _playlists_list->setBackColor(COLOR_MENU_ITEM);
-  _playlists_list->setWidth(UI_WIDTH - SCROLLBAR_WIDTH);
-  _playlists_list->setHeight(UI_HEIGHT);
-  _playlists_list->setItemHeight((UI_HEIGHT - 2) / PLAYLIST_ITEMS_NUM);
+  _playlist = new FixedMenu(ID_F_MENU);
+  layout->addWidget(_playlist);
+  _playlist->setBackColor(COLOR_MENU_ITEM);
+  _playlist->setWidth(UI_WIDTH - SCROLLBAR_WIDTH);
+  _playlist->setHeight(UI_HEIGHT);
+  _playlist->setItemHeight((UI_HEIGHT - 2) / PLAYLIST_ITEMS_NUM);
+  _playlist->setTouchSupport(true);
 
   if (!_track_name.isEmpty())
   {
     MenuItem* cont_item = WidgetCreator::getMenuItem(ID_CONT_ITEM);
-    _playlists_list->addItem(cont_item);
+    _playlist->addItem(cont_item);
 
     Label* cont_lbl = WidgetCreator::getItemLabel(STR_CONTINUE, font_10x20);
     cont_item->setLabel(cont_lbl);
@@ -266,7 +268,7 @@ void Mp3Context::fillPlaylists()
   uint16_t size = items.size();
 
   for (size_t i = 0; i < size; ++i)
-    _playlists_list->addItem(items[i]);
+    _playlist->addItem(items[i]);
 }
 
 void Mp3Context::makeMenuPlaylistsItems(std::vector<MenuItem*>& items)
@@ -352,6 +354,7 @@ void Mp3Context::showPlMenu()
   _context_menu->setWidth(120);
   _context_menu->setHeight(44);
   _context_menu->setPos(UI_WIDTH - _context_menu->getWidth(), UI_HEIGHT - _context_menu->getHeight());
+  _context_menu->setTouchSupport(true);
 
   MenuItem* del_item = WidgetCreator::getMenuItem(ID_ITEM_DEL);
   _context_menu->addItem(del_item);
@@ -630,7 +633,7 @@ void Mp3Context::up()
 {
   if (_mode == MODE_PLST_SEL)
   {
-    _playlists_list->pageUp();
+    _playlist->pageUp();
   }
   else if (_mode == MODE_TRACK_SEL)
   {
@@ -650,7 +653,7 @@ void Mp3Context::down()
 {
   if (_mode == MODE_PLST_SEL)
   {
-    _playlists_list->pageDown();
+    _playlist->pageDown();
   }
   else if (_mode == MODE_TRACK_SEL)
   {
@@ -670,7 +673,7 @@ void Mp3Context::click()
 {
   if (_mode == MODE_PLST_SEL)
   {
-    uint16_t item_ID = getSelectedItemID(_playlists_list);
+    uint16_t item_ID = getSelectedItemID(_playlist);
 
     if (item_ID == ID_CONT_ITEM)
     {
@@ -679,7 +682,7 @@ void Mp3Context::click()
     }
     else
     {
-      _playlist_name = getSelectedItemText(_playlists_list);
+      _playlist_name = getSelectedItemText(_playlist);
       _track_pos = 0;
       indexTracks();
       showTracksTmpl();

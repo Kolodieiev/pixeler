@@ -128,7 +128,7 @@ private:
   Label* _msg_lbl;
   FixedMenu* _context_menu;
   DynamicMenu* _tracks_list;
-  FixedMenu* _playlists_list;
+  FixedMenu* _playlist;
   //
   unsigned long _upd_msg_time{0};
   int32_t _track_time{-1};
