@@ -125,6 +125,7 @@ namespace pixeler
   void IMenu::setItemsSpacing(uint16_t items_spacing)
   {
     _items_spacing = items_spacing;
+    _is_changed = true;
   }
 
   uint16_t IMenu::getItemsSpacing() const
