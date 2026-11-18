@@ -50,11 +50,12 @@ namespace pixeler
 
   void ComboItem::selectPos(uint16_t pos)
   {
-    if (_range.empty())
+    const size_t total = _range.size();
+    if (total == 0)
       return;
 
-    if (pos >= _range.size())
-      pos = _range.size() - 1;
+    if (pos >= total)
+      pos = total - 1;
 
     _selected_pos = pos;
     _label->setText(_range[_selected_pos]);
