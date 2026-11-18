@@ -6,8 +6,6 @@ namespace pixeler
 {
   static const uint8_t SCENE_TASK_QUEUE_DEPTH{20};
 
-  uint32_t IGameScene2D::_obj_id_counter = 0;
-
   IGameScene2D::IGameScene2D(DataStream& stored_objs)
       : _terrain{Terrain2D()},
         _stored_objs{stored_objs},
@@ -21,8 +19,6 @@ namespace pixeler
     }
 
     _owner_task_handle = xTaskGetCurrentTaskHandle();
-
-    _obj_id_counter = 0;
   }
 
   IGameScene2D::~IGameScene2D()

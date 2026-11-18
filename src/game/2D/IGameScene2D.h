@@ -251,7 +251,7 @@ namespace pixeler
     TaskHandle_t _owner_task_handle{nullptr};
     QueueHandle_t _task_queue{nullptr};
 
-    static uint32_t _obj_id_counter;  // Глобальний лічильник ідентифікаторів об'єктів.
+    uint32_t _obj_id_counter{0};  // Глобальний лічильник ідентифікаторів об'єктів
 
   protected:
     uint8_t _next_scene_ID{0};  // Ідентифікатор наступної сцени
