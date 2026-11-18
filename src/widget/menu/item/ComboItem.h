@@ -25,7 +25,7 @@ namespace pixeler
      * @brief Повертає вказівник на глибоку копію віджета.
      *
      * @param id Ідентифікатор, який буде присвоєно новому віджету.
-     * @return SpinItem*
+     * @return ComboItem*
      */
     ComboItem* clone(uint16_t id) const override;
 
