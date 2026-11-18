@@ -41,7 +41,7 @@ namespace pixeler
 
     return true;
   }
-  
+
   void IMenu::setItemHeight(uint16_t height)
   {
     _item_height = height > 0 ? height : 1;
@@ -137,7 +137,10 @@ namespace pixeler
 
   uint16_t IMenu::getItemsPerPage() const
   {
-    return static_cast<float>(_height) / _item_height;
+    if (_orientation == VERTICAL)
+      return _height / (_item_height + _items_spacing);
+    else
+      return _width / (_item_width + _items_spacing);
   }
 
   void IMenu::onDraw()
