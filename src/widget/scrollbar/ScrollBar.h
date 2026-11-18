@@ -133,11 +133,9 @@ namespace pixeler
     uint16_t _slider_width{1};
     uint16_t _slider_height{1};
     uint16_t _slider_step_size{1};
-    uint16_t _steps_to_scroll{0};
-    uint16_t _steps_counter{0};
+    uint16_t _steps_to_scroll{1};
 
     Orientation _orientation{VERTICAL};
-    uint8_t _scroll_direction{0};
     bool _smart_scroll_enabled{false};
   };
 

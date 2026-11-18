@@ -20,8 +20,6 @@ namespace pixeler
     clone->_smart_scroll_enabled = _smart_scroll_enabled;
     clone->_smart_value = _smart_value;
     clone->_steps_to_scroll = _steps_to_scroll;
-    clone->_steps_counter = _steps_counter;
-    clone->_scroll_direction = _scroll_direction;
   }
 
   ScrollBar* ScrollBar::clone(uint16_t id) const
@@ -45,11 +43,7 @@ namespace pixeler
     _cur_value = (value > max_index) ? max_index : value;
 
     if (_smart_scroll_enabled)
-    {
       _smart_value = _cur_value / _steps_to_scroll;
-      _steps_counter = _cur_value % _steps_to_scroll;
-      _scroll_direction = 0;
-    }
 
     _is_changed = true;
   }
@@ -171,33 +165,18 @@ namespace pixeler
 
     ++_cur_value;
 
-    if (!_smart_scroll_enabled)
+    if (_smart_scroll_enabled)
     {
-      _is_changed = true;
-      return true;
-    }
-
-    if (_scroll_direction == 0)
-    {
-      if (_steps_counter < _steps_to_scroll - 1)
+      const uint16_t next_smart = _cur_value / _steps_to_scroll;
+      if (next_smart != _smart_value)
       {
-        ++_steps_counter;
-      }
-      else
-      {
-        _steps_counter = 0;
-        ++_smart_value;
+        _smart_value = next_smart;
         _is_changed = true;
       }
     }
-    else if (_steps_counter > 0)
-    {
-      --_steps_counter;
-    }
     else
     {
-      _scroll_direction = 0;
-      _steps_counter = 1;
+      _is_changed = true;
     }
 
     return true;
@@ -210,33 +189,18 @@ namespace pixeler
 
     --_cur_value;
 
-    if (!_smart_scroll_enabled)
+    if (_smart_scroll_enabled)
     {
-      _is_changed = true;
-      return true;
-    }
-
-    if (_scroll_direction == 1)
-    {
-      if (_steps_counter < _steps_to_scroll - 1)
+      const uint16_t next_smart = _cur_value / _steps_to_scroll;
+      if (next_smart != _smart_value)
       {
-        ++_steps_counter;
-      }
-      else
-      {
-        _steps_counter = 0;
-        --_smart_value;
+        _smart_value = next_smart;
         _is_changed = true;
       }
     }
-    else if (_steps_counter > 0)
-    {
-      --_steps_counter;
-    }
     else
     {
-      _scroll_direction = 1;
-      _steps_counter = 1;
+      _is_changed = true;
     }
 
     return true;
