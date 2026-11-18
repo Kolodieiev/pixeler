@@ -9,12 +9,9 @@ namespace pixeler
 
   void EmptyLayout::onDraw()
   {
-    if (!_is_enabled)
-      return;
-
     if (!_is_changed)
     {
-      if (_visibility != INVISIBLE)
+      if (_visibility != INVISIBLE && _is_enabled)
       {
         for (IWidget* widget : _widgets)
           widget->onDraw();
