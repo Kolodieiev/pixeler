@@ -39,7 +39,7 @@ namespace pixeler
   {
     if (range.empty())
     {
-      log_e("Вектор не може бути порожім");
+      log_e("Вектор не може бути порожнім");
       esp_restart();
     }
 
