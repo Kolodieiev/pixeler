@@ -251,14 +251,11 @@ namespace pixeler
 
   uint16_t IMenu::getCyclesCount() const
   {
-    uint16_t cycles_count;
+    if (_first_item_index >= _widgets.size())
+      return 0;
 
-    if (_orientation == VERTICAL)
-      cycles_count = static_cast<float>(_height) / (_item_height + _items_spacing);
-    else
-      cycles_count = static_cast<float>(_width) / (_item_width + _items_spacing);
-
-    uint16_t items_to_end_count = _widgets.size() - _first_item_index;
+    uint16_t cycles_count = getItemsPerPage();
+    const uint16_t items_to_end_count = _widgets.size() - _first_item_index;
 
     if (cycles_count > items_to_end_count)
       cycles_count = items_to_end_count;
