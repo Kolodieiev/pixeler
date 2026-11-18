@@ -7,26 +7,25 @@ namespace pixeler
 
   bool FixedMenu::pageUp()
   {
-    uint16_t capacity = getItemsPerPage();
+    const uint16_t capacity = getItemsPerPage();
+    const size_t total = _widgets.size();
 
-    if (capacity == 0 || _widgets.empty())
+    if (capacity == 0 || total == 0)
       return false;
 
     if (_first_item_index > 0)
     {
-      if (_first_item_index >= capacity)  // Перевіряємо, чи ми можемо відняти цілу сторінку
+      if (_first_item_index >= capacity)
         _first_item_index -= capacity;
       else
-        _first_item_index = 0;  // Якщо до початку менше, ніж ціла сторінка, стаємо в нуль
+        _first_item_index = 0;
     }
     else if (_is_loop_enbl)
     {
-      uint16_t total = _widgets.size();  // Переходимо до останньої можливої сторінки
-
       if (total <= capacity)
         return false;
 
-      _first_item_index = ((total - 1) / capacity) * capacity;  // Розраховуємо індекс для відображення залишку елементів
+      _first_item_index = ((total - 1) / capacity) * capacity;
     }
     else
     {
@@ -40,7 +39,7 @@ namespace pixeler
       _widgets[_cur_focus_pos]->setFocus();
     }
 
-    drawItems(_first_item_index, capacity);
+    drawItems(_first_item_index, getCyclesCount());
     return true;
   }
 
@@ -72,7 +71,8 @@ namespace pixeler
 
   bool FixedMenu::focusUp()
   {
-    if (_has_touch_support || _widgets.empty())
+    const size_t total = _widgets.size();
+    if (_has_touch_support || total == 0)
       return false;
 
     IWidget* item = _widgets[_cur_focus_pos];
@@ -93,7 +93,6 @@ namespace pixeler
     }
     else if (_is_loop_enbl)
     {
-      const uint16_t total = _widgets.size();
       if (total > capacity)
       {
         need_redraw = true;
@@ -118,7 +117,8 @@ namespace pixeler
 
   bool FixedMenu::focusDown()
   {
-    if (_has_touch_support || _widgets.empty())
+    const size_t total = _widgets.size();
+    if (_has_touch_support || total == 0)
       return false;
 
     IWidget* item = _widgets[_cur_focus_pos];
@@ -127,7 +127,7 @@ namespace pixeler
     const uint16_t capacity = getItemsPerPage();
     bool need_redraw = false;
 
-    if (_cur_focus_pos < _widgets.size() - 1)
+    if (_cur_focus_pos < total - 1)
     {
       ++_cur_focus_pos;
 
@@ -142,7 +142,7 @@ namespace pixeler
       _cur_focus_pos = 0;
       _first_item_index = 0;
 
-      need_redraw = _widgets.size() > capacity;
+      need_redraw = total > capacity;
     }
 
     item = _widgets[_cur_focus_pos];
@@ -189,7 +189,7 @@ namespace pixeler
 
   uint16_t FixedMenu::getPagesCount() const
   {
-    uint16_t capacity = getItemsPerPage();
+    const uint16_t capacity = getItemsPerPage();
     if (capacity == 0 || _widgets.empty())
       return 0;
 
@@ -198,7 +198,7 @@ namespace pixeler
 
   uint16_t FixedMenu::getPageNum() const
   {
-    uint16_t capacity = getItemsPerPage();
+    const uint16_t capacity = getItemsPerPage();
     if (capacity == 0 || _widgets.empty())
       return 0;
 
