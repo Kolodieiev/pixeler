@@ -59,10 +59,7 @@ namespace pixeler
     MenuItem::copyTo(widget);
 
     SpinItem* clone = static_cast<SpinItem*>(widget);
-    clone->setLabel(_label->clone(_label->getID()));
     clone->setSpin(_spinbox->clone(_spinbox->getID()));
-    if (_image)
-      clone->setImage(_image->clone(_image->getID()));
   }
 
   SpinItem* SpinItem::clone(uint16_t id) const
