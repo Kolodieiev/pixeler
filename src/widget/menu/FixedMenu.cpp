@@ -50,7 +50,7 @@ namespace pixeler
     return true;
   }
 
-  bool FixedMenu::pageDown()
+  bool FixedMenu::pageDown()  // TODO
   {
     uint16_t capacity = getItemsPerPage();
 
@@ -174,33 +174,30 @@ namespace pixeler
 
   void FixedMenu::setCurrFocusPos(uint16_t focus_pos)
   {
-    if (_has_touch_support || _widgets.size() < 2 || _cur_focus_pos == focus_pos || focus_pos >= _widgets.size())
+    const size_t total = _widgets.size();
+    if (_has_touch_support || total < 2 || _cur_focus_pos == focus_pos || focus_pos >= total)
       return;
 
     IWidget* item = _widgets[_cur_focus_pos];
     item->removeFocus();
 
     _cur_focus_pos = focus_pos;
-    uint16_t cycles_count = getCyclesCount();
 
-    uint16_t to_end = _widgets.size() - 1 - _cur_focus_pos;
+    const uint16_t capacity = getItemsPerPage();
+    uint16_t to_end = total - 1 - _cur_focus_pos;
 
-    if (to_end >= cycles_count)
-    {
+    if (to_end >= capacity)
       _first_item_index = _cur_focus_pos;
-    }
+    else if (total <= capacity)
+      _first_item_index = 0;
     else
-    {
-      if (_widgets.size() <= cycles_count)
-        _first_item_index = 0;
-      else
-        _first_item_index = _widgets.size() - cycles_count;
-    }
+      _first_item_index = total - capacity;
 
     item = _widgets[_cur_focus_pos];
     item->setFocus();
 
-    drawItems(_first_item_index, cycles_count);
+    // Відмальовуємо фактичну кількість на сторінку
+    drawItems(_first_item_index, getCyclesCount());
   }
 
   uint16_t FixedMenu::getPagesCount() const
