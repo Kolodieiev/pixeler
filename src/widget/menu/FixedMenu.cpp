@@ -90,8 +90,8 @@ namespace pixeler
 
     IWidget* item = _widgets[_cur_focus_pos];
     item->removeFocus();
-    uint16_t cycles_count = getCyclesCount();
 
+    const uint16_t capacity = getItemsPerPage();
     bool need_redraw = false;
 
     if (_cur_focus_pos > 0)
@@ -106,24 +106,26 @@ namespace pixeler
     }
     else if (_is_loop_enbl)
     {
-      if (_widgets.size() > cycles_count)
+      const uint16_t total = _widgets.size();
+      if (total > capacity)
       {
         need_redraw = true;
-        _first_item_index = _widgets.size() - cycles_count;
+        _first_item_index = ((total - 1) / capacity) * capacity;
       }
       else
       {
         _first_item_index = 0;
       }
 
-      _cur_focus_pos = _widgets.size() - 1;
+      _cur_focus_pos = total - 1;
     }
 
     item = _widgets[_cur_focus_pos];
     item->setFocus();
 
     if (need_redraw)
-      drawItems(_first_item_index, cycles_count);
+      drawItems(_first_item_index, getCyclesCount());
+
     return true;
   }
 
@@ -134,15 +136,15 @@ namespace pixeler
 
     IWidget* item = _widgets[_cur_focus_pos];
     item->removeFocus();
-    uint16_t cycles_count = getCyclesCount();
 
+    const uint16_t capacity = getItemsPerPage();
     bool need_redraw = false;
 
     if (_cur_focus_pos < _widgets.size() - 1)
     {
       ++_cur_focus_pos;
 
-      if (_cur_focus_pos > _first_item_index + cycles_count - 1)
+      if (_cur_focus_pos >= _first_item_index + getCyclesCount())
       {
         need_redraw = true;
         ++_first_item_index;
@@ -153,14 +155,14 @@ namespace pixeler
       _cur_focus_pos = 0;
       _first_item_index = 0;
 
-      need_redraw = _widgets.size() > cycles_count;
+      need_redraw = _widgets.size() > capacity;
     }
 
     item = _widgets[_cur_focus_pos];
     item->setFocus();
 
     if (need_redraw)
-      drawItems(_first_item_index, cycles_count);
+      drawItems(_first_item_index, getCyclesCount());
 
     return true;
   }
