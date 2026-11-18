@@ -7,8 +7,7 @@ namespace pixeler
   static const uint8_t SCENE_TASK_QUEUE_DEPTH{20};
 
   IGameScene2D::IGameScene2D(DataStream& stored_objs)
-      : _terrain{Terrain2D()},
-        _stored_objs{stored_objs},
+      : _stored_objs{stored_objs},
         _task_queue{xQueueCreate(SCENE_TASK_QUEUE_DEPTH, sizeof(std::function<void()>*))}
 
   {
@@ -207,119 +206,115 @@ namespace pixeler
     ds.flush();
   }
 
-  const SpriteTemplate* IGameScene2D::registerSpriteTemplate(uint16_t type_ID, SpriteTemplate&& tmpl)
+  const SpriteTemplate* IGameScene2D::registerSpriteTemplate(uint16_t type_IDs, SpriteTemplate&& tmpl)
   {
-    auto [it, inserted] = _sprite_templates.emplace(type_ID, std::move(tmpl));
+    auto [it, inserted] = _sprite_templates.emplace(type_IDs, std::move(tmpl));
 
     if (!inserted)
     {
-      log_e("Спроба повторної реєстрації шаблону спрайта для type_ID %u", type_ID);
+      log_e("Спроба повторної реєстрації шаблону спрайта для type_IDs %u", type_IDs);
       esp_restart();
     }
 
     return &it->second;
   }
 
-  const SpriteTemplate* IGameScene2D::getSpriteTemplate(uint16_t type_ID) const
+  const SpriteTemplate* IGameScene2D::getSpriteTemplate(uint16_t type_IDs) const
   {
-    auto it = _sprite_templates.find(type_ID);
+    auto it = _sprite_templates.find(type_IDs);
 
     if (it == _sprite_templates.end())
     {
-      log_e("Не зареєстровано шаблон спрайта для type_ID %u", type_ID);
+      log_e("Не зареєстровано шаблон спрайта для type_IDs %u", type_IDs);
       esp_restart();
     }
 
     return &it->second;
   }
 
-  std::vector<IGameObject2D*> IGameScene2D::getObjByType(std::span<const uint16_t> type_ID, const IGameObject2D* exclude)
+  bool hasTypeID(uint16_t obj_type, std::span<const uint16_t> type_IDs)
   {
+    for (const uint16_t id : type_IDs)
+    {
+      if (obj_type == id)
+        return true;
+    }
+
+    return false;
+  }
+
+  std::vector<IGameObject2D*> IGameScene2D::getObjByType(std::span<const uint16_t> type_IDs, const IGameObject2D* exclude)
+  {
+    if (type_IDs.empty())
+      return {};
+
     std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
-    for (auto const& obj : _game_objs)
+    for (IGameObject2D* obj : _game_objs)
     {
-      if (obj != exclude)
-      {
-        for (const uint16_t id : type_ID)
-        {
-          if (obj->_TYPE_ID == id)
-          {
-            ret_objs.push_back(obj);
-            break;
-          }
-        }
-      }
+      if (obj != exclude && hasTypeID(obj->_TYPE_ID, type_IDs))
+        ret_objs.push_back(obj);
     }
 
     return ret_objs;
   }
 
-  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeAt(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, const IGameObject2D* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeAt(std::span<const uint16_t> type_IDs, uint16_t x, uint16_t y, const IGameObject2D* exclude)
   {
+    if (type_IDs.empty())
+      return {};
+
     std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
-    for (auto const& obj : _game_objs)
+    for (IGameObject2D* obj : _game_objs)
     {
-      if (obj != exclude && obj->hasIntersectWithPoint(x, y))
-      {
-        for (const uint16_t id : type_ID)
-        {
-          if (obj->_TYPE_ID == id)
-          {
-            ret_objs.push_back(obj);
-            break;
-          }
-        }
-      }
+      if (obj != exclude && hasTypeID(obj->_TYPE_ID, type_IDs) && obj->hasIntersectWithPoint(x, y))
+        ret_objs.push_back(obj);
     }
 
     return ret_objs;
   }
 
-  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeInRect(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, uint16_t width, uint16_t height, const IGameObject2D* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeInRect(std::span<const uint16_t> type_IDs,
+                                                               uint16_t x,
+                                                               uint16_t y,
+                                                               uint16_t width,
+                                                               uint16_t height,
+                                                               const IGameObject2D* exclude)
   {
+    if (type_IDs.empty())
+      return {};
+
     std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
-    for (auto const& obj : _game_objs)
+    for (IGameObject2D* obj : _game_objs)
     {
-      if (obj != exclude && obj->hasIntersectWithRect(x, y, width, height))
-      {
-        for (const uint16_t id : type_ID)
-        {
-          if (obj->_TYPE_ID == id)
-          {
-            ret_objs.push_back(obj);
-            break;
-          }
-        }
-      }
+      if (obj != exclude && hasTypeID(obj->_TYPE_ID, type_IDs) && obj->hasIntersectWithRect(x, y, width, height))
+        ret_objs.push_back(obj);
     }
 
     return ret_objs;
   }
 
-  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeInCircle(std::span<const uint16_t> type_ID, uint16_t x, uint16_t y, uint16_t radius, const IGameObject2D* exclude)
+  std::vector<IGameObject2D*> IGameScene2D::getObjByTypeInCircle(std::span<const uint16_t> type_IDs,
+                                                                 uint16_t x,
+                                                                 uint16_t y,
+                                                                 uint16_t radius,
+                                                                 const IGameObject2D* exclude)
   {
+    if (type_IDs.empty())
+      return {};
+
     std::vector<IGameObject2D*> ret_objs;
     ret_objs.reserve(10);
 
-    for (auto const& obj : _game_objs)
+    for (IGameObject2D* obj : _game_objs)
     {
-      if (obj != exclude && obj->hasIntersectWithCircle(x, y, radius))
-      {
-        for (const uint16_t id : type_ID)
-        {
-          if (obj->_TYPE_ID == id)
-          {
-            ret_objs.push_back(obj);
-            break;
-          }
-        }
-      }
+      if (obj != exclude && hasTypeID(obj->_TYPE_ID, type_IDs) && obj->hasIntersectWithCircle(x, y, radius))
+        ret_objs.push_back(obj);
     }
 
     return ret_objs;
