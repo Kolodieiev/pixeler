@@ -32,29 +32,17 @@ namespace pixeler
 
   void IGameObject2D::__onDraw()
   {
+    const uint16_t* frame = nullptr;
+
     if (_sprite.has_animation)
     {
-      if (!_sprite.animation)
+      if (!_sprite.animation || _sprite.animation->empty())
       {
-        log_e("Не встановлено вказівник на вектор анімації");
+        log_e("Не встановлено або порожній вектор анімації");
         esp_restart();
       }
 
-      if (_sprite.angle == 0)
-        _display.drawBitmapTransp(_x_local,
-                                  _y_local,
-                                  _sprite.animation->at(_sprite.anim_pos),
-                                  _geometry->width,
-                                  _geometry->height);
-      else
-        _display.drawBitmapRotated(_x_local,
-                                   _y_local,
-                                   _sprite.animation->at(_sprite.anim_pos),
-                                   _geometry->width,
-                                   _geometry->height,
-                                   _geometry->x_pivot,
-                                   _geometry->y_pivot,
-                                   _sprite.angle);
+      frame = (*_sprite.animation)[_sprite.anim_pos];
 
       if (_sprite.frames_counter != _sprite.frames_between_anim)
       {
@@ -77,22 +65,28 @@ namespace pixeler
         esp_restart();
       }
 
-      if (_sprite.angle == 0)
-        _display.drawBitmapTransp(_x_local,
-                                  _y_local,
-                                  _sprite.image,
-                                  _geometry->width,
-                                  _geometry->height);
-      else
-        _display.drawBitmapRotated(_x_local,
-                                   _y_local,
-                                   _sprite.image,
-                                   _geometry->width,
-                                   _geometry->height,
-                                   _geometry->x_pivot,
-                                   _geometry->y_pivot,
-                                   _sprite.angle);
+      frame = _sprite.image;
     }
+    else
+    {
+      return;
+    }
+
+    if (_sprite.angle == 0)
+      _display.drawBitmapTransp(_x_local,
+                                _y_local,
+                                frame,
+                                _geometry->width,
+                                _geometry->height);
+    else
+      _display.drawBitmapRotated(_x_local,
+                                 _y_local,
+                                 frame,
+                                 _geometry->width,
+                                 _geometry->height,
+                                 _geometry->x_pivot,
+                                 _geometry->y_pivot,
+                                 _sprite.angle);
   }
 
   void IGameObject2D::setPos(uint16_t x_pos, uint16_t y_pos)
