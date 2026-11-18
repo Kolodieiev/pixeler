@@ -1,10 +1,21 @@
 #pragma GCC optimize("O3")
 #include "Terrain2D.h"
 
-// #include "../IGameScene2D.h"
-
 namespace pixeler
 {
+#ifdef GRAPHICS_ENABLED
+  Terrain2D::Terrain2D() : VIEW_W{UI_WIDTH},
+                           VIEW_H{UI_HEIGHT},
+                           HALF_VIEW_W{UI_WIDTH / 2},
+                           HALF_VIEW_H{UI_HEIGHT / 2} {}
+#else
+  // Заглушка, щоб не видаляти рушій, якщо графіку вимкнуто
+  Terrain2D::Terrain2D() : VIEW_W{10},
+                           VIEW_H{10},
+                           HALF_VIEW_W{5U},
+                           HALF_VIEW_H{5U} {}
+#endif  // #ifdef GRAPHICS_ENABLED
+
   Terrain2D::~Terrain2D()
   {
     freeMem();
