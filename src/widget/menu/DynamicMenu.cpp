@@ -8,73 +8,52 @@ namespace pixeler
 
   bool DynamicMenu::pageUp()
   {
-    if (_widgets.empty())
+    if (_widgets.empty() || !_prev_items_load_handler)
       return false;
 
-    if (_prev_items_load_handler)
+    std::vector<MenuItem*> temp_vec;
+    _prev_items_load_handler(temp_vec, getItemsPerPage(), _widgets[_cur_focus_pos]->getID(), _prev_items_load_arg);
+
+    if (temp_vec.empty())
+      return false;
+
+    updateWidgets(temp_vec);
+
+    const uint16_t capacity = getItemsPerPage();
+    drawItems(0, capacity);
+
+    if (!_has_touch_support)
     {
-      std::vector<MenuItem*> temp_vec;
-      _prev_items_load_handler(temp_vec, getItemsPerPage(), _widgets[_cur_focus_pos]->getID(), _prev_items_load_arg);
-
-      if (!temp_vec.empty())
-      {
-        delWidgets();
-
-        _widgets.reserve(temp_vec.size());
-        for (size_t i{0}; i < temp_vec.size(); ++i)
-        {
-          temp_vec[i]->setParent(this);
-          _widgets.push_back(temp_vec[i]);
-        }
-
-        drawItems(0, getCyclesCount());
-
-        if (!_has_touch_support && _cur_focus_pos != _first_item_index)
-        {
-          _cur_focus_pos = _widgets.size() - 1;
-          _widgets[_cur_focus_pos]->setFocus();
-        }
-
-        return true;
-      }
+      _cur_focus_pos = _widgets.size() - 1;
+      _widgets[_cur_focus_pos]->setFocus();
     }
-    return false;
+
+    return true;
   }
 
   bool DynamicMenu::pageDown()
   {
-    if (_widgets.empty())
+    if (_widgets.empty() || !_next_items_load_handler)
       return false;
 
-    if (_next_items_load_handler)
+    std::vector<MenuItem*> temp_vec;
+    _next_items_load_handler(temp_vec, getItemsPerPage(), _widgets[_widgets.size() - 1]->getID(), _next_items_load_arg);
+
+    if (temp_vec.empty())
+      return false;
+
+    updateWidgets(temp_vec);
+
+    const uint16_t capacity = getItemsPerPage();
+    drawItems(0, capacity);
+
+    if (!_has_touch_support)
     {
-      std::vector<MenuItem*> temp_vec;
-      _next_items_load_handler(temp_vec, getItemsPerPage(), _widgets[_widgets.size() - 1]->getID(), _next_items_load_arg);
-
-      if (!temp_vec.empty())
-      {
-        delWidgets();
-
-        _widgets.reserve(temp_vec.size());
-        for (size_t i{0}; i < temp_vec.size(); ++i)
-        {
-          temp_vec[i]->setParent(this);
-          _widgets.push_back(temp_vec[i]);
-        }
-
-        drawItems(0, getCyclesCount());
-
-        if (!_has_touch_support && _cur_focus_pos != _first_item_index)
-        {
-          _cur_focus_pos = 0;
-          _widgets[_cur_focus_pos]->setFocus();
-        }
-
-        return true;
-      }
+      _cur_focus_pos = 0;
+      _widgets[_cur_focus_pos]->setFocus();
     }
 
-    return false;
+    return true;
   }
 
   bool DynamicMenu::focusUp()
@@ -181,6 +160,18 @@ namespace pixeler
     }
 
     return false;
+  }
+
+  void DynamicMenu::updateWidgets(std::vector<MenuItem*>& new_items)
+  {
+    delWidgets();
+
+    _widgets.reserve(new_items.size());
+    for (MenuItem* item : new_items)
+    {
+      item->setParent(this);
+      _widgets.push_back(item);
+    }
   }
 
   void DynamicMenu::setOnNextItemsLoadHandler(NextItemsLoadHandler handler, void* arg)

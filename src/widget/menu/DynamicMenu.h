@@ -110,6 +110,8 @@ namespace pixeler
     virtual void copyTo(IWidget* widget) const override;
 
   private:
+    void updateWidgets(std::vector<MenuItem*>& new_items);
+
   private:
     NextItemsLoadHandler _next_items_load_handler{nullptr};
     PrevItemsLoadHandler _prev_items_load_handler{nullptr};
