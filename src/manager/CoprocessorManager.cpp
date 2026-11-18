@@ -14,7 +14,7 @@ namespace pixeler
 
     if (!_i2c.begin() || !_i2c.hasConnect(COPROCESSOR_ADDR))
     {
-      log_e("Помилка підключення до копроцесора");
+      log_e("Помилка підключення до співпроцесора");
       _is_connected = false;
       return _is_connected;
     }
@@ -39,7 +39,7 @@ namespace pixeler
 
     if (!_i2c.write(COPROCESSOR_ADDR, cmd_data, data_size))
     {
-      log_e("Копроцесор не відповідає");
+      log_e("Співпроцесор не відповідає");
       return false;
     }
     delay(resp_delay);
