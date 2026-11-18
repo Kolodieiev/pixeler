@@ -256,9 +256,9 @@ namespace pixeler
     if (!hitTest(x, y))
       return nullptr;
 
-    uint16_t last_index = getCyclesCount() + _first_item_index;
+    const uint16_t last_index = _first_item_index + getCyclesCount();
 
-    for (int i = _first_item_index; i < last_index; ++i)
+    for (uint16_t i{_first_item_index}; i < last_index; ++i)
     {
       if (IWidget* found = _widgets[i]->findTouchableAt(x, y))
         return found;
