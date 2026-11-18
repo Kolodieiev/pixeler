@@ -121,10 +121,10 @@ namespace pixeler
 
   uint16_t IGameObject2D::calcDistToPoint(uint16_t x, uint16_t y) const
   {
-    const float dx = static_cast<float>(static_cast<int32_t>(_x_global) + _geometry->x_pivot - x);
-    const float dy = static_cast<float>(static_cast<int32_t>(_y_global) + _geometry->y_pivot - y);
+    const int32_t dx = static_cast<int32_t>(_x_global) + _geometry->x_pivot - x;
+    const int32_t dy = static_cast<int32_t>(_y_global) + _geometry->y_pivot - y;
 
-    return static_cast<uint16_t>(sqrtf(dx * dx + dy * dy));
+    return static_cast<uint16_t>(sqrtf(static_cast<float>(dx * dx + dy * dy)));
   }
 
   void IGameObject2D::stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w)
