@@ -132,9 +132,13 @@ namespace pixeler
     _label->setChangingBorder(false);
     _label->setGravity(GRAVITY_CENTER);
 
-    _label->setBackColor(_back_color);
+    _label->removeFocus();
+    _label->setBackColor((_has_focus && _need_change_back) ? _old_back_color : _back_color);
     _label->setFocusBackColor(_focus_back_color);
     _label->setChangingBack(true);
     _label->setTransparent(_is_transparent);
+
+    if (_has_focus && _need_change_back)
+      _label->setFocus();
   }
 }  // namespace pixeler
