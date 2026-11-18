@@ -16,11 +16,8 @@ namespace pixeler
     MenuItem::copyTo(widget);
 
     ComboItem* clone = static_cast<ComboItem*>(widget);
-    clone->setLabel(_label->clone(_label->getID()));
     clone->_range = _range;
     clone->_selected_pos = _selected_pos;
-    if (_image)
-      clone->setImage(_image->clone(_image->getID()));
   }
 
   ComboItem* ComboItem::clone(uint16_t id) const
