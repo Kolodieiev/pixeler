@@ -34,109 +34,110 @@ namespace pixeler
 
   uint16_t Keyboard::getCurrBtnID() const
   {
-    uint16_t id = getFocusRow()->getCurrBtnID();
-    return id;
+    return getFocusRow()->getCurrBtnID();
   }
 
   String Keyboard::getCurrBtnTxt() const
   {
-    const KeyboardRow* row = getFocusRow();
-    return row->getCurrBtnTxt();
+    return getFocusRow()->getCurrBtnTxt();
   }
 
   void Keyboard::focusUp()
   {
-    KeyboardRow* row = getFocusRow();
+    const size_t total = _widgets.size();
+    if (total < 2)
+      return;
 
-    uint16_t focusPos = row->getCurFocusPos();
+    KeyboardRow* row = getFocusRow();
+    const uint16_t focus_pos = row->getCurFocusPos();
 
     row->removeFocus();
 
     if (_cur_focus_row_pos > 0)
-      _cur_focus_row_pos--;
+      --_cur_focus_row_pos;
     else
-      _cur_focus_row_pos = _widgets.size() - 1;
+      _cur_focus_row_pos = total - 1;
 
-    row = getFocusRow();
-    row->setFocus(focusPos);
+    getFocusRow()->setFocus(focus_pos);
   }
 
   void Keyboard::focusDown()
   {
+    const size_t total = _widgets.size();
+    if (total < 2)
+      return;
+
     KeyboardRow* row = getFocusRow();
-    uint16_t focusPos = row->getCurFocusPos();
+    const uint16_t focus_pos = row->getCurFocusPos();
+
     row->removeFocus();
 
-    if (_cur_focus_row_pos < _widgets.size() - 1)
+    if (_cur_focus_row_pos < total - 1)
       ++_cur_focus_row_pos;
     else
       _cur_focus_row_pos = 0;
 
-    row = getFocusRow();
-    row->setFocus(focusPos);
+    getFocusRow()->setFocus(focus_pos);
   }
 
   void Keyboard::focusLeft()
   {
-    KeyboardRow* row = getFocusRow();
+    if (_widgets.empty())
+      return;
 
-    if (!row->focusUp())
-    {
-      row->removeFocus();
-      row->setFocus(row->getSize() - 1);
-    }
+    KeyboardRow* row = getFocusRow();
+    if (row->focusUp())
+      return;
+
+    const size_t row_size = row->getSize();
+    if (row_size > 1)
+      row->setFocus(row_size - 1);
   }
 
   void Keyboard::focusRight()
   {
+    if (_widgets.empty())
+      return;
+
     KeyboardRow* row = getFocusRow();
+    if (row->focusDown())
+      return;
 
-    if (!row->focusDown())
-    {
-      row->removeFocus();
+    if (row->getSize() > 1)
       row->setFocus(0);
-    }
-  }
-
-  uint16_t Keyboard::getFocusXPos() const
-  {
-    return getFocusRow()->getCurFocusPos();
-  }
-
-  uint16_t Keyboard::getFocusYPos() const
-  {
-    return _cur_focus_row_pos;
   }
 
   void Keyboard::setFocusPos(uint16_t x, uint16_t y)
   {
-    if (_widgets.empty())
+    const size_t total = _widgets.size();
+    if (total == 0)
       return;
 
     _has_manual_settings = true;
 
-    KeyboardRow* row = getFocusRow();
-    row->removeFocus();
+    getFocusRow()->removeFocus();
 
-    if (y > _widgets.size() - 1)
-      _cur_focus_row_pos = _widgets.size() - 1;
-    else
-      _cur_focus_row_pos = y;
+    _cur_focus_row_pos = (y >= total) ? (total - 1) : y;
 
-    row = getFocusRow();
-    row->setFocus(x);
+    getFocusRow()->setFocus(x);
   }
 
   KeyboardRow* Keyboard::getFocusRow() const
   {
-    if (_widgets.empty())
+    const size_t total = _widgets.size();
+    if (total == 0)
     {
       log_e("Не додано жодної KeyboardRow");
       esp_restart();
     }
 
-    KeyboardRow* row = _widgets[_cur_focus_row_pos]->castTo<KeyboardRow>();
+    if (_cur_focus_row_pos >= total)
+    {
+      log_e("Некоректна позиція рядка фокусу");
+      esp_restart();
+    }
 
+    KeyboardRow* row = _widgets[_cur_focus_row_pos]->castTo<KeyboardRow>();
     if (!row)
     {
       log_e("KeyboardRow не знайдено");
@@ -148,42 +149,47 @@ namespace pixeler
 
   void Keyboard::onDraw()
   {
+    const size_t total = _widgets.size();
+
     if (!_is_changed)
     {
       if (_visibility != INVISIBLE && _is_enabled)
-        for (size_t i{0}; i < _widgets.size(); ++i)
+      {
+        for (size_t i{0}; i < total; ++i)
           _widgets[i]->onDraw();
+      }
+      return;
     }
-    else
+
+    _is_changed = false;
+
+    if (_visibility == INVISIBLE)
     {
-      _is_changed = false;
+      hide();
+      return;
+    }
 
-      if (_visibility == INVISIBLE)
-      {
-        hide();
-        return;
-      }
+    clear();
 
-      clear();
+    if (total == 0)
+      return;
 
-      if (_first_drawing && !_has_manual_settings)
-      {
-        _first_drawing = false;
+    if (_first_drawing && !_has_manual_settings)
+    {
+      _first_drawing = false;
+      getFocusRow()->setFocus(0);
+    }
 
-        if (!_widgets.empty())
-          getFocusRow()->setFocus(0);
-      }
+    const uint16_t x{2};
+    const uint16_t row_width = (_width > 4) ? (_width - 4) : 0;
+    uint16_t y{2};
 
-      uint16_t x{2};
-      uint16_t y{2};
-
-      for (size_t i{0}; i < _widgets.size(); ++i)
-      {
-        _widgets[i]->setPos(x, y);
-        _widgets[i]->setWidth(_width - 4);
-        _widgets[i]->onDraw();
-        y += _widgets[i]->getHeight();
-      }
+    for (size_t i{0}; i < total; ++i)
+    {
+      _widgets[i]->setPos(x, y);
+      _widgets[i]->setWidth(row_width);
+      _widgets[i]->onDraw();
+      y += _widgets[i]->getHeight();
     }
   }
 }  // namespace pixeler
