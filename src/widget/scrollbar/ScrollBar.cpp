@@ -127,51 +127,38 @@ namespace pixeler
   {
     _max_value = (max_value > 0) ? max_value : 1;
 
-    if (_cur_value > _max_value)
-      _cur_value = _max_value;
+    if (_cur_value >= _max_value)
+      _cur_value = _max_value - 1;
+
+    const uint16_t track_len = (_orientation == VERTICAL) ? _height : _width;
+    uint16_t slider_len;
+
+    if (track_len >= _max_value)
+    {
+      _smart_scroll_enabled = false;
+      _slider_step_size = track_len / _max_value;
+      slider_len = _slider_step_size + (track_len - (_slider_step_size * _max_value));
+    }
+    else
+    {
+      _smart_scroll_enabled = true;
+      _slider_step_size = 1;
+      _steps_to_scroll = (_max_value + track_len - 1) / track_len;
+      const uint16_t positions_number = (_max_value - 1) / _steps_to_scroll;
+      slider_len = track_len - positions_number;
+
+      _smart_value = _cur_value / _steps_to_scroll;
+    }
 
     if (_orientation == VERTICAL)
     {
       _slider_width = _width;
-
-      // чи вміщується хоча б 1 піксель на кожне значення
-      if (_height >= _max_value)
-      {
-        _smart_scroll_enabled = false;
-        _slider_step_size = _height / _max_value;
-        // Розрахунок висоти слайдера, щоб він заповнив залишок
-        _slider_height = _slider_step_size + (_height - (_slider_step_size * _max_value));
-      }
-      else
-      {
-        // елементів більше, ніж висота екрана
-        _steps_to_scroll = (_max_value + _height - 1) / _height;
-        uint16_t positions_number = _max_value / _steps_to_scroll;
-
-        _slider_height = 1 + (_height - positions_number);
-        _slider_step_size = 1;
-        _smart_scroll_enabled = true;
-      }
+      _slider_height = slider_len;
     }
-    else  // HORIZONTAL
+    else
     {
+      _slider_width = slider_len;
       _slider_height = _height;
-
-      if (_width >= _max_value)
-      {
-        _smart_scroll_enabled = false;
-        _slider_step_size = _width / _max_value;
-        _slider_width = _slider_step_size + (_width - (_slider_step_size * _max_value));
-      }
-      else
-      {
-        _steps_to_scroll = (_max_value + _width - 1) / _width;
-        uint16_t positions_number = _max_value / _steps_to_scroll;
-
-        _slider_width = 1 + (_width - positions_number);
-        _slider_step_size = 1;
-        _smart_scroll_enabled = true;
-      }
     }
 
     _is_changed = true;
