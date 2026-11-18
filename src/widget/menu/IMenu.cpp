@@ -83,8 +83,10 @@ namespace pixeler
     {
       _widgets[_cur_focus_pos]->removeFocus();
       _cur_focus_pos = 0;
-      _widgets[_cur_focus_pos]->setFocus();
       _first_item_index = 0;
+
+      if (!_has_touch_support)
+        _widgets[_cur_focus_pos]->setFocus();
     }
 
     _is_changed = true;
