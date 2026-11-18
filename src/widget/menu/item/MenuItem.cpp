@@ -35,26 +35,29 @@ namespace pixeler
     {
       if (_image)
         _image->onDraw();
+
       _label->onDraw();
       return;
     }
 
     _is_changed = false;
-
     clear();
 
-    uint8_t img_width{0};
+    uint16_t current_x = ITEM_PADDING;
+
     if (_image)
     {
-      img_width = _image->getWidth() + ITEM_PADDING;
-      _image->setPos(ITEM_PADDING, (_height - _image->getHeight()) * 0.5);
+      const uint16_t img_h = _image->getHeight();
+      _image->setPos(current_x, (_height - img_h) / 2);
       _image->setBackColor(_back_color);
       _image->onDraw();
+
+      current_x += _image->getWidth() + ITEM_PADDING;
     }
 
     _label->setHeight(_height - 2);
-    _label->setPos(img_width + ITEM_PADDING, 1);
-    _label->setWidth(_width - ITEM_PADDING * 2 - img_width);
+    _label->setPos(current_x, 1);
+    _label->setWidth(_width - current_x - ITEM_PADDING);
 
     if (_has_focus && _need_change_back)
       _label->setFocus();
