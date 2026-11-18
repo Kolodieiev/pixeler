@@ -67,11 +67,12 @@ namespace pixeler
 
   void ComboItem::scrollUp()
   {
-    if (_range.empty())
+    const size_t total = _range.size();
+    if (total < 2)
       return;
 
     if (_selected_pos == 0)
-      _selected_pos = _range.size() - 1;
+      _selected_pos = total - 1;
     else
       --_selected_pos;
 
@@ -80,10 +81,11 @@ namespace pixeler
 
   void ComboItem::scrollDown()
   {
-    if (_range.empty())
+    const size_t total = _range.size();
+    if (total < 2)
       return;
 
-    if (_selected_pos < _range.size() - 1)
+    if (_selected_pos < total - 1)
       ++_selected_pos;
     else
       _selected_pos = 0;
