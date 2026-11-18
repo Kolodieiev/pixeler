@@ -101,7 +101,7 @@ namespace pixeler
      * @param widget
      */
     virtual void copyTo(IWidget* widget) const override;
-    
+
   protected:
     using IWidget::setVisibility;
 
@@ -109,6 +109,6 @@ namespace pixeler
     Image* _image{nullptr};
     Label* _label{nullptr};
 
-    const uint8_t ITEM_PADDING{5};
+    static constexpr uint8_t ITEM_PADDING{5};
   };
 }  // namespace pixeler
