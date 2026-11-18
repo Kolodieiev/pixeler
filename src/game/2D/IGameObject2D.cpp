@@ -241,8 +241,10 @@ namespace pixeler
     if (rigid_only && !_physics.is_rigid)
       return false;
 
-    // 1. Визначаємо межі прямокутника (AABB)
-    int16_t rect_x1, rect_y1, rect_x2, rect_y2;
+    int32_t rect_x1;
+    int32_t rect_y1;
+    int32_t rect_x2;
+    int32_t rect_y2;
 
     if (rigid_only)
     {
@@ -259,16 +261,19 @@ namespace pixeler
       rect_y2 = _y_global + _geometry->height;
     }
 
-    // 2. Знаходимо найближчу точку на прямокутнику до центру кола
-    int16_t closest_x = (x_mid < rect_x1) ? rect_x1 : (x_mid > rect_x2 ? rect_x2 : x_mid);
-    int16_t closest_y = (y_mid < rect_y1) ? rect_y1 : (y_mid > rect_y2 ? rect_y2 : y_mid);
+    const int32_t cx = x_mid;
+    const int32_t cy = y_mid;
 
-    // 3. Рахуємо відстань від найближчої точки до центру кола
-    int32_t dx = static_cast<int32_t>(x_mid) - closest_x;
-    int32_t dy = static_cast<int32_t>(y_mid) - closest_y;
+    const uint32_t dx = (cx < rect_x1) ? (rect_x1 - cx) : (cx > rect_x2 ? (cx - rect_x2) : 0);
+    if (dx > radius)
+      return false;
 
-    // 4. Перевірка: чи відстань менша за радіус (використовуємо квадрат відстані)
-    return (dx * dx + dy * dy) <= (static_cast<int32_t>(radius) * radius);
+    const uint32_t dy = (cy < rect_y1) ? (rect_y1 - cy) : (cy > rect_y2 ? (cy - rect_y2) : 0);
+    if (dy > radius)
+      return false;
+
+    const uint32_t r = radius;
+    return (dx * dx + dy * dy) <= (r * r);
   }
 
   bool IGameObject2D::hasIntersectWithRect(uint16_t x_start, uint16_t y_start, uint16_t rect_width, uint16_t rect_height, bool rigid_only) const
