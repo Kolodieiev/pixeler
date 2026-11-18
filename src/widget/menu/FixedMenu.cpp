@@ -15,22 +15,16 @@ namespace pixeler
     if (_first_item_index > 0)
     {
       if (_first_item_index >= capacity)  // Перевіряємо, чи ми можемо відняти цілу сторінку
-      {
         _first_item_index -= capacity;
-      }
       else
-      {
         _first_item_index = 0;  // Якщо до початку менше, ніж ціла сторінка, стаємо в нуль
-      }
     }
     else if (_is_loop_enbl)
     {
       uint16_t total = _widgets.size();  // Переходимо до останньої можливої сторінки
 
       if (total <= capacity)
-      {
         return false;
-      }
 
       _first_item_index = ((total - 1) / capacity) * capacity;  // Розраховуємо індекс для відображення залишку елементів
     }
@@ -50,27 +44,20 @@ namespace pixeler
     return true;
   }
 
-  bool FixedMenu::pageDown()  // TODO
+  bool FixedMenu::pageDown()
   {
-    uint16_t capacity = getItemsPerPage();
-
+    const uint16_t capacity = getItemsPerPage();
     if (capacity == 0 || _widgets.empty())
       return false;
 
-    uint16_t next_first_pos = _first_item_index + capacity;
-
-    if (next_first_pos < _widgets.size())  // Якщо є хоча б одни елемент що не видно на поточній сторінці меню
-    {
+    const uint16_t next_first_pos = _first_item_index + capacity;
+    const size_t total = _widgets.size();
+    if (next_first_pos < total)
       _first_item_index = next_first_pos;
-    }
-    else if (_is_loop_enbl && _first_item_index > 0)  // Якщо меню може зациклюватися і ми не на першому елементі
-    {
+    else if (_is_loop_enbl && _first_item_index > 0)
       _first_item_index = 0;
-    }
     else
-    {
       return false;
-    }
 
     if (!_has_touch_support && _cur_focus_pos != _first_item_index)
     {
@@ -79,7 +66,7 @@ namespace pixeler
       _widgets[_cur_focus_pos]->setFocus();
     }
 
-    drawItems(_first_item_index, capacity);
+    drawItems(_first_item_index, getCyclesCount());
     return true;
   }
 
