@@ -68,12 +68,10 @@ namespace pixeler
 
       --_cur_focus_pos;
 
-      uint16_t cycles_count = getCyclesCount();
-
       if (_cur_focus_pos < _first_item_index)
       {
         --_first_item_index;
-        drawItems(_first_item_index, cycles_count);
+        drawItems(_first_item_index, getCyclesCount());
       }
 
       item = _widgets[_cur_focus_pos];
@@ -88,23 +86,21 @@ namespace pixeler
 
       if (!temp_vec.empty())
       {
-        delWidgets();
+        updateWidgets(temp_vec);
 
-        _widgets.reserve(temp_vec.size());
-        for (size_t i{0}; i < temp_vec.size(); ++i)
+        const uint16_t capacity = getItemsPerPage();
+        drawItems(0, capacity);
+
+        if (!_has_touch_support)
         {
-          temp_vec[i]->setParent(this);
-          _widgets.push_back(temp_vec[i]);
+          _cur_focus_pos = _widgets.size() - 1;
+          _widgets[_cur_focus_pos]->setFocus();
         }
-
-        drawItems(_first_item_index, getCyclesCount());
-        _cur_focus_pos = _widgets.size() - 1;
-
-        _widgets[_cur_focus_pos]->setFocus();
 
         return true;
       }
     }
+
     return false;
   }
 
@@ -120,13 +116,10 @@ namespace pixeler
 
       ++_cur_focus_pos;
 
-      uint16_t cycles_count = getCyclesCount();
-
-      if (_cur_focus_pos > _first_item_index + cycles_count - 1)
+      if (_cur_focus_pos > _first_item_index + getCyclesCount() - 1)
       {
         ++_first_item_index;
-
-        drawItems(_first_item_index, cycles_count);
+        drawItems(_first_item_index, getCyclesCount());
       }
 
       item = _widgets[_cur_focus_pos];
@@ -141,19 +134,16 @@ namespace pixeler
 
       if (!temp_vec.empty())
       {
-        delWidgets();
+        updateWidgets(temp_vec);
 
-        _widgets.reserve(temp_vec.size());
-        for (size_t i{0}; i < temp_vec.size(); ++i)
+        const uint16_t capacity = getItemsPerPage();
+        drawItems(0, capacity);
+
+        if (!_has_touch_support)
         {
-          temp_vec[i]->setParent(this);
-          _widgets.push_back(temp_vec[i]);
+          _cur_focus_pos = 0;
+          _widgets[_cur_focus_pos]->setFocus();
         }
-
-        drawItems(_first_item_index, getCyclesCount());
-        _cur_focus_pos = _first_item_index;
-
-        _widgets[_cur_focus_pos]->setFocus();
 
         return true;
       }
