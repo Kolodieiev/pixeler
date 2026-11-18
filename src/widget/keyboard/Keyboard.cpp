@@ -107,6 +107,16 @@ namespace pixeler
       row->setFocus(0);
   }
 
+  uint16_t Keyboard::getFocusXPos() const
+  {
+    return getFocusRow()->getCurFocusPos();
+  }
+
+  uint16_t Keyboard::getFocusYPos() const
+  {
+    return _cur_focus_row_pos;
+  }
+
   void Keyboard::setFocusPos(uint16_t x, uint16_t y)
   {
     const size_t total = _widgets.size();
