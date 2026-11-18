@@ -32,7 +32,7 @@ namespace pixeler
         return false;
       }
 
-      _first_item_index = (total - 1 / capacity) * capacity;  // Розраховуємо індекс для відображення залишку елементів
+      _first_item_index = ((total - 1) / capacity) * capacity;  // Розраховуємо індекс для відображення залишку елементів
     }
     else
     {
