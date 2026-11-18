@@ -34,46 +34,37 @@ namespace pixeler
 
   uint16_t KeyboardRow::getCurrBtnID() const
   {
-    uint16_t id = getFocusBtn()->getID();
-    return id;
+    return getFocusBtn()->getID();
   }
 
   String KeyboardRow::getCurrBtnTxt() const
   {
-    const Label* lbl = getFocusBtn()->castTo<Label>();
-    return lbl->getText();
+    return getFocusBtn()->castTo<Label>()->getText();
   }
 
   bool KeyboardRow::focusUp()
   {
-    if (_cur_focus_pos > 0)
-    {
-      IWidget* btn = getFocusBtn();
-      btn->removeFocus();
-      --_cur_focus_pos;
-      btn = getFocusBtn();
-      btn->setFocus();
+    if (_widgets.empty() || _cur_focus_pos == 0)
+      return false;
 
-      return true;
-    }
+    getFocusBtn()->removeFocus();
+    --_cur_focus_pos;
+    getFocusBtn()->setFocus();
 
-    return false;
+    return true;
   }
 
   bool KeyboardRow::focusDown()
   {
-    if (!_widgets.empty() && _cur_focus_pos < _widgets.size() - 1)
-    {
-      IWidget* btn = getFocusBtn();
-      btn->removeFocus();
-      ++_cur_focus_pos;
-      btn = getFocusBtn();
-      btn->setFocus();
+    const size_t total = _widgets.size();
+    if (total == 0 || _cur_focus_pos >= total - 1)
+      return false;
 
-      return true;
-    }
+    getFocusBtn()->removeFocus();
+    ++_cur_focus_pos;
+    getFocusBtn()->setFocus();
 
-    return false;
+    return true;
   }
 
   void KeyboardRow::setBtnHeight(uint16_t height)
@@ -105,37 +96,42 @@ namespace pixeler
 
   void KeyboardRow::setFocus(uint16_t pos)
   {
-    if (_widgets.empty())
+    const size_t total = _widgets.size();
+    if (total == 0)
       return;
 
-    IWidget* btn = getFocusBtn();
-    btn->removeFocus();
+    getFocusBtn()->removeFocus();
 
-    if (pos > _widgets.size() - 1)
-      _cur_focus_pos = _widgets.size() - 1;
-    else
-      _cur_focus_pos = pos;
+    _cur_focus_pos = (pos >= total) ? (total - 1) : pos;
 
-    btn = getFocusBtn();
-    btn->setFocus();
+    getFocusBtn()->setFocus();
   }
 
   void KeyboardRow::removeFocus()
   {
+    if (_widgets.empty())
+      return;
+
     getFocusBtn()->removeFocus();
     _cur_focus_pos = 0;
   }
 
   IWidget* KeyboardRow::getFocusBtn() const
   {
-    if (_widgets.empty())
+    const size_t total = _widgets.size();
+    if (total == 0)
     {
       log_e("Не додано жодної кнопки");
       esp_restart();
     }
 
-    IWidget* item = _widgets[_cur_focus_pos];
+    if (_cur_focus_pos >= total)
+    {
+      log_e("Некоректна позиція фокусу");
+      esp_restart();
+    }
 
+    IWidget* item = _widgets[_cur_focus_pos];
     if (!item)
     {
       log_e("Кнопку не знайдено");
@@ -147,12 +143,15 @@ namespace pixeler
 
   void KeyboardRow::onDraw()
   {
+    const size_t total = _widgets.size();
+
     if (!_is_changed)
     {
       if (_visibility != INVISIBLE && _is_enabled)
-        for (size_t i{0}; i < _widgets.size(); ++i)
+      {
+        for (size_t i{0}; i < total; ++i)
           _widgets[i]->onDraw();
-
+      }
       return;
     }
 
@@ -166,15 +165,14 @@ namespace pixeler
 
     clear();
 
-    const size_t count = _widgets.size();
-    if (count == 0)
+    if (total == 0)
       return;
 
     const uint16_t y = (_height > _btn_height) ? (_height - _btn_height) / 2 : 2;
 
-    const uint32_t total_btn_width = _btn_width * count;
+    const uint32_t total_btn_width = _btn_width * total;
     const uint32_t total_free_space = (_width > total_btn_width) ? (_width - total_btn_width) : 0;
-    const uint16_t num_gaps = count + 1;
+    const uint16_t num_gaps = total + 1;
 
     const uint16_t step = total_free_space / num_gaps;
     const uint16_t extra_pixels = total_free_space % num_gaps;
@@ -182,13 +180,7 @@ namespace pixeler
     uint16_t current_extra = extra_pixels;
     uint16_t x = step;
 
-    if (current_extra >= num_gaps)
-    {
-      x++;
-      current_extra -= num_gaps;
-    }
-
-    for (size_t i = 0; i < count; ++i)
+    for (size_t i{0}; i < total; ++i)
     {
       _widgets[i]->setPos(x, y);
       _widgets[i]->setWidth(_btn_width);
@@ -197,7 +189,6 @@ namespace pixeler
 
       x += _btn_width + step;
 
-      // Додаємо піксель до наступного проміжку
       current_extra += extra_pixels;
       if (current_extra >= num_gaps)
       {
