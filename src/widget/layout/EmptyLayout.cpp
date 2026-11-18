@@ -7,21 +7,20 @@ namespace pixeler
   {
   }
 
-  EmptyLayout::~EmptyLayout() {}
-
   void EmptyLayout::onDraw()
   {
-    if (!_is_changed)
-    {
-      if (_visibility != INVISIBLE && _is_enabled)
-        for (size_t i{0}; i < _widgets.size(); ++i)
-          _widgets[i]->onDraw();
-
-      return;
-    }
-
     if (!_is_enabled)
       return;
+
+    if (!_is_changed)
+    {
+      if (_visibility != INVISIBLE)
+      {
+        for (IWidget* widget : _widgets)
+          widget->onDraw();
+      }
+      return;
+    }
 
     _is_changed = false;
 
@@ -33,14 +32,8 @@ namespace pixeler
 
     clear();
 
-    for (size_t i{0}; i < _widgets.size(); ++i)
-      _widgets[i]->drawForced();
-  }
-
-  void EmptyLayout::copyTo(IWidget* widget) const
-  {
-    IWidgetContainer::copyTo(widget);
-    // Не має власних полів
+    for (IWidget* widget : _widgets)
+      widget->drawForced();
   }
 
   EmptyLayout* EmptyLayout::clone(uint16_t id) const

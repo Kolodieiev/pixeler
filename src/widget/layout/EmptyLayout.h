@@ -14,7 +14,7 @@ namespace pixeler
   {
   public:
     explicit EmptyLayout(uint16_t widget_ID, TypeID type_ID = TYPE_EMPTY_LAYOUT);
-    virtual ~EmptyLayout();
+    virtual ~EmptyLayout() override = default;
 
     /**
      * @brief Викликає процедуру малювання віджета на дисплей.
@@ -41,13 +41,5 @@ namespace pixeler
     {
       return TypeID::TYPE_EMPTY_LAYOUT;
     }
-
-  protected:
-    /**
-     * @brief Копіює поля до іншого віджета.
-     *
-     * @param widget
-     */
-    virtual void copyTo(IWidget* widget) const override;
   };
 }  // namespace pixeler
