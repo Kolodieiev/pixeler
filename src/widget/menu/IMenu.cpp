@@ -182,32 +182,31 @@ namespace pixeler
       return;
     }
 
-    if (_widgets.empty())
+    const size_t total = _widgets.size();
+    if (total == 0)
     {
       clear();
       return;
     }
 
-    const uint16_t cycles_count = getCyclesCount();
-
-    if (_first_item_index >= _widgets.size())
+    if (_first_item_index >= total)
     {
       const uint16_t items_per_page = getItemsPerPage();
-      if (_widgets.size() <= items_per_page)
+      if (total <= items_per_page)
         _first_item_index = 0;
       else
-        _first_item_index = _widgets.size() - items_per_page;
+        _first_item_index = total - items_per_page;
     }
 
     if (!_has_touch_support)
     {
-      if (_cur_focus_pos >= _widgets.size())
-        _cur_focus_pos = _widgets.size() - 1;
+      if (_cur_focus_pos >= total)
+        _cur_focus_pos = total - 1;
 
       _widgets[_cur_focus_pos]->setFocus();
     }
 
-    drawItems(_first_item_index, cycles_count);
+    drawItems(_first_item_index, getCyclesCount());
   }
 
   void IMenu::drawItems(uint16_t start, uint16_t count)
