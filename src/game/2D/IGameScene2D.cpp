@@ -179,7 +179,7 @@ namespace pixeler
     return _is_released;
   }
 
-  uint8_t IGameScene2D::getNextSceneID() const
+  uint16_t IGameScene2D::getNextSceneID() const
   {
     return _next_scene_ID;
   }
@@ -232,7 +232,7 @@ namespace pixeler
     return &it->second;
   }
 
-  bool hasTypeID(uint16_t obj_type, std::span<const uint16_t> type_IDs)
+  static bool hasTypeID(uint16_t obj_type, std::span<const uint16_t> type_IDs)
   {
     for (const uint16_t id : type_IDs)
     {
