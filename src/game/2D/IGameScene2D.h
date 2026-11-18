@@ -16,6 +16,7 @@
 #include <freertos/queue.h>
 
 #include <functional>
+#include <new>
 
 #include "../ui/IGameMenu.h"
 #include "../ui/IGameUI.h"
@@ -168,15 +169,14 @@ namespace pixeler
     template <typename T>
     T* createObject()
     {
-      try
+      T* obj = new (std::nothrow) T(++_obj_id_counter, *this, _sfx_player);
+      if (!obj)
       {
-        return new T(++_obj_id_counter, *this, _sfx_player);
-      }
-      catch (const std::bad_alloc& e)
-      {
-        log_e("%s", e.what());
+        log_e("Не вдалося виділити пам'ять для ігрового об'єкта");
         esp_restart();
       }
+
+      return obj;
     }
 
     /**
