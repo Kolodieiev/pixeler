@@ -41,7 +41,16 @@ namespace pixeler
 
   void ScrollBar::setValue(uint16_t value)
   {
-    _cur_value = value > _max_value ? _max_value : value;
+    const uint16_t max_index = _max_value - 1;
+    _cur_value = (value > max_index) ? max_index : value;
+
+    if (_smart_scroll_enabled)
+    {
+      _smart_value = _cur_value / _steps_to_scroll;
+      _steps_counter = _cur_value % _steps_to_scroll;
+      _scroll_direction = 0;
+    }
+
     _is_changed = true;
   }
 
