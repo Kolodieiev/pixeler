@@ -129,59 +129,56 @@ namespace pixeler
 
   void IGameObject2D::stepToPoint(uint16_t x_to, uint16_t y_to, uint16_t step_w)
   {
-    if (_x_global == x_to && _y_global == y_to)
+    if (step_w == 0 || (_x_global == x_to && _y_global == y_to))
       return;
 
-    int32_t dx = static_cast<int32_t>(x_to) - _x_global;
-    int32_t dy = static_cast<int32_t>(y_to) - _y_global;
+    const int32_t dx = static_cast<int32_t>(x_to) - _x_global;
+    const int32_t dy = static_cast<int32_t>(y_to) - _y_global;
+    const int32_t abs_dx = std::abs(dx);
+    const int32_t abs_dy = std::abs(dy);
 
     if (dx == 0)
-    {  // Рух строго по вертикалі
-      if (abs(dy) <= step_w)
+    {
+      if (abs_dy <= step_w)
         _y_global = y_to;
       else
-        _y_global += (dy > 0) ? step_w : -step_w;
+        _y_global += (dy > 0) ? step_w : -static_cast<int32_t>(step_w);
       return;
     }
 
     if (dy == 0)
-    {  // Рух строго по горизонталі
-      if (abs(dx) <= step_w)
+    {
+      if (abs_dx <= step_w)
         _x_global = x_to;
       else
-        _x_global += (dx > 0) ? step_w : -step_w;
+        _x_global += (dx > 0) ? step_w : -static_cast<int32_t>(step_w);
       return;
     }
 
-    // Визначаємо, по якій осі відстань більша, щоб зробити її базовою
-    if (abs(dx) >= abs(dy))
+    if (abs_dx >= abs_dy)
     {
-      // Рух переважно по X
-      int16_t x_prev = _x_global;
-      if (abs(dx) <= step_w)
+      if (abs_dx <= step_w)
       {
         _x_global = x_to;
         _y_global = y_to;
       }
       else
       {
-        _x_global += (dx > 0) ? step_w : -step_w;
-        // Множимо перед діленням для збереження точності
-        _y_global += static_cast<int32_t>(_x_global - x_prev) * dy / dx;
+        _x_global += (dx > 0) ? step_w : -static_cast<int32_t>(step_w);
+        _y_global += (static_cast<int32_t>(step_w) * dy) / abs_dx;
       }
     }
     else
     {
-      int16_t y_prev = _y_global;
-      if (abs(dy) <= step_w)
+      if (abs_dy <= step_w)
       {
         _y_global = y_to;
         _x_global = x_to;
       }
       else
       {
-        _y_global += (dy > 0) ? step_w : -step_w;
-        _x_global += static_cast<int32_t>(_y_global - y_prev) * dx / dy;
+        _y_global += (dy > 0) ? step_w : -static_cast<int32_t>(step_w);
+        _x_global += (static_cast<int32_t>(step_w) * dx) / abs_dy;
       }
     }
   }
