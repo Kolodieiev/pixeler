@@ -14,34 +14,34 @@ namespace pixeler
 
   bool IMenu::delWidgetByID(uint16_t widget_ID)
   {
-    if (IWidgetContainer::delWidgetByID(widget_ID))
+    if (!IWidgetContainer::delWidgetByID(widget_ID))
       return false;
 
     if (_widgets.empty())
     {
       _first_item_index = 0;
       _cur_focus_pos = 0;
+      return true;
     }
-    else
-    {
-      if (_first_item_index >= _widgets.size())
-      {
-        if (getItemsPerPage() <= _widgets.size())
-          _first_item_index = 0;
-        else
-          _first_item_index = _widgets.size() - getItemsPerPage();
-      }
 
-      if (!_has_touch_support && _cur_focus_pos >= _widgets.size())
-      {
-        _cur_focus_pos = _widgets.size() - 1;
-        _widgets[_cur_focus_pos]->setFocus();
-      }
+    if (_first_item_index >= _widgets.size())
+    {
+      const uint16_t items_per_page = getItemsPerPage();
+      if (_widgets.size() <= items_per_page)
+        _first_item_index = 0;
+      else
+        _first_item_index = _widgets.size() - items_per_page;
+    }
+
+    if (!_has_touch_support && _cur_focus_pos >= _widgets.size())
+    {
+      _cur_focus_pos = _widgets.size() - 1;
+      _widgets[_cur_focus_pos]->setFocus();
     }
 
     return true;
   }
-
+  
   void IMenu::setItemHeight(uint16_t height)
   {
     _item_height = height > 0 ? height : 1;
