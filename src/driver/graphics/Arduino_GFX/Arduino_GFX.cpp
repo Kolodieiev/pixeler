@@ -1841,6 +1841,9 @@ void Arduino_GFX::setFont(const uint8_t* font)
 {
   u8g2Font = font;
 
+  if (!font)
+    return;
+
   // extract from u8g2_read_font_info()
   /* offset 0 */
   _u8g2_glyph_cnt = pgm_read_byte(font);
