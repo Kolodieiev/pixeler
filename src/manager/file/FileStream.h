@@ -18,6 +18,8 @@ namespace pixeler
   public:
     FileStream(FILE* file, const char* name, size_t size);
     FileStream() = default;
+    FileStream(const FileStream&) = delete;
+    FileStream& operator=(const FileStream&) = delete;
     virtual ~FileStream();
     virtual int available() override;
     virtual size_t readBytes(char* out_buffer, size_t length) override;
@@ -43,11 +45,8 @@ namespace pixeler
     size_t _size{0};
 
     uint8_t* _cache{nullptr};
-    size_t _cache_size{0};
     size_t _cache_pos{0};
     size_t _cache_available{0};
     size_t _consumed_total{0};
-
-    const size_t MAX_CACHE_SIZE = 16 * 1024;
   };
 }  // namespace pixeler

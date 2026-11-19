@@ -6,6 +6,8 @@
 
 namespace pixeler
 {
+  static constexpr size_t MAX_CACHE_SIZE = 16 * 1024;
+
   FileStream::FileStream(FILE* file, const char* name, size_t size)
   {
     open(file, name, size);
@@ -18,24 +20,37 @@ namespace pixeler
     if (!file)
       return false;
 
-    _file = file;
-    _name = name;
-    _size = size;
-
     if (!_cache)
     {
       _cache = static_cast<uint8_t*>(heap_caps_malloc(MAX_CACHE_SIZE, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL));
 
       if (!_cache)
       {
-        log_e("Помилка виділення [ %zu ] байт для файлового потоку [ %s ]", MAX_CACHE_SIZE, name);
-        _file = nullptr;
-        _name = emptyString;
+        log_e("Помилка виділення [ %zu ] байт для файлового потоку [ %s ]", MAX_CACHE_SIZE, name ? name : "");
         return false;
       }
     }
 
+    _file = file;
+    _name = name ? name : emptyString;
+    _size = size;
+
     return true;
+  }
+
+  void FileStream::close()
+  {
+    if (_file)
+    {
+      _fs.closeFile(_file);
+      _file = nullptr;
+    }
+
+    _name = emptyString;
+    _size = 0;
+    _consumed_total = 0;
+    _cache_pos = 0;
+    _cache_available = 0;
   }
 
   FileStream::~FileStream()
@@ -47,10 +62,11 @@ namespace pixeler
 
   int FileStream::available()
   {
-    if (!_file)
+    if (!_file || _consumed_total >= _size)
       return 0;
 
-    return _size - _consumed_total;
+    const size_t remaining = _size - _consumed_total;
+    return (remaining > static_cast<size_t>(INT_MAX)) ? INT_MAX : static_cast<int>(remaining);
   }
 
   bool FileStream::fillCache()
@@ -119,27 +135,17 @@ namespace pixeler
     return -1;  // stub
   }
 
-  void FileStream::close()
-  {
-    _fs.closeFile(_file);
-
-    _consumed_total = 0;
-    _cache_pos = 0;
-    _cache_available = 0;
-  }
-
   bool FileStream::seek(int32_t position)
   {
-    if (!_file)
+    if (!_file || static_cast<size_t>(position) > _size)
       return false;
 
-    bool success = _fs.seekPos(_file, position, SEEK_SET);
-
+    const bool success = _fs.seekPos(_file, position, SEEK_SET);
     if (success)
     {
       _cache_pos = 0;
       _cache_available = 0;
-      _consumed_total = position;
+      _consumed_total = static_cast<size_t>(position);
     }
 
     return success;
