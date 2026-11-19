@@ -778,32 +778,30 @@ void Arduino_GFX::fillEllipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint
 void Arduino_GFX::drawArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float start, float end, uint16_t color)
 {
   if (r1 < r2)
-  {
     _swap_int16_t(r1, r2);
-  }
+
   if (r1 < 1)
-  {
     r1 = 1;
-  }
+
   if (r2 < 1)
-  {
     r2 = 1;
-  }
+
   bool equal = fabsf(start - end) < FLT_EPSILON;
-  start = fmodf(start, 360);
-  end = fmodf(end, 360);
-  if (start < 0)
-    start += 360.0;
-  if (end < 0)
-    end += 360.0;
+  start = fmodf(start, 360.0f);
+  end = fmodf(end, 360.0f);
+
+  if (start < 0.0f)
+    start += 360.0f;
+  if (end < 0.0f)
+    end += 360.0f;
 
   startWrite();
   writeFillArcHelper(x, y, r1, r2, start, start, color);
   writeFillArcHelper(x, y, r1, r2, end, end, color);
-  if (!equal && (fabsf(start - end) <= 0.0001))
+  if (!equal && (fabsf(start - end) <= 0.0001f))
   {
-    start = .0;
-    end = 360.0;
+    start = 0.0f;
+    end = 360.0f;
   }
   writeFillArcHelper(x, y, r1, r1, start, end, color);
   writeFillArcHelper(x, y, r2, r2, start, end, color);
@@ -825,28 +823,25 @@ void Arduino_GFX::drawArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float st
 void Arduino_GFX::fillArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float start, float end, uint16_t color)
 {
   if (r1 < r2)
-  {
     _swap_int16_t(r1, r2);
-  }
+
   if (r1 < 1)
-  {
     r1 = 1;
-  }
+
   if (r2 < 1)
-  {
     r2 = 1;
-  }
+
   bool equal = fabsf(start - end) < FLT_EPSILON;
-  start = fmodf(start, 360);
-  end = fmodf(end, 360);
-  if (start < 0)
-    start += 360.0;
-  if (end < 0)
-    end += 360.0;
-  if (!equal && (fabsf(start - end) <= 0.0001))
+  start = fmodf(start, 360.0f);
+  end = fmodf(end, 360.0f);
+  if (start < 0.0f)
+    start += 360.0f;
+  if (end < 0.0f)
+    end += 360.0f;
+  if (!equal && (fabsf(start - end) <= 0.0001f))
   {
-    start = .0;
-    end = 360.0;
+    start = 0.0f;
+    end = 360.0f;
   }
 
   startWrite();
@@ -868,29 +863,27 @@ void Arduino_GFX::fillArc(int16_t x, int16_t y, int16_t r1, int16_t r2, float st
 /**************************************************************************/
 void Arduino_GFX::writeFillArcHelper(int16_t cx, int16_t cy, int16_t oradius, int16_t iradius, float start, float end, uint16_t color)
 {
-  if ((start == 90.0) || (start == 180.0) || (start == 270.0) || (start == 360.0))
-  {
-    start -= 0.1;
-  }
+  if ((start == 90.0f) || (start == 180.0f) || (start == 270.0f) || (start == 360.0f))
+    start -= 0.1f;
 
-  if ((end == 90.0) || (end == 180.0) || (end == 270.0) || (end == 360.0))
-  {
-    end -= 0.1;
-  }
+  if ((end == 90.0f) || (end == 180.0f) || (end == 270.0f) || (end == 360.0f))
+    end -= 0.1f;
 
-  float s_cos = (cos(start * DEGTORAD));
-  float e_cos = (cos(end * DEGTORAD));
-  float sslope = s_cos / (sin(start * DEGTORAD));
-  float eslope = e_cos / (sin(end * DEGTORAD));
-  float swidth = 0.5 / s_cos;
-  float ewidth = -0.5 / e_cos;
+  float s_rad = start * DEGTORAD;
+  float e_rad = end * DEGTORAD;
+  float s_cos = cosf(s_rad);
+  float e_cos = cosf(e_rad);
+  float sslope = s_cos / sinf(s_rad);
+  float eslope = e_cos / sinf(e_rad);
+  float swidth = 0.5f / s_cos;
+  float ewidth = -0.5f / e_cos;
   --iradius;
   int32_t ir2 = iradius * iradius + iradius;
   int32_t or2 = oradius * oradius + oradius;
 
-  bool start180 = !(start < 180.0);
-  bool end180 = end < 180.0;
-  bool reversed = start + 180.0 < end || (end < start && start < end + 180.0);
+  bool start180 = !(start < 180.0f);
+  bool end180 = end < 180.0f;
+  bool reversed = start + 180.0f < end || (end < start && start < end + 180.0f);
 
   int32_t xs = -oradius;
   int32_t y = -oradius;
