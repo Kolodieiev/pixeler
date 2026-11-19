@@ -42,11 +42,13 @@ bool Arduino_Canvas::begin(int32_t speed)
   _framebuffer = nullptr;
 
   uint32_t buf_align = cache_hal_get_cache_line_size(CACHE_LL_LEVEL_EXT_MEM, CACHE_TYPE_DATA);
+  if (buf_align < 4)
+    buf_align = 4;
 
   if (psramInit())
     _framebuffer = static_cast<uint16_t*>(heap_caps_aligned_alloc(buf_align, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
   else
-    _framebuffer = static_cast<uint16_t*>(aligned_alloc(buf_align, FRAMEBUFF_SIZE));
+    _framebuffer = static_cast<uint16_t*>(heap_caps_aligned_alloc(buf_align, FRAMEBUFF_SIZE, MALLOC_CAP_8BIT));
 
   if (!_framebuffer)
   {
@@ -62,7 +64,6 @@ bool Arduino_Canvas::begin(int32_t speed)
   }
 
   free(_framebuffer2);
-  _framebuffer2 = nullptr;
   _framebuffer2 = static_cast<uint16_t*>(heap_caps_aligned_alloc(buf_align, FRAMEBUFF_SIZE, MALLOC_CAP_SPIRAM));
 
   if (!_framebuffer2)
@@ -70,10 +71,9 @@ bool Arduino_Canvas::begin(int32_t speed)
     log_e("Memory allocation failed");
     esp_restart();
   }
-
 #endif  // DOUBLE_BUFFERRING
 
-  log_e("Canvas ініціалізовано");
+  log_i("Canvas ініціалізовано");
   return true;
 }
 
