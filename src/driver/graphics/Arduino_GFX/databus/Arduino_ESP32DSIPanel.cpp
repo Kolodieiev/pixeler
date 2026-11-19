@@ -9,18 +9,18 @@ Arduino_ESP32DSIPanel::Arduino_ESP32DSIPanel(
     uint16_t vsync_pulse_width,
     uint16_t vsync_back_porch,
     uint16_t vsync_front_porch,
-    float bus_freq_mhz,
+    float bus_freq_hz,
     float lane_bit_rate,
     soc_periph_mipi_dsi_phy_pllref_clk_src_t clock_source)
-    : _hsync_pulse_width{hsync_pulse_width},
+    : _clock_source{clock_source},
+      _lane_bit_rate{lane_bit_rate},
+      _bus_freq_mhz{bus_freq_hz / 1000000.0f},
+      _hsync_pulse_width{hsync_pulse_width},
       _hsync_back_porch{hsync_back_porch},
       _hsync_front_porch{hsync_front_porch},
       _vsync_pulse_width{vsync_pulse_width},
       _vsync_back_porch{vsync_back_porch},
-      _vsync_front_porch{vsync_front_porch},
-      _bus_freq_hz{bus_freq_mhz / 1000000},
-      _lane_bit_rate{lane_bit_rate},
-      _clock_source{clock_source}
+      _vsync_front_porch{vsync_front_porch}
 {
 }
 
@@ -92,7 +92,7 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
   esp_lcd_dpi_panel_config_t dpi_config = {
       .virtual_channel = 0,
       .dpi_clk_src = MIPI_DSI_DPI_CLK_SRC_DEFAULT,
-      .dpi_clock_freq_mhz = _bus_freq_hz,
+      .dpi_clock_freq_mhz = _bus_freq_mhz,
       .pixel_format = LCD_COLOR_PIXEL_FORMAT_RGB565,
       .in_color_format = LCD_COLOR_FMT_RGB565,
       .out_color_format = LCD_COLOR_FMT_RGB565,

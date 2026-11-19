@@ -28,7 +28,7 @@ public:
       uint16_t vsync_pulse_width,
       uint16_t vsync_back_porch,
       uint16_t vsync_front_porch,
-      float bus_freq_mhz,
+      float bus_freq_hz,
       float lane_bit_rate,
       soc_periph_mipi_dsi_phy_pllref_clk_src_t clock_source);
 
@@ -41,7 +41,7 @@ private:
 
   soc_periph_mipi_dsi_phy_pllref_clk_src_t _clock_source{MIPI_DSI_PHY_PLLREF_CLK_SRC_PLL_F20M};
   float _lane_bit_rate;
-  float _bus_freq_hz;
+  float _bus_freq_mhz;
   uint16_t _hsync_pulse_width;
   uint16_t _hsync_back_porch;
   uint16_t _hsync_front_porch;
