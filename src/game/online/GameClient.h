@@ -215,7 +215,7 @@ namespace pixeler
 
     int16_t _last_packet_id{-1};
 
-    bool _is_freed{true};
+    volatile bool _is_freed{true};
     bool _wifi_was_enabled{false};
   };
 }  // namespace pixeler

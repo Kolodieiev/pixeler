@@ -90,6 +90,8 @@ namespace pixeler
     _client.onPacket(onPacket, this);
     _client.listen(GAME_CLIENT_PORT);
 
+    _is_freed = false;
+
     xTaskCreatePinnedToCore(checkConnectTask, "pingCl", (1024 / 2) * 7, this, 10, &_check_task_handler, 1);
     xTaskCreatePinnedToCore(packetHandlerTask, "packHndl", (1024 / 2) * 20, this, 10, &_packet_task_handler, 1);
 
@@ -107,7 +109,6 @@ namespace pixeler
 
     sendHandshake();
 
-    _is_freed = false;
     return true;
   }
 
