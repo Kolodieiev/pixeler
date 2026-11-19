@@ -416,7 +416,7 @@ namespace pixeler
 
   void GameClient::handleCheckConnect()
   {
-    if (millis() - _last_act_time > MAX_PING_TIME) [[unlikely]]
+    if (static_cast<int32_t>(millis() - _last_act_time) > static_cast<int32_t>(MAX_PING_TIME)) [[unlikely]]
     {
       log_i("З'єднання з сервером втрачено");
       invokeDisconnectHandler();
