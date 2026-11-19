@@ -306,7 +306,7 @@ namespace pixeler
 
   bool FileManager::readFromFileExact(FILE* file, void* out_buffer, size_t len, size_t seek_pos)
   {
-    return readFromFile(file, out_buffer, len, seek_pos) == static_cast<ssize_t>(len);
+    return readFromFile(file, out_buffer, len, seek_pos) == len;
   }
 
   size_t FileManager::writeFile(const char* path, const void* buffer, size_t len)
@@ -359,31 +359,24 @@ namespace pixeler
   {
     size_t total_written = 0;
     const uint8_t* ptr = static_cast<const uint8_t*>(buffer);
-
-    size_t full_blocks = len / OPT_BLOCK_SIZE;
-    size_t remaining_bytes = len % OPT_BLOCK_SIZE;
-
     unsigned long ts = millis();
-    for (size_t i = 0; i < full_blocks; ++i)
+
+    while (total_written < len)
     {
-      ssize_t res = write(file_desc, ptr + total_written, OPT_BLOCK_SIZE);
-      if (res == -1)
+      const size_t remaining = len - total_written;
+      const size_t chunk = (remaining > OPT_BLOCK_SIZE) ? OPT_BLOCK_SIZE : remaining;
+
+      const ssize_t res = write(file_desc, ptr + total_written, chunk);
+      if (res <= 0)
         break;
 
-      total_written += res;
+      total_written += static_cast<size_t>(res);
 
       if (millis() - ts > IDLE_WD_GUARD_TIME)
       {
         delay(1);
         ts = millis();
       }
-    }
-
-    if (total_written == (full_blocks * OPT_BLOCK_SIZE) && remaining_bytes > 0)
-    {
-      ssize_t res = write(file_desc, ptr + total_written, remaining_bytes);
-      if (res != -1)
-        total_written += res;
     }
 
     if (total_written != len)
@@ -701,7 +694,7 @@ namespace pixeler
     xSemaphoreTake(_sd_mutex, portMAX_DELAY);
     bool was_mutex_taken = true;
 
-    int n_fd = open(to.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0666);
+    int n_fd = open(to.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
 
     if (n_fd < 0)
     {
@@ -752,13 +745,10 @@ namespace pixeler
       log_i("З: %s", from.c_str());
       log_i("До: %s", to.c_str());
 
-      ssize_t bytes_read;
-
-      off_t current_pos = lseek(o_fd, 0, SEEK_CUR);
       size_t byte_aval = file_size;
-
       _ts = millis();
       uint8_t old_progress = 0;
+
       while (!_is_canceled && byte_aval > 0)
       {
         if (!was_mutex_taken)
@@ -766,27 +756,32 @@ namespace pixeler
           xSemaphoreTake(_sd_mutex, portMAX_DELAY);
           was_mutex_taken = true;
         }
-        size_t to_read = (byte_aval < buf_size) ? byte_aval : buf_size;
-        bytes_read = read(o_fd, buffer, to_read);
+
+        const size_t to_read = (byte_aval < buf_size) ? byte_aval : buf_size;
+        const ssize_t bytes_read = read(o_fd, buffer, to_read);
 
         if (bytes_read <= 0)
           break;
 
-        writed_bytes_counter += writeOptimalUnlocked(n_fd, buffer, bytes_read);
-        _copy_progress = (static_cast<float>(writed_bytes_counter) / file_size) * 100;
+        const size_t written = writeOptimalUnlocked(n_fd, buffer, static_cast<size_t>(bytes_read));
+        writed_bytes_counter += written;
 
-        current_pos = lseek(o_fd, 0, SEEK_CUR);
-        byte_aval = (current_pos != -1 && file_size > static_cast<size_t>(current_pos)) ? file_size - current_pos : 0;
+        if (written != static_cast<size_t>(bytes_read))
+          break;
+
+        byte_aval -= static_cast<size_t>(bytes_read);
+        _copy_progress = static_cast<uint8_t>((static_cast<float>(writed_bytes_counter) / file_size) * 100.0f);
 
         if (millis() - _ts > IDLE_WD_GUARD_TIME)
         {
           xSemaphoreGive(_sd_mutex);
           was_mutex_taken = false;
 
-          if (old_progress != _copy_progress)
+          const uint8_t cur_progress = _copy_progress;
+          if (old_progress != cur_progress)
           {
-            old_progress = _copy_progress;
-            invokeCopyProgressUpd(_copy_progress);
+            old_progress = cur_progress;
+            invokeCopyProgressUpd(cur_progress);
           }
 
           delay(1);
