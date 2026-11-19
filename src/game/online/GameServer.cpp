@@ -671,6 +671,11 @@ namespace pixeler
         invokeDataHandler(*session, packet);
         break;
 
+      case UdpPacket::TYPE_SERVICE_DATA:
+        if (packet.getSubtype() == UdpPacket::SUBTYPE_ACK)
+          handleAck(packet);
+        break;
+
       case UdpPacket::TYPE_CONNECT:
         handleLogin(*session, packet);
         break;
@@ -679,6 +684,7 @@ namespace pixeler
         if (type != UdpPacket::TYPE_PING)
         {
           log_e("Неочікуваний пакет:");
+
 #if CORE_DEBUG_LEVEL > 0
           packet.printToLog();
 #endif  // CORE_DEBUG_LEVEL > 0
@@ -721,9 +727,17 @@ namespace pixeler
     if (!self.isAllAcked())
     {
       if (pack->getType() == UdpPacket::TYPE_SERVICE_DATA && pack->getSubtype() == UdpPacket::SUBTYPE_ACK)
-        self.handleAck(*pack);
-
-      delete pack;
+      {
+        if (xQueueSendToFront(self._packet_queue, &pack, 0) != pdPASS) [[unlikely]]
+        {
+          log_e("Черга packet_queue переповнена");
+          delete pack;
+        }
+      }
+      else
+      {
+        delete pack;
+      }
       return;
     }
 
@@ -890,6 +904,9 @@ namespace pixeler
 
   void GameServer::handleAck(const UdpPacket& packet)
   {
+    if (isAllAcked())
+      return;
+
     if (packet.getDataLen() < 1)
     {
       log_e("Відсутній ack-ID");
@@ -904,9 +921,8 @@ namespace pixeler
       return;
     }
 
-    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
+    MutexGuard sess_lock(_sessions_mutex);
     _ack_tracker.setAck(packet.getIP());
-    xSemaphoreGive(_sessions_mutex);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
