@@ -29,11 +29,12 @@
 #endif
 #endif  // #ifdef SD_TYPE_MMC
 
-#define IDLE_WD_GUARD_TIME 200U
-#define OPT_BLOCK_SIZE 16384
-
 namespace pixeler
 {
+  static constexpr uint32_t TASK_SIZE{(1024 / 2) * 30};
+  static constexpr unsigned long IDLE_WD_GUARD_TIME{200U};
+  static constexpr size_t OPT_BLOCK_SIZE{16384};
+
   String FileManager::makeFullPath(const char* path)
   {
     String full_path = SD_MOUNTPOINT;
@@ -275,7 +276,7 @@ namespace pixeler
     return bytes_read;
   }
 
-  String FileManager::readFileToStr(String path)
+  String FileManager::readFileToStr(const String& path)
   {
     if (path.isEmpty())
       return emptyString;
@@ -888,91 +889,90 @@ namespace pixeler
   std::vector<FileInfo> FileManager::index(const char* dir_path, IndexMode mode, const std::vector<String>& file_ext)
   {
     std::vector<FileInfo> result_vec;
-    result_vec.reserve(40);
 
     if (!dirExist(dir_path))
       return result_vec;
 
+    result_vec.reserve(40);
     String full_path = makeFullPath(dir_path);
 
-    MutexGuard lock(_sd_mutex);
-    DIR* dir = opendir(full_path.c_str());
-    if (!dir)
     {
-      log_e("Помилка відкриття директорії %s", full_path.c_str());
-      return result_vec;
-    }
-
-    dirent* dir_entry{nullptr};
-    String filename;
-    bool is_dir;
-
-    unsigned long ts = millis();
-
-    while (1)
-    {
-      dir_entry = readdir(dir);
-      if (!dir_entry)
-        break;
-
-      filename = dir_entry->d_name;
-
-      if (filename.equals(".") || filename.equals(".."))
-        continue;
-
-      String full_name{full_path};
-      full_name += "/";
-      full_name += filename;
-
-      uint8_t entr_type = getEntryTypeUnlocked(full_name.c_str(), dir_entry);
-
-      if (entr_type == DT_REG)
-        is_dir = false;
-      else if (entr_type == DT_DIR)
-        is_dir = true;
-      else
-        continue;
-
-      switch (mode)
+      MutexGuard lock(_sd_mutex);
+      DIR* dir = opendir(full_path.c_str());
+      if (!dir)
       {
-        case INDX_MODE_DIR:
-          if (is_dir)
-            result_vec.emplace_back(filename, true);
-          break;
-        case INDX_MODE_FILES:
-          if (!is_dir)
-            result_vec.emplace_back(filename, false);
-          break;
-        case INDX_MODE_FILES_EXT:
-          for (const String& i : file_ext)
-          {
-            if (!is_dir && filename.endsWith(i))
+        log_e("Помилка відкриття директорії %s", full_path.c_str());
+        return result_vec;
+      }
+
+      dirent* dir_entry{nullptr};
+      unsigned long ts = millis();
+
+      while ((dir_entry = readdir(dir)) != nullptr)
+      {
+        if (std::strcmp(dir_entry->d_name, ".") == 0 || std::strcmp(dir_entry->d_name, "..") == 0)
+          continue;
+
+        uint8_t entr_type = dir_entry->d_type;
+        if (entr_type == DT_UNKNOWN)
+        {
+          String full_name{full_path};
+          full_name += "/";
+          full_name += dir_entry->d_name;
+          entr_type = getEntryTypeUnlocked(full_name.c_str());
+        }
+
+        bool is_dir;
+        if (entr_type == DT_REG)
+          is_dir = false;
+        else if (entr_type == DT_DIR)
+          is_dir = true;
+        else
+          continue;
+
+        switch (mode)
+        {
+          case INDX_MODE_DIR:
+            if (is_dir)
+              result_vec.emplace_back(dir_entry->d_name, true);
+            break;
+
+          case INDX_MODE_FILES:
+            if (!is_dir)
+              result_vec.emplace_back(dir_entry->d_name, false);
+            break;
+
+          case INDX_MODE_FILES_EXT:
+            if (!is_dir)
             {
-              result_vec.emplace_back(filename, false);
-              break;
+              for (const String& i : file_ext)
+              {
+                if (endsWith(dir_entry->d_name, i.c_str()))
+                {
+                  result_vec.emplace_back(dir_entry->d_name, false);
+                  break;
+                }
+              }
             }
-          }
-          break;
-        case INDX_MODE_ALL:
-          if (is_dir)
-            result_vec.emplace_back(filename, true);
-          else
-            result_vec.emplace_back(filename, false);
-          break;
+            break;
+
+          case INDX_MODE_ALL:
+            result_vec.emplace_back(dir_entry->d_name, is_dir);
+            break;
+        }
+
+        if (millis() - ts > IDLE_WD_GUARD_TIME)
+        {
+          delay(1);
+          ts = millis();
+        }
       }
 
-      if (millis() - ts > IDLE_WD_GUARD_TIME)
-      {
-        delay(1);
-        ts = millis();
-      }
+      closedir(dir);
     }
 
     result_vec.shrink_to_fit();
     std::sort(result_vec.begin(), result_vec.end());
-
-    if (dir)
-      closedir(dir);
 
     return result_vec;
   }

@@ -253,7 +253,7 @@ namespace pixeler
      * @return Порожній рядок - інакше
      *
      */
-    String readFileToStr(String path);
+    String readFileToStr(const String& path);
 
     /**
      * @brief Створює або перезаписує бінарний файл, та записує до нього вказану кількість байтів із буфера.
@@ -456,8 +456,6 @@ namespace pixeler
 #endif  // #ifdef SD_TYPE_MMC
 
     unsigned long _ts{0};
-
-    static constexpr uint32_t TASK_SIZE{(1024 / 2) * 30};
 
     std::atomic<uint8_t> _copy_progress{0};
 
