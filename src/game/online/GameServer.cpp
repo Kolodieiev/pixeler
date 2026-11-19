@@ -808,18 +808,17 @@ namespace pixeler
     if (self._is_freed) [[unlikely]]
       return;
 
-    UdpPacket* pack = new UdpPacket(packet);
-
-    if (pack->getType() == UdpPacket::TYPE_SERVICE_DATA && pack->getSubtype() == UdpPacket::SUBTYPE_ACK)
+    if (!self.isAllAcked())
     {
-      if (!self.isAllAcked())
-        self.handleAck(*pack);
+      UdpPacket pack(packet);
+      if (pack.getType() == UdpPacket::TYPE_SERVICE_DATA && pack.getSubtype() == UdpPacket::SUBTYPE_ACK)
+        self.handleAck(pack);
 
-      delete pack;
       return;
     }
 
-    if (!self.isAllAcked())
+    UdpPacket* pack = new UdpPacket(packet);
+    if (pack->getType() == UdpPacket::TYPE_SERVICE_DATA && pack->getSubtype() == UdpPacket::SUBTYPE_ACK) [[unlikely]]
     {
       delete pack;
       return;
@@ -831,7 +830,6 @@ namespace pixeler
       delete pack;
     }
   }
-
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameServer::pingClients()
