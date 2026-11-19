@@ -1203,13 +1203,13 @@ namespace pixeler
     };
     sd_pwr_ctrl_handle_t pwr_ctrl_handle = nullptr;
 
-    if (esp_err_t ret = sd_pwr_ctrl_new_on_chip_ldo(&ldo_config, &pwr_ctrl_handle) != ESP_OK)
+    const esp_err_t pwr_ret = sd_pwr_ctrl_new_on_chip_ldo(&ldo_config, &pwr_ctrl_handle);
+    if (pwr_ret != ESP_OK)
     {
-      log_e("Помилка створення sd_pwr_ctrl драйвера: %s. Підключіть зовнішнє живлення.", ret);
+      log_e("Помилка створення sd_pwr_ctrl драйвера: %s. Підключіть зовнішнє живлення.", esp_err_to_name(pwr_ret));
       return false;
     }
     host.pwr_ctrl_handle = pwr_ctrl_handle;
-
 #endif  // SDMMC_POWER_CHANNEL != GPIO_NUM_NC
 
     enableSdPower();
@@ -1223,13 +1223,14 @@ namespace pixeler
         .disk_status_check_enable = false,
         .use_one_fat = false};
 
-    if (esp_err_t ret = esp_vfs_fat_sdmmc_mount(SD_MOUNTPOINT, &host, &slot_config, &mount_config, &_card) != ESP_OK)
+    const esp_err_t mount_ret = esp_vfs_fat_sdmmc_mount(SD_MOUNTPOINT, &host, &slot_config, &mount_config, &_card);
+    if (mount_ret != ESP_OK)
     {
-      if (ret == ESP_FAIL)
+      if (mount_ret == ESP_FAIL)
       {
         log_e("Помилка монтування файлової системи. Відформатуйте карту пам'яті в FAT32.");
       }
-      else if (ret == ESP_ERR_INVALID_STATE)
+      else if (mount_ret == ESP_ERR_INVALID_STATE)
       {
         log_i("SD Вже примонтовано");
         return true;
