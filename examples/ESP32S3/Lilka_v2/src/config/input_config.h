@@ -62,7 +62,7 @@ namespace pixeler
     BTN_UP = 38,
     BTN_DOWN = 41
   };
-}
+}  // namespace pixeler
 
 // Макрос з ініціалізацією пінів. Між фігурними дужками потрібно додати ініціалізацію пінів, як показано нижче
 // Де Button(uint8_t btn_id, bool is_touch)
@@ -91,6 +91,6 @@ namespace pixeler
 
 #define PRESS_DURATION_TIME_MS 1000UL  // Час(мс), після спливання якого кнопка вважається утримуваною.
 
-#define PRESS_LOCK_TIME_MS 700UL  // Час(мс) блокування кнопки після спрацювання тригеру PRESS
-#define CLICK_LOCK_TIME_MS 250UL  // Час(мс) блокування кнопки після спрацювання тригеру CLICK
-#define HOLD_LOCK_TIME_MS 150UL   // Час(мс) блокування кнопки після спрацювання тригеру HOLD
+#define PRESS_LOCK_TIME_MS 500UL  // Час(мс) блокування кнопки після спрацювання тригеру PRESS
+#define CLICK_LOCK_TIME_MS 150UL  // Час(мс) блокування кнопки після спрацювання тригеру CLICK
+#define HOLD_LOCK_TIME_MS 100UL   // Час(мс) блокування кнопки після спрацювання тригеру HOLD
