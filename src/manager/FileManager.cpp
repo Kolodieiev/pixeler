@@ -44,18 +44,28 @@ namespace pixeler
 
   String FileManager::makeUniqueFilename(const String& file_path)
   {
+    if (!fileExistSilently(file_path.c_str()))
+      return file_path;
+
+    const int slash_pos = file_path.lastIndexOf('/');
+    const int dot_pos = file_path.lastIndexOf('.');
+    const bool has_ext = (dot_pos > slash_pos);
+
+    const String base = has_ext ? file_path.substring(0, dot_pos) : file_path;
+    const String ext = has_ext ? file_path.substring(dot_pos) : emptyString;
+
     uint16_t counter = 1;
-    String temp_path = file_path;
-    String unique_filename = file_path;
-    while (fileExistSilently(unique_filename.c_str()))
+    String unique_filename;
+
+    do
     {
-      unique_filename = temp_path.substring(0, temp_path.lastIndexOf("."));
+      unique_filename = base;
       unique_filename += "(";
       unique_filename += counter;
       unique_filename += ")";
-      unique_filename += temp_path.substring(temp_path.lastIndexOf("."));
+      unique_filename += ext;
       ++counter;
-    }
+    } while (counter != 0 && fileExistSilently(unique_filename.c_str()));
 
     return unique_filename;
   }
