@@ -333,42 +333,15 @@ void Arduino_Canvas::draw16bitRGBBitmapWithTranColor(int16_t x, int16_t y, const
         w += x;
         x = 0;
       }
-      uint16_t* row = _framebuffer;
-      row += y * _width;
-      row += x;
-      int16_t i;
-      int16_t wi;
-      uint16_t p;
+
+      uint16_t* row = _framebuffer + (static_cast<int32_t>(y) * _width) + x;
       while (h--)
       {
-        i = 0;
-        wi = w;
-        while (wi >= 4)
+        for (int16_t i = 0; i < w; ++i)
         {
-          uint32_t b32 = *((uint32_t*)bitmap);
-          p = (b32 & 0xffff);
+          uint16_t p = *bitmap++;
           if (p != transparent_color)
-          {
             row[i] = p;
-          }
-          ++i;
-          p = (b32 & 0xffff0000) >> 16;
-          if (p != transparent_color)
-          {
-            row[i] = p;
-          }
-          ++i;
-          wi -= 2;
-          bitmap += 2;
-        }
-        while (i < w)
-        {
-          p = *bitmap++;
-          if (p != transparent_color)
-          {
-            row[i] = p;
-          }
-          ++i;
         }
         bitmap += x_skip;
         row += _width;
