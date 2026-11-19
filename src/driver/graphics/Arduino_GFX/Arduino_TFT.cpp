@@ -259,13 +259,9 @@ void Arduino_TFT::writeSlashLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     if ((err < 0) || ((x0 > x1) && len))
     {
       if (steep)
-      {
-        writeFillRectPreclipped(y0, xs, 1, len, color);
-      }
+        writeFastVLine(y0, xs, len, color);
       else
-      {
-        writeFillRectPreclipped(xs, y0, len, 1, color);
-      }
+        writeFastHLine(xs, y0, len, color);
       err += dx;
       y0 += step;
       len = 0;
