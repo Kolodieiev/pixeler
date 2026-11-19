@@ -669,6 +669,7 @@ void Arduino_GFX::writeFillEllipseHelper(int32_t x, int32_t y, int32_t rx, int32
     writeFastHLine(x - rx, y, (rx << 1) + 1, color);
     return;
   }
+
   if (rx == 0)
   {
     writeFastVLine(x, y - ry, (ry << 1) + 1, color);
@@ -2204,38 +2205,21 @@ void Arduino_GFX::drawBitmapToFramebuffer(
   else
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
   {
-    uint16_t* row = framebuffer;
-    row += y * framebuffer_w;  // shift framebuffer to y offset
-    row += x;                  // shift framebuffer to x offset
-    if (((framebuffer_w & 1) == 0) && ((x_skip & 1) == 0) && ((bitmap_w & 1) == 0))
-    {
-      uint32_t* row2 = (uint32_t*)row;
-      uint32_t* from_bitmap2 = (uint32_t*)from_bitmap;
-      int16_t framebuffer_w2 = framebuffer_w >> 1;
-      int16_t xskip2 = x_skip >> 1;
-      int16_t w2 = bitmap_w >> 1;
+    uint16_t* row = framebuffer + (static_cast<int32_t>(y) * framebuffer_w) + x;
+    size_t row_bytes = static_cast<size_t>(bitmap_w) * sizeof(uint16_t);
 
-      int16_t j = bitmap_h;
-      while (j--)
-      {
-        for (int16_t i = 0; i < w2; ++i)
-        {
-          row2[i] = *from_bitmap2++;
-        }
-        from_bitmap2 += xskip2;
-        row2 += framebuffer_w2;
-      }
+    if ((x_skip == 0) && (bitmap_w == framebuffer_w))
+    {
+      memcpy(row, from_bitmap, row_bytes * bitmap_h);
     }
     else
     {
+      int16_t src_stride = bitmap_w + x_skip;
       int16_t j = bitmap_h;
       while (j--)
       {
-        for (int i = 0; i < bitmap_w; ++i)
-        {
-          row[i] = *from_bitmap++;
-        }
-        from_bitmap += x_skip;
+        memcpy(row, from_bitmap, row_bytes);
+        from_bitmap += src_stride;
         row += framebuffer_w;
       }
     }
