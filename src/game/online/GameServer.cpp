@@ -237,10 +237,10 @@ namespace pixeler
     pack.setSubtype(subtype);
     pack.write(data, data_size);
 
-    return broadcast(pack);
+    return broadcast(std::move(pack));
   }
 
-  bool GameServer::broadcast(const UdpPacket& packet)
+  bool GameServer::broadcast(UdpPacket&& packet)
   {
     MutexGuard sess_lock(_sessions_mutex);
 
@@ -269,33 +269,24 @@ namespace pixeler
     pack.setSubtype(subtype);
     pack.write(data, data_size);
 
-    return send(session, pack);
+    return send(session, std::move(pack));
   }
 
-  bool GameServer::send(const IPAddress& remote_ip, const UdpPacket& packet)
+  bool GameServer::send(const IPAddress& remote_ip, UdpPacket&& packet)
   {
     ClientSession* session = findSession(remote_ip);
     if (session)
-      return send(*session, packet);
+      return send(*session, std::move(packet));
 
     return false;
   }
 
-  bool GameServer::send(const IPAddress& remote_ip, UdpPacket::PacketType type, uint8_t subtype, size_t data_size, const void* data)
-  {
-    ClientSession* session = findSession(remote_ip);
-    if (session)
-      return send(*session, type, subtype, data_size, data);
-
-    return false;
-  }
-
-  bool GameServer::send(const ClientSession& session, const UdpPacket& packet)
+  bool GameServer::send(const ClientSession& session, UdpPacket&& packet)
   {
     if (!session.isAccepted())
       return false;
 
-    MutexGuard udp_lock(_udp_mutex);
+    MutexGuard sess_lock(_sessions_mutex);
 
     if (!_ack_tracker.isAllAcked())
       return false;
@@ -304,6 +295,8 @@ namespace pixeler
     _last_packet.setID(++_last_packet_id);
 
     _ack_tracker.resetAck(session.getIP());
+
+    MutexGuard udp_lock(_udp_mutex);
     _server.writeTo(_last_packet.raw(), _last_packet.length(), session.getIP(), session.getPort());
 
     return true;
@@ -721,41 +714,42 @@ namespace pixeler
 
   void GameServer::pingClients()
   {
-    IPAddress disconnect_buf[_accepted_sessions_num];
+    IPAddress disconnect_buf[MAX_WIFI_CONNECTION];
     size_t disconnect_count = 0;
 
-    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
-
-    for (auto it = _sessions.begin(); it != _sessions.end();)
     {
-      auto& session = it->second;
+      MutexGuard sess_lock(_sessions_mutex);
 
-      if (!session.isConnected())
+      for (auto it = _sessions.begin(); it != _sessions.end();)
       {
-        if (session.isAccepted())
-        {
-          _ack_tracker.removeClient(session.getIP());
-          --_accepted_sessions_num;
-          log_i("Клієнт від'єднався: %s", session.getName().c_str());
+        auto& session = it->second;
 
-          disconnect_buf[disconnect_count++] = session.getIP();
-        }
-
-        it = _sessions.erase(it);
-      }
-      else
-      {
-        if (session.needsPing())
+        if (!session.isConnected())
         {
-          UdpPacket packet;
-          packet.setType(UdpPacket::TYPE_PING);
-          sendUnacked(packet, session.getIP(), session.getPort());
+          if (session.isAccepted())
+          {
+            _ack_tracker.removeClient(session.getIP());
+            --_accepted_sessions_num;
+            log_i("Клієнт від'єднався: %s", session.getName().c_str());
+
+            if (disconnect_count < MAX_WIFI_CONNECTION)
+              disconnect_buf[disconnect_count++] = session.getIP();
+          }
+
+          it = _sessions.erase(it);
         }
-        ++it;
+        else
+        {
+          if (session.needsPing())
+          {
+            UdpPacket packet;
+            packet.setType(UdpPacket::TYPE_PING);
+            sendUnacked(packet, session.getIP(), session.getPort());
+          }
+          ++it;
+        }
       }
     }
-
-    xSemaphoreGive(_sessions_mutex);
 
     for (size_t i = 0; i < disconnect_count; ++i)
       invokeDisconnectHandler(disconnect_buf[i]);
@@ -776,21 +770,54 @@ namespace pixeler
   {
     _is_busy = false;
 
-    ClientSession* session = findSession(client_name);
-    if (!session)
+    IPAddress remote_ip;
+    uint16_t port = 0;
+    bool found = false;
+
+    {
+      MutexGuard sess_lock(_sessions_mutex);
+
+      for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
+      {
+        if (it->second.hasName(client_name))
+        {
+          remote_ip = it->second.getIP();
+          port = it->second.getPort();
+          found = true;
+
+          if (!is_accepted)
+          {
+            removeSessionUnsafe(remote_ip);
+          }
+          else
+          {
+            it->second.accept();
+            _ack_tracker.addClient(remote_ip);
+            ++_accepted_sessions_num;
+          }
+          break;
+        }
+      }
+    }
+
+    if (!found)
       return;
 
-    sendNameRespMsg(*session, is_accepted);
+    UdpPacket resp_packet;
+    resp_packet.setType(UdpPacket::TYPE_CONNECT);
 
     if (!is_accepted)
     {
-      removeSession(session->getIP());
+      resp_packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_DENIED);
+      log_i("Авторизацію відхилено: %s", client_name.c_str());
     }
     else
     {
-      session->accept();
-      ++_accepted_sessions_num;
+      resp_packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_GRANTED);
+      log_i("Авторизовано: %s", client_name.c_str());
     }
+
+    sendUnacked(resp_packet, remote_ip, port);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------

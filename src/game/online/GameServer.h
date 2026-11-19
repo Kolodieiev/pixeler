@@ -262,9 +262,10 @@ namespace pixeler
     void pingClients();
     static void pingClientsTask(void* arg);
     //
-    bool broadcast(const UdpPacket& packet);
-    bool send(const IPAddress& remote_ip, const UdpPacket& packet);
-    bool send(const ClientSession& session, const UdpPacket& packet);
+  protected:
+    bool broadcast(UdpPacket&& packet);
+    bool send(const IPAddress& remote_ip, UdpPacket&& packet);
+    bool send(const ClientSession& session, UdpPacket&& packet);
     void sendUnacked(const UdpPacket& packet, const IPAddress& remote_ip);
     void sendUnacked(const UdpPacket& packet, const IPAddress& remote_ip, uint16_t port);
     void sendUnackedUnsafe(const UdpPacket& packet, const IPAddress& remote_ip);
