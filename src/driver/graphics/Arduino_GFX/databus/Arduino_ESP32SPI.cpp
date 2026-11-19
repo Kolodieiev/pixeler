@@ -354,12 +354,8 @@ bool Arduino_ESP32SPI::begin(int32_t speed, int8_t dataMode)
   }
 
   _buffer = (uint8_t*)heap_caps_aligned_alloc(16, ESP32SPI_MAX_PIXELS_AT_ONCE * 2, MALLOC_CAP_DMA);
-  if (!_buffer)
-  {
-    return false;
-  }
 
-  return true;
+  return _buffer != nullptr;
 }
 
 /**
@@ -747,7 +743,6 @@ void Arduino_ESP32SPI::writeRepeat(uint16_t p, uint32_t len)
     uint32_t c32;
     MSB_32_16_16_SET(c32, p, p);
 
-    l = (bufLen + 1) / 2;
     if (_miso == GFX_NOT_DEFINED)
     {
       l = (bufLen + 1) >> 1;
