@@ -212,12 +212,10 @@ namespace pixeler
     unsigned long _last_act_time{0};
 
     int16_t _last_packet_id{-1};
-    int16_t _handled_packet_id{-1};
 
     Status _status{STATUS_DISCONNECTED};
 
     volatile bool _is_freed{true};
-    volatile bool _is_ack_queued{false};
     bool _wifi_was_enabled{false};
   };
 }  // namespace pixeler

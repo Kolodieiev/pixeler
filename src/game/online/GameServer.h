@@ -304,7 +304,7 @@ namespace pixeler
     uint8_t _accepted_sessions_num{0};
 
     bool _is_open{false};
-    bool _is_freed{true};
+    volatile bool _is_freed{true};
     bool _is_busy{false};
     bool _wifi_was_enabled{false};
   };

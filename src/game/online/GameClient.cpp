@@ -68,8 +68,6 @@ namespace pixeler
     _login = client_name;
     _game_id = game_ID;
     _last_packet_id = -1;
-    _handled_packet_id = -1;
-    _is_ack_queued = false;
 
     log_i("Приєднання до сервера...");
     _status = STATUS_IDLE;
@@ -223,18 +221,6 @@ namespace pixeler
   {
     _last_act_time = millis();
 
-    if (packet.hasID())
-    {
-      uint8_t packet_id = packet.getID();
-      _is_ack_queued = false;
-      sendAck(packet_id);
-
-      if (_handled_packet_id == packet_id)
-        return;
-
-      _handled_packet_id = packet_id;
-    }
-
     switch (packet.getType())
     {
       case UdpPacket::TYPE_GAME_DATA:
@@ -290,6 +276,9 @@ namespace pixeler
     }
 
     GameClient& self = *static_cast<GameClient*>(arg);
+    if (self._is_freed) [[unlikely]]
+      return;
+
     UdpPacket* pack = new UdpPacket(packet);
 
     if (pack->hasID())
@@ -298,33 +287,20 @@ namespace pixeler
 
       if (self._last_packet_id == packet_id)
       {
-        if (self._is_ack_queued)
-        {
-          delete pack;
-          return;
-        }
-
-        self._is_ack_queued = true;
-        if (xQueueSendToFront(self._packet_queue, &pack, 0) != pdPASS) [[unlikely]]
-        {
-          self._is_ack_queued = false;
-          log_e("Черга packet_queue переповнена");
-          delete pack;
-        }
+        self.sendAck(packet_id);
+        delete pack;
         return;
       }
 
-      self._is_ack_queued = true;
-      if (xQueueSend(self._packet_queue, &pack, 0) != pdPASS) [[unlikely]]
+      if (uxQueueSpacesAvailable(self._packet_queue) == 0) [[unlikely]]
       {
-        self._is_ack_queued = false;
         log_e("Черга packet_queue переповнена");
         delete pack;
         return;
       }
 
       self._last_packet_id = packet_id;
-      return;
+      self.sendAck(packet_id);
     }
 
     if (xQueueSend(self._packet_queue, &pack, 0) != pdPASS) [[unlikely]]

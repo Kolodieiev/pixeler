@@ -94,6 +94,8 @@ namespace pixeler
       esp_restart();
     }
 
+    _is_freed = false;
+
     _server.onPacket(onPacket, this);
     _server.listen(GAME_SERVER_PORT);
 
@@ -112,7 +114,6 @@ namespace pixeler
       esp_restart();
     }
 
-    _is_freed = false;
     return true;
   }
 
@@ -758,11 +759,6 @@ namespace pixeler
         invokeDataHandler(*session, packet);
         break;
 
-      case UdpPacket::TYPE_SERVICE_DATA:
-        if (packet.getSubtype() == UdpPacket::SUBTYPE_ACK)
-          handleAck(packet);
-        break;
-
       case UdpPacket::TYPE_CONNECT:
         handleLogin(packet);
         break;
@@ -809,22 +805,23 @@ namespace pixeler
     }
 
     GameServer& self = *static_cast<GameServer*>(arg);
+    if (self._is_freed) [[unlikely]]
+      return;
+
     UdpPacket* pack = new UdpPacket(packet);
+
+    if (pack->getType() == UdpPacket::TYPE_SERVICE_DATA && pack->getSubtype() == UdpPacket::SUBTYPE_ACK)
+    {
+      if (!self.isAllAcked())
+        self.handleAck(*pack);
+
+      delete pack;
+      return;
+    }
 
     if (!self.isAllAcked())
     {
-      if (pack->getType() == UdpPacket::TYPE_SERVICE_DATA && pack->getSubtype() == UdpPacket::SUBTYPE_ACK)
-      {
-        if (xQueueSendToFront(self._packet_queue, &pack, 0) != pdPASS) [[unlikely]]
-        {
-          log_e("Черга packet_queue переповнена");
-          delete pack;
-        }
-      }
-      else
-      {
-        delete pack;
-      }
+      delete pack;
       return;
     }
 
@@ -1010,6 +1007,10 @@ namespace pixeler
       log_e("Некоректний ACK. Надіслано %u, повернуто %u", _last_packet_id, id);
       return;
     }
+
+    ClientSession* session = findSessionUnsafe(packet.getIP());
+    if (session)
+      session->prolong();
 
     _ack_tracker.setAck(packet.getIP());
   }
