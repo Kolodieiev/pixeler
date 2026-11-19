@@ -279,6 +279,15 @@ namespace pixeler
     return send(session, std::move(pack));
   }
 
+  bool GameServer::send(const IPAddress& remote_ip, UdpPacket::PacketType type, uint8_t subtype, size_t data_size, const void* data)
+  {
+    ClientSession* session = findSession(remote_ip);
+    if (session)
+      return send(*session, type, subtype, data_size, data);
+
+    return false;
+  }
+
   bool GameServer::send(const IPAddress& remote_ip, UdpPacket&& packet)
   {
     ClientSession* session = findSession(remote_ip);
