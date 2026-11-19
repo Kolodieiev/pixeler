@@ -283,20 +283,35 @@ namespace pixeler
 
   bool GameServer::send(const IPAddress& remote_ip, UdpPacket::PacketType type, uint8_t subtype, size_t data_size, const void* data)
   {
-    ClientSession* session = findSession(remote_ip);
-    if (session)
-      return send(*session, type, subtype, data_size, data);
+    UdpPacket pack(data_size);
+    pack.setType(type);
+    pack.setSubtype(subtype);
+    pack.write(data, data_size);
 
-    return false;
+    return send(remote_ip, std::move(pack));
   }
 
   bool GameServer::send(const IPAddress& remote_ip, UdpPacket&& packet)
   {
-    ClientSession* session = findSession(remote_ip);
-    if (session)
-      return send(*session, std::move(packet));
+    MutexGuard sess_lock(_sessions_mutex);
 
-    return false;
+    ClientSession* session = findSessionUnsafe(remote_ip);
+    if (!session || !session->isAccepted())
+      return false;
+
+    if (!_ack_tracker.isAllAcked())
+      return false;
+
+    _last_packet = std::move(packet);
+    _last_packet.setID(++_last_packet_id);
+    _resend_counter = 0;
+
+    _ack_tracker.resetAck(remote_ip);
+
+    MutexGuard udp_lock(_udp_mutex);
+    _server.writeTo(_last_packet.raw(), _last_packet.length(), remote_ip, session->getPort());
+
+    return true;
   }
 
   bool GameServer::send(const ClientSession& session, UdpPacket&& packet)
@@ -371,9 +386,18 @@ namespace pixeler
 
   void GameServer::sendUnacked(const UdpPacket& packet, const IPAddress& remote_ip)
   {
-    ClientSession* session = findSession(remote_ip);
-    if (session)
-      sendUnacked(packet, remote_ip, session->getPort());
+    uint16_t port = 0;
+
+    {
+      MutexGuard sess_lock(_sessions_mutex);
+      ClientSession* session = findSessionUnsafe(remote_ip);
+      if (!session)
+        return;
+
+      port = session->getPort();
+    }
+
+    sendUnacked(packet, remote_ip, port);
   }
 
   void GameServer::sendUnacked(const UdpPacket& packet, const IPAddress& remote_ip, uint16_t port)
