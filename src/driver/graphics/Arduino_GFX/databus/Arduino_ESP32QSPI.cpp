@@ -106,7 +106,7 @@ bool Arduino_ESP32QSPI::begin(int32_t speed, int8_t dataMode)
   _spi_tran = (spi_transaction_t*)&_spi_tran_ext;
 
   _buffer = (uint8_t*)heap_caps_aligned_alloc(16, ESP32QSPI_MAX_PIXELS_AT_ONCE * 2, MALLOC_CAP_DMA);
-  
+
   return _buffer != nullptr;
 }
 
@@ -394,9 +394,8 @@ void Arduino_ESP32QSPI::batchOperation(const uint8_t* operations, size_t len)
       }
       case WRITE_BYTES:
         l = operations[++i];
-        memcpy(_buffer, operations + i + 1, l);
+        writeBytes(operations + i + 1, l);
         i += l;
-        writeBytes(_buffer, l);
         break;
       case WRITE_C8_D8:
         l = operations[++i];
@@ -456,7 +455,8 @@ void Arduino_ESP32QSPI::writeBytes(const uint8_t* data, uint32_t len)
           SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
     }
 
-    _spi_tran_ext.base.tx_buffer = data;
+    memcpy(_buffer, data, l);
+    _spi_tran_ext.base.tx_buffer = _buffer;
     _spi_tran_ext.base.length = l << 3;
 
     POLL_START();
