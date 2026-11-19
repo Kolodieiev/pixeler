@@ -472,21 +472,22 @@ void Arduino_ESP32SPI::writeCommandBytes(uint8_t* data, uint32_t len)
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
     while (len--)
-    {
       WRITE9BIT(*data++);
-    }
+    return;
   }
-  else
-  {
-    DC_LOW();
 
-    while (len--)
-    {
-      WRITE8BIT(*data++);
-    }
+  if (_data_buf_bit_idx > 0)
+    flush_data_buf();
 
-    DC_HIGH();
-  }
+  DC_LOW();
+
+  while (len--)
+    WRITE8BIT(*data++);
+
+  if (_data_buf_bit_idx > 0)
+    flush_data_buf();
+
+  DC_HIGH();
 }
 
 /**
