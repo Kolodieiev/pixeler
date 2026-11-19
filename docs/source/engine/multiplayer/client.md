@@ -90,7 +90,7 @@ void ClientChessContext::subscribeClientHandlers()
   _client.onConnect(onClientConnectHandler, this);
   _client.onDisconnect(onClientDisconnectHandler, this);
   _client.onGameStart(onGameStartHandler, this);
-  _client.OnError(onClientErrorHandler, this);
+  _client.onError(onClientErrorHandler, this);
 }
 
 void ClientChessContext::unsubscribeClientHandlers()
@@ -98,7 +98,7 @@ void ClientChessContext::unsubscribeClientHandlers()
   _client.onConnect(nullptr, nullptr);
   _client.onDisconnect(nullptr, nullptr);
   _client.onGameStart(nullptr, nullptr);
-  _client.OnError(nullptr, nullptr);
+  _client.onError(nullptr, nullptr);
 }
 
 // 2. Обробники подій безпечно оновлюють UI контексту через post():

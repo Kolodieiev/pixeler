@@ -144,7 +144,7 @@ namespace pixeler
      * @param handler Обробник події отримання помилки
      * @param arg Аргумент, який буде передано обробнику
      */
-    void OnError(ErrorHandler handler, void* arg);
+    void onError(ErrorHandler handler, void* arg);
 
     /**
      * @brief Встановлює обробник, який буде викликано після втрати з'єднання з сервером.

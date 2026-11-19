@@ -513,7 +513,7 @@ namespace pixeler
     _connect_arg = arg;
   }
 
-  void GameClient::OnError(ErrorHandler handler, void* arg)
+  void GameClient::onError(ErrorHandler handler, void* arg)
   {
     _error_handler = handler;
     _error_arg = arg;
