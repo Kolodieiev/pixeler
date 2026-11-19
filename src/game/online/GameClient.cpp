@@ -110,14 +110,13 @@ namespace pixeler
     _is_freed = false;
     return true;
   }
-  
+
   void GameClient::disconnect()
   {
     if (_is_freed)
       return;
 
     _status = STATUS_DISCONNECTED;
-
     _is_freed = true;
 
     log_i("Від'єднано від сервера");
@@ -125,16 +124,24 @@ namespace pixeler
     _client.onPacket([](AsyncUDPPacket& packet) {});
     _client.close();
 
+    TaskHandle_t current_task = xTaskGetCurrentTaskHandle();
+
     if (_check_task_handler)
     {
-      vTaskDelete(_check_task_handler);
+      TaskHandle_t task = _check_task_handler;
       _check_task_handler = nullptr;
+
+      if (task != current_task)
+        vTaskDelete(task);
     }
 
     if (_packet_task_handler)
     {
-      vTaskDelete(_packet_task_handler);
+      TaskHandle_t task = _packet_task_handler;
       _packet_task_handler = nullptr;
+
+      if (task != current_task)
+        vTaskDelete(task);
     }
 
     if (_packet_queue)
@@ -153,7 +160,6 @@ namespace pixeler
       _udp_mutex = nullptr;
     }
   }
-
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameClient::send(const UdpPacket& packet)
@@ -231,8 +237,9 @@ namespace pixeler
 
       default:
         log_e("Неочікуваний тип пакета:");
-        if (CORE_DEBUG_LEVEL > 0)
-          packet.printToLog();
+#if CORE_DEBUG_LEVEL > 0
+        packet.printToLog();
+#endif  // CORE_DEBUG_LEVEL > 0
         break;
     }
   }
@@ -243,7 +250,7 @@ namespace pixeler
     UdpPacket* packet{nullptr};
     uint32_t processed_count{0};
 
-    while (1)
+    while (!self->_is_freed)
     {
       if (xQueueReceive(self->_packet_queue, &packet, portMAX_DELAY) == pdPASS)
       {
@@ -254,6 +261,8 @@ namespace pixeler
           delay(1);
       }
     }
+
+    vTaskDelete(nullptr);
   }
 
   void GameClient::onPacket(void* arg, AsyncUDPPacket& packet)
@@ -391,11 +400,16 @@ namespace pixeler
   {
     GameClient* self = static_cast<GameClient*>(arg);
 
-    while (1)
+    while (!self->_is_freed)
     {
       self->handleCheckConnect();
+      if (self->_is_freed)
+        break;
+
       delay(2000);
     }
+
+    vTaskDelete(nullptr);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
