@@ -186,9 +186,9 @@ uint32_t Arduino_GFX::color16RGBTo24RGB(uint16_t color565)
   uint32_t g = (color565 >> 5) & 0x3F;
   uint32_t b = color565 & 0x1F;
 
-  r = (r * 521) >> 6;
-  g = (g * 1025) >> 8;
-  b = (b * 521) >> 6;
+  r = (r << 3) | (r >> 2);
+  g = (g << 2) | (g >> 4);
+  b = (b << 3) | (b >> 2);
 
   return (r << 16) | (g << 8) | b;
 }
