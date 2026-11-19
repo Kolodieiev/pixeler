@@ -106,6 +106,12 @@ void Arduino_Canvas::writePixelPreclipped(int16_t x, int16_t y, uint16_t color)
 
 void Arduino_Canvas::writeFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color)
 {
+  if (h < 0)
+  {
+    y += h + 1;
+    h = -h;
+  }
+
   switch (_rotation)
   {
     case 1:
@@ -161,7 +167,12 @@ void Arduino_Canvas::writeFastVLineCore(int16_t x, int16_t y, int16_t h, uint16_
 
 void Arduino_Canvas::writeFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color)
 {
-  // log_i("writeFastHLine(x: %d, y: %d, w: %d)", x, y, w);
+  if (w < 0)
+  {
+    x += w + 1;
+    w = -w;
+  }
+
   switch (_rotation)
   {
     case 1:
