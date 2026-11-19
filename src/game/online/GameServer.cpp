@@ -187,6 +187,7 @@ namespace pixeler
     MutexGuard sess_lock(_sessions_mutex);
 
     _is_open = false;
+    _is_busy = false;
 
     for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it;)
     {
@@ -219,7 +220,7 @@ namespace pixeler
 
   bool GameServer::isFull() const
   {
-    return _max_clients == _accepted_sessions_num;
+    return _accepted_sessions_num >= _max_clients;
   }
 
   void GameServer::broadcastStartGame()
@@ -609,15 +610,6 @@ namespace pixeler
     if (packet.getSubtype() != UdpPacket::SUBTYPE_LOGIN)
       return;
 
-    if (_is_busy)
-    {
-      sendBusy(packet);
-      removeSession(session.getIP());
-      return;
-    }
-
-    log_i("Запит авторизації");
-
     if (session.isAccepted())
     {
       /* Помилкова повторна авторизація вже авторизованого клієнта.
@@ -626,6 +618,15 @@ namespace pixeler
       sendNameRespMsg(session, false);
       return;
     }
+
+    if (!_is_open || _accepted_sessions_num >= _max_clients || _is_busy)
+    {
+      sendBusy(packet);
+      removeSession(session.getIP());
+      return;
+    }
+
+    log_i("Запит авторизації");
 
     String client_name = packet.dataToString();
     if (client_name.isEmpty() ||
@@ -788,7 +789,6 @@ namespace pixeler
       delay(1000);
     }
   }
-
   void GameServer::resolveJoin(const String& client_name, bool is_accepted)
   {
     _is_busy = false;
@@ -802,20 +802,20 @@ namespace pixeler
 
       for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
       {
-        if (it->second.hasName(client_name))
+        if (!it->second.isAccepted() && it->second.hasName(client_name))
         {
           remote_ip = it->second.getIP();
           port = it->second.getPort();
           found = true;
 
-          if (!is_accepted)
+          if (!is_accepted || _accepted_sessions_num >= _max_clients || !_ack_tracker.addClient(remote_ip))
           {
+            is_accepted = false;
             removeSessionUnsafe(remote_ip);
           }
           else
           {
             it->second.accept();
-            _ack_tracker.addClient(remote_ip);
             ++_accepted_sessions_num;
           }
           break;
