@@ -299,40 +299,44 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifndef DIRECT_DRAWING
-    const float rad = angle * (M_PI / 180.0f);
+    const float rad = angle * (static_cast<float>(M_PI) / 180.0f);
     const float cos_a = cosf(rad);
     const float sin_a = sinf(rad);
 
-    uint16_t* rotated = static_cast<uint16_t*>(ps_malloc(w * h * sizeof(uint16_t)));
+    const size_t buff_size = static_cast<size_t>(w) * h * sizeof(uint16_t);
+    uint16_t* rotated = static_cast<uint16_t*>(psramInit() ? ps_malloc(buff_size) : malloc(buff_size));
     if (!rotated)
     {
-      log_e("Memory allocation failed");
+      log_e("Помилка виділення пам'яті");
       esp_restart();
     }
 
-    for (int i = 0; i < w * h; i++)
-      rotated[i] = COLOR_TRANSPARENT;
+    const float rel_x0 = 0.5f - piv_x;
+    const float x0_cos = rel_x0 * cos_a + piv_x;
+    const float x0_sin = -rel_x0 * sin_a + piv_y;
 
     for (int16_t dst_y = 0; dst_y < h; dst_y++)
     {
       const float rel_y = static_cast<float>(dst_y) - piv_y + 0.5f;
-      const float y_cos = rel_y * cos_a;
-      const float y_sin = rel_y * sin_a;
+      float src_x_f = x0_cos + rel_y * sin_a;
+      float src_y_f = x0_sin + rel_y * cos_a;
+      uint16_t* dst_row = rotated + dst_y * w;
 
       for (int16_t dst_x = 0; dst_x < w; dst_x++)
       {
-        const float rel_x = static_cast<float>(dst_x) - piv_x + 0.5f;
+        const int16_t src_x = static_cast<int16_t>(src_x_f);
+        const int16_t src_y = static_cast<int16_t>(src_y_f);
 
-        const int16_t src_x = static_cast<int16_t>(rel_x * cos_a + y_sin + piv_x);
-        const int16_t src_y = static_cast<int16_t>(-rel_x * sin_a + y_cos + piv_y);
+        dst_row[dst_x] = (src_x >= 0 && src_x < w && src_y >= 0 && src_y < h) ? bitmap[src_y * w + src_x] : COLOR_TRANSPARENT;
 
-        if (src_x >= 0 && src_x < w && src_y >= 0 && src_y < h)
-          rotated[dst_y * w + dst_x] = bitmap[src_y * w + src_x];
+        src_x_f += cos_a;
+        src_y_f -= sin_a;
       }
     }
 
     _canvas.draw16bitRGBBitmapWithTranColor(x, y, rotated, COLOR_TRANSPARENT, w, h);
-    delete[] rotated;
+    free(rotated);
+    _is_buff_changed = true;
 #endif  // #ifndef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
   }
