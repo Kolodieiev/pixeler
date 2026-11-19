@@ -73,12 +73,7 @@ private:
     uint16_t* _buffer16;
     uint32_t* _buffer32;
   };
-  union
-  {
-    uint8_t* _2nd_buffer;
-    uint16_t* _2nd_buffer16;
-    uint32_t* _2nd_buffer32;
-  };
+ 
   uint32_t _csPinMask;   ///< Bitmask for chip select
   int8_t _cs, _sck, _mosi, _miso, _quadwp, _quadhd;
   bool _is_shared_interface;

@@ -106,17 +106,8 @@ bool Arduino_ESP32QSPI::begin(int32_t speed, int8_t dataMode)
   _spi_tran = (spi_transaction_t*)&_spi_tran_ext;
 
   _buffer = (uint8_t*)heap_caps_aligned_alloc(16, ESP32QSPI_MAX_PIXELS_AT_ONCE * 2, MALLOC_CAP_DMA);
-  if (!_buffer)
-  {
-    return false;
-  }
-  _2nd_buffer = (uint8_t*)heap_caps_aligned_alloc(16, ESP32QSPI_MAX_PIXELS_AT_ONCE * 2, MALLOC_CAP_DMA);
-  if (!_2nd_buffer)
-  {
-    return false;
-  }
-
-  return true;
+  
+  return _buffer != nullptr;
 }
 
 void Arduino_ESP32QSPI::beginWrite()
