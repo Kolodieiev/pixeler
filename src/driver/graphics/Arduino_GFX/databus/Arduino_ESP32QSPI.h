@@ -47,7 +47,7 @@ public:
   void writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2) override;
   void writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2) override;
 
-  void writeC8Bytes(uint8_t c, uint8_t* data, uint32_t len);
+  void writeC8Bytes(uint8_t c, const uint8_t* data, uint32_t len);
 
   void writeRepeat(uint16_t p, uint32_t len) override;
   void writePixels(const uint16_t* data, uint32_t len) override;
@@ -73,8 +73,8 @@ private:
     uint16_t* _buffer16;
     uint32_t* _buffer32;
   };
- 
-  uint32_t _csPinMask;   ///< Bitmask for chip select
+
+  uint32_t _csPinMask;  ///< Bitmask for chip select
   int8_t _cs, _sck, _mosi, _miso, _quadwp, _quadhd;
   bool _is_shared_interface;
 };

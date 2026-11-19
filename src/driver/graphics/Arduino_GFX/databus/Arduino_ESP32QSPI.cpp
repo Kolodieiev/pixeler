@@ -260,16 +260,43 @@ void Arduino_ESP32QSPI::writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2)
   CS_HIGH();
 }
 
-void Arduino_ESP32QSPI::writeC8Bytes(uint8_t c, uint8_t* data, uint32_t len)
+void Arduino_ESP32QSPI::writeC8Bytes(uint8_t c, const uint8_t* data, uint32_t len)
 {
   CS_LOW();
-  _spi_tran_ext.base.flags = SPI_TRANS_MULTILINE_CMD | SPI_TRANS_MULTILINE_ADDR;
-  _spi_tran_ext.base.cmd = 0x02;
-  _spi_tran_ext.base.addr = ((uint32_t)c) << 8;
-  _spi_tran_ext.base.tx_buffer = data;
-  _spi_tran_ext.base.length = len << 3;
-  POLL_START();
-  POLL_END();
+  bool first_send = true;
+  do
+  {
+    uint32_t l = (len > (ESP32QSPI_MAX_PIXELS_AT_ONCE << 1)) ? (ESP32QSPI_MAX_PIXELS_AT_ONCE << 1) : len;
+
+    if (first_send)
+    {
+      _spi_tran_ext.base.flags = SPI_TRANS_MULTILINE_CMD | SPI_TRANS_MULTILINE_ADDR;
+      _spi_tran_ext.base.cmd = 0x02;
+      _spi_tran_ext.base.addr = static_cast<uint32_t>(c) << 8;
+      first_send = false;
+    }
+    else
+    {
+      _spi_tran_ext.base.flags = SPI_TRANS_VARIABLE_CMD | SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
+    }
+
+    if (l > 0)
+    {
+      memcpy(_buffer, data, l);
+      _spi_tran_ext.base.tx_buffer = _buffer;
+    }
+    else
+    {
+      _spi_tran_ext.base.tx_buffer = nullptr;
+    }
+    _spi_tran_ext.base.length = l << 3;
+
+    POLL_START();
+    POLL_END();
+
+    len -= l;
+    data += l;
+  } while (len);
   CS_HIGH();
 }
 
@@ -414,9 +441,8 @@ void Arduino_ESP32QSPI::batchOperation(const uint8_t* operations, size_t len)
       {
         uint8_t c = operations[++i];
         l = operations[++i];
-        memcpy(_buffer, operations + i + 1, l);
+        writeC8Bytes(c, operations + i + 1, l);
         i += l;
-        writeC8Bytes(c, _buffer, l);
       }
       break;
       case WRITE_C16_D16:
