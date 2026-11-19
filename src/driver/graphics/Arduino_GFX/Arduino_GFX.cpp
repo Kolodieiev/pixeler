@@ -1285,7 +1285,7 @@ void Arduino_GFX::u8g2_font_decode_len(uint8_t len, uint8_t is_foreground, uint1
   /* current is either equal to cnt or equal to rem */
 
   /* target position on the screen */
-  uint16_t x, y;
+  int16_t x, y;
 
   cnt = len;
 
