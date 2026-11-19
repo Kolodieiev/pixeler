@@ -57,10 +57,9 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    return _output.setTextBound(x, y, w, h);
+    _output.setTextBound(x, y, w, h);
 #else
-    _is_buff_changed = true;
-    return _canvas.setTextBound(x, y, w, h);
+    _canvas.setTextBound(x, y, w, h);
 #endif  // #ifdef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
   }
@@ -69,10 +68,9 @@ namespace pixeler
   {
 #ifdef GRAPHICS_ENABLED
 #ifdef DIRECT_DRAWING
-    return _output.resetTextBound();
+    _output.resetTextBound();
 #else
-    _is_buff_changed = true;
-    return _canvas.resetTextBound();
+    _canvas.resetTextBound();
 #endif  // #ifdef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
   }
@@ -376,10 +374,10 @@ namespace pixeler
     uint16_t* display_buff = static_cast<uint16_t*>(_canvas.getFramebuffer());
     const size_t square_img_size = side_len * side_len * sizeof(uint16_t);
 
-    uint16_t* square_img = static_cast<uint16_t*>(ps_malloc(square_img_size));
+    uint16_t* square_img = static_cast<uint16_t*>(psramInit() ? ps_malloc(square_img_size) : malloc(square_img_size));
     if (!square_img)
     {
-      log_e("Memory allocation failed");
+      log_e("Помилка виділення пам'яті");
       esp_restart();
     }
 
@@ -416,6 +414,7 @@ namespace pixeler
 #endif  // #if CONFIG_IDF_TARGET_ESP32P4
 
     free(square_img);
+    _is_buff_changed = true;
 #endif  // #ifdef DIRECT_DRAWING
 #endif  // #ifdef GRAPHICS_ENABLED
   }
