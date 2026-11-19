@@ -160,8 +160,9 @@ void Arduino_ESP32QSPI::writeCommandBytes(uint8_t* data, uint32_t len)
   {
     l = (len >= (ESP32QSPI_MAX_PIXELS_AT_ONCE << 1)) ? (ESP32QSPI_MAX_PIXELS_AT_ONCE << 1) : len;
 
-    _spi_tran_ext.base.flags = SPI_TRANS_MULTILINE_CMD | SPI_TRANS_MULTILINE_ADDR;
-    _spi_tran_ext.base.tx_buffer = data;
+    _spi_tran_ext.base.flags = SPI_TRANS_VARIABLE_CMD | SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
+    memcpy(_buffer, data, l);
+    _spi_tran_ext.base.tx_buffer = _buffer;
     _spi_tran_ext.base.length = l << 3;
 
     POLL_START();
