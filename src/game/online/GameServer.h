@@ -247,17 +247,17 @@ namespace pixeler
     static void onPacket(void* arg, AsyncUDPPacket& packet);
     //
     void handleHandshake(const UdpPacket& packet);
-    void handleLogin(ClientSession& session, const UdpPacket& packet);
+    void handleLogin(const UdpPacket& packet);
     bool openSession(const UdpPacket& packet);
     //
-    void sendNameRespMsg(const ClientSession& session, bool result);
-    void sendIncorrectName(const ClientSession& session);
+    void sendNameRespMsg(const IPAddress& remote_ip, uint16_t port, const String& client_name, bool result);
+    void sendIncorrectName(const IPAddress& remote_ip, uint16_t port);
     void sendBusy(const UdpPacket& packet);
     //
     void invokeDataHandler(const ClientSession& session, const UdpPacket& packet);
     void handleAck(const UdpPacket& packet);
     void invokeDisconnectHandler(const IPAddress& remote_ip);
-    void invokeAcceptHandler(const ClientSession& session, const String& client_name);
+    void invokeAcceptHandler(const IPAddress& remote_ip, uint16_t port, const String& client_name);
     //
     void pingClients();
     static void pingClientsTask(void* arg);

@@ -599,7 +599,7 @@ namespace pixeler
     sendUnacked(resp_packet, packet.getIP(), packet.getPort());
   }
 
-  void GameServer::sendNameRespMsg(const ClientSession& session, bool result)
+  void GameServer::sendNameRespMsg(const IPAddress& remote_ip, uint16_t port, const String& client_name, bool result)
   {
     UdpPacket resp_packet;
     resp_packet.setType(UdpPacket::TYPE_CONNECT);
@@ -607,18 +607,18 @@ namespace pixeler
     if (!result)
     {
       resp_packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_DENIED);
-      log_i("Авторизацію відхилено: %s", session.getName().c_str());
+      log_i("Авторизацію відхилено: %s", client_name.c_str());
     }
     else
     {
       resp_packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_GRANTED);
-      log_i("Авторизовано: %s", session.getName().c_str());
+      log_i("Авторизовано: %s", client_name.c_str());
     }
 
-    sendUnacked(resp_packet, session.getIP(), session.getPort());
+    sendUnacked(resp_packet, remote_ip, port);
   }
 
-  void GameServer::sendIncorrectName(const ClientSession& session)
+  void GameServer::sendIncorrectName(const IPAddress& remote_ip, uint16_t port)
   {
     log_i("Некоректне ім'я клієнта");
 
@@ -626,49 +626,106 @@ namespace pixeler
     resp_packet.setType(UdpPacket::TYPE_CONNECT);
     resp_packet.setSubtype(UdpPacket::SUBTYPE_INCORRECT_NAME);
 
-    sendUnacked(resp_packet, session.getIP(), session.getPort());
+    sendUnacked(resp_packet, remote_ip, port);
   }
 
-  void GameServer::handleLogin(ClientSession& session, const UdpPacket& packet)
+  void GameServer::handleLogin(const UdpPacket& packet)
   {
     if (packet.getSubtype() != UdpPacket::SUBTYPE_LOGIN)
       return;
 
-    if (session.isAccepted())
+    enum LoginAction : uint8_t
     {
-      /* Помилкова повторна авторизація вже авторизованого клієнта.
-       * Мусить дочекатися видалення з сервера через 3 сек,
-       * якщо відключився випадково самостійно. */
-      sendNameRespMsg(session, false);
-      return;
-    }
+      ACTION_NONE = 0,
+      ACTION_ALREADY_ACCEPTED,
+      ACTION_BUSY,
+      ACTION_INCORRECT_NAME,
+      ACTION_ACCEPT,
+    };
 
-    if (!_is_open || _accepted_sessions_num >= _max_clients || _is_busy)
-    {
-      sendBusy(packet);
-      removeSession(session.getIP());
-      return;
-    }
-
-    log_i("Запит авторизації");
-
+    IPAddress remote_ip = packet.getIP();
+    uint16_t port = 0;
     String client_name = packet.dataToString();
-    if (client_name.isEmpty() ||
-        client_name.length() > MAX_CLIENT_NAME_LEN ||
-        client_name.equals(_server_name) ||
-        findSession(client_name))
+    LoginAction action = ACTION_NONE;
+
     {
-      sendIncorrectName(session);
-      removeSession(session.getIP());
-      return;
+      MutexGuard sess_lock(_sessions_mutex);
+
+      ClientSession* session = findSessionUnsafe(remote_ip);
+      if (!session)
+        return;
+
+      port = session->getPort();
+
+      if (session->isAccepted())
+      {
+        client_name = session->getName();
+        action = ACTION_ALREADY_ACCEPTED;
+      }
+      else if (!_is_open || _accepted_sessions_num >= _max_clients || _is_busy)
+      {
+        removeSessionUnsafe(remote_ip);
+        action = ACTION_BUSY;
+      }
+      else
+      {
+        bool name_invalid = client_name.isEmpty() ||
+            client_name.length() > MAX_CLIENT_NAME_LEN ||
+            client_name.equals(_server_name);
+
+        if (!name_invalid)
+        {
+          for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
+          {
+            if (it->second.hasName(client_name))
+            {
+              name_invalid = true;
+              break;
+            }
+          }
+        }
+
+        if (name_invalid)
+        {
+          removeSessionUnsafe(remote_ip);
+          action = ACTION_INCORRECT_NAME;
+        }
+        else
+        {
+          /* Якщо сервер вже приймає рішення щодо авторизації клієнта,
+           * інші клієнти не повинні переривати розгляд поточного рішення. */
+          _is_busy = true;
+          session->setName(client_name);
+          action = ACTION_ACCEPT;
+        }
+      }
     }
 
-    /* Якщо сервер вже приймає рішення щодо авторизації клієнта,
-     * інші клієнти не повинні переривати розгляд поточного рішення. */
-    _is_busy = true;
+    switch (action)
+    {
+      case ACTION_ALREADY_ACCEPTED:
+        /* Помилкова повторна авторизація вже авторизованого клієнта.
+         * Мусить дочекатися видалення з сервера через 3 сек,
+         * якщо відключився випадково самостійно. */
+        sendNameRespMsg(remote_ip, port, client_name, false);
+        break;
 
-    session.setName(client_name);
-    invokeAcceptHandler(session, client_name);
+      case ACTION_BUSY:
+        sendBusy(packet);
+        break;
+
+      case ACTION_INCORRECT_NAME:
+        sendIncorrectName(remote_ip, port);
+        break;
+
+      case ACTION_ACCEPT:
+        log_i("Запит авторизації");
+        invokeAcceptHandler(remote_ip, port, client_name);
+        break;
+
+      default:
+        break;
+    }
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -676,18 +733,24 @@ namespace pixeler
   void GameServer::handlePacket(const UdpPacket& packet)
   {
     UdpPacket::PacketType type = packet.getType();
-    ClientSession* session = findSession(packet.getIP());
+    ClientSession* session = nullptr;
+
+    {
+      MutexGuard sess_lock(_sessions_mutex);
+      session = findSessionUnsafe(packet.getIP());
+      if (session)
+        session->prolong();
+    }
+
     if (!session) [[unlikely]]
     {
-      if (packet.getType() == UdpPacket::TYPE_CONNECT)
+      if (type == UdpPacket::TYPE_CONNECT)
         handleHandshake(packet);
       else
         log_i("Проігноровано пакет без сесії");
 
       return;
     }
-
-    session->prolong();
 
     switch (type)
     {
@@ -701,7 +764,7 @@ namespace pixeler
         break;
 
       case UdpPacket::TYPE_CONNECT:
-        handleLogin(*session, packet);
+        handleLogin(packet);
         break;
 
       default:
@@ -827,16 +890,17 @@ namespace pixeler
       delay(1000);
     }
   }
+
   void GameServer::resolveJoin(const String& client_name, bool is_accepted)
   {
-    _is_busy = false;
-
     IPAddress remote_ip;
     uint16_t port = 0;
     bool found = false;
 
     {
       MutexGuard sess_lock(_sessions_mutex);
+
+      _is_busy = false;
 
       for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
       {
@@ -883,13 +947,13 @@ namespace pixeler
 
   // ------------------------------------------------------------------------------------------------------------------------------
 
-  void GameServer::invokeAcceptHandler(const ClientSession& session, const String& client_name)
+  void GameServer::invokeAcceptHandler(const IPAddress& remote_ip, uint16_t port, const String& client_name)
   {
     if (!_accept_handler)
     {
       log_e("Не додано обробник підключення клієнтів");
-      sendNameRespMsg(session, false);
-      removeSession(session.getIP());
+      sendNameRespMsg(remote_ip, port, client_name, false);
+      removeSession(remote_ip);
       _is_busy = false;
       return;
     }
@@ -928,15 +992,17 @@ namespace pixeler
 
   void GameServer::handleAck(const UdpPacket& packet)
   {
-    if (isAllAcked())
-      return;
-
     if (packet.getDataLen() < 1)
     {
       log_e("Відсутній ack-ID");
       removeSession(packet.getIP());
       return;
     }
+
+    MutexGuard sess_lock(_sessions_mutex);
+
+    if (isAllAcked())
+      return;
 
     uint8_t id = packet.getID();
     if (id != _last_packet_id) [[unlikely]]
@@ -945,7 +1011,6 @@ namespace pixeler
       return;
     }
 
-    MutexGuard sess_lock(_sessions_mutex);
     _ack_tracker.setAck(packet.getIP());
   }
 
