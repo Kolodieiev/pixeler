@@ -105,8 +105,7 @@ bool Arduino_ESP32QSPI::begin(int32_t speed, int8_t dataMode)
   memset(&_spi_tran_ext, 0, sizeof(_spi_tran_ext));
   _spi_tran = (spi_transaction_t*)&_spi_tran_ext;
 
-  _buffer = (uint8_t*)heap_caps_aligned_alloc(16, ESP32QSPI_MAX_PIXELS_AT_ONCE * 2, MALLOC_CAP_DMA);
-
+  _buffer = static_cast<uint8_t*>(heap_caps_aligned_alloc(16, ESP32QSPI_MAX_PIXELS_AT_ONCE * 4, MALLOC_CAP_DMA));
   return _buffer != nullptr;
 }
 
@@ -346,47 +345,58 @@ void Arduino_ESP32QSPI::writeRepeat(uint16_t p, uint32_t len)
 
 void Arduino_ESP32QSPI::writePixels(const uint16_t* data, uint32_t len)
 {
+  if (!len)
+    return;
+
+  auto fill_chunk = [&data](uint32_t* dst32, uint32_t count)
+  {
+    uint32_t pairs = count >> 1;
+    for (uint32_t i = 0; i < pairs; ++i)
+    {
+      uint16_t p1 = *data++;
+      uint16_t p2 = *data++;
+      MSB_32_16_16_SET(dst32[i], p1, p2);
+    }
+    if (count & 1)
+    {
+      uint16_t p1 = *data++;
+      MSB_16_SET(reinterpret_cast<uint16_t*>(dst32)[count - 1], p1);
+    }
+  };
+
+  uint32_t* const buf0 = _buffer32;
+  uint32_t* const buf1 = _buffer32 + (ESP32QSPI_MAX_PIXELS_AT_ONCE >> 1);
+  uint32_t* buf32 = buf0;
+
+  uint32_t l = (len > ESP32QSPI_MAX_PIXELS_AT_ONCE) ? ESP32QSPI_MAX_PIXELS_AT_ONCE : len;
+  fill_chunk(buf32, l);
+  len -= l;
+
   CS_LOW();
-  uint32_t l, l2;
-  uint16_t p1, p2;
-  bool first_send = true;
+  _spi_tran_ext.base.flags = SPI_TRANS_MODE_QIO;
+  _spi_tran_ext.base.cmd = 0x32;
+  _spi_tran_ext.base.addr = 0x003C00;
+  _spi_tran_ext.base.tx_buffer = buf32;
+  _spi_tran_ext.base.length = l << 4;
+  POLL_START();
+
   while (len)
   {
     l = (len > ESP32QSPI_MAX_PIXELS_AT_ONCE) ? ESP32QSPI_MAX_PIXELS_AT_ONCE : len;
+    buf32 = (buf32 == buf0) ? buf1 : buf0;
+    fill_chunk(buf32, l);
+    len -= l;
 
-    if (first_send)
-    {
-      _spi_tran_ext.base.flags = SPI_TRANS_MODE_QIO;
-      _spi_tran_ext.base.cmd = 0x32;
-      _spi_tran_ext.base.addr = 0x003C00;
-      first_send = false;
-    }
-    else
-    {
-      _spi_tran_ext.base.flags = SPI_TRANS_MODE_QIO | SPI_TRANS_VARIABLE_CMD |
-          SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
-    }
-    l2 = l >> 1;
-    for (uint32_t i = 0; i < l2; ++i)
-    {
-      p1 = *data++;
-      p2 = *data++;
-      MSB_32_16_16_SET(_buffer32[i], p1, p2);
-    }
-    if (l & 1)
-    {
-      p1 = *data++;
-      MSB_16_SET(_buffer16[l - 1], p1);
-    }
-
-    _spi_tran_ext.base.tx_buffer = _buffer32;
-    _spi_tran_ext.base.length = l << 4;
-
-    POLL_START();
     POLL_END();
 
-    len -= l;
+    _spi_tran_ext.base.flags = SPI_TRANS_MODE_QIO | SPI_TRANS_VARIABLE_CMD |
+        SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_DUMMY;
+    _spi_tran_ext.base.tx_buffer = buf32;
+    _spi_tran_ext.base.length = l << 4;
+    POLL_START();
   }
+
+  POLL_END();
   CS_HIGH();
 }
 
