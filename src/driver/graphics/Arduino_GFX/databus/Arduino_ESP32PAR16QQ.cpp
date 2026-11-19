@@ -259,8 +259,7 @@ void Arduino_ESP32PAR16QQ::write16(uint16_t d)
 
 void Arduino_ESP32PAR16QQ::writeRepeat(uint16_t p, uint32_t len)
 {
-  _data16.value = p;
-  uint32_t d = _xset_mask_hi[_data16.msb] | _xset_mask_lo[_data16.lsb];
+  uint32_t d = _xset_mask_hi[p >> 8] | _xset_mask_lo[p & 0xFF];
   while (len--)
   {
     *_dataPortClr = _dataClrMask;
@@ -318,22 +317,20 @@ void Arduino_ESP32PAR16QQ::writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d
 
   DC_HIGH();
 
-  _data16.value = d1;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d1 >> 8);
+  WRITE(d1 & 0xFF);
 
-  _data16.value = d2;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d2 >> 8);
+  WRITE(d2 & 0xFF);
 }
 
 void Arduino_ESP32PAR16QQ::writeBytes(const uint8_t* data, uint32_t len)
 {
   while (len > 1)
   {
-    _data16.msb = *data++;
-    _data16.lsb = *data++;
-    WRITE16(_data16.value);
+    uint8_t msb = *data++;
+    uint8_t lsb = *data++;
+    WRITE16((static_cast<uint16_t>(msb) << 8) | lsb);
     len -= 2;
   }
   if (len)
@@ -350,9 +347,8 @@ GFX_INLINE void Arduino_ESP32PAR16QQ::WRITE(uint8_t d)
 
 GFX_INLINE void Arduino_ESP32PAR16QQ::WRITE16(uint16_t d)
 {
-  _data16.value = d;
   *_dataPortClr = _dataClrMask;
-  *_dataPortSet = _xset_mask_hi[_data16.msb] | _xset_mask_lo[_data16.lsb];
+  *_dataPortSet = _xset_mask_hi[d >> 8] | _xset_mask_lo[d & 0xFF];
 }
 
 /******** low level bit twiddling **********/

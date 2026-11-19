@@ -47,30 +47,32 @@ void Arduino_HX8357A::writeAddrWindow(int16_t x, int16_t y, uint16_t w, uint16_t
   {
     _currentX = x;
     _currentW = w;
-    x += _xStart;
-    _data16.value = x;
-    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_COUNTER_2, _data16.msb);
-    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_COUNTER_1, _data16.lsb);
-    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_START_2, _data16.msb);
-    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_START_1, _data16.lsb);
-    _data16.value = x + w - 1;
-    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_END_2, _data16.msb);
-    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_END_1, _data16.lsb);
+    uint16_t start = x + _xStart;
+    uint8_t start_msb = start >> 8;
+    uint8_t start_lsb = start & 0xFF;
+    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_COUNTER_2, start_msb);
+    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_COUNTER_1, start_lsb);
+    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_START_2, start_msb);
+    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_START_1, start_lsb);
+    uint16_t end = start + w - 1;
+    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_END_2, end >> 8);
+    _bus->writeC8D8(HX8357A_COLUMN_ADDRESS_END_1, end & 0xFF);
   }
 
   if ((y != _currentY) || (h != _currentH))
   {
     _currentY = y;
     _currentH = h;
-    y += _yStart;
-    _data16.value = y;
-    _bus->writeC8D8(HX8357A_ROW_ADDRESS_COUNTER_2, _data16.msb);
-    _bus->writeC8D8(HX8357A_ROW_ADDRESS_COUNTER_1, _data16.lsb);
-    _bus->writeC8D8(HX8357A_ROW_ADDRESS_START_2, _data16.msb);
-    _bus->writeC8D8(HX8357A_ROW_ADDRESS_START_1, _data16.lsb);
-    _data16.value = y + h - 1;
-    _bus->writeC8D8(HX8357A_ROW_ADDRESS_END_2, _data16.msb);
-    _bus->writeC8D8(HX8357A_ROW_ADDRESS_END_1, _data16.lsb);
+    uint16_t start = y + _yStart;
+    uint8_t start_msb = start >> 8;
+    uint8_t start_lsb = start & 0xFF;
+    _bus->writeC8D8(HX8357A_ROW_ADDRESS_COUNTER_2, start_msb);
+    _bus->writeC8D8(HX8357A_ROW_ADDRESS_COUNTER_1, start_lsb);
+    _bus->writeC8D8(HX8357A_ROW_ADDRESS_START_2, start_msb);
+    _bus->writeC8D8(HX8357A_ROW_ADDRESS_START_1, start_lsb);
+    uint16_t end = start + h - 1;
+    _bus->writeC8D8(HX8357A_ROW_ADDRESS_END_2, end >> 8);
+    _bus->writeC8D8(HX8357A_ROW_ADDRESS_END_1, end & 0xFF);
   }
 
   _bus->writeCommand(HX8357A_SRAM_CONTROL);

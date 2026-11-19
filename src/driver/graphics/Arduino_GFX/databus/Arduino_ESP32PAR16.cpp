@@ -601,16 +601,17 @@ void Arduino_ESP32PAR16::write16(uint16_t d)
 
 void Arduino_ESP32PAR16::writeRepeat(uint16_t p, uint32_t len)
 {
-  _data16.value = p;
+  uint8_t msb = p >> 8;
+  uint8_t lsb = p & 0xFF;
 #if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5)
-  uint32_t d1 = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
-  uint32_t d2 = _xset_mask2_hi[_data16.msb] | _xset_mask2_lo[_data16.lsb];
+  uint32_t d1 = _xset_mask1_hi[msb] | _xset_mask1_lo[lsb];
+  uint32_t d2 = _xset_mask2_hi[msb] | _xset_mask2_lo[lsb];
   *_data1PortClr = _data1ClrMask;
   *_data2PortClr = _data2ClrMask;
   *_data1PortSet = d1;
   *_data2PortSet = d2;
 #else
-  uint32_t d1 = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
+  uint32_t d1 = _xset_mask1_hi[msb] | _xset_mask1_lo[lsb];
   *_data1PortClr = _data1ClrMask;
   *_data1PortSet = d1;
 #endif
@@ -671,22 +672,20 @@ void Arduino_ESP32PAR16::writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2)
 
   DC_HIGH();
 
-  _data16.value = d1;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d1 >> 8);
+  WRITE(d1 & 0xFF);
 
-  _data16.value = d2;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d2 >> 8);
+  WRITE(d2 & 0xFF);
 }
 
 void Arduino_ESP32PAR16::writeBytes(const uint8_t* data, uint32_t len)
 {
   while (len > 1)
   {
-    _data16.msb = *data++;
-    _data16.lsb = *data++;
-    WRITE16(_data16.value);
+    uint8_t msb = *data++;
+    uint8_t lsb = *data++;
+    WRITE16((static_cast<uint16_t>(msb) << 8) | lsb);
     len -= 2;
   }
   if (len)
@@ -712,16 +711,17 @@ GFX_INLINE void Arduino_ESP32PAR16::WRITE(uint8_t d)
 
 GFX_INLINE void Arduino_ESP32PAR16::WRITE16(uint16_t d)
 {
-  _data16.value = d;
+  uint8_t msb = d >> 8;
+  uint8_t lsb = d & 0xFF;
 #if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5)
-  uint32_t d1 = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
-  uint32_t d2 = _xset_mask2_hi[_data16.msb] | _xset_mask2_lo[_data16.lsb];
+  uint32_t d1 = _xset_mask1_hi[msb] | _xset_mask1_lo[lsb];
+  uint32_t d2 = _xset_mask2_hi[msb] | _xset_mask2_lo[lsb];
   *_data1PortClr = _data1ClrMask;
   *_data2PortClr = _data2ClrMask;
   *_data1PortSet = d1;
   *_data2PortSet = d2;
 #else
-  uint32_t d1 = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
+  uint32_t d1 = _xset_mask1_hi[msb] | _xset_mask1_lo[lsb];
   *_data1PortClr = _data1ClrMask;
   *_data1PortSet = d1;
 #endif

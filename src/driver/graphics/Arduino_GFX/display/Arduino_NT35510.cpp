@@ -61,24 +61,24 @@ void Arduino_NT35510::writeAddrWindow(int16_t x, int16_t y, uint16_t w, uint16_t
   {
     _currentX = x;
     _currentW = w;
-    _data16.value = x + _xStart;
-    _bus->writeC16D16(NT35510_CASET, _data16.msb);
-    _bus->writeC16D16(NT35510_CASET + 1, _data16.lsb);
-    _data16.value += w - 1;
-    _bus->writeC16D16(NT35510_CASET + 2, _data16.msb);
-    _bus->writeC16D16(NT35510_CASET + 3, _data16.lsb);
+    uint16_t val = x + _xStart;
+    _bus->writeC16D16(NT35510_CASET, val >> 8);
+    _bus->writeC16D16(NT35510_CASET + 1, val & 0xFF);
+    val += w - 1;
+    _bus->writeC16D16(NT35510_CASET + 2, val >> 8);
+    _bus->writeC16D16(NT35510_CASET + 3, val & 0xFF);
   }
 
   if ((y != _currentY) || (h != _currentH))
   {
     _currentY = y;
     _currentH = h;
-    _data16.value = y + _yStart;
-    _bus->writeC16D16(NT35510_PASET, _data16.msb);
-    _bus->writeC16D16(NT35510_PASET + 1, _data16.lsb);
-    _data16.value += h - 1;
-    _bus->writeC16D16(NT35510_PASET + 2, _data16.msb);
-    _bus->writeC16D16(NT35510_PASET + 3, _data16.lsb);
+    uint16_t val = y + _yStart;
+    _bus->writeC16D16(NT35510_PASET, val >> 8);
+    _bus->writeC16D16(NT35510_PASET + 1, val & 0xFF);
+    val += h - 1;
+    _bus->writeC16D16(NT35510_PASET + 2, val >> 8);
+    _bus->writeC16D16(NT35510_PASET + 3, val & 0xFF);
   }
 
   _bus->writeCommand16(NT35510_RAMWR);  // write to RAM

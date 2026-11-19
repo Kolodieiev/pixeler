@@ -57,24 +57,24 @@ void Arduino_OTM8009A::writeAddrWindow(int16_t x, int16_t y, uint16_t w, uint16_
   {
     _currentX = x;
     _currentW = w;
-    _data16.value = x + _xStart;
-    _bus->writeC16D16(OTM8009A_CASET, _data16.msb);
-    _bus->writeC16D16(OTM8009A_CASET + 1, _data16.lsb);
-    _data16.value += w - 1;
-    _bus->writeC16D16(OTM8009A_CASET + 2, _data16.msb);
-    _bus->writeC16D16(OTM8009A_CASET + 3, _data16.lsb);
+    uint16_t val = x + _xStart;
+    _bus->writeC16D16(OTM8009A_CASET, val >> 8);
+    _bus->writeC16D16(OTM8009A_CASET + 1, val & 0xFF);
+    val += w - 1;
+    _bus->writeC16D16(OTM8009A_CASET + 2, val >> 8);
+    _bus->writeC16D16(OTM8009A_CASET + 3, val & 0xFF);
   }
 
   if ((y != _currentY) || (h != _currentH))
   {
     _currentY = y;
     _currentH = h;
-    _data16.value = y + _yStart;
-    _bus->writeC16D16(OTM8009A_PASET, _data16.msb);
-    _bus->writeC16D16(OTM8009A_PASET + 1, _data16.lsb);
-    _data16.value += h - 1;
-    _bus->writeC16D16(OTM8009A_PASET + 2, _data16.msb);
-    _bus->writeC16D16(OTM8009A_PASET + 3, _data16.lsb);
+    uint16_t val = y + _yStart;
+    _bus->writeC16D16(OTM8009A_PASET, val >> 8);
+    _bus->writeC16D16(OTM8009A_PASET + 1, val & 0xFF);
+    val += h - 1;
+    _bus->writeC16D16(OTM8009A_PASET + 2, val >> 8);
+    _bus->writeC16D16(OTM8009A_PASET + 3, val & 0xFF);
   }
 
   _bus->writeCommand16(OTM8009A_RAMWR);  // write to RAM

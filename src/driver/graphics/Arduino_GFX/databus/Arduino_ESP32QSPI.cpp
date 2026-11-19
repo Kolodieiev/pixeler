@@ -385,18 +385,22 @@ void Arduino_ESP32QSPI::batchOperation(const uint8_t* operations, size_t len)
         writeCommand(operations[++i]);
         break;
       case WRITE_COMMAND_16:
-        _data16.msb = operations[++i];
-        _data16.lsb = operations[++i];
-        writeCommand16(_data16.value);
+      {
+        uint8_t msb = operations[++i];
+        uint8_t lsb = operations[++i];
+        writeCommand16((static_cast<uint16_t>(msb) << 8) | lsb);
         break;
+      }
       case WRITE_DATA_8:
         write(operations[++i]);
         break;
       case WRITE_DATA_16:
-        _data16.msb = operations[++i];
-        _data16.lsb = operations[++i];
-        write16(_data16.value);
+      {
+        uint8_t msb = operations[++i];
+        uint8_t lsb = operations[++i];
+        write16((static_cast<uint16_t>(msb) << 8) | lsb);
         break;
+      }
       case WRITE_BYTES:
         l = operations[++i];
         memcpy(_buffer, operations + i + 1, l);
@@ -408,11 +412,13 @@ void Arduino_ESP32QSPI::batchOperation(const uint8_t* operations, size_t len)
         writeC8D8(l, operations[++i]);
         break;
       case WRITE_C8_D16:
+      {
         l = operations[++i];
-        _data16.msb = operations[++i];
-        _data16.lsb = operations[++i];
-        writeC8D16(l, _data16.value);
+        uint8_t msb = operations[++i];
+        uint8_t lsb = operations[++i];
+        writeC8D16(l, (static_cast<uint16_t>(msb) << 8) | lsb);
         break;
+      }
       case WRITE_C8_BYTES:
       {
         uint8_t c = operations[++i];

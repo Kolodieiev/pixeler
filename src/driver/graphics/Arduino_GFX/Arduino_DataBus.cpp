@@ -35,12 +35,10 @@ void Arduino_DataBus::writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2)
 void Arduino_DataBus::writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2)
 {
   writeCommand(c);
-  _data16.value = d1;
-  write(_data16.msb);
-  write(_data16.lsb);
-  _data16.value = d2;
-  write(_data16.msb);
-  write(_data16.lsb);
+  write(d1 >> 8);
+  write(d1 & 0xFF);
+  write(d2 >> 8);
+  write(d2 & 0xFF);
 }
 
 void Arduino_DataBus::sendCommand(uint8_t c)
@@ -94,10 +92,12 @@ void Arduino_DataBus::batchOperation(const uint8_t* operations, size_t len)
         l = 2;
         /* fall through */
       case WRITE_COMMAND_16:
-        _data16.msb = operations[++i];
-        _data16.lsb = operations[++i];
-        writeCommand16(_data16.value);
+      {
+        uint8_t msb = operations[++i];
+        uint8_t lsb = operations[++i];
+        writeCommand16((static_cast<uint16_t>(msb) << 8) | lsb);
         break;
+      }
       case WRITE_COMMAND_BYTES:
         l = operations[++i];
         writeCommandBytes((uint8_t*)(operations + i + 1), l);

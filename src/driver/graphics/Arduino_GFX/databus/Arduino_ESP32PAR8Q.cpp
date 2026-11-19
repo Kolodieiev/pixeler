@@ -190,9 +190,8 @@ void Arduino_ESP32PAR8Q::writeCommand16(uint16_t c)
 {
   DC_LOW();
 
-  _data16.value = c;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(c >> 8);
+  WRITE(c & 0xFF);
 
   DC_HIGH();
 }
@@ -216,17 +215,17 @@ void Arduino_ESP32PAR8Q::write(uint8_t d)
 
 void Arduino_ESP32PAR8Q::write16(uint16_t d)
 {
-  _data16.value = d;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d >> 8);
+  WRITE(d & 0xFF);
 }
 
 void Arduino_ESP32PAR8Q::writeRepeat(uint16_t p, uint32_t len)
 {
-  _data16.value = p;
-  if (_data16.msb == _data16.lsb)
+  uint8_t msb = p >> 8;
+  uint8_t lsb = p & 0xFF;
+  if (msb == lsb)
   {
-    uint32_t setMask = _xset_mask[_data16.msb];
+    uint32_t setMask = _xset_mask[msb];
     *_dataPortClr = _dataClrMask;
     *_dataPortSet = setMask;
     while (len--)
@@ -239,8 +238,8 @@ void Arduino_ESP32PAR8Q::writeRepeat(uint16_t p, uint32_t len)
   }
   else
   {
-    uint32_t hiMask = _xset_mask[_data16.msb];
-    uint32_t loMask = _xset_mask[_data16.lsb];
+    uint32_t hiMask = _xset_mask[msb];
+    uint32_t loMask = _xset_mask[lsb];
     while (len--)
     {
       *_dataPortClr = _dataClrMask;
@@ -260,9 +259,9 @@ void Arduino_ESP32PAR8Q::writePixels(const uint16_t* data, uint32_t len)
 {
   while (len--)
   {
-    _data16.value = *data++;
-    WRITE(_data16.msb);
-    WRITE(_data16.lsb);
+    uint16_t p = *data++;
+    WRITE(p >> 8);
+    WRITE(p & 0xFF);
   }
 }
 
@@ -285,9 +284,8 @@ void Arduino_ESP32PAR8Q::writeC8D16(uint8_t c, uint16_t d)
 
   DC_HIGH();
 
-  _data16.value = d;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d >> 8);
+  WRITE(d & 0xFF);
 }
 
 void Arduino_ESP32PAR8Q::writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2)
@@ -298,13 +296,11 @@ void Arduino_ESP32PAR8Q::writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2)
 
   DC_HIGH();
 
-  _data16.value = d1;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d1 >> 8);
+  WRITE(d1 & 0xFF);
 
-  _data16.value = d2;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d2 >> 8);
+  WRITE(d2 & 0xFF);
 }
 
 void Arduino_ESP32PAR8Q::writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2)
@@ -315,13 +311,11 @@ void Arduino_ESP32PAR8Q::writeC8D16D16Split(uint8_t c, uint16_t d1, uint16_t d2)
 
   DC_HIGH();
 
-  _data16.value = d1;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d1 >> 8);
+  WRITE(d1 & 0xFF);
 
-  _data16.value = d2;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d2 >> 8);
+  WRITE(d2 & 0xFF);
 }
 
 void Arduino_ESP32PAR8Q::writeBytes(const uint8_t* data, uint32_t len)

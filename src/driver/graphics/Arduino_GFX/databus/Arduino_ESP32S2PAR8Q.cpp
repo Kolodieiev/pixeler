@@ -126,9 +126,8 @@ void Arduino_ESP32S2PAR8Q::writeCommand16(uint16_t c)
 {
   DC_LOW();
 
-  _data16.value = c;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(c >> 8);
+  WRITE(c & 0xFF);
 
   DC_HIGH();
 }
@@ -152,18 +151,18 @@ void Arduino_ESP32S2PAR8Q::write(uint8_t d)
 
 void Arduino_ESP32S2PAR8Q::write16(uint16_t d)
 {
-  _data16.value = d;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d >> 8);
+  WRITE(d & 0xFF);
 }
 
 void Arduino_ESP32S2PAR8Q::writeRepeat(uint16_t p, uint32_t len)
 {
-  _data16.value = p;
-  if (_data16.msb == _data16.lsb)
+  uint8_t msb = p >> 8;
+  uint8_t lsb = p & 0xFF;
+  if (msb == lsb)
   {
     *_dataPortClr = _dataClrMask;
-    *_dataPortSet = _data16.msb;
+    *_dataPortSet = msb;
     *_wrPortSet = _wrPinMask;
     *_wrPortClr = _wrPinMask;
     *_wrPortSet = _wrPinMask;
@@ -180,11 +179,11 @@ void Arduino_ESP32S2PAR8Q::writeRepeat(uint16_t p, uint32_t len)
     while (len--)
     {
       *_dataPortClr = _dataClrMask;
-      *_dataPortSet = _data16.msb;
+      *_dataPortSet = msb;
       *_wrPortSet = _wrPinMask;
 
       *_dataPortClr = _dataClrMask;
-      *_dataPortSet = _data16.lsb;
+      *_dataPortSet = lsb;
       *_wrPortSet = _wrPinMask;
     }
   }
@@ -194,9 +193,9 @@ void Arduino_ESP32S2PAR8Q::writePixels(const uint16_t* data, uint32_t len)
 {
   while (len--)
   {
-    _data16.value = *data++;
-    WRITE(_data16.msb);
-    WRITE(_data16.lsb);
+    uint16_t p = *data++;
+    WRITE(p >> 8);
+    WRITE(p & 0xFF);
   }
 }
 
@@ -219,9 +218,8 @@ void Arduino_ESP32S2PAR8Q::writeC8D16(uint8_t c, uint16_t d)
 
   DC_HIGH();
 
-  _data16.value = d;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d >> 8);
+  WRITE(d & 0xFF);
 }
 
 void Arduino_ESP32S2PAR8Q::writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2)
@@ -232,13 +230,11 @@ void Arduino_ESP32S2PAR8Q::writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2)
 
   DC_HIGH();
 
-  _data16.value = d1;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d1 >> 8);
+  WRITE(d1 & 0xFF);
 
-  _data16.value = d2;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE(d2 >> 8);
+  WRITE(d2 & 0xFF);
 }
 
 void Arduino_ESP32S2PAR8Q::writeBytes(const uint8_t* data, uint32_t len)

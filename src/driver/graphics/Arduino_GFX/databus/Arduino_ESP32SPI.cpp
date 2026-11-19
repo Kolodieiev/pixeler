@@ -442,9 +442,8 @@ void Arduino_ESP32SPI::writeCommand16(uint16_t c)
 {
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
-    _data16.value = c;
-    WRITE9BIT(_data16.msb);
-    WRITE9BIT(_data16.lsb);
+    WRITE9BIT(c >> 8);
+    WRITE9BIT(c & 0xFF);
   }
   else
   {
@@ -518,16 +517,15 @@ void Arduino_ESP32SPI::write(uint8_t d)
  */
 void Arduino_ESP32SPI::write16(uint16_t d)
 {
-  _data16.value = d;
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
-    WRITE9BIT(0x100 | _data16.msb);
-    WRITE9BIT(0x100 | _data16.lsb);
+    WRITE9BIT(0x100 | (d >> 8));
+    WRITE9BIT(0x100 | (d & 0xFF));
   }
   else
   {
-    WRITE8BIT(_data16.msb);
-    WRITE8BIT(_data16.lsb);
+    WRITE8BIT(d >> 8);
+    WRITE8BIT(d & 0xFF);
   }
 }
 
@@ -582,9 +580,8 @@ void Arduino_ESP32SPI::writeC8D16(uint8_t c, uint16_t d)
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
     WRITE9BIT(c);
-    _data16.value = d;
-    WRITE9BIT(0x100 | _data16.msb);
-    WRITE9BIT(0x100 | _data16.lsb);
+    WRITE9BIT(0x100 | (d >> 8));
+    WRITE9BIT(0x100 | (d & 0xFF));
   }
   else
   {
@@ -625,12 +622,10 @@ void Arduino_ESP32SPI::writeC8D16D16(uint8_t c, uint16_t d1, uint16_t d2)
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
     WRITE9BIT(c);
-    _data16.value = d1;
-    WRITE9BIT(0x100 | _data16.msb);
-    WRITE9BIT(0x100 | _data16.lsb);
-    _data16.value = d2;
-    WRITE9BIT(0x100 | _data16.msb);
-    WRITE9BIT(0x100 | _data16.lsb);
+    WRITE9BIT(0x100 | (d1 >> 8));
+    WRITE9BIT(0x100 | (d1 & 0xFF));
+    WRITE9BIT(0x100 | (d2 >> 8));
+    WRITE9BIT(0x100 | (d2 & 0xFF));
   }
   else
   {
@@ -674,9 +669,8 @@ void Arduino_ESP32SPI::writeRepeat(uint16_t p, uint32_t len)
 
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
-    _data16.value = p;
-    uint32_t hi = 0x100 | _data16.msb;
-    uint32_t lo = 0x100 | _data16.lsb;
+    uint32_t hi = 0x100 | (p >> 8);
+    uint32_t lo = 0x100 | (p & 0xFF);
     uint16_t idx;
     uint8_t shift;
     uint32_t l;

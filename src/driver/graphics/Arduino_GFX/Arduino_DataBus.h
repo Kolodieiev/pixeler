@@ -65,26 +65,11 @@ typedef enum
   DELAY,
 } spi_operation_type_t;
 
-union
-{
-  uint16_t value;
-  struct
-  {
-    uint8_t lsb;
-    uint8_t msb;
-  };
-} _data16;
-
 class Arduino_DataBus
 {
 public:
   Arduino_DataBus();
   virtual ~Arduino_DataBus() = default;
-
-  void unused()
-  {
-    UNUSED(_data16);
-  }  // avoid compiler warning
 
   virtual bool begin(int32_t speed = SPI_DEFAULT_FREQ, int8_t dataMode = GFX_NOT_DEFINED) = 0;
   virtual void beginWrite() = 0;
