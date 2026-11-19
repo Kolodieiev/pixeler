@@ -32,13 +32,13 @@ public:
       float lane_bit_rate,
       soc_periph_mipi_dsi_phy_pllref_clk_src_t clock_source);
 
-  bool begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* init_operations = NULL, size_t init_operations_len = GFX_NOT_DEFINED);
+  bool begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* init_operations = nullptr, size_t init_operations_len = 0);
 
   esp_lcd_panel_handle_t getPanelHandle();
 
 private:
   esp_lcd_panel_handle_t _panel_handle{nullptr};
-  
+
   soc_periph_mipi_dsi_phy_pllref_clk_src_t _clock_source{MIPI_DSI_PHY_PLLREF_CLK_SRC_PLL_F20M};
   float _lane_bit_rate;
   float _bus_freq_hz;

@@ -26,13 +26,14 @@ Arduino_ESP32DSIPanel::Arduino_ESP32DSIPanel(
 
 bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* init_operations, size_t init_operations_len)
 {
-  esp_ldo_channel_handle_t ldo_mipi_phy = NULL;
+  esp_ldo_channel_handle_t ldo_mipi_phy = nullptr;
   const esp_ldo_channel_config_t ldo_mipi_phy_config = {
       .chan_id = 3,
       .voltage_mv = 2500,
   };
 
-  if (esp_err_t ret = esp_ldo_acquire_channel(&ldo_mipi_phy_config, &ldo_mipi_phy) != ESP_OK)
+  esp_err_t ret = esp_ldo_acquire_channel(&ldo_mipi_phy_config, &ldo_mipi_phy);
+  if (ret != ESP_OK)
   {
     log_e("Помилка увімкнення живлення MIPI: %s", esp_err_to_name(ret));
     esp_restart();
@@ -49,9 +50,9 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
       .lane_bit_rate_mbps = _lane_bit_rate,
   };
 
-  esp_lcd_dsi_bus_handle_t mipi_dsi_bus = NULL;
-
-  if (esp_err_t ret = esp_lcd_new_dsi_bus(&bus_config, &mipi_dsi_bus) != ESP_OK)
+  esp_lcd_dsi_bus_handle_t mipi_dsi_bus = nullptr;
+  ret = esp_lcd_new_dsi_bus(&bus_config, &mipi_dsi_bus);
+  if (ret != ESP_OK)
   {
     log_e("Помилка ініціалізації шини MIPI DSI: %s", esp_err_to_name(ret));
     esp_restart();
@@ -66,9 +67,9 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
       .lcd_param_bits = 8,
   };
 
-  esp_lcd_panel_io_handle_t mipi_dbi_io = NULL;
-
-  if (esp_err_t ret = esp_lcd_new_panel_io_dbi(mipi_dsi_bus, &dbi_config, &mipi_dbi_io) != ESP_OK)
+  esp_lcd_panel_io_handle_t mipi_dbi_io = nullptr;
+  ret = esp_lcd_new_panel_io_dbi(mipi_dsi_bus, &dbi_config, &mipi_dbi_io);
+  if (ret != ESP_OK)
   {
     log_e("Помилка створення MIPI DBI: %s", esp_err_to_name(ret));
     esp_restart();
@@ -101,7 +102,8 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
           .use_dma2d = true,
           .disable_lp = true}};
 
-  if (esp_err_t ret = esp_lcd_new_panel_dpi(mipi_dsi_bus, &dpi_config, &_panel_handle) != ESP_OK)
+  ret = esp_lcd_new_panel_dpi(mipi_dsi_bus, &dpi_config, &_panel_handle);
+  if (ret != ESP_OK)
   {
     log_e("Помилка створення MIPI DPI панелі: %s", esp_err_to_name(ret));
     esp_restart();
@@ -111,18 +113,24 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
 
   //----------------------------------------------------------------------------------------------
 
-  for (int i = 0; i < init_operations_len; i++)
+  if (init_operations)
   {
-    if (esp_err_t ret = esp_lcd_panel_io_tx_param(mipi_dbi_io, init_operations[i].cmd, init_operations[i].data, init_operations[i].data_bytes) != ESP_OK)
+    for (size_t i = 0; i < init_operations_len; i++)
     {
-      log_e("Помилка надсилання команд ініціалізації: %s", esp_err_to_name(ret));
-      esp_restart();
+      ret = esp_lcd_panel_io_tx_param(mipi_dbi_io, init_operations[i].cmd, init_operations[i].data, init_operations[i].data_bytes);
+      if (ret != ESP_OK)
+      {
+        log_e("Помилка надсилання команд ініціалізації: %s", esp_err_to_name(ret));
+        esp_restart();
+      }
+      if (init_operations[i].delay_ms)
+        delay(init_operations[i].delay_ms);
     }
-    delay(init_operations[i].delay_ms);
   }
   log_i("Команди ініціалізації надіслані успішно");
 
-  if (esp_err_t ret = esp_lcd_panel_init(_panel_handle))
+  ret = esp_lcd_panel_init(_panel_handle);
+  if (ret != ESP_OK)
   {
     log_e("Помилка ініціалізації панелі: %s", esp_err_to_name(ret));
     esp_restart();
