@@ -556,17 +556,17 @@ void Arduino_GFX::drawCircle(int16_t x, int16_t y, int16_t r, uint16_t color)
 void Arduino_GFX::writeEllipseHelper(int32_t x, int32_t y, int32_t rx, int32_t ry, uint8_t cornername, uint16_t color)
 {
   if (rx < 0 || ry < 0 || ((rx == 0) && (ry == 0)))
-  {
     return;
-  }
+
   if (ry == 0)
   {
-    writeFastHLine(x - rx, y, (ry << 2) + 1, color);
+    writeFastHLine(x - rx, y, (rx << 1) + 1, color);
     return;
   }
+
   if (rx == 0)
   {
-    writeFastVLine(x, y - ry, (rx << 2) + 1, color);
+    writeFastVLine(x, y - ry, (ry << 1) + 1, color);
     return;
   }
 
@@ -662,17 +662,16 @@ void Arduino_GFX::fillCircle(int16_t x, int16_t y, int16_t r, uint16_t color)
 void Arduino_GFX::writeFillEllipseHelper(int32_t x, int32_t y, int32_t rx, int32_t ry, uint8_t corners, int16_t delta, uint16_t color)
 {
   if (rx < 0 || ry < 0 || ((rx == 0) && (ry == 0)))
-  {
     return;
-  }
+
   if (ry == 0)
   {
-    writeFastHLine(x - rx, y, (ry << 2) + 1, color);
+    writeFastHLine(x - rx, y, (rx << 1) + 1, color);
     return;
   }
   if (rx == 0)
   {
-    writeFastVLine(x, y - ry, (rx << 2) + 1, color);
+    writeFastVLine(x, y - ry, (ry << 1) + 1, color);
     return;
   }
 
