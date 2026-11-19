@@ -390,16 +390,12 @@ void Arduino_ESP32SPI::beginWrite()
 void Arduino_ESP32SPI::endWrite()
 {
   if (_data_buf_bit_idx > 0)
-  {
     flush_data_buf();
-  }
-
-  if (_is_shared_interface)
-  {
-    spiEndTransaction(_spi);
-  }
 
   CS_HIGH();
+
+  if (_is_shared_interface)
+    spiEndTransaction(_spi);
 }
 
 /**
