@@ -63,7 +63,7 @@ namespace pixeler
     return *this;
   }
 
-  UdpPacket::UdpPacket(UdpPacket&& other)
+  UdpPacket::UdpPacket(UdpPacket&& other) noexcept
   {
     _length = other._length;
     _data_length = other._data_length;
@@ -78,7 +78,7 @@ namespace pixeler
     other._buffer = nullptr;
   }
 
-  UdpPacket& UdpPacket::operator=(UdpPacket&& other)
+  UdpPacket& UdpPacket::operator=(UdpPacket&& other) noexcept
   {
     if (this == &other)
       return *this;
@@ -197,12 +197,12 @@ namespace pixeler
 
   bool UdpPacket::isDataEquals(const void* data, size_t data_len, size_t start_pos) const
   {
-    if (!data || start_pos >= _data_length)
+    if (start_pos >= _data_length)
       return false;
 
     if (data_len == 0)
       data_len = _data_length - start_pos;
-    else if (start_pos + data_len > _data_length)
+    else if (data_len > _data_length - start_pos)
       return false;
 
     return std::memcmp(&_buffer[start_pos + PACKET_EXTRA_SIZE], data, data_len) == 0;
@@ -213,13 +213,11 @@ namespace pixeler
     if (start_pos >= _data_length)
       return 0;
 
-    size_t available = _data_length - start_pos;
-
+    const size_t available = _data_length - start_pos;
     if (len > available)
       len = available;
 
     memcpy(out, _buffer + start_pos + PACKET_EXTRA_SIZE, len);
-
     return len;
   }
 
@@ -236,10 +234,13 @@ namespace pixeler
 
   String UdpPacket::dataToString() const
   {
-    char pack_data[_data_length + 1];
-    pack_data[_data_length] = '\0';
-    memcpy(pack_data, _buffer + PACKET_EXTRA_SIZE, _data_length);
-    return String(pack_data);
+    if (_data_length == 0)
+      return emptyString;
+
+    String result;
+    result.reserve(_data_length);
+    result.concat(reinterpret_cast<const char*>(_buffer + PACKET_EXTRA_SIZE), _data_length);
+    return result;
   }
 
   size_t UdpPacket::getDataLen() const

@@ -16,8 +16,8 @@ namespace pixeler
     UdpPacket(const UdpPacket&);
     UdpPacket& operator=(const UdpPacket&);
 
-    UdpPacket(UdpPacket&&);
-    UdpPacket& operator=(UdpPacket&&);
+    UdpPacket(UdpPacket&&) noexcept;
+    UdpPacket& operator=(UdpPacket&&) noexcept;
 
     /**
      * @brief Перечислення, що містить базовий тип пакета.
@@ -213,6 +213,7 @@ namespace pixeler
     size_t getDataIndex() const;
 
   private:
+    using DataStream::flush;
     using DataStream::resize;
 
     IPAddress _remote_ip;
