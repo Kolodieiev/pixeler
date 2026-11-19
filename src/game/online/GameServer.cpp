@@ -256,6 +256,7 @@ namespace pixeler
 
     _last_packet = std::move(packet);
     _last_packet.setID(++_last_packet_id);
+    _resend_counter = 0;
 
     _ack_tracker.resetAllAcks();
 
@@ -309,6 +310,7 @@ namespace pixeler
 
     _last_packet = std::move(packet);
     _last_packet.setID(++_last_packet_id);
+    _resend_counter = 0;
 
     _ack_tracker.resetAck(session.getIP());
 
@@ -330,6 +332,11 @@ namespace pixeler
       MutexGuard sess_lock(_sessions_mutex);
 
       clients = _ack_tracker.getUnackedClients();
+      if (clients.empty())
+      {
+        _resend_counter = 0;
+        return;
+      }
 
       if (_resend_counter < MAX_RESEND_COUNT)
       {
