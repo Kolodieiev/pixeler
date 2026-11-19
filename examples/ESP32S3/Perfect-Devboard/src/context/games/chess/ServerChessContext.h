@@ -30,7 +30,7 @@ namespace chess
     void handleClientAcceptInput();                 // Прийняти або відхилити клієнта
     void handleClientAcceptResult(bool is_accepted);
 
-    static void onAcceptHandler(const String client_name, void* arg);        // Обробник запиту на підключення
+    static void onAcceptHandler(const String &client_name, void* arg);        // Обробник запиту на підключення
     static void onDisconnectHandler(const IPAddress& client_ip, void* arg);  // Обробник відключення клієнта
 
     void unsubscribeServerHandlers();

@@ -116,7 +116,7 @@ void ServerChessContext::unsubscribeServerHandlers()
 }
 
 // Зворотні виклики від фонових задач сервера безпечно передають роботу в UI через post():
-void ServerChessContext::onAcceptHandler(const String client_name, void* arg)
+void ServerChessContext::onAcceptHandler(const String &client_name, void* arg)
 {
   ServerChessContext* self = static_cast<ServerChessContext*>(arg);
   self->post([self, client_name]()

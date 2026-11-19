@@ -20,7 +20,7 @@
 bool post(std::function<void()> task, unsigned long timeout_ms = 0);
 
 // Приклад використання в асинхронному мережевому обробнику:
-void ServerChessContext::onAcceptHandler(const String client_name, void* arg)
+void ServerChessContext::onAcceptHandler(const String &client_name, void* arg)
 {
     ServerChessContext* self = static_cast<ServerChessContext*>(arg);
     self->post([self, client_name]()

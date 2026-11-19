@@ -18,7 +18,7 @@ namespace pixeler
      * @brief Тип обробника, який може бути викликано сервером у разі отримання нового запиту на авторизацію від клієнта.
      *
      */
-    using AcceptHandler = std::function<void(const String name, void* arg)>;
+    using AcceptHandler = std::function<void(const String& name, void* arg)>;
 
     /**
      * @brief Тип обробника, який може бути викликано сервером у разі втрати з'єднання з одним із клієнтів.
