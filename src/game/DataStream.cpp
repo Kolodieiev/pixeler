@@ -16,13 +16,22 @@ namespace pixeler
   void DataStream::resize(size_t size)
   {
     _index = 0;
+
+    if (size == _length && (_buffer != nullptr || size == 0))
+      return;
+
+    delete[] _buffer;
+    _buffer = nullptr;
     _length = size;
+
+    if (size == 0)
+      return;
+
     try
     {
-      delete[] _buffer;
       _buffer = new uint8_t[size];
     }
-    catch (std::bad_alloc& e)
+    catch (const std::bad_alloc& e)
     {
       log_e("%s", e.what());
       esp_restart();
@@ -31,7 +40,10 @@ namespace pixeler
 
   size_t DataStream::read(void* out, size_t len)
   {
-    size_t s = space();
+    if (len == 0)
+      return 0;
+
+    const size_t s = space();
     if (len > s)
       len = s;
 
@@ -42,7 +54,10 @@ namespace pixeler
 
   size_t DataStream::drop(size_t len)
   {
-    size_t s = space();
+    if (len == 0)
+      return 0;
+
+    const size_t s = space();
     if (len > s)
       len = s;
 

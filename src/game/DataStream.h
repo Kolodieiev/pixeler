@@ -94,7 +94,7 @@ namespace pixeler
      */
     const uint8_t* raw() const;
 
-    operator bool() const;
+    explicit operator bool() const;
 
   protected:
     DataStream() {}
