@@ -10,10 +10,11 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+#include <atomic>
+
 #include "defines.h"
 #include "manager/file/FileInfo.h"
 #include "sd_config.h"
-
 #ifdef SD_TYPE_MMC
 #include <sd_protocol_types.h>
 #endif  // #ifdef SD_TYPE_MMC
@@ -458,13 +459,13 @@ namespace pixeler
 
     static constexpr uint32_t TASK_SIZE{(1024 / 2) * 30};
 
-    uint8_t _copy_progress{0};
+    std::atomic<uint8_t> _copy_progress{0};
 
     uint8_t _pdrv{0xFF};
 
-    bool _is_working{false};
-    bool _is_canceled{false};
-    bool _last_task_result{true};
+    std::atomic<bool> _is_working{false};
+    std::atomic<bool> _is_canceled{false};
+    std::atomic<bool> _last_task_result{true};
     bool _is_ext_lock{false};
   };
 

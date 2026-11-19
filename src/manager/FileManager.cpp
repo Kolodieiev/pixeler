@@ -659,17 +659,18 @@ namespace pixeler
 
     _rm_path = path;
     _is_canceled = false;
+    _is_working = true;
 
     BaseType_t result = xTaskCreatePinnedToCore(rmTask, "rmTask", TASK_SIZE, this, 10, nullptr, 0);
 
     if (result == pdPASS)
     {
       log_i("rmTask is working now");
-      _is_working = true;
       return true;
     }
     else
     {
+      _is_working = false;
       log_e("rmTask was not running");
       return false;
     }
@@ -872,17 +873,18 @@ namespace pixeler
 
     _is_canceled = false;
     _copy_progress = 0;
+    _is_working = true;
 
     BaseType_t result = xTaskCreatePinnedToCore(copyFileTask, "copyFileTask", TASK_SIZE, this, 10, nullptr, 0);
 
     if (result == pdPASS)
     {
       log_i("copyFileTask is working now");
-      _is_working = true;
       return true;
     }
     else
     {
+      _is_working = false;
       log_e("copyFileTask was not running");
       return false;
     }
@@ -1002,8 +1004,8 @@ namespace pixeler
 
   void FileManager::invokeTaskDone(bool result)
   {
-    _is_working = false;
     _last_task_result = result;
+    _is_working = false;
 
     if (_done_handler)
       _done_handler(result, _done_arg);
