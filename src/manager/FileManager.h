@@ -428,7 +428,7 @@ namespace pixeler
     //
     size_t writeOptimalUnlocked(int file_desc, const void* buffer, size_t len);
     bool rmFileUnlocked(const char* path, bool make_full = false);
-    bool rmDirRecursively(const char* path, bool& was_mutex_taken, bool make_full = false);
+    bool rmDirRecursively(const char* path, bool& was_mutex_taken);
     size_t getFileSizeUnlocked(const char* path);
     size_t availableUnlocked(FILE* file, size_t file_size);
     bool createFileCopy(const String& from, const String& to);

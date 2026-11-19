@@ -502,12 +502,11 @@ namespace pixeler
     invokeTaskDone(result);
   }
 
-  bool FileManager::rmDirRecursively(const char* path, bool& was_mutex_taken, bool make_full)
+  bool FileManager::rmDirRecursively(const char* path, bool& was_mutex_taken)
   {
     bool result = false;
 
     dirent* dir_entry{nullptr};
-    DIR* dir;
 
     if (!was_mutex_taken)
     {
@@ -515,15 +514,7 @@ namespace pixeler
       was_mutex_taken = true;
     }
 
-    if (make_full)
-    {
-      String full_path = makeFullPath(path);
-      dir = opendir(full_path.c_str());
-    }
-    else
-    {
-      dir = opendir(path);
-    }
+    DIR* dir = opendir(path);
 
     if (dir)
     {
@@ -595,9 +586,10 @@ namespace pixeler
 
   bool FileManager::rmDir(const char* path)
   {
+    String full_path = makeFullPath(path);
     _is_canceled = false;
     bool was_mutex_taken = false;
-    bool result = rmDirRecursively(path, was_mutex_taken, true);
+    bool result = rmDirRecursively(full_path.c_str(), was_mutex_taken);
     if (was_mutex_taken)
       xSemaphoreGive(_sd_mutex);
     return result;
