@@ -798,37 +798,39 @@ void Arduino_ESP32SPI::writePixels(const uint16_t* data, uint32_t len)
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
     while (len--)
-    {
       write16(*data++);
-    }
+    return;
   }
-  else  // 8-bit SPI
+
+  if (_data_buf_bit_idx > 0)
+    flush_data_buf();
+
+  while (len)
   {
-    if (_data_buf_bit_idx > 0)
+    uint32_t l = (len > ESP32SPI_MAX_PIXELS_AT_ONCE) ? ESP32SPI_MAX_PIXELS_AT_ONCE : len;
+    uint32_t pairs = l >> 1;
+    for (uint32_t i = 0; i < pairs; ++i)
     {
-      flush_data_buf();
-    }
-
-    uint32_t l, l2;
-    uint16_t p1, p2;
-    while (len)
-    {
-      l = (len > ESP32SPI_MAX_PIXELS_AT_ONCE) ? ESP32SPI_MAX_PIXELS_AT_ONCE : len;
-      l2 = (l + 1) >> 1;
-      for (uint32_t i = 0; i < l2; ++i)
-      {
-        p1 = *data++;
-        p2 = *data++;
+      uint16_t p1 = *data++;
+      uint16_t p2 = *data++;
 #if CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5
-        MSB_32_16_16_SET(_spi->dev->data_buf[i].val, p1, p2);
+      MSB_32_16_16_SET(_spi->dev->data_buf[i].val, p1, p2);
 #else
-        MSB_32_16_16_SET(_spi->dev->data_buf[i], p1, p2);
+      MSB_32_16_16_SET(_spi->dev->data_buf[i], p1, p2);
 #endif
-      }
-      POLL((l << 4) - 1);
-
-      len -= l;
     }
+    if (l & 1)
+    {
+      uint16_t p1 = *data++;
+#if CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5
+      MSB_16_SET(_spi->dev->data_buf[pairs].val, p1);
+#else
+      MSB_16_SET(_spi->dev->data_buf[pairs], p1);
+#endif
+    }
+    POLL((l << 4) - 1);
+
+    len -= l;
   }
 }
 
