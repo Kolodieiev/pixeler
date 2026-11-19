@@ -42,10 +42,14 @@ namespace pixeler
 
   bool GameServer::begin(const String& game_ID, const String& server_name, const String& pwd, uint8_t max_connection, bool is_local, uint8_t wifi_chan)
   {
-    _game_id = game_ID,
+    _game_id = game_ID;
     _max_clients = std::clamp<uint8_t>(max_connection, 1, MAX_WIFI_CONNECTION);
     _ack_tracker.init(_max_clients);
     _last_packet_id = 0;
+    _resend_counter = 0;
+    _accepted_sessions_num = 0;
+    _is_open = false;
+    _is_busy = false;
 
     if (is_local)
     {
@@ -66,9 +70,6 @@ namespace pixeler
     log_i("Game server address: %s", _server_ip.c_str());
 
     _server_name = server_name;
-
-    _server.onPacket(onPacket, this);
-    _server.listen(GAME_SERVER_PORT);
 
     _sessions_mutex = xSemaphoreCreateMutex();
     _udp_mutex = xSemaphoreCreateMutex();
@@ -92,6 +93,9 @@ namespace pixeler
       log_e("Не вдалося створити _packet_queue");
       esp_restart();
     }
+
+    _server.onPacket(onPacket, this);
+    _server.listen(GAME_SERVER_PORT);
 
     xTaskCreatePinnedToCore(pingClientsTask, "pingCl", (1024 / 2) * 7, this, 10, &_ping_task_handler, 1);
     xTaskCreatePinnedToCore(packetHandlerTask, "packHndl", (1024 / 2) * 20, this, 10, &_packet_task_handler, 1);
@@ -118,6 +122,8 @@ namespace pixeler
       return;
 
     _is_freed = true;
+    _is_open = false;
+    _is_busy = false;
 
     if (_sessions_mutex)
       xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
@@ -125,6 +131,8 @@ namespace pixeler
     _server.onPacket([](AsyncUDPPacket& packet) {});
     _server.close();
     _sessions.clear();
+    _accepted_sessions_num = 0;
+    _resend_counter = 0;
 
     if (_ping_task_handler)
     {
@@ -163,7 +171,6 @@ namespace pixeler
 
     _wifi.disable();
   }
-
   // ------------------------------------------------------------------------------------------------------------------------------
 
   void GameServer::open()
@@ -534,7 +541,7 @@ namespace pixeler
       if (openSession(packet))
       {
         resp_packet.setSubtype(UdpPacket::SUBTYPE_HANDSHAKE);
-        log_i("Відкрито сеанс для IP: %s", packet.getIP().toString());
+        log_i("Відкрито сеанс для IP: %s", packet.getIP().toString().c_str());
       }
       else
       {
@@ -559,12 +566,12 @@ namespace pixeler
     if (!result)
     {
       resp_packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_DENIED);
-      log_i("Авторизацію відхилено: %s", session.getName());
+      log_i("Авторизацію відхилено: %s", session.getName().c_str());
     }
     else
     {
       resp_packet.setSubtype(UdpPacket::SUBTYPE_ACCESS_GRANTED);
-      log_i("Авторизовано: %s", session.getName());
+      log_i("Авторизовано: %s", session.getName().c_str());
     }
 
     sendUnacked(resp_packet, session.getIP(), session.getPort());

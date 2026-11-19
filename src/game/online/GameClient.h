@@ -197,7 +197,7 @@ namespace pixeler
 
     mutable SemaphoreHandle_t _udp_mutex{nullptr};
 
-    QueueHandle_t _packet_queue;
+    QueueHandle_t _packet_queue{nullptr};
 
     TaskHandle_t _check_task_handler{nullptr};
     TaskHandle_t _packet_task_handler{nullptr};

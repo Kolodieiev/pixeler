@@ -17,7 +17,7 @@ namespace pixeler
 #define GAME_CLIENT_PORT 333
 #endif  // #ifndef GAME_CLIENT_PORT
 
-  static const uint16_t MAX_PING_TIME = 4000U;
+  static constexpr uint32_t MAX_PING_TIME{4000U};
 
   GameClient::GameClient()
   {
@@ -52,13 +52,9 @@ namespace pixeler
 
     if (!_server_ip.fromString(host_IP))
     {
-      log_e("Некоректний IP сервера: %s", host_IP);
+      log_e("Некоректний IP сервера: %s", host_IP.c_str());
       return false;
     }
-
-    _login = client_name;
-    _game_id = game_ID;
-    _last_packet_id = 0;
 
     if (!_wifi.isConnected())
     {
@@ -66,12 +62,15 @@ namespace pixeler
       return false;
     }
 
+    if (!_is_freed)
+      disconnect();
+
+    _login = client_name;
+    _game_id = game_ID;
+    _last_packet_id = -1;
+
     log_i("Приєднання до сервера...");
     _status = STATUS_IDLE;
-
-    _client.onPacket(onPacket, this);
-    _client.listen(GAME_CLIENT_PORT);
-
     _last_act_time = millis();
 
     _udp_mutex = xSemaphoreCreateMutex();
@@ -87,6 +86,9 @@ namespace pixeler
       log_e("Не вдалося створити _packet_queue");
       esp_restart();
     }
+
+    _client.onPacket(onPacket, this);
+    _client.listen(GAME_CLIENT_PORT);
 
     xTaskCreatePinnedToCore(checkConnectTask, "pingCl", (1024 / 2) * 7, this, 10, &_check_task_handler, 1);
     xTaskCreatePinnedToCore(packetHandlerTask, "packHndl", (1024 / 2) * 20, this, 10, &_packet_task_handler, 1);
@@ -108,7 +110,7 @@ namespace pixeler
     _is_freed = false;
     return true;
   }
-
+  
   void GameClient::disconnect()
   {
     if (_is_freed)
