@@ -270,8 +270,8 @@ void Arduino_Canvas::draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t* bi
   if (
       ((x + w - 1) < 0) ||  // Outside left
       ((y + h - 1) < 0) ||  // Outside top
-      (x > MAX_X) ||        // Outside right
-      (y > MAX_Y)           // Outside bottom
+      (x > _max_x) ||       // Outside right
+      (y > _max_y)          // Outside bottom
   )
     return;
 
