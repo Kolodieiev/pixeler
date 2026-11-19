@@ -37,7 +37,7 @@ namespace pixeler
     /**
      * @brief Повертає кількість байтів, які займає в пам'яті ім'я файлу.
      *
-     * @return uint16_t
+     * @return uint32_t
      */
     uint32_t getNameLen() const;
 

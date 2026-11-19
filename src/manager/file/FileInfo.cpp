@@ -4,11 +4,15 @@
 
 #include <Arduino.h>
 
-#include <cctype>
 #include <cstring>
 
 namespace pixeler
 {
+  static inline bool isAsciiDigit(unsigned char ch)
+  {
+    return ch >= '0' && ch <= '9';
+  }
+
   FileInfo::FileInfo(const String& name, bool is_dir) : _name_len{name.length()}, _is_dir{is_dir}
   {
     if (psramInit())
@@ -41,12 +45,12 @@ namespace pixeler
     if (!suffix)
       return false;
 
-    size_t suffix_len = strlen(suffix);
+    const size_t suffix_len = std::strlen(suffix);
 
     if (_name_len < suffix_len)
       return false;
 
-    return strcmp(_name + _name_len - suffix_len, suffix) == 0;
+    return std::memcmp(_name + _name_len - suffix_len, suffix, suffix_len) == 0;
   }
 
   uint32_t FileInfo::getNameLen() const
@@ -64,40 +68,57 @@ namespace pixeler
     if (_is_dir != other._is_dir)
       return _is_dir;
 
-    const char* lhs = _name;
-    const char* rhs = other._name;
+    const unsigned char* lhs = reinterpret_cast<const unsigned char*>(_name);
+    const unsigned char* rhs = reinterpret_cast<const unsigned char*>(other._name);
 
     while (*lhs && *rhs)
     {
-      if (std::isdigit(*lhs) && std::isdigit(*rhs))
+      if (isAsciiDigit(*lhs) && isAsciiDigit(*rhs))
       {
-        char* end_lhs;
-        char* end_rhs;
-        long num_lhs = std::strtol(lhs, &end_lhs, 10);
-        long num_rhs = std::strtol(rhs, &end_rhs, 10);
+        while (*lhs == '0')
+          ++lhs;
+        while (*rhs == '0')
+          ++rhs;
 
-        if (num_lhs != num_rhs)
+        const unsigned char* num_lhs_start = lhs;
+        while (isAsciiDigit(*lhs))
+          ++lhs;
+
+        const unsigned char* num_rhs_start = rhs;
+        while (isAsciiDigit(*rhs))
+          ++rhs;
+
+        const size_t len_lhs = static_cast<size_t>(lhs - num_lhs_start);
+        const size_t len_rhs = static_cast<size_t>(rhs - num_rhs_start);
+
+        if (len_lhs != len_rhs)
+          return len_lhs < len_rhs;
+
+        if (len_lhs > 0)
         {
-          return num_lhs < num_rhs;
+          const int cmp = std::memcmp(num_lhs_start, num_rhs_start, len_lhs);
+          if (cmp != 0)
+            return cmp < 0;
         }
-        lhs = end_lhs;
-        rhs = end_rhs;
       }
       else
       {
         if (*lhs != *rhs)
-        {
           return *lhs < *rhs;
-        }
+
         ++lhs;
         ++rhs;
       }
     }
 
-    return std::strcmp(lhs, rhs) < 0;
+    if (*lhs != *rhs)
+      return *lhs < *rhs;
+
+    return std::strcmp(_name, other._name) < 0;
   }
 
-  FileInfo::FileInfo(FileInfo&& other) noexcept : _name(other._name), _is_dir(other._is_dir), _name_len{other._name_len}
+  FileInfo::FileInfo(FileInfo&& other) noexcept
+      : _name{other._name}, _name_len{other._name_len}, _is_dir{other._is_dir}
   {
     other._name = nullptr;
   }
