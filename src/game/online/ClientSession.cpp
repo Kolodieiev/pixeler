@@ -3,20 +3,24 @@
 
 namespace pixeler
 {
-  static const uint16_t MAX_PING_TIME = 4000U;
-  static const uint16_t PING_INTERVAL = 2000U;
+  static constexpr uint32_t MAX_PING_TIME{4000U};
+  static constexpr uint32_t PING_INTERVAL{2000U};
 
-  ClientSession::ClientSession(IPAddress remote_ip, uint16_t port) : _remote_IP{remote_ip}, _port{port}
+  ClientSession::ClientSession(IPAddress remote_ip, uint16_t port)
+      : _remote_IP{remote_ip},
+        _port{port},
+        _last_act_time{millis()}
   {
-    _last_act_time = millis();
   }
 
   ClientSession::ClientSession(ClientSession&& other) noexcept
       : _remote_IP(other._remote_IP),
         _name(std::move(other._name)),
         _last_act_time(other._last_act_time),
-        _port(other._port)
+        _port(other._port),
+        _is_accepted(other._is_accepted)
   {
+    other._is_accepted = false;
   }
 
   ClientSession& ClientSession::operator=(ClientSession&& other) noexcept
@@ -28,6 +32,8 @@ namespace pixeler
     _name = std::move(other._name);
     _last_act_time = other._last_act_time;
     _port = other._port;
+    _is_accepted = other._is_accepted;
+    other._is_accepted = false;
 
     return *this;
   }
