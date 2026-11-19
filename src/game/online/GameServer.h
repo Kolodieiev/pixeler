@@ -239,7 +239,7 @@ namespace pixeler
 
     ClientSession* findSessionUnsafe(const IPAddress& remote_ip);
 
-    void removeSessionUnsafe(const IPAddress& remote_ip);
+    bool removeSessionUnsafe(const IPAddress& remote_ip);
     //
     void handlePacket(const UdpPacket& packet);
     static void packetHandlerTask(void* arg);

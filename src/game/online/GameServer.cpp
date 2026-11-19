@@ -314,26 +314,37 @@ namespace pixeler
     if (_ack_tracker.isAllAcked())
       return;
 
-    MutexGuard sess_lock(_sessions_mutex);
+    std::vector<IPAddress> clients;
+    size_t disconnected_count = 0;
 
-    std::vector<IPAddress> clients = _ack_tracker.getUnackedClients();
-
-    if (_resend_counter < MAX_RESEND_COUNT)
     {
-      ++_resend_counter;
+      MutexGuard sess_lock(_sessions_mutex);
 
-      MutexGuard udp_lock(_udp_mutex);
+      clients = _ack_tracker.getUnackedClients();
+
+      if (_resend_counter < MAX_RESEND_COUNT)
+      {
+        ++_resend_counter;
+
+        MutexGuard udp_lock(_udp_mutex);
+
+        for (const auto& client_ip : clients)
+          sendUnackedUnsafe(_last_packet, client_ip);
+
+        return;
+      }
 
       for (const auto& client_ip : clients)
-        sendUnackedUnsafe(_last_packet, client_ip);
-    }
-    else
-    {
-      for (const auto& client_ip : clients)
-        removeSessionUnsafe(client_ip);
+      {
+        if (removeSessionUnsafe(client_ip))
+          clients[disconnected_count++] = client_ip;
+      }
 
       _resend_counter = 0;
     }
+
+    for (size_t i = 0; i < disconnected_count; ++i)
+      invokeDisconnectHandler(clients[i]);
   }
 
   bool GameServer::isAllAcked() const
@@ -387,41 +398,50 @@ namespace pixeler
 
   void GameServer::removeSession(const String& client_name)
   {
-    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
+    IPAddress remote_ip;
+    bool is_removed = false;
 
-    for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
     {
-      if (it->second.isAccepted() && it->second.hasName(client_name))
+      MutexGuard sess_lock(_sessions_mutex);
+
+      for (auto it = _sessions.begin(), last_it = _sessions.end(); it != last_it; ++it)
       {
-        const IPAddress remote_ip = it->second.getIP();
-        _ack_tracker.removeClient(remote_ip);
-        _sessions.erase(it);
-        --_accepted_sessions_num;
-        xSemaphoreGive(_sessions_mutex);
-        invokeDisconnectHandler(remote_ip);
-        break;
+        if (it->second.isAccepted() && it->second.hasName(client_name))
+        {
+          remote_ip = it->second.getIP();
+          _ack_tracker.removeClient(remote_ip);
+          _sessions.erase(it);
+          --_accepted_sessions_num;
+          is_removed = true;
+          break;
+        }
       }
     }
+
+    if (is_removed)
+      invokeDisconnectHandler(remote_ip);
   }
 
   void GameServer::removeSession(const IPAddress& remote_ip)
   {
-    MutexGuard sess_lock(_sessions_mutex);
-    removeSessionUnsafe(remote_ip);
-  }
-
-  void GameServer::removeSessionUnsafe(const IPAddress& remote_ip)
-  {
     bool is_accepted = false;
 
-    xSemaphoreTake(_sessions_mutex, portMAX_DELAY);
+    {
+      MutexGuard sess_lock(_sessions_mutex);
+      is_accepted = removeSessionUnsafe(remote_ip);
+    }
 
+    if (is_accepted)
+      invokeDisconnectHandler(remote_ip);
+  }
+
+  bool GameServer::removeSessionUnsafe(const IPAddress& remote_ip)
+  {
     auto it = _sessions.find(remote_ip);
     if (it == _sessions.end())
-    {
-      xSemaphoreGive(_sessions_mutex);
-      return;
-    }
+      return false;
+
+    bool is_accepted = false;
 
     if (it->second.isAccepted())
     {
@@ -431,10 +451,7 @@ namespace pixeler
     }
 
     _sessions.erase(it);
-    xSemaphoreGive(_sessions_mutex);
-
-    if (is_accepted)
-      invokeDisconnectHandler(remote_ip);
+    return is_accepted;
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
@@ -467,12 +484,12 @@ namespace pixeler
 
   const ClientSession* GameServer::findSession(const IPAddress& remote_ip) const
   {
-    return findSession(remote_ip);
+    return const_cast<GameServer*>(this)->findSession(remote_ip);
   }
 
   const ClientSession* GameServer::findSession(const String& name) const
   {
-    return findSession(name);
+    return const_cast<GameServer*>(this)->findSession(name);
   }
 
   // ------------------------------------------------------------------------------------------------------------------------------
