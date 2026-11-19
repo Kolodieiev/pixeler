@@ -79,6 +79,7 @@ class Arduino_DataBus
 {
 public:
   Arduino_DataBus();
+  virtual ~Arduino_DataBus() = default;
 
   void unused()
   {
