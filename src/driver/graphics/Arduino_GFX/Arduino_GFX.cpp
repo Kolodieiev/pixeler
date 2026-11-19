@@ -62,9 +62,10 @@ void Arduino_GFX::initPPA()
       .max_pending_trans_num = 1,
       .data_burst_length = PPA_DATA_BURST_LENGTH_128};
 
-  if (esp_err_t ret = ppa_register_client(&ppa_config, &_ppa_fill) != ESP_OK)
+  esp_err_t ppa_ret = ppa_register_client(&ppa_config, &_ppa_fill);
+  if (ppa_ret != ESP_OK)
   {
-    log_e("Помилка реєстрації FILL клієнта: %s", esp_err_to_name(ret));
+    log_e("Помилка реєстрації FILL клієнта: %s", esp_err_to_name(ppa_ret));
     esp_restart();
   }
 
@@ -73,9 +74,10 @@ void Arduino_GFX::initPPA()
       .max_pending_trans_num = 1,
       .data_burst_length = PPA_DATA_BURST_LENGTH_128};
 
-  if (esp_err_t ret = ppa_register_client(&srm_config, &_ppa_srm) != ESP_OK)
+  esp_err_t srm_ret = ppa_register_client(&srm_config, &_ppa_srm);
+  if (srm_ret != ESP_OK)
   {
-    log_e("Помилка реєстрації SRM клієнта: %s", esp_err_to_name(ret));
+    log_e("Помилка реєстрації SRM клієнта: %s", esp_err_to_name(srm_ret));
     esp_restart();
   }
 
@@ -125,6 +127,13 @@ void Arduino_GFX::initPPA()
 
 Arduino_GFX::~Arduino_GFX()
 {
+#if CONFIG_IDF_TARGET_ESP32P4
+  if (_ppa_fill)
+    ppa_unregister_client(_ppa_fill);
+
+  if (_ppa_srm)
+    ppa_unregister_client(_ppa_srm);
+#endif  // #if CONFIG_IDF_TARGET_ESP32P4
   free(_framebuffer);
 }
 
