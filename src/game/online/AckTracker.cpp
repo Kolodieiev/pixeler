@@ -4,8 +4,8 @@
 
 namespace pixeler
 {
-  static const uint8_t MIN_CLIENTS_NUM{1};
-  static const uint8_t MAX_CLIENTS_NUM{10};
+  static constexpr uint8_t MIN_CLIENTS_NUM{1};
+  static constexpr uint8_t MAX_CLIENTS_NUM{10};
 
   AckTracker::AckTracker()
   {
@@ -20,12 +20,15 @@ namespace pixeler
   {
     _max_client_num = std::clamp<uint8_t>(max_clients, MIN_CLIENTS_NUM, MAX_CLIENTS_NUM);
     delete[] _clients;
-    _clients = new IPAddress[MAX_CLIENTS_NUM];
+    _clients = new IPAddress[_max_client_num];
+    _clients_num = 0;
+    _active_mask = 0;
+    _ack_mask = 0;
   }
 
   bool AckTracker::addClient(const IPAddress& ip)
   {
-    if (_clients_num >= MAX_CLIENTS_NUM)
+    if (_clients_num >= _max_client_num)
       return false;
 
     if (findClientIndex(ip) != -1)

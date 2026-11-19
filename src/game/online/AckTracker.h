@@ -93,7 +93,7 @@ namespace pixeler
     uint32_t _active_mask{0};
     uint32_t _ack_mask{0};
 
-    uint8_t _max_client_num{1};
+    uint8_t _max_client_num{0};
     uint8_t _clients_num{0};
   };
 }  // namespace pixeler
