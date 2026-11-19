@@ -1682,6 +1682,7 @@ size_t Arduino_GFX::write(uint8_t c)
             if (pgm_read_byte(font) == _encoding)
             {
               glyph_data = font + 2; /* skip encoding and glyph size */
+              break;
             }
             font += pgm_read_byte(font + 1);
           }
@@ -1976,6 +1977,7 @@ void Arduino_GFX::getTextBounds(const char* str, int16_t x, int16_t y, int16_t& 
               if (pgm_read_byte(font) == _encoding)
               {
                 glyph_data = font + 2; /* skip encoding and glyph size */
+                break;
               }
               font += pgm_read_byte(font + 1);
             }
