@@ -7,9 +7,10 @@ namespace pixeler
 {
   void rmFilenameExt(String& filename)
   {
-    int pos = filename.lastIndexOf(".");
-    if (pos != -1)
-      filename.remove(pos);
+    const int slash_pos = filename.lastIndexOf('/');
+    const int dot_pos = filename.lastIndexOf('.');
+    if (dot_pos > slash_pos)
+      filename.remove(dot_pos);
   }
 
   bool startsWith(const char* base, const char* str)
@@ -97,18 +98,20 @@ namespace pixeler
 
   int lastIndexOf(const char* haystack, const char* needle)
   {
-    int nlen = strlen(needle);
+    const size_t nlen = std::strlen(needle);
     if (nlen == 0)
       return -1;
-    const char* p = haystack - nlen + strlen(haystack);
-    while (p >= haystack)
+
+    const size_t hlen = std::strlen(haystack);
+    if (hlen < nlen)
+      return -1;
+
+    for (size_t i = hlen - nlen + 1; i-- > 0;)
     {
-      int i = 0;
-      while (needle[i] == p[i])
-        if (++i == nlen)
-          return p - haystack;
-      p--;
+      if (haystack[i] == needle[0] && std::memcmp(haystack + i, needle, nlen) == 0)
+        return static_cast<int>(i);
     }
+
     return -1;
   }
 
