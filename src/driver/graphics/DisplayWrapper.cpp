@@ -459,7 +459,7 @@ namespace pixeler
     }
 
 #ifdef DOUBLE_BUFFERRING
-    BaseType_t result = xTaskCreatePinnedToCore(displayRendererTask, "dRend", 5 * 512, this, 11, nullptr, 0);
+    BaseType_t result = xTaskCreatePinnedToCore(displayRendererTask, "dRend", 5 * 512, this, 11, &_renderer_task_handle, 0);
 
     if (result != pdPASS)
     {
@@ -559,12 +559,13 @@ namespace pixeler
 
     xSemaphoreTake(_sync_mutex, portMAX_DELAY);
 #ifdef DOUBLE_BUFFERRING
-    _has_frame = true;
     _canvas.duplicateMainBuff();
+    xSemaphoreGive(_sync_mutex);
+    xTaskNotifyGive(_renderer_task_handle);
 #else
     _canvas.flushMainBuff();
-#endif  // DOUBLE_BUFFERRING
     xSemaphoreGive(_sync_mutex);
+#endif  // DOUBLE_BUFFERRING
 
 #ifdef ENABLE_SCREENSHOTER
     if (_take_screenshot)
@@ -581,16 +582,11 @@ namespace pixeler
 
     while (1)
     {
-      if (self._has_frame)
-      {
-        xSemaphoreTake(self._sync_mutex, portMAX_DELAY);
+      ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        self._has_frame = false;
-        self._canvas.flushSecondBuff();
-
-        xSemaphoreGive(self._sync_mutex);
-      }
-      delay(1);
+      xSemaphoreTake(self._sync_mutex, portMAX_DELAY);
+      self._canvas.flushSecondBuff();
+      xSemaphoreGive(self._sync_mutex);
     }
   }
 #endif  // DOUBLE_BUFFERRING

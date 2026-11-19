@@ -379,15 +379,15 @@ namespace pixeler
 
     volatile xSemaphoreHandle _sync_mutex{nullptr};
 
+#ifdef DOUBLE_BUFFERRING
+    TaskHandle_t _renderer_task_handle{nullptr};
+#endif  // DOUBLE_BUFFERRING
+
 #ifdef SHOW_FPS
     uint64_t _frame_timer{0};
     uint16_t _frame_counter{0};
     uint16_t _temp_frame_counter{0};
 #endif  // SHOW_FPS
-
-#ifdef DOUBLE_BUFFERRING
-    volatile bool _has_frame{false};
-#endif  // DOUBLE_BUFFERRING
 
     volatile bool _take_screenshot{false};
     bool _is_buff_changed = false;
