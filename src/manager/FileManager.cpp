@@ -5,6 +5,7 @@
 #include <esp_task_wdt.h>
 #include <sd_diskio.h>
 
+#include <algorithm>
 #include <cstring>
 #include <vector>
 
@@ -495,6 +496,7 @@ namespace pixeler
     else
     {
       bool was_mutex_taken = false;
+      _ts = millis();
       result = rmDirRecursively(full_path.c_str(), was_mutex_taken);
       if (was_mutex_taken)
         xSemaphoreGive(_sd_mutex);
@@ -523,7 +525,6 @@ namespace pixeler
     if (dir)
     {
       errno = 0;
-      _ts = millis();
       while (!_is_canceled)
       {
         if (!was_mutex_taken)
@@ -580,9 +581,12 @@ namespace pixeler
       closedir(dir);
     }
 
+    if (_is_canceled)
+      result = false;
+
     if (result)
       result = !remove(path);
-    else
+    else if (!_is_canceled)
       log_e("Помилка під час видалення: %s", path);
 
     return result;
@@ -593,6 +597,7 @@ namespace pixeler
     String full_path = makeFullPath(path);
     _is_canceled = false;
     bool was_mutex_taken = false;
+    _ts = millis();
     bool result = rmDirRecursively(full_path.c_str(), was_mutex_taken);
     if (was_mutex_taken)
       xSemaphoreGive(_sd_mutex);
