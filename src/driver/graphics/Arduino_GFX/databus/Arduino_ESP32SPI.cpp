@@ -843,37 +843,30 @@ void Arduino_ESP32SPI::writeBytes(const uint8_t* data, uint32_t len)
   if (_dc == GFX_NOT_DEFINED)  // 9-bit SPI
   {
     while (len--)
-    {
       write(*data++);
-    }
+    return;
   }
-  else  // 8-bit SPI
+
+  if (_data_buf_bit_idx > 0)
+    flush_data_buf();
+
+  while (len)
   {
-    if (_data_buf_bit_idx > 0)
+    uint32_t l = (len > (ESP32SPI_MAX_PIXELS_AT_ONCE << 1)) ? (ESP32SPI_MAX_PIXELS_AT_ONCE << 1) : len;
+    uint32_t l4 = (l + 3) >> 2;
+    memcpy(_buffer, data, l);
+    for (uint32_t i = 0; i < l4; ++i)
     {
-      flush_data_buf();
-    }
-
-    uint32_t l, l4;
-    uint32_t* p;
-    while (len)
-    {
-      l = (len > (ESP32SPI_MAX_PIXELS_AT_ONCE << 1)) ? (ESP32SPI_MAX_PIXELS_AT_ONCE << 1) : len;
-      l4 = (l + 3) >> 2;
-      p = (uint32_t*)data;
-      for (uint32_t i = 0; i < l4; ++i)
-      {
 #if CONFIG_IDF_TARGET_ESP32C6 || CONFIG_IDF_TARGET_ESP32H2 || CONFIG_IDF_TARGET_ESP32P4 || CONFIG_IDF_TARGET_ESP32C5
-        _spi->dev->data_buf[i].val = *p++;
+      _spi->dev->data_buf[i].val = _buffer32[i];
 #else
-        _spi->dev->data_buf[i] = *p++;
+      _spi->dev->data_buf[i] = _buffer32[i];
 #endif
-      }
-      POLL((l << 3) - 1);
-
-      len -= l;
-      data += l;
     }
+    POLL((l << 3) - 1);
+
+    len -= l;
+    data += l;
   }
 }
 
