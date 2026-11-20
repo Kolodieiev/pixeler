@@ -42,13 +42,21 @@ namespace pixeler
   {
     log_e("AXS15231B Init:");
 
-    if (_i2c.begin() && _i2c.hasConnect(AXS15231B_ADDR))
+    if (!_i2c.begin())
+    {
+      log_e("Fail");
+      return false;
+    }
+
+    resetChip();
+
+    if (_i2c.hasConnect(AXS15231B_ADDR))
     {
       _i2c.setBufferSize(I2C_BUFF_SIZE);
-      resetChip();
       log_e("Successful");
       return true;
     }
+
     log_e("Fail");
     return false;
   }
