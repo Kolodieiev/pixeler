@@ -30,6 +30,7 @@ namespace pixeler
     _is_holded = false;
     _is_released = false;
     _is_pressed = false;
+    _was_pressed = false;
     _has_touch = false;
     _swipe = SWIPE_NONE;
     _lock_duration = lock_duration;
