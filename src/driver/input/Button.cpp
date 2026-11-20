@@ -133,8 +133,9 @@ namespace pixeler
   void Button::disable()
   {
     _is_enabled = false;
+    _is_locked = false;
+    _is_touched = false;
     reset();
-
 #ifndef EXT_INPUT
     gpio_reset_pin((gpio_num_t)_btn_id);
     pinMode(_btn_id, INPUT);
