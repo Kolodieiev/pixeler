@@ -96,7 +96,11 @@ namespace pixeler
         return;
 
       if (data[0] == 0x0A && data[1] == 0x0A)
+      {
+        const uint8_t reset_val = 0;
+        _i2c.writeRegister16(_chip_addr, GT911_POINT_INFO, &reset_val, sizeof(reset_val));
         return;
+      }
 
       uint16_t x = data[1] | (data[2] << 8);
       uint16_t y = data[3] | (data[4] << 8);
