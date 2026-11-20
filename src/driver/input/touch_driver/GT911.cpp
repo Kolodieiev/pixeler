@@ -51,7 +51,7 @@ namespace pixeler
 
     if (_i2c.begin() && _i2c.hasConnect(_chip_addr))
     {
-      _i2c.setBufferSize(GT911_CONFIG_SIZE);
+      _i2c.setBufferSize(GT911_CONFIG_SIZE + 2);
       resetChip();
       uint8_t _conf_buf[GT911_CONFIG_SIZE]{0};
       _i2c.readRegister16(_chip_addr, GT911_CONFIG_START, _conf_buf, GT911_CONFIG_SIZE);
@@ -124,20 +124,23 @@ namespace pixeler
 
   void GT911::calculateChecksum(uint8_t* out_conf_buf)
   {
+    const uint16_t chksum_offset = GT911_CONFIG_CHKSUM - GT911_CONFIG_START;
     uint8_t checksum = 0;
-    for (uint16_t i = 0; i < GT911_CONFIG_SIZE; ++i)
+
+    for (uint16_t i = 0; i < chksum_offset; ++i)
       checksum += out_conf_buf[i];
 
     // Формула контрольної суми за специфікацією Goodix
-    out_conf_buf[GT911_CONFIG_CHKSUM - GT911_CONFIG_START] = (~checksum) + 1;
+    out_conf_buf[chksum_offset] = (~checksum) + 1;
   }
 
   void GT911::reflashConfig(uint8_t* out_conf_buf)
   {
     calculateChecksum(out_conf_buf);
-    if (!_i2c.writeRegister16(_chip_addr, GT911_CONFIG_CHKSUM, &out_conf_buf[GT911_CONFIG_CHKSUM - GT911_CONFIG_START], 1))
+    if (!_i2c.writeRegister16(_chip_addr, GT911_CONFIG_START, out_conf_buf, GT911_CONFIG_SIZE))
       return;
-    uint8_t reflash_val = 1;
+
+    const uint8_t reflash_val = 1;
     _i2c.writeRegister16(_chip_addr, GT911_CONFIG_FRESH, &reflash_val, sizeof(reflash_val));
   }
 
