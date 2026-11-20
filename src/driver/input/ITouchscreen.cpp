@@ -5,7 +5,7 @@
 
 namespace pixeler
 {
-  ITouchscreen::ITouchscreen() : _width{TOUCH_WIDTH}, _height{TOUCH_HEIGHT}
+  ITouchscreen::ITouchscreen() : _WIDTH{TOUCH_WIDTH}, _HEIGHT{TOUCH_HEIGHT}
   {
   }
 
@@ -93,23 +93,28 @@ namespace pixeler
 
   void ITouchscreen::setTouchPos(uint16_t x, uint16_t y)
   {
+    if (x > _WIDTH)
+      x = _WIDTH;
+    if (y > _HEIGHT)
+      y = _HEIGHT;
+
     uint16_t temp;
 
     switch (_rotation)
     {
       case ROTATION_90:
         temp = x;
-        x = _height - y;
+        x = _HEIGHT - y;
         y = temp;
         break;
       case ROTATION_180:
-        x = _width - x;
-        y = _height - y;
+        x = _WIDTH - x;
+        y = _HEIGHT - y;
         break;
       case ROTATION_270:
         temp = x;
         x = y;
-        y = _width - temp;
+        y = _WIDTH - temp;
         break;
       default:
         break;
