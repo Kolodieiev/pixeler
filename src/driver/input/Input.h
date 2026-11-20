@@ -10,6 +10,8 @@
 #pragma once
 #pragma GCC optimize("O3")
 
+#include <freertos/FreeRTOS.h>
+
 #include <unordered_map>
 
 #include "Button.h"
@@ -216,6 +218,7 @@ namespace pixeler
 
 #if defined(KEYBOARD_SUPPORT)
     EspUsbHost _usb;
+    SemaphoreHandle_t _key_handler_mtx{nullptr};
     KeyPressedHandler _key_pressed_handler{nullptr};
     void* _key_pressed_arg{nullptr};
     KeyReleasedHandler _key_released_handler{nullptr};

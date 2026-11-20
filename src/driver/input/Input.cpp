@@ -19,8 +19,13 @@ static const char STR_UNKNOWN_PIN[] = "Незареєстрована вірту
 
 namespace pixeler
 {
-  Input::Input() : _hold_lock_time{HOLD_LOCK_TIME_MS}, _click_lock_time{CLICK_LOCK_TIME_MS}, _press_lock_time{PRESS_LOCK_TIME_MS}
+  Input::Input() : _hold_lock_time{HOLD_LOCK_TIME_MS},
+                   _click_lock_time{CLICK_LOCK_TIME_MS},
+                   _press_lock_time{PRESS_LOCK_TIME_MS}
   {
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+    _key_handler_mtx = xSemaphoreCreateMutex();
+#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
   }
 
   void Input::__init()
@@ -265,38 +270,45 @@ namespace pixeler
 
   void Input::onKeyPressed(const KeyPressedHandler handler, void* arg)
   {
+    xSemaphoreTake(_key_handler_mtx, portMAX_DELAY);
     _key_pressed_handler = handler;
     _key_pressed_arg = arg;
+    xSemaphoreGive(_key_handler_mtx);
   }
 
   void Input::onKeyReleased(const KeyReleasedHandler handler, void* arg)
   {
+    xSemaphoreTake(_key_handler_mtx, portMAX_DELAY);
     _key_released_handler = handler;
     _key_released_arg = arg;
+    xSemaphoreGive(_key_handler_mtx);
   }
 
   void Input::keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg)
   {
     Input* self = static_cast<Input*>(arg);
+    KeyPressedHandler handler{nullptr};
+    void* handler_arg{nullptr};
 
+    xSemaphoreTake(self->_key_handler_mtx, portMAX_DELAY);
     if (event.pressed)
     {
-      if (self->_key_pressed_handler)
-      {
-        self->_key_pressed_handler(event, self->_key_pressed_arg);
-      }
+      handler = self->_key_pressed_handler;
+      handler_arg = self->_key_pressed_arg;
     }
     else if (event.released)
     {
-      if (self->_key_released_handler)
-      {
-        self->_key_released_handler(event, self->_key_released_arg);
-      }
+      handler = self->_key_released_handler;
+      handler_arg = self->_key_released_arg;
     }
     else
     {
       log_e("Unknown usb-event");
     }
+    xSemaphoreGive(self->_key_handler_mtx);
+
+    if (handler)
+      handler(event, handler_arg);
   }
 
 #endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
