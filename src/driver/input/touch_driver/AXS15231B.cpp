@@ -3,11 +3,11 @@
 
 #ifdef AXS15231B_DRIVER
 
-#define AXS15231B_ADDR 0x3B
-#define I2C_BUFF_SIZE 128
+static constexpr uint8_t AXS15231B_ADDR = 0x3B;
+static constexpr size_t I2C_BUFF_SIZE = 128;
 
-#define AXS_MAX_TOUCH_NUMBER 1
-#define AXS_BUF_SIZE (AXS_MAX_TOUCH_NUMBER * 6 + 2)
+static constexpr uint8_t AXS_MAX_TOUCH_NUMBER = 1;
+static constexpr uint16_t AXS_BUF_SIZE = AXS_MAX_TOUCH_NUMBER * 6 + 2;
 
 // 11-байтна команда з закодованим розміром відповіді
 static const uint8_t READ_CMD[11] = {

@@ -4,17 +4,17 @@
 
 #ifdef GT911_DRIVER
 
-#define GT911_ADDR1 0x5Du
-#define GT911_CONFIG_SIZE 0xB9u
+static constexpr uint8_t GT911_ADDR1 = 0x5D;
+static constexpr uint16_t GT911_CONFIG_SIZE = 0xB9;
 
 // Основні регістри GT911
-#define GT911_CONFIG_START 0x8047
-#define GT911_X_MAX_L 0x8048
-#define GT911_Y_MAX_L 0x804A
-#define GT911_CONFIG_CHKSUM 0x80FFu
-#define GT911_CONFIG_FRESH 0x8100u
-#define GT911_POINT_INFO 0x814Eu
-#define GT911_POINT_1 0x814Fu
+static constexpr uint16_t GT911_CONFIG_START = 0x8047;
+static constexpr uint16_t GT911_X_MAX_L = 0x8048;
+static constexpr uint16_t GT911_Y_MAX_L = 0x804A;
+static constexpr uint16_t GT911_CONFIG_CHKSUM = 0x80FF;
+static constexpr uint16_t GT911_CONFIG_FRESH = 0x8100;
+static constexpr uint16_t GT911_POINT_INFO = 0x814E;
+static constexpr uint16_t GT911_POINT_1 = 0x814F;
 
 namespace pixeler
 {

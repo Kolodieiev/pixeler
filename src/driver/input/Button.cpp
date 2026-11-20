@@ -10,7 +10,7 @@
 
 namespace pixeler
 {
-  Button::Button(uint8_t btn_id, bool is_touch) : _btn_id{btn_id},
+  Button::Button(uint8_t btn_id, bool is_touch) : _BTN_ID{btn_id},
                                                   _is_touch{is_touch}
   {
     enable();
@@ -42,17 +42,17 @@ namespace pixeler
     if (_is_touch)
     {
 #if defined(CONFIG_IDF_TARGET_ESP32)
-      _is_holded = touchRead(_btn_id) < BTN_TOUCH_TRESHOLD;
+      _is_holded = touchRead(_BTN_ID) < BTN_TOUCH_TRESHOLD;
 #else
-      _is_holded = touchRead(_btn_id) > BTN_TOUCH_TRESHOLD;
+      _is_holded = touchRead(_BTN_ID) > BTN_TOUCH_TRESHOLD;
 #endif
     }
     else
     {
 #if defined(CONFIG_IDF_TARGET_ESP32S3)
-      _is_holded = (_btn_id < 32) ? !((GPIO.in >> _btn_id) & 1) : !((GPIO.in1.val >> (_btn_id - 32)) & 1);
+      _is_holded = (_BTN_ID < 32) ? !((GPIO.in >> _BTN_ID) & 1) : !((GPIO.in1.val >> (_BTN_ID - 32)) & 1);
 #else
-      _is_holded = !gpio_get_level((gpio_num_t)_btn_id);
+      _is_holded = !gpio_get_level((gpio_num_t)_BTN_ID);
 #endif
     }
 
@@ -120,9 +120,9 @@ namespace pixeler
 #ifndef EXT_INPUT
     if (!_is_touch)
     {
-      pinMode(_btn_id, INPUT_PULLUP);
+      pinMode(_BTN_ID, INPUT_PULLUP);
     }
-    else if (!touchRead(_btn_id))
+    else if (!touchRead(_BTN_ID))
     {
       log_e("Помилка ініціалізації сенсорної кнопки");
       esp_restart();
@@ -137,8 +137,8 @@ namespace pixeler
     _is_touched = false;
     reset();
 #ifndef EXT_INPUT
-    gpio_reset_pin((gpio_num_t)_btn_id);
-    pinMode(_btn_id, INPUT);
+    gpio_reset_pin((gpio_num_t)_BTN_ID);
+    pinMode(_BTN_ID, INPUT);
 #endif
   }
 }  // namespace pixeler
