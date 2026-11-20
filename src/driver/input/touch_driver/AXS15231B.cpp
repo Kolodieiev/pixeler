@@ -21,8 +21,11 @@ namespace pixeler
 {
   void AXS15231B::resetChip()
   {
-    if (PIN_TOUCH_INT < 0 && PIN_TOUCH_RST < 0)
+    if (PIN_TOUCH_INT < 0 || PIN_TOUCH_RST < 0)
+    {
+      log_e("AXS15231B reset skipped: invalid INT or RST pin");
       return;
+    }
 
     pinMode(PIN_TOUCH_RST, OUTPUT);
     pinMode(PIN_TOUCH_INT, INPUT);

@@ -25,8 +25,11 @@ namespace pixeler
 
   void GT911::resetChip()
   {
-    if (PIN_TOUCH_INT < 0 && PIN_TOUCH_RST < 0)
+    if (PIN_TOUCH_INT < 0 || PIN_TOUCH_RST < 0)
+    {
+      log_e("GT911 reset skipped: invalid INT or RST pin");
       return;
+    }
 
     pinMode(PIN_TOUCH_INT, OUTPUT);
     pinMode(PIN_TOUCH_RST, OUTPUT);
