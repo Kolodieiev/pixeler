@@ -152,10 +152,11 @@ namespace pixeler
   {
     try
     {
-      bool result = _buttons.at(btn_id).isHolded();
+      Button& btn = _buttons.at(btn_id);
+      const bool result = btn.isHolded();
 
       if (result)
-        _buttons.at(btn_id).lock(_hold_lock_time);
+        btn.lock(_hold_lock_time);
 
       return result;
     }
@@ -170,10 +171,11 @@ namespace pixeler
   {
     try
     {
-      bool result = _buttons.at(btn_id).isPressed();
+      Button& btn = _buttons.at(btn_id);
+      const bool result = btn.isPressed();
 
       if (result)
-        _buttons.at(btn_id).lock(_press_lock_time);
+        btn.lock(_press_lock_time);
 
       return result;
     }
@@ -188,10 +190,11 @@ namespace pixeler
   {
     try
     {
-      bool result = _buttons.at(btn_id).isReleased();
+      Button& btn = _buttons.at(btn_id);
+      const bool result = btn.isReleased();
 
       if (result)
-        _buttons.at(btn_id).lock(_click_lock_time);
+        btn.lock(_click_lock_time);
 
       return result;
     }
