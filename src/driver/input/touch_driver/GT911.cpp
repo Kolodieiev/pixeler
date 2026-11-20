@@ -53,11 +53,13 @@ namespace pixeler
     {
       _i2c.setBufferSize(GT911_CONFIG_SIZE + 2);
       resetChip();
-      uint8_t _conf_buf[GT911_CONFIG_SIZE]{0};
-      _i2c.readRegister16(_chip_addr, GT911_CONFIG_START, _conf_buf, GT911_CONFIG_SIZE);
-      setResolution(_conf_buf, _width, _height);
-      log_e("Successful");
-      return true;
+      uint8_t conf_buf[GT911_CONFIG_SIZE]{0};
+      if (_i2c.readRegister16(_chip_addr, GT911_CONFIG_START, conf_buf, GT911_CONFIG_SIZE))
+      {
+        setResolution(conf_buf, _width, _height);
+        log_e("Successful");
+        return true;
+      }
     }
     log_e("Fail");
     return false;
