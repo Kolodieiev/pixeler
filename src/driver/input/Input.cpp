@@ -120,11 +120,11 @@ namespace pixeler
   {
     try
     {
+      _buttons.at(btn_id).enable();
+
 #ifdef EXT_INPUT
       _ext_input.enableBtn(btn_id);
 #endif  // EXT_INPUT
-
-      _buttons.at(btn_id).enable();
     }
     catch (const std::out_of_range& ignored)
     {
@@ -136,11 +136,11 @@ namespace pixeler
   {
     try
     {
+      _buttons.at(btn_id).disable();
+
 #ifdef EXT_INPUT
       _ext_input.disableBtn(btn_id);
 #endif  // EXT_INPUT
-
-      _buttons.at(btn_id).disable();
     }
     catch (const std::out_of_range& ignored)
     {
