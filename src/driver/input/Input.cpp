@@ -95,7 +95,7 @@ namespace pixeler
 
   void Input::__printPinMode(uint16_t pin_id)
   {
-    if ((gpio_num_t)pin_id >= GPIO_NUM_MAX)
+    if ((gpio_num_t)pin_id >= GPIO_NUM_MAX || GPIO_PIN_MUX_REG[pin_id] == 0)
     {
       log_i("Invalid pin number: %d", pin_id);
       return;
