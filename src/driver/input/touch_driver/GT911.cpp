@@ -94,10 +94,16 @@ namespace pixeler
     if (!_i2c.readRegister16(_chip_addr, GT911_POINT_INFO, &point_info, 1))
       return;
 
-    bool buffer_status = (point_info >> 7) & 1;
-    uint8_t points = point_info & 0x0F;
+    const bool buffer_status = (point_info >> 7) & 1;
+    if (!buffer_status)
+    {
+      processTouch();
+      return;
+    }
 
-    if (buffer_status && points > 0)
+    const uint8_t points = point_info & 0x0F;
+
+    if (points > 0)
     {
       uint8_t data[7];
       if (!_i2c.readRegister16(_chip_addr, GT911_POINT_1, data, 7))
@@ -110,8 +116,8 @@ namespace pixeler
         return;
       }
 
-      uint16_t x = data[1] | (data[2] << 8);
-      uint16_t y = data[3] | (data[4] << 8);
+      const uint16_t x = data[1] | (data[2] << 8);
+      const uint16_t y = data[3] | (data[4] << 8);
       setTouchPos(x, y);
       _is_holded = true;
     }
@@ -123,7 +129,7 @@ namespace pixeler
     processTouch();
 
     // Обов'язкове скидання статусу для отримання наступного кадру
-    uint8_t reset_val = 0;
+    const uint8_t reset_val = 0;
     _i2c.writeRegister16(_chip_addr, GT911_POINT_INFO, &reset_val, sizeof(reset_val));
   }
 
