@@ -21,6 +21,7 @@ namespace pixeler
   {
     _is_pressed = false;
     _is_released = false;
+    _swipe = SWIPE_NONE;
   }
 
   void ITouchscreen::lock(unsigned long lock_duration)
