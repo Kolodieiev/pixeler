@@ -30,7 +30,7 @@ uint8_t MenuContext::_last_page_pos;
 MenuContext::MenuContext()
 {
   setCpuFrequency(FREQ_MIN);
-  
+
   //
   EmptyLayout* layout = WidgetCreator::getEmptyLayout();
   setLayout(layout);
@@ -38,6 +38,7 @@ MenuContext::MenuContext()
   _menu = new FixedMenu(ID_MENU);
   layout->addWidget(_menu);
   _menu->setTouchSupport(true);
+  _menu->setTouchable(true);
   _menu->setBackColor(COLOR_MAIN_BACK);
   _menu->setWidth(UI_WIDTH - SCROLLBAR_WIDTH - DISPLAY_PADDING * 2);
   _menu->setHeight(UI_HEIGHT - DISPLAY_PADDING * 2);

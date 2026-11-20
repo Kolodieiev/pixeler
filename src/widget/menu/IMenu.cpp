@@ -253,18 +253,18 @@ namespace pixeler
 
   IWidget* IMenu::findTouchableAt(uint16_t x, uint16_t y)
   {
-    if (!hitTest(x, y))
+    if (!_is_touchable || !hitTest(x, y))
       return nullptr;
 
     const uint16_t last_index = _first_item_index + getCyclesCount();
 
     for (uint16_t i{_first_item_index}; i < last_index; ++i)
     {
-      if (IWidget* found = _widgets[i]->findTouchableAt(x, y))
-        return found;
+      if (_widgets[i]->hitTest(x, y))
+        return _widgets[i];
     }
 
-    return _is_touchable ? this : nullptr;
+    return this;
   }
 
   uint16_t IMenu::getCyclesCount() const
