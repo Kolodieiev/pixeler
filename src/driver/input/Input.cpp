@@ -123,7 +123,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN, static_cast<unsigned int>(btn_id));
     }
   }
 
@@ -139,7 +139,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN, static_cast<unsigned int>(btn_id));
     }
   }
 
@@ -156,7 +156,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN, static_cast<unsigned int>(btn_id));
       return false;
     }
   }
@@ -174,7 +174,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN, static_cast<unsigned int>(btn_id));
       return false;
     }
   }
@@ -192,7 +192,7 @@ namespace pixeler
     }
     catch (const std::out_of_range& ignored)
     {
-      log_e("%s : id[%u]", STR_UNKNOWN_PIN);
+      log_e("%s : id[%u]", STR_UNKNOWN_PIN, static_cast<unsigned int>(btn_id));
       return false;
     }
   }
