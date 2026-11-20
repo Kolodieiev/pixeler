@@ -52,10 +52,17 @@ namespace pixeler
   {
     log_e("GT911 Init:");
 
-    if (_i2c.begin() && _i2c.hasConnect(_chip_addr))
+    if (!_i2c.begin())
+    {
+      log_e("Fail");
+      return false;
+    }
+
+    resetChip();
+
+    if (_i2c.hasConnect(_chip_addr))
     {
       _i2c.setBufferSize(GT911_CONFIG_SIZE + 2);
-      resetChip();
       uint8_t conf_buf[GT911_CONFIG_SIZE]{0};
       if (_i2c.readRegister16(_chip_addr, GT911_CONFIG_START, conf_buf, GT911_CONFIG_SIZE))
       {
@@ -64,6 +71,7 @@ namespace pixeler
         return true;
       }
     }
+
     log_e("Fail");
     return false;
   }
