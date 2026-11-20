@@ -52,8 +52,8 @@ namespace pixeler
         _has_touch = false;
         _is_released = true;
 
-        int x_diff = _x_s - _x_e;
-        int y_diff = _y_s - _y_e;
+        const int x_diff = _x_s - _x_e;
+        const int y_diff = _y_s - _y_e;
 
         if (abs(x_diff) > 30 || abs(y_diff) > 30)
         {

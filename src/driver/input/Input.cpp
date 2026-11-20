@@ -106,7 +106,7 @@ namespace pixeler
       return;
     }
 
-    uint32_t io_mux_reg = GPIO_PIN_MUX_REG[pin_id];  // Отримати адресу IOMUX регістра
+    const uint32_t io_mux_reg = GPIO_PIN_MUX_REG[pin_id];  // Отримати адресу IOMUX регістра
 
     if (REG_GET_BIT(io_mux_reg, FUN_PU))
       log_i("Pin %d: Pull-up enabled", pin_id);
@@ -223,7 +223,7 @@ namespace pixeler
 #ifdef TOUCHSCREEN_SUPPORT
   bool Input::isHolded() const
   {
-    bool result = _touchscreen->isHolded();
+    const bool result = _touchscreen->isHolded();
     if (result)
       _touchscreen->lock(HOLD_LOCK_TIME_MS);
 
@@ -232,7 +232,7 @@ namespace pixeler
 
   bool Input::isPressed() const
   {
-    bool result = _touchscreen->isPressed();
+    const bool result = _touchscreen->isPressed();
     if (result)
       _touchscreen->lock(PRESS_LOCK_TIME_MS);
 
@@ -241,7 +241,7 @@ namespace pixeler
 
   bool Input::isReleased() const
   {
-    bool result = _touchscreen->isReleased();
+    const bool result = _touchscreen->isReleased();
     if (result)
       _touchscreen->lock(CLICK_LOCK_TIME_MS);
 
@@ -250,7 +250,7 @@ namespace pixeler
 
   ITouchscreen::Swipe Input::getSwipe()
   {
-    ITouchscreen::Swipe swipe = _touchscreen->getSwipe();
+    const ITouchscreen::Swipe swipe = _touchscreen->getSwipe();
     if (swipe != ITouchscreen::SWIPE_NONE)
       _touchscreen->lock(CLICK_LOCK_TIME_MS);
 

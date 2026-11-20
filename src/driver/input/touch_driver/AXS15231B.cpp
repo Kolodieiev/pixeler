@@ -91,13 +91,13 @@ namespace pixeler
     // data[3] = X_low
     // data[4] = [touch_id(7:4)][Y_high(3:0)]
     // data[5] = Y_low
-    uint8_t point_num = data[1] & 0x0F;
-    uint8_t event_flag = (data[2] >> 6) & 0x03;  // 0=down, 1=up, 2=contact
+    const uint8_t point_num = data[1] & 0x0F;
+    const uint8_t event_flag = (data[2] >> 6) & 0x03;  // 0=down, 1=up, 2=contact
 
     if (point_num == 1 && event_flag != 1)
     {
-      uint16_t x = ((data[2] & 0x0F) << 8) | data[3];
-      uint16_t y = ((data[4] & 0x0F) << 8) | data[5];
+      const uint16_t x = ((data[2] & 0x0F) << 8) | data[3];
+      const uint16_t y = ((data[4] & 0x0F) << 8) | data[5];
       setTouchPos(x, y);
       _is_holded = true;
     }
