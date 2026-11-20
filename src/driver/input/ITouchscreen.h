@@ -63,8 +63,8 @@ namespace pixeler
     unsigned long _lock_duration{0};
     unsigned long _hold_duration{0};
 
-    uint16_t _width{0};
-    uint16_t _height{0};
+    const uint16_t _WIDTH{0};
+    const uint16_t _HEIGHT{0};
     uint16_t _x_s{0};
     uint16_t _y_s{0};
     uint16_t _x_e{0};

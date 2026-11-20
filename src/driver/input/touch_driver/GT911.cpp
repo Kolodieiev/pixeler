@@ -59,7 +59,7 @@ namespace pixeler
       uint8_t conf_buf[GT911_CONFIG_SIZE]{0};
       if (_i2c.readRegister16(_chip_addr, GT911_CONFIG_START, conf_buf, GT911_CONFIG_SIZE))
       {
-        setResolution(conf_buf, _width, _height);
+        setResolution(conf_buf, _WIDTH, _HEIGHT);
         log_e("Successful");
         return true;
       }
