@@ -98,6 +98,13 @@ namespace pixeler
       return false;
     }
 
+    header.file_type = 0x4D42;
+    header.data_offset = sizeof(BmpHeader);
+    header.info_size = 40;
+    header.planes = 1;
+    header.bit_pp = 16;
+    header.compression = 3;
+
     header.image_size = header.width * header.height * 2;
     header.file_size = header.data_offset + header.image_size;
     uint32_t buf_size = header.width * header.height;

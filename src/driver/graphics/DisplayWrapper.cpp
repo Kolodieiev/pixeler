@@ -608,7 +608,7 @@ namespace pixeler
     bool res = loader.saveBmp(header,
                               self->_canvas.getFramebuffer(),
                               path_to_bmp.c_str(),
-                              true);
+                              false);
 
     if (res)
       log_i("Скріншот %s успішно збережено", path_to_bmp.c_str());
