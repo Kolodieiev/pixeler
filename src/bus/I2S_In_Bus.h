@@ -5,9 +5,9 @@
  * Доступ до класу повинен виконуватися тільки через глобальний об'єкт "_i2s_in".
  * Піни, до яких підключено мікрофон, налаштовуються в файлі "i2s_config.h"
  */
-
 #pragma once
 #pragma GCC optimize("O3")
+
 #include <driver/i2s_std.h>
 
 #include "defines.h"
@@ -18,7 +18,7 @@ namespace pixeler
   {
   public:
     /**
-     * @brief Ініціалізує 1-ший канал на шині I2S в режимі ввводу.
+     * @brief Ініціалізує 1-ший канал на шині I2S в режимі вводу.
      *
      * @param sample_rate Кількість вибірок за секунду.
      * @param has_interleaving Прапор, який вказує на формат даних, що повертає мікрофон.
@@ -30,27 +30,24 @@ namespace pixeler
 
     /**
      * @brief Деініціалізує ініціалізований раніше канал на шині I2S.
-     *
      */
     void deinit();
 
     /**
-     * @brief Активує канал зчитування аудіоданих на ініціалізованиій шині I2S.
+     * @brief Активує канал зчитування аудіоданих на ініціалізованій шині I2S.
      *
      * @return esp_err_t
      */
     esp_err_t enable();
 
     /**
-     * @brief Деактивує канал зчитування аудіоданих на ініціалізованиій шині I2S.
-     *
+     * @brief Деактивує канал зчитування аудіоданих на ініціалізованій шині I2S.
      */
     void disable();
 
     /**
-     * @brief Змінює частоту дискретизіації.
-     * Автоматично вимикає канал перед зміною та вмикає після зміни частоти дескритизації.
-     * Також самостійно обнуляє перші 128 байтів буферу I2S.
+     * @brief Змінює частоту дискретизації.
+     * Автоматично вимикає канал перед зміною та вмикає після зміни частоти дискретизації.
      *
      * @param sample_rate Кількість вибірок за секунду.
      */
@@ -60,14 +57,13 @@ namespace pixeler
      * @brief Читає дані з буфера раніше налаштованого I2S-каналу.
      *
      * @param out_buffer Буфер, куди будуть прочитані дані.
-     * @param buff_len Довжина буфера.
+     * @param buff_len Довжина буфера в кількості int16_t семплів.
      * @return size_t - Кількість прочитаних семплів.
      */
     size_t read(int16_t* out_buffer, size_t buff_len);
 
     /**
-     * @brief Очищує буфер каналу аудіовходу.
-     *
+     * @brief Очищує DMA-буфер активного каналу аудіовходу.
      */
     void clearBuffer();
 
@@ -80,18 +76,17 @@ namespace pixeler
     bool isInited() const;
 
   private:
-    bool _is_inited{false};
-
     i2s_std_config_t _i2s_rx_std_cfg{};
     i2s_chan_config_t _i2s_chan_cfg{};
-    i2s_chan_handle_t _i2s_rx_handle{};
+    i2s_chan_handle_t _i2s_rx_handle{nullptr};
 
+    bool _is_inited{false};
+    bool _is_enabled{false};
     bool _has_interleaving{false};
   };
 
   /**
-   * @brief Глобальний об'єкт для зчитування аудіо-даних по шині I2S.
-   *
+   * @brief Глобальний об'єкт для зчитування аудіоданих по шині I2S.
    */
   extern I2S_In_Bus _i2s_in;
 }  // namespace pixeler

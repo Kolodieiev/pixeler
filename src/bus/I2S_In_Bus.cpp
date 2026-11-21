@@ -1,63 +1,75 @@
 #pragma GCC optimize("O3")
+
 #include "I2S_In_Bus.h"
+
+#include <cstdint>
 
 #include "i2s_config.h"
 
-#define MIN_MICRO_BUFF_LEN 40UL
+static constexpr size_t MIN_MICRO_BUFF_LEN{40u};
+static constexpr size_t RAW_CHUNK_SAMPLES{128u};
+static constexpr int32_t SAMPLE_SHIFT{12};
 
 namespace pixeler
 {
-  bool I2S_In_Bus::init(uint32_t sample_rate, bool has_interleaving)
+  bool I2S_In_Bus::init(const uint32_t sample_rate, const bool has_interleaving)
   {
     if (_is_inited)
       return true;
 
-    _has_interleaving = has_interleaving;
+    if (sample_rate == 0u)
+    {
+      log_e("Помилка ініціалізації I2S_In_Bus: некоректна частота дискретизації");
+      return false;
+    }
 
-    bool result = false;
+    _has_interleaving = has_interleaving;
 
     _i2s_chan_cfg.id = I2S_NUM_1;
     _i2s_chan_cfg.role = I2S_ROLE_MASTER;
     _i2s_chan_cfg.dma_desc_num = 8;
     _i2s_chan_cfg.dma_frame_num = 1024;
     _i2s_chan_cfg.auto_clear = true;
-    result |= i2s_new_channel(&_i2s_chan_cfg, nullptr, &_i2s_rx_handle);
 
-    if (result == ESP_OK)
+    esp_err_t err = i2s_new_channel(&_i2s_chan_cfg, nullptr, &_i2s_rx_handle);
+    if (err != ESP_OK)
     {
-      _i2s_rx_std_cfg.slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_MONO),
-      _i2s_rx_std_cfg.gpio_cfg.mclk = I2S_GPIO_UNUSED;
-      _i2s_rx_std_cfg.gpio_cfg.bclk = (gpio_num_t)PIN_I2S_IN_SCK;
-      _i2s_rx_std_cfg.gpio_cfg.ws = (gpio_num_t)PIN_I2S_IN_WS;
-      _i2s_rx_std_cfg.gpio_cfg.din = (gpio_num_t)PIN_I2S_IN_SD;
-      _i2s_rx_std_cfg.gpio_cfg.dout = I2S_GPIO_UNUSED;
-      _i2s_rx_std_cfg.gpio_cfg.invert_flags.mclk_inv = false;
-      _i2s_rx_std_cfg.gpio_cfg.invert_flags.bclk_inv = false;
-      _i2s_rx_std_cfg.gpio_cfg.invert_flags.ws_inv = false;
-
-      _i2s_rx_std_cfg.clk_cfg.clk_src = I2S_CLK_SRC_DEFAULT;
-      _i2s_rx_std_cfg.clk_cfg.mclk_multiple = I2S_MCLK_MULTIPLE_128;
-      _i2s_rx_std_cfg.clk_cfg.sample_rate_hz = sample_rate;
-
-      result |= i2s_channel_init_std_mode(_i2s_rx_handle, &_i2s_rx_std_cfg);
+      _i2s_rx_handle = nullptr;
+      log_e("Помилка створення каналу I2S_In_Bus: %i", err);
+      return false;
     }
 
-    if (result != ESP_OK)
-      log_e("Помилка ініціалізації I2S_In_Bus");
-    else
+    _i2s_rx_std_cfg.slot_cfg = I2S_STD_PHILIPS_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_32BIT, I2S_SLOT_MODE_MONO);
+    _i2s_rx_std_cfg.gpio_cfg.mclk = I2S_GPIO_UNUSED;
+    _i2s_rx_std_cfg.gpio_cfg.bclk = static_cast<gpio_num_t>(PIN_I2S_IN_SCK);
+    _i2s_rx_std_cfg.gpio_cfg.ws = static_cast<gpio_num_t>(PIN_I2S_IN_WS);
+    _i2s_rx_std_cfg.gpio_cfg.din = static_cast<gpio_num_t>(PIN_I2S_IN_SD);
+    _i2s_rx_std_cfg.gpio_cfg.dout = I2S_GPIO_UNUSED;
+    _i2s_rx_std_cfg.gpio_cfg.invert_flags.mclk_inv = false;
+    _i2s_rx_std_cfg.gpio_cfg.invert_flags.bclk_inv = false;
+    _i2s_rx_std_cfg.gpio_cfg.invert_flags.ws_inv = false;
+
+    _i2s_rx_std_cfg.clk_cfg.clk_src = I2S_CLK_SRC_DEFAULT;
+    _i2s_rx_std_cfg.clk_cfg.mclk_multiple = I2S_MCLK_MULTIPLE_128;
+    _i2s_rx_std_cfg.clk_cfg.sample_rate_hz = sample_rate;
+
+    err = i2s_channel_init_std_mode(_i2s_rx_handle, &_i2s_rx_std_cfg);
+    if (err != ESP_OK)
     {
-      _is_inited = true;
-      clearBuffer();
+      i2s_del_channel(_i2s_rx_handle);
+      _i2s_rx_handle = nullptr;
+      log_e("Помилка ініціалізації I2S_In_Bus: %i", err);
+      return false;
     }
 
-    return !result;
+    _is_inited = true;
+    _is_enabled = false;
+    return true;
   }
 
   bool I2S_In_Bus::isInited() const
   {
-    if (!_is_inited)
-      log_e("I2S вхід не ініціалізовано");
-
+    log_e("I2S вхід не ініціалізовано");
     return _is_inited;
   }
 
@@ -66,49 +78,73 @@ namespace pixeler
     if (!_is_inited)
       return;
 
-    i2s_channel_disable(_i2s_rx_handle);
+    disable();
     i2s_del_channel(_i2s_rx_handle);
+    _i2s_rx_handle = nullptr;
     _is_inited = false;
   }
 
   void I2S_In_Bus::clearBuffer()
   {
-    if (!_is_inited)
+    if (!_is_inited || !_is_enabled)
       return;
 
-    uint8_t* buff = static_cast<uint8_t*>(calloc(128, sizeof(uint8_t)));
-    size_t bytes_loaded = 0;
-    i2s_channel_preload_data(_i2s_rx_handle, buff, sizeof(buff), &bytes_loaded);
-    free(buff);
+    disable();
+    enable();
   }
 
   esp_err_t I2S_In_Bus::enable()
   {
     if (!_is_inited)
+    {
+      log_e("I2S-вхід ще не було ініціалізовано");
       return ESP_FAIL;
+    }
 
-    return i2s_channel_enable(_i2s_rx_handle);
+    if (_is_enabled)
+      return ESP_OK;
+
+    const esp_err_t err = i2s_channel_enable(_i2s_rx_handle);
+    if (err == ESP_OK)
+      _is_enabled = true;
+
+    return err;
   }
 
   void I2S_In_Bus::disable()
   {
-    if (_is_inited)
-      i2s_channel_disable(_i2s_rx_handle);
+    if (!_is_inited || !_is_enabled)
+      return;
+
+    if (const esp_err_t err = i2s_channel_disable(_i2s_rx_handle); err == ESP_OK)
+      _is_enabled = false;
+    else
+      log_e("Помилка деактивації каналу I2S_In_Bus: %i", err);
   }
 
-  void I2S_In_Bus::reconfigSampleRate(uint32_t sample_rate)
+  void I2S_In_Bus::reconfigSampleRate(const uint32_t sample_rate)
   {
-    if (_is_inited)
+    if (!_is_inited)
     {
-      i2s_channel_disable(_i2s_rx_handle);
-      _i2s_rx_std_cfg.clk_cfg.sample_rate_hz = sample_rate;
-      i2s_channel_reconfig_std_clock(_i2s_rx_handle, &_i2s_rx_std_cfg.clk_cfg);
-      clearBuffer();
-      i2s_channel_enable(_i2s_rx_handle);
+      log_e("I2S-вхід ще не було ініціалізовано");
+      return;
     }
+
+    if (sample_rate == 0u)
+    {
+      log_e("Некоректна частота дискретизації: 0");
+      return;
+    }
+
+    disable();
+    _i2s_rx_std_cfg.clk_cfg.sample_rate_hz = sample_rate;
+    if (const esp_err_t err = i2s_channel_reconfig_std_clock(_i2s_rx_handle, &_i2s_rx_std_cfg.clk_cfg); err != ESP_OK)
+      log_e("Помилка зміни частоти дискретизації I2S_In_Bus: %i", err);
+
+    enable();
   }
 
-  size_t I2S_In_Bus::read(int16_t* out_buffer, size_t buff_len)
+  size_t I2S_In_Bus::read(int16_t* out_buffer, const size_t buff_len)
   {
     if (!_is_inited)
     {
@@ -122,34 +158,65 @@ namespace pixeler
       esp_restart();
     }
 
-    if (buff_len & 1)
-      --buff_len;
+    const size_t target_samples = buff_len & ~size_t{1u};
+    size_t total_samples_read{0u};
+    int32_t raw_buffer[RAW_CHUNK_SAMPLES];
 
-    if (_has_interleaving)
-      buff_len *= 2;
-
-    size_t bytes_to_read = buff_len * sizeof(int32_t);
-    int32_t raw_buffer[buff_len];
-    size_t bytes_read = 0;
-
-    i2s_channel_read(_i2s_rx_handle, raw_buffer, bytes_to_read, &bytes_read, portMAX_DELAY);
-
-    size_t samples_read = bytes_read / sizeof(int32_t);
-
-    if (_has_interleaving)
+    while (total_samples_read < target_samples)
     {
-      samples_read /= 2;
+      const size_t samples_remaining = target_samples - total_samples_read;
+      const size_t needed_words = _has_interleaving ? (samples_remaining * 2u) : samples_remaining;
+      const size_t chunk_words = (needed_words < RAW_CHUNK_SAMPLES) ? needed_words : RAW_CHUNK_SAMPLES;
+      const size_t bytes_to_read = chunk_words * sizeof(int32_t);
 
-      for (size_t i = 0; i < samples_read; ++i)
-        out_buffer[i] = raw_buffer[i * 2] >> 12;
-    }
-    else
-    {
-      for (size_t i = 0; i < samples_read; ++i)
-        out_buffer[i] = raw_buffer[i] >> 12;
+      size_t bytes_read{0u};
+      const esp_err_t err = i2s_channel_read(_i2s_rx_handle, raw_buffer, bytes_to_read, &bytes_read, portMAX_DELAY);
+      if (err != ESP_OK)
+        log_e("Помилка читання даних I2S_In_Bus: %i", err);
+
+      const size_t words_read = bytes_read / sizeof(int32_t);
+      if (words_read == 0u)
+        break;
+
+      int16_t* dst = out_buffer + total_samples_read;
+
+      if (_has_interleaving)
+      {
+        const size_t chunk_samples = words_read / 2u;
+        for (size_t i{0u}; i < chunk_samples; ++i)
+        {
+          int32_t sample = raw_buffer[i * 2u] >> SAMPLE_SHIFT;
+          if (sample > INT16_MAX)
+            sample = INT16_MAX;
+          else if (sample < INT16_MIN)
+            sample = INT16_MIN;
+
+          dst[i] = static_cast<int16_t>(sample);
+        }
+
+        total_samples_read += chunk_samples;
+      }
+      else
+      {
+        for (size_t i{0u}; i < words_read; ++i)
+        {
+          int32_t sample = raw_buffer[i] >> SAMPLE_SHIFT;
+          if (sample > INT16_MAX)
+            sample = INT16_MAX;
+          else if (sample < INT16_MIN)
+            sample = INT16_MIN;
+
+          dst[i] = static_cast<int16_t>(sample);
+        }
+
+        total_samples_read += words_read;
+      }
+
+      if (err != ESP_OK || bytes_read < bytes_to_read)
+        break;
     }
 
-    return samples_read;
+    return total_samples_read;
   }
 
   I2S_In_Bus _i2s_in;
