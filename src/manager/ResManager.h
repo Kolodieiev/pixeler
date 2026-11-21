@@ -76,9 +76,6 @@ namespace pixeler
     ResManager& operator=(ResManager&&) = delete;
 
   private:
-    std::unique_ptr<IResLoader> getLoaderByExt(const char* path);
-
-  private:
     std::unordered_map<uint32_t, IResource*> _resources;  // <res_id, res_ptr>
     uint32_t _res_id_counter{0};
   };

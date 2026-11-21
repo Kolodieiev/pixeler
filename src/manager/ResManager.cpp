@@ -9,11 +9,30 @@ namespace pixeler
 {
   uint32_t ResManager::load(const char* path, const char* res_name)
   {
-    std::unique_ptr<IResLoader> loader = getLoaderByExt(path);
-    if (!loader)
+    if (!path)
+    {
+      log_e("path не повинен бути null");
       return 0;
+    }
 
-    IResource* resource = loader->load(path, res_name);
+    IResource* resource{nullptr};
+
+    if (endsWith(path, ".bmp"))
+    {
+      BmpLoader loader;
+      resource = loader.load(path, res_name);
+    }
+    else if (endsWith(path, ".wav"))
+    {
+      WavLoader loader;
+      resource = loader.load(path, res_name);
+    }
+    else
+    {
+      log_e("Незареєстрований тип файлу: %s", path);
+      return 0;
+    }
+
     if (!resource)
       return 0;
 
@@ -95,23 +114,6 @@ namespace pixeler
 
     _resources.clear();
     _res_id_counter = 0;
-  }
-
-  std::unique_ptr<IResLoader> ResManager::getLoaderByExt(const char* path)
-  {
-    if (!path)
-    {
-      log_e("path не повинен бути null");
-      return nullptr;
-    }
-
-    if (endsWith(path, ".bmp"))
-      return std::make_unique<BmpLoader>();
-    if (endsWith(path, ".wav"))
-      return std::make_unique<WavLoader>();
-
-    log_e("Незареєстрований тип файлу: %s", path);
-    return nullptr;
   }
 
   ResManager _res;
