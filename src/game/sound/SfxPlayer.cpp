@@ -168,7 +168,7 @@ namespace pixeler
         xSemaphoreGive(self->_mutex);
 
         // Запис у I2S виконується поза м'ютексом завдяки чому синхронізує потік по DMA
-        _i2s_out.write(_samples_buf, sizeof(uint16_t) * 256);
+        _i2s_out.write(_samples_buf, 256u);
       }
       else
       {
