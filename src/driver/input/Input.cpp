@@ -43,30 +43,6 @@ namespace pixeler
     _touchscreen->__begin();
     _touchscreen->setRotation(ITouchscreen::TOUCH_ROTATION);
 #endif  // TOUCHSCREEN_SUPPORT
-
-#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
-    _usb.setKeyboardLayout(ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US);
-
-    _usb.onDeviceConnected([](const EspUsbHostDeviceInfo& device)
-                           { espUsbHostPrint(device); });
-
-    _usb.onDeviceDisconnected([](const EspUsbHostDeviceInfo& device)
-                              { espUsbHostPrint(device); });
-
-    _usb.onKeyboard(keyEventHandler, this);
-
-    const EspUsbHostConfig config{
-        .taskStackSize = 8 * 1024,
-        .taskPriority = 10,
-        .taskCore = 1,
-        .port = ESP_USB_HOST_PORT_DEFAULT};
-
-    if (!_usb.begin(config))
-      log_e("USB-host begin failed: %s", _usb.lastErrorName());
-    else
-      log_e("USB-host begin successfully");
-
-#endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
   }
 
   void Input::__update()
@@ -275,16 +251,93 @@ namespace pixeler
   {
     xSemaphoreTake(_key_handler_mtx, portMAX_DELAY);
     _key_pressed_handler = handler;
-    _key_pressed_arg = arg;
+    _key_pressed_arg = handler ? arg : nullptr;
     xSemaphoreGive(_key_handler_mtx);
+
+    updateUsbHostState();
   }
 
   void Input::onKeyReleased(const KeyReleasedHandler handler, void* arg)
   {
     xSemaphoreTake(_key_handler_mtx, portMAX_DELAY);
     _key_released_handler = handler;
-    _key_released_arg = arg;
+    _key_released_arg = handler ? arg : nullptr;
     xSemaphoreGive(_key_handler_mtx);
+
+    updateUsbHostState();
+  }
+
+  void Input::updateUsbHostState()
+  {
+    // TODO коли додасиш мишу, не забудь оновити цей метод
+
+    EspUsbHost* usb_to_delete = nullptr;
+    bool needCreate = false;
+
+    xSemaphoreTake(_key_handler_mtx, portMAX_DELAY);
+    const bool hasAnyHandler = (_key_pressed_handler != nullptr) || (_key_released_handler != nullptr);
+
+    if (!hasAnyHandler)
+    {
+      _key_pressed_arg = nullptr;
+      _key_released_arg = nullptr;
+      if (_usb != nullptr)
+      {
+        usb_to_delete = _usb;
+        _usb = nullptr;
+      }
+    }
+    else if (_usb == nullptr)
+    {
+      needCreate = true;
+    }
+    xSemaphoreGive(_key_handler_mtx);
+
+    // Видаляємо поза м'ютексом, щоб уникнути deadlock
+    if (usb_to_delete != nullptr)
+    {
+      delete usb_to_delete;
+      return;
+    }
+
+    // Створюємо і запускаємо поза м'ютексом
+    if (needCreate)
+    {
+      EspUsbHost* usb = new EspUsbHost();
+      usb->onKeyboard(keyEventHandler, this);
+
+      usb->onDeviceConnected([](const EspUsbHostDeviceInfo& device)
+                             { espUsbHostPrint(device); });
+
+      usb->onDeviceDisconnected([](const EspUsbHostDeviceInfo& device)
+                                { espUsbHostPrint(device); });
+
+      const EspUsbHostConfig config{
+          .taskStackSize = 8 * 1024,
+          .taskPriority = 10,
+          .taskCore = 1,
+          .port = ESP_USB_HOST_PORT_DEFAULT};
+
+      if (!usb->begin(config))
+      {
+        log_e("USB-host begin failed: %s", usb->lastErrorName());
+      }
+      else
+      {
+        xSemaphoreTake(_key_handler_mtx, portMAX_DELAY);
+        if (_key_pressed_handler != nullptr || _key_released_handler != nullptr)
+        {
+          _usb = usb;
+          usb = nullptr;
+        }
+        xSemaphoreGive(_key_handler_mtx);
+
+        log_i("USB-host begin successfully");
+      }
+
+      if (usb != nullptr)
+        delete usb;
+    }
   }
 
   void Input::keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg)
@@ -312,6 +365,17 @@ namespace pixeler
 
     if (handler)
       handler(event, handler_arg);
+  }
+
+  void Input::setKeyboardLayout(EspUsbHostKeyboardLayout layout)
+  {
+    if (!_usb)
+    {
+      log_e("USB-host не було ініціалізовано");
+      return;
+    }
+
+    _usb->setKeyboardLayout(layout);
   }
 
 #endif  // #if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)

@@ -1,5 +1,6 @@
 #ifndef ESP_USB_HOST_HID_H
 #define ESP_USB_HOST_HID_H
+
 #include <sdkconfig.h>
 
 #ifndef CONFIG_IDF_TARGET_ESP32
@@ -21,21 +22,7 @@ bool espUsbHostParseBootMouseReport(uint8_t interfaceNumber,
                                     size_t length,
                                     uint8_t previousButtons,
                                     EspUsbHostMouseEvent& event);
-bool espUsbHostParseConsumerControlReport(uint8_t interfaceNumber,
-                                          const uint8_t* data,
-                                          size_t length,
-                                          uint16_t previousUsage,
-                                          EspUsbHostConsumerControlEvent& event);
-bool espUsbHostParseGamepadReport(uint8_t interfaceNumber,
-                                  const uint8_t* data,
-                                  size_t length,
-                                  const EspUsbHostGamepadPrevState& previous,
-                                  EspUsbHostGamepadEvent& event);
-bool espUsbHostParseSystemControlReport(uint8_t interfaceNumber,
-                                        const uint8_t* data,
-                                        size_t length,
-                                        uint8_t previousUsage,
-                                        EspUsbHostSystemControlEvent& event);
+
 uint8_t espUsbHostBuildKeyboardLedReport(bool numLock, bool capsLock, bool scrollLock);
 
 size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
@@ -48,8 +35,18 @@ size_t espUsbHostBuildKeyboardEvents(uint8_t interfaceNumber,
                                      size_t maxEvents);
 
 bool espUsbHostIsBootKeyboardReportValid(const uint8_t* data, size_t length);
-uint8_t espUsbHostKeycodeToAscii(uint8_t keycode, uint8_t modifiers, EspUsbHostKeyboardLayout layout, bool capsLock, bool numLock);
+uint16_t espUsbHostKeycodeToUnicode(uint8_t keycode,
+                                    uint8_t modifiers,
+                                    EspUsbHostKeyboardLayout layout,
+                                    bool capsLock,
+                                    bool numLock);
+uint8_t espUsbHostKeycodeToAscii(uint8_t keycode,
+                                 uint8_t modifiers,
+                                 EspUsbHostKeyboardLayout layout,
+                                 bool capsLock,
+                                 bool numLock);
 uint8_t espUsbHostKeypadKeycodeToAscii(uint8_t keycode, bool numLock);
+size_t espUsbHostUnicodeToUtf8(uint16_t codepoint, char out[4]);
 
 #endif  // #ifndef CONFIG_IDF_TARGET_ESP32
-#endif
+#endif  // ESP_USB_HOST_HID_H

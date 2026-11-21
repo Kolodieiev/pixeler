@@ -34,7 +34,7 @@ namespace pixeler
   class Input
   {
   public:
-#if defined(KEYBOARD_SUPPORT)
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     using KeyPressedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
     using KeyReleasedHandler = std::function<void(const EspUsbHostKeyboardEvent& event, void* arg)>;
 
@@ -187,9 +187,11 @@ namespace pixeler
 
 #endif  // TOUCHSCREEN_SUPPORT
 
-#if defined(KEYBOARD_SUPPORT)
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     /**
      * @brief Встановлює обробник для події натискання клавіші на фізичній клавіатурі.
+     * Якщо в USB-host для клавіатури не матиме жодного підписника,
+     * відбудеться автоматичне звільнення ресурсів, та деініціалізація USB-Host.
      *
      * @param handler Обробник події
      * @param arg Аргумент, який буде передано обробнику
@@ -198,33 +200,41 @@ namespace pixeler
 
     /**
      * @brief Встановлює обробник для події відтискання клавіші на фізичній клавіатурі.
+     * Якщо в USB-host для клавіатури не матиме жодного підписника,
+     * відбудеться автоматичне звільнення ресурсів, та деініціалізація USB-Host.
      *
      * @param handler Обробник події
      * @param arg Аргумент, який буде передано обробнику
      */
     void onKeyReleased(const KeyReleasedHandler handler, void* arg = nullptr);
 
+    /**
+     * @brief Встановлює розкладку клавіатури.
+     *
+     * @param layout Доступні тільки ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US та ESP_USB_HOST_KEYBOARD_LAYOUT_UK_UA
+     */
+    void setKeyboardLayout(EspUsbHostKeyboardLayout layout);
 #endif  // #if defined(KEYBOARD_SUPPORT)
 
   private:
     void reset();
 
-#if defined(KEYBOARD_SUPPORT)
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
     static void keyEventHandler(const EspUsbHostKeyboardEvent& event, void* arg);
-
 #endif  // #if defined(KEYBOARD_SUPPORT)
 
     std::unordered_map<BtnID, Button> _buttons BUTTONS_TMPL;
 
-#if defined(KEYBOARD_SUPPORT)
-    EspUsbHost _usb;
+#if defined(KEYBOARD_SUPPORT) && !defined(CONFIG_IDF_TARGET_ESP32)
+    EspUsbHost* _usb{nullptr};
     SemaphoreHandle_t _key_handler_mtx{nullptr};
     KeyPressedHandler _key_pressed_handler{nullptr};
     void* _key_pressed_arg{nullptr};
     KeyReleasedHandler _key_released_handler{nullptr};
     void* _key_released_arg{nullptr};
 
-#endif  // #if defined(KEYBOARD_SUPPORT)
+    void updateUsbHostState();
+#endif
 
     unsigned long _hold_lock_time;
     unsigned long _click_lock_time;
