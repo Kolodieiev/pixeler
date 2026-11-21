@@ -71,7 +71,7 @@ namespace pixeler
     if (ssid.isEmpty())
     {
       log_e("%s", STR_ERR_EMPTY_SSID);
-      return emptyString;
+      return false;
     }
 
     return SettingsManager::set(ssid, pwd, STR_WIFI_SUBDIR);
@@ -82,7 +82,7 @@ namespace pixeler
     if (ssid.isEmpty())
     {
       log_e("%s", STR_ERR_EMPTY_SSID);
-      return emptyString;
+      return false;
     }
 
     return SettingsManager::remove(ssid, STR_WIFI_SUBDIR);
@@ -93,10 +93,10 @@ namespace pixeler
     if (ssid.isEmpty())
     {
       log_e("%s", STR_ERR_EMPTY_SSID);
-      return emptyString;
+      return false;
     }
 
-    String pwd = SettingsManager::get(ssid, STR_WIFI_SUBDIR);
+    const String pwd = SettingsManager::get(ssid, STR_WIFI_SUBDIR);
     return !pwd.isEmpty();
   }
 
