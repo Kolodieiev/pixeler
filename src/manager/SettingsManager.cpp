@@ -23,8 +23,7 @@ namespace pixeler
       return false;
     }
 
-    String path = getSettingsFilePath(pref_name, subdir);
-
+    const String path = getSettingsFilePath(pref_name, subdir);
     if (path.isEmpty())
       return false;
 
@@ -42,7 +41,9 @@ namespace pixeler
       return emptyString;
     }
 
-    String path = getSettingsFilePath(pref_name, subdir);
+    const String path = getSettingsFilePath(pref_name, subdir);
+    if (path.isEmpty())
+      return emptyString;
 
     return _fs.readFileToStr(path);
   }
