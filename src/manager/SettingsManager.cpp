@@ -28,7 +28,7 @@ namespace pixeler
     if (path.isEmpty())
       return false;
 
-    return _fs.writeFile(path.c_str(), value.c_str(), value.length());
+    return _fs.writeFile(path.c_str(), value.c_str(), value.length()) == value.length();
   }
 
   String SettingsManager::get(const String& pref_name, const String& subdir)
