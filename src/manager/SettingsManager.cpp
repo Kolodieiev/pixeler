@@ -87,7 +87,7 @@ namespace pixeler
       path += "/";
       path += sub_dirname;
 
-      if (!_fs.dirExist(path.c_str()) && !_fs.createDir(path.c_str()))
+      if (!_fs.dirExistSilently(path.c_str()) && !_fs.createDir(path.c_str()))
         return emptyString;
     }
 
