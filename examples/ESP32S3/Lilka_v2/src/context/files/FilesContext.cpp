@@ -85,6 +85,7 @@ FilesContext::FilesContext()
   fillFilesTmpl();
 
   // _input.onKeyPressed(keyPressedHandler, this);
+  // _input.setKeyboardLayout(ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US);
 }
 
 FilesContext::~FilesContext()
@@ -587,7 +588,7 @@ void FilesContext::update()
   if (_mode == MODE_SD_UNCONN)
   {
     if (_input.isReleased(BtnID::BTN_BACK))
-      openContext(new MenuContext());
+      exit();
 
     return;
   }
@@ -602,7 +603,7 @@ void FilesContext::update()
   else if (_input.isPressed(BtnID::BTN_BACK))
   {
     if (_mode == MODE_NAVIGATION)
-      openContext(new MenuContext());
+      exit();
     else if (_mode == MODE_NEW_DIR_DIALOG || _mode == MODE_RENAME_DIALOG)
       hideDialog();
   }
@@ -819,6 +820,12 @@ void FilesContext::updateFileInfo()
   _file_pos_lbl->updateWidthToFit();
 }
 
+void FilesContext::exit()
+{
+  // _input.onKeyPressed(nullptr, nullptr);
+  openContext(new MenuContext());
+}
+
 void FilesContext::openNextLevel()
 {
   String next_dir = "/";
@@ -845,7 +852,7 @@ void FilesContext::openPrevlevel()
   }
   else
   {
-    openContext(new MenuContext());
+    exit();
   }
 }
 

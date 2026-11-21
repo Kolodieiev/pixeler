@@ -175,6 +175,7 @@ MenuContext::MenuContext()
   _scrollbar->setValue(_last_sel_item_pos);
 
   // _input.onKeyPressed(keyPressedHandler, this);
+  // _input.setKeyboardLayout(ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US);
 }
 
 MenuContext::~MenuContext()
@@ -203,6 +204,7 @@ void MenuContext::update()
   else if (_input.isReleased(BtnID::BTN_BACK))
   {
     _last_sel_item_pos = 0;
+    // _input.onKeyPressed(nullptr, nullptr);
     openContext(new HomeContext());
   }
 }
@@ -210,6 +212,17 @@ void MenuContext::update()
 // void MenuContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
 // {
 //   MenuContext* self = static_cast<MenuContext*>(arg);
+
+//   // const bool ctrl  = (event.modifiers & (0x01 | 0x10)) != 0; // LCTRL | RCTRL
+//   // const bool shift = (event.modifiers & (0x02 | 0x20)) != 0; // LSHIFT | RSHIFT
+//   // const bool alt   = (event.modifiers & (0x04 | 0x40)) != 0; // LALT | RALT
+
+//   // // Приклад: Ctrl + Space (наприклад, для перемикання розкладки EN / UA)
+//   // if (ctrl && event.keycode == Input::KEY_SPACE)
+//   // {
+//   //   // ...
+//   //   return;
+//   // }
 
 //   switch (event.keycode)
 //   {
@@ -225,8 +238,9 @@ void MenuContext::update()
 
 //     case Input::KEY_ESCAPE:
 //       self->post([self]()
-//                  { 
+//                  {
 //                   self->_last_sel_item_pos = 0;
+//                   _input.onKeyPressed(nullptr, nullptr);
 //                   self->openContext(new HomeContext()); });
 //       return;
 //     case Input::KEY_ENTER:
@@ -289,3 +303,66 @@ void MenuContext::ok()
   if (context)
     openContext(context);
 }
+
+/**
+ * Нижче приклад переходу в наступнйи контекст зі звільненням пам'яті, зайнятою стеком клавіатури, в поточному.
+ * 
+ */
+// void MenuContext::ok()
+// {
+//   uint16_t id = _menu->getCurrItemID();
+//   _last_sel_item_pos = _menu->getCurrFocusPos();
+
+//   using ContextFactory = IContext* (*)();
+//   ContextFactory factory{nullptr};
+
+//   switch (id)
+//   {
+//     case ID_ITEM_FILES:
+//       factory = []() -> IContext*
+//       { return new FilesContext(); };
+//       break;
+//     case ID_ITEM_APPS:
+//       factory = []() -> IContext*
+//       { return new AppsContext(); };
+//       break;
+//     case ID_ITEM_MP3:
+//       factory = []() -> IContext*
+//       { return new Mp3Context(); };
+//       break;
+//     case ID_ITEM_GAMES:
+//       factory = []() -> IContext*
+//       { return new GameListContext(); };
+//       break;
+//     case ID_ITEM_READER:
+//       factory = []() -> IContext*
+//       { return new ReaderContext(); };
+//       break;
+//     case ID_ITEM_WIFI:
+//       factory = []() -> IContext*
+//       { return new WiFiContext(); };
+//       break;
+//     case ID_ITEM_PREF_SEL:
+//       factory = []() -> IContext*
+//       { return new PrefSelectContext(); };
+//       break;
+//     case ID_ITEM_FIRMWARE:
+//       factory = []() -> IContext*
+//       { return new FirmwareContext(); };
+//       break;
+//     default:
+//       log_e("Невідомий ідентифікатор контексту: %u", id);
+//       break;
+//   }
+
+//   if (factory)
+//   {
+// #if defined(KEYBOARD_SUPPORT)
+//     _input.onKeyPressed(nullptr, nullptr);
+//     _input.onKeyReleased(nullptr, nullptr);
+// #endif
+//     openContext(factory());
+//   }
+// }
+
+// _input.onKeyPressed(nullptr, nullptr);

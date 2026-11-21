@@ -1,8 +1,8 @@
 #pragma once
 #pragma GCC optimize("O3")
 
-#include "lib/server/FileServer.h"
 #include "context/IContext.h"
+#include "lib/server/FileServer.h"
 #include "manager/FileManager.h"
 //
 #include "lib/lua/context/LuaContext.h"
@@ -103,6 +103,8 @@ private:
   void up();
   void down();
   void updateFileInfo();
+  //
+  void exit();
   //
   void openNextLevel();
   void openPrevlevel();
