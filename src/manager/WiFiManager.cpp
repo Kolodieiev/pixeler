@@ -35,22 +35,24 @@ namespace pixeler
     if (wifi_chan > MAX_WIFI_CHAN)
       wifi_chan = MAX_WIFI_CHAN;
 
+    _last_ssid = ssid;
+    _is_busy = true;
+
     WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
     WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
     WiFi.setAutoReconnect(autoreconnect);
     WiFi.persistent(false);
-    wl_status_t status = WiFi.begin(ssid, pwd, wifi_chan);
+    const wl_status_t status = WiFi.begin(ssid, pwd, wifi_chan);
 
     if (status != WL_DISCONNECTED)
     {
       log_e("Помилка приєднання до: %s", ssid.c_str());
       WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
       WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+      _is_busy = false;
       return false;
     }
 
-    _is_busy = true;
-    _last_ssid = ssid;
     return true;
   }
 
@@ -163,17 +165,15 @@ namespace pixeler
     else if (WiFi.getMode() != WIFI_MODE_STA)
       enable();
 
+    _is_busy = true;
     WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
-    int16_t result_code = WiFi.scanNetworks(true);
+    const int16_t result_code = WiFi.scanNetworks(true);
     if (result_code == WIFI_SCAN_FAILED)
     {
       log_e("Помилка запуску сканера Wi-Fi");
       WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
+      _is_busy = false;
       return false;
-    }
-    else
-    {
-      _is_busy = true;
     }
 
     return true;

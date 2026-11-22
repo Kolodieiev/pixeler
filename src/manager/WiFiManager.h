@@ -256,7 +256,7 @@ namespace pixeler
     void* _scan_complete_handler_arg{nullptr};
     void* _connect_complete_handler_arg{nullptr};
 
-    bool _is_busy{false};
+    volatile bool _is_busy{false};
   };
 
   /**
