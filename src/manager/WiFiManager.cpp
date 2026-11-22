@@ -316,8 +316,13 @@ namespace pixeler
 
   void WiFiManager::disable()
   {
+    WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
+    WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+    WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+    WiFi.scanDelete();
     disconnect();
     WiFi.mode(WIFI_OFF);
+    _is_busy = false;
   }
 
   bool WiFiManager::toggle()
