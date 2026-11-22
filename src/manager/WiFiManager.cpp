@@ -348,7 +348,7 @@ namespace pixeler
     }
   }
 
-  String WiFiManager::getIP()
+  String WiFiManager::getIP() const
   {
     if (isApEnabled())
       return WiFi.softAPIP().toString();
