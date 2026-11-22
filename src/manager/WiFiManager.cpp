@@ -160,10 +160,8 @@ namespace pixeler
       return false;
     }
 
-    if (!isEnabled() && !enable())
+    if (WiFi.getMode() != WIFI_MODE_STA && !enable())
       return false;
-    else if (WiFi.getMode() != WIFI_MODE_STA)
-      enable();
 
     _is_busy = true;
     WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
