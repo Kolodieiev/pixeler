@@ -254,7 +254,7 @@ namespace pixeler
 
   WiFiManager::WiFiPowerLevel WiFiManager::readPowerSettings() const
   {
-    String wifi_power = SettingsManager::get(STR_PREF_WIFI_POWER, STR_WIFI_SUBDIR);
+    const String wifi_power = SettingsManager::get(STR_PREF_WIFI_POWER, STR_WIFI_SUBDIR);
 
     if (wifi_power.isEmpty())
     {
@@ -262,7 +262,13 @@ namespace pixeler
       return WIFI_POWER_MIN;
     }
 
-    int power = std::atoi(wifi_power.c_str());
+    const int power = std::atoi(wifi_power.c_str());
+    if (power < WIFI_POWER_MIN || power > WIFI_POWER_MAX)
+    {
+      log_e("Некоректне значення потужності WiFi у налаштуваннях: %d", power);
+      return WIFI_POWER_MIN;
+    }
+
     return static_cast<WiFiManager::WiFiPowerLevel>(power);
   }
 
