@@ -1051,7 +1051,7 @@ namespace pixeler
     for (size_t i{0u}; i < byte_len; ++i)
     {
       const char c = text[i];
-      if (c == '\r')
+      if (c == '\r' || c == '\0')
         continue;
 
       ++clean_len;
@@ -1063,7 +1063,12 @@ namespace pixeler
     }
 
     if (clean_len == 0u)
+    {
+      if (hasSelection())
+        return deleteSelected();
+
       return true;
+    }
 
     size_t sel_start{0u};
     size_t sel_end{0u};
@@ -1104,7 +1109,7 @@ namespace pixeler
     for (size_t i{0u}; i < byte_len; ++i)
     {
       const char c = text[i];
-      if (c != '\r')
+      if (c != '\r' && c != '\0')
         *dst++ = c;
     }
 
