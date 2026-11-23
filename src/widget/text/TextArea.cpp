@@ -423,7 +423,7 @@ namespace pixeler
         return;
       }
 
-      while (_undo_count > 0u && (_undo_used_bytes + removed_len > _undo_mem_limit))
+      while (_undo_count > 0u && (_undo_used_bytes > _undo_mem_limit - removed_len))
         evictOldestUndo();
 
       saved_buf = static_cast<char*>(psramInit() ? ps_malloc(removed_len) : malloc(removed_len));
