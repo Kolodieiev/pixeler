@@ -569,15 +569,15 @@ namespace pixeler
 
   void TextArea::syncLayoutMetrics()
   {
+    const ContentRect rect = getContentRect();
     const uint16_t gutter_w = calcGutterWidth();
-    if (_cached_width == _width && _cached_height == _height && _cached_gutter_w == gutter_w)
+    if (_cached_width == rect.w && _cached_height == rect.h && _cached_gutter_w == gutter_w)
       return;
 
-    _cached_width = _width;
-    _cached_height = _height;
+    _cached_width = rect.w;
+    _cached_height = rect.h;
     _cached_gutter_w = gutter_w;
 
-    const ContentRect rect = getContentRect();
     const uint16_t lines = (_line_step > 0u) ? (rect.h / _line_step) : 1u;
     _visible_lines = (lines > 0u) ? lines : 1u;
 
