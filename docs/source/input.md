@@ -159,36 +159,156 @@ ITouchscreen::Swipe swipe = _input.getSwipe();
 #### Ввід з фізичної USB-клавіатури
 
 ::: {note}
-Класична ESP32 не має апаратного контролера USB-Host, тому підключення USB-клавіатури можливе лише на чипах із підтримкою USB-OTG/USB-Host (наприклад, **ESP32-S3**). Увімкнення підтримки клавіатури споживає приблизно 15% вільної оперативної пам'яті (RAM) на S3.
+Класична ESP32 не має апаратного контролера USB-Host, тому підключення USB-клавіатури можливе лише на чипах із підтримкою USB-OTG/USB-Host (наприклад, **ESP32-S3**). При спробі увімкнути підтримку клавіатури на звичайній ESP32 компіляція завершиться помилкою.
 :::
 
-Для активації розкоментуйте `#define KEYBOARD_SUPPORT` у `input_config.h`. Після цього можна підписуватися на події клавіатури через колбеки:
+Для активації підтримки розкоментуйте `#define KEYBOARD_SUPPORT` у файлі `src/config/input_config.h`.
+
+**Динамічне керування ресурсами (лінива ініціалізація)**
+
+Саме по собі увімкнення макросу `KEYBOARD_SUPPORT` **не** запускає стек USB-Host під час старту системи і не витрачає оперативну пам'ять на драйвер, доки в ньому немає потреби. Життєвий цикл USB-Host керується автоматично залежно від наявності активних підписників:
+
+* **Ініціалізація при підписці:** під час першого виклику `_input.onKeyPressed(...)` або `_input.onKeyReleased(...)` фреймворк динамічно створює об'єкт `EspUsbHost` і запускає окрему задачу FreeRTOS (стек 8 КБ, пріоритет 10, ядро 1). Саме в цей момент виділяється пам'ять під стек USB-Host.
+* **Заміна обробника:** якщо хоча б один обробник уже активний, повторний виклик `onKeyPressed()` або `onKeyReleased()` просто оновлює колбек під м'ютексом без перезапуску USB-Host.
+* **Автоматична деініціалізація:** щойно в USB-Host не залишається **жодного** підписника (і `onKeyPressed`, і `onKeyReleased` встановлено в `nullptr`), драйвер автоматично зупиняється, видаляється і повністю звільняє зайняту оперативну пам'ять.
+
+::: {warning}
+**Важливо:** якщо ви підписалися на обидві події (`onKeyPressed` та `onKeyReleased`), для деініціалізації USB-Host і звільнення пам'яті необхідно передати `nullptr` в **обидва** методи.
+:::
+
+**Доступні коди клавіш (`Input::KeyCode`)**
+
+Для зручної обробки службових клавіш у класі `Input` визначено перелік `Input::KeyCode`:
+
+| Константа | Код (HID) | Клавіша |
+| :--- | :--- | :--- |
+| `Input::KEY_UP_ARROW` | `0x52` | Стрілка вгору |
+| `Input::KEY_DOWN_ARROW` | `0x51` | Стрілка вниз |
+| `Input::KEY_LEFT_ARROW` | `0x50` | Стрілка вліво |
+| `Input::KEY_RIGHT_ARROW` | `0x4F` | Стрілка вправо |
+| `Input::KEY_PRINT_SCREEN` | `0x46` | Print Screen |
+| `Input::KEY_ENTER` | `0x28` | Enter (основна клавіатура) |
+| `Input::KEY_ENTER_KP` | `0x58` | Enter (цифровий блок Numpad) |
+| `Input::KEY_ESCAPE` | `0x29` | Escape |
+| `Input::KEY_BACKSPACE` | `0x2A` | Backspace |
+| `Input::KEY_TAB` | `0x2B` | Tab |
+
+**Підписка на події та вибір розкладки**
+
+Для роботи з клавіатурою доступні методи `onKeyPressed()`, `onKeyReleased()` та `setKeyboardLayout()`. Підтримуються дві розкладки: `ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US` та `ESP_USB_HOST_KEYBOARD_LAYOUT_UK_UA`.
+
+Оскільки USB-Host ініціалізується лише після першої підписки, метод `setKeyboardLayout()` потрібно викликати **після** реєстрації обробника (інакше виклик буде проігноровано з помилкою в лог).
+
+Колбеки клавіатури виконуються в контексті окремої задачі USB-Host, тому будь-які зміни UI, стану контексту або переходи між контекстами повинні передаватися в основний потік через `self->post(...)`:
 
 ```cpp
-FilesContext::FilesContext()
+MenuContext::MenuContext()
 {
-  // Підписуємося на подію натискання клавіші
+  // ... ініціалізація віджетів ...
+
+#if defined(KEYBOARD_SUPPORT)
+  // 1. Підписуємося на події натискання (ініціалізує USB-Host)
   _input.onKeyPressed(keyPressedHandler, this);
+  // 2. Встановлюємо розкладку вже після ініціалізації USB-Host
+  _input.setKeyboardLayout(ESP_USB_HOST_KEYBOARD_LAYOUT_EN_US);
+#endif
 }
 
-FilesContext::~FilesContext()
+void MenuContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
 {
-  // Обов'язково відписуємось у деструкторі
-  _input.onKeyPressed(nullptr, nullptr);
-}
+  MenuContext* self = static_cast<MenuContext*>(arg);
 
-void FilesContext::keyPressedHandler(const EspUsbHostKeyboardEvent& event, void* arg)
-{
-  FilesContext* self = static_cast<FilesContext*>(arg);
+  // За потреби можна перевіряти клавіші-модифікатори:
+  // const bool ctrl  = (event.modifiers & (0x01 | 0x10)) != 0; // LCTRL | RCTRL
+  // const bool shift = (event.modifiers & (0x02 | 0x20)) != 0; // LSHIFT | RSHIFT
+  // const bool alt   = (event.modifiers & (0x04 | 0x40)) != 0; // LALT | RALT
 
   switch (event.keycode)
   {
     case Input::KEY_UP_ARROW:
       self->post([self]() { self->up(); });
-      break;
+      return;
+
+    case Input::KEY_DOWN_ARROW:
+      self->post([self]() { self->down(); });
+      return;
+
     case Input::KEY_ENTER:
       self->post([self]() { self->ok(); });
-      break;
+      return;
+
+    case Input::KEY_ESCAPE:
+      self->post([self]()
+      {
+        self->_last_sel_item_pos = 0;
+        // Відписуємось перед переходом у контекст, якому клавіатура не потрібна
+        _input.onKeyPressed(nullptr, nullptr);
+        self->openContext(new HomeContext());
+      });
+      return;
   }
 }
+
 ```
+
+**Коректне звільнення ресурсів при переході між контекстами**
+
+::: {warning}
+**Не відписуйтесь від клавіатури в деструкторі контексту (`~MyContext()`).**
+Під час виклику `openContext(new NextContext())` спочатку виконується конструктор нового контексту, і лише потім фреймворк знищує попередній. Відписка в деструкторі призведе до двох проблем:
+
+1. Якщо `NextContext` підписався на клавіатуру у своєму конструкторі, деструктор старого контексту одразу ж затре його підписку та вимкне USB-Host.
+2. Пам'ять, зайнята стеком USB-Host, не буде звільнена **до** виділення пам'яті під `NextContext`, що може спричинити нестачу RAM при відкритті ресурсомістких контекстів.
+:::
+
+Залежно від того, чи потрібен USB-Host у наступному контексті, можливі два сценарії переходу:
+
+1. **Перехід у контекст без клавіатури (або з високим споживанням RAM).**
+Щоб гарантовано звільнити пам'ять USB-Host **до** створення наступного контексту, відписуйтеся безпосередньо перед його інстанціюванням. Якщо вибір контексту залежить від умови, використовуйте відкладене створення через фабрику:
+
+```cpp
+void MenuContext::ok()
+{
+  uint16_t id = _menu->getCurrItemID();
+  _last_sel_item_pos = _menu->getCurrFocusPos();
+
+  using ContextFactory = IContext* (*)();
+  ContextFactory factory{nullptr};
+
+  switch (id)
+  {
+    case ID_ITEM_FILES:
+      factory = []() -> IContext* { return new FilesContext(); };
+      break;
+    case ID_ITEM_MP3:
+      factory = []() -> IContext* { return new Mp3Context(); };
+      break;
+    case ID_ITEM_GAMES:
+      factory = []() -> IContext* { return new GameListContext(); };
+      break;
+    // ... інші контексти ...
+    default:
+      log_e("Невідомий ідентифікатор контексту: %u", id);
+      break;
+  }
+
+  if (factory)
+  {
+#if defined(KEYBOARD_SUPPORT)
+    // Спочатку відписуємось від усіх подій, щоб деініціалізувати USB-Host і звільнити RAM
+    _input.onKeyPressed(nullptr, nullptr);
+    _input.onKeyReleased(nullptr, nullptr);
+#endif
+    // І лише після звільнення ресурсів створюємо та відкриваємо новий контекст
+    openContext(factory());
+  }
+}
+
+```
+
+2. **Перехід між двома контекстами, які обидва використовують клавіатуру.**
+Якщо новому контексту також потрібна клавіатура і немає жорсткого дефіциту RAM на момент його створення, попередньо вимикати USB-Host не обов'язково. Коли конструктор нового контексту викличе `_input.onKeyPressed(...)`, старий обробник просто заміниться на новий **без перезапуску USB-Host** і повторної ініціалізації пристрою.
+
+::: {warning}
+**Обережно з «завислими» обробниками при безшовному переході:** якщо попередній контекст підписувався на обидві події (`onKeyPressed` і `onKeyReleased`), а новий перевизначає лише `onKeyPressed`, то обробник `onKeyReleased` залишиться вказувати на вже знищений попередній контекст (dangling pointer). Тому перед переходом (або в конструкторі нового контексту) обов'язково скидайте в `nullptr` ті події, які новий контекст не перевизначає.
+:::
