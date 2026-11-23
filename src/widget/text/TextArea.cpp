@@ -1170,7 +1170,10 @@ namespace pixeler
       return false;
 
     const size_t len = strlen(utf8_ch);
-    const bool can_coalesce = !hasSelection() && (len > 0u) && (len <= 4u) && !memchr(utf8_ch, '\n', len);
+    if (len == 0u || (len == 1u && utf8_ch[0] == '\r'))
+      return true;
+
+    const bool can_coalesce = !hasSelection() && (len <= 4u) && !memchr(utf8_ch, '\n', len);
     return pasteInternal(utf8_ch, len, can_coalesce);
   }
 
