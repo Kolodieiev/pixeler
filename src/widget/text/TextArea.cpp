@@ -473,6 +473,8 @@ namespace pixeler
   {
     _display.setFont(_font);
     _display.setTextSize(_text_size);
+    _display.setTextWrap(false);
+    _display.resetTextBound();
 
     int16_t x1{0};
     uint16_t w1{0u};
@@ -617,6 +619,7 @@ namespace pixeler
 
       _display.setFont(_font);
       _display.setTextSize(_text_size);
+      _display.setTextWrap(false);
       _display.calcTextBounds(probe, 0, 0, px, py, pw, ph);
 
       const uint16_t diff = (pw > _ref_pair_w) ? (pw - _ref_pair_w) : 0u;
@@ -643,6 +646,7 @@ namespace pixeler
 
     _display.setFont(_font);
     _display.setTextSize(_text_size);
+    _display.setTextWrap(false);
     _display.calcTextBounds(probe, 0, 0, px, py, pw, ph);
 
     const uint16_t diff = (pw > _ref_pair_w) ? (pw - _ref_pair_w) : 0u;
