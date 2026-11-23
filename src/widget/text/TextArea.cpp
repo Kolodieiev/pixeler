@@ -2260,24 +2260,14 @@ namespace pixeler
     const uint16_t draw_w = (avail_w < static_cast<int16_t>(CURSOR_WIDTH)) ? static_cast<uint16_t>(avail_w) : CURSOR_WIDTH;
     const uint16_t draw_h = (avail_h < static_cast<int16_t>(_char_hgt)) ? static_cast<uint16_t>(avail_h) : _char_hgt;
 
-    size_t sel_start{0u};
-    size_t sel_end{0u};
-    getSelectionRange(sel_start, sel_end);
-
-    const bool pos_in_sel = (sel_end > sel_start) && (_drawn_cursor_pos >= sel_start) && (_drawn_cursor_pos < sel_end);
-    const uint16_t erase_bg = pos_in_sel ? _sel_back_color : _back_color;
-
-    _display.fillRect(_drawn_cursor_x, _drawn_cursor_y, draw_w, draw_h, erase_bg);
-
-    _display.setFont(_font);
-    _display.setTextSize(_text_size);
-    _display.setTextWrap(false);
-    _display.setTextBound(rect.x, rect.y, rect.w, rect.h);
+    // --- замінити все від цього місця (включно зі старими sel_start/sel_end та fillRect) до кінця методу ---
 
     const int16_t baseline_y = _drawn_cursor_y - _y_char_offset;
 
     if (isEmpty())
     {
+      _display.fillRect(_drawn_cursor_x, _drawn_cursor_y, draw_w, draw_h, _back_color);
+
       if (!_hint.isEmpty() && _drawn_cursor_x == static_cast<int16_t>(rect.x) && _drawn_cursor_y == static_cast<int16_t>(rect.y))
       {
         const uint8_t b0 = static_cast<uint8_t>(_hint[0]);
@@ -2296,18 +2286,40 @@ namespace pixeler
         memcpy(first_ch, _hint.c_str(), first_len);
         first_ch[first_len] = '\0';
 
+        _display.setFont(_font);
+        _display.setTextSize(_text_size);
+        _display.setTextWrap(false);
+        _display.setTextBound(rect.x, rect.y, rect.w, rect.h);
         _display.setTextColor(_hint_color);
         _display.setCursor(rect.x, baseline_y);
         _display.print(first_ch);
+        _display.resetTextBound();
       }
 
-      _display.resetTextBound();
       return;
     }
 
     VisualLine line{};
     findVisualLineAtPos(_drawn_cursor_pos, rect.w, line);
     const size_t vis_end = line.ends_with_nl ? (line.end - 1u) : line.end;
+    const int16_t logical_x = static_cast<int16_t>(rect.x + measureRangeWidth(line.start, _drawn_cursor_pos));
+
+    size_t sel_start{0u};
+    size_t sel_end{0u};
+    getSelectionRange(sel_start, sel_end);
+
+    const bool pos_in_sel = (sel_end > sel_start) && (_drawn_cursor_pos >= sel_start) && (_drawn_cursor_pos < sel_end);
+    const size_t prev_pos = (_drawn_cursor_pos > line.start) ? prevUtf8Pos(_drawn_cursor_pos) : _drawn_cursor_pos;
+    const bool prev_in_sel = (_drawn_cursor_pos > line.start) && (sel_end > sel_start) && (prev_pos >= sel_start) && (prev_pos < sel_end);
+
+    // Якщо курсор було притиснуто до правого краю, він перекриває попередній символ
+    const bool bg_in_sel = (_drawn_cursor_x < logical_x && _drawn_cursor_pos > line.start) ? prev_in_sel : pos_in_sel;
+    _display.fillRect(_drawn_cursor_x, _drawn_cursor_y, draw_w, draw_h, bg_in_sel ? _sel_back_color : _back_color);
+
+    _display.setFont(_font);
+    _display.setTextSize(_text_size);
+    _display.setTextWrap(false);
+    _display.setTextBound(rect.x, rect.y, rect.w, rect.h);
 
     // Відновлюємо символ під курсором та сусідній символ зліва на випадок перекриття гліфів
     if (_drawn_cursor_pos < vis_end)
@@ -2316,21 +2328,19 @@ namespace pixeler
       if (clen > 0u)
       {
         _display.setTextColor(pos_in_sel ? _sel_text_color : _text_color);
-        _display.setCursor(_drawn_cursor_x, baseline_y);
+        _display.setCursor(logical_x, baseline_y);
         drawTextSlice(_drawn_cursor_pos, _drawn_cursor_pos + clen);
       }
     }
 
     if (_drawn_cursor_pos > line.start)
     {
-      const size_t prev_pos = prevUtf8Pos(_drawn_cursor_pos);
       uint8_t prev_len{0u};
       const uint8_t prev_w = getCharWidthAt(prev_pos, prev_len);
-      if (prev_len > 0u && _drawn_cursor_x >= static_cast<int16_t>(rect.x + prev_w))
+      if (prev_len > 0u && logical_x >= static_cast<int16_t>(rect.x + prev_w))
       {
-        const bool prev_in_sel = (sel_end > sel_start) && (prev_pos >= sel_start) && (prev_pos < sel_end);
         _display.setTextColor(prev_in_sel ? _sel_text_color : _text_color);
-        _display.setCursor(_drawn_cursor_x - prev_w, baseline_y);
+        _display.setCursor(logical_x - prev_w, baseline_y);
         drawTextSlice(prev_pos, _drawn_cursor_pos);
       }
     }
