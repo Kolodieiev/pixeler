@@ -35,6 +35,7 @@ namespace pixeler
       TYPE_TEXTBOX,
       TYPE_TEXTAREA,
       TYPE_TOGGLE_SWITCH,
+      TYPE_CHART,
     };
 
     enum Alignment : uint8_t
