@@ -33,6 +33,7 @@ namespace pixeler
       TYPE_SPINBOX,
       TYPE_LABEL,
       TYPE_TEXTBOX,
+      TYPE_TEXTAREA,
       TYPE_TOGGLE_SWITCH,
     };
 
