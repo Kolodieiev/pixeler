@@ -1475,7 +1475,9 @@ namespace pixeler
 
     const uint16_t local_x = (x > rect.x) ? (x - rect.x) : 0u;
     const uint16_t local_y = (y > rect.y) ? (y - rect.y) : 0u;
-    const uint16_t target_row = (_line_step > 0u) ? (local_y / _line_step) : 0u;
+    uint16_t target_row = (_line_step > 0u) ? (local_y / _line_step) : 0u;
+    if (target_row >= _visible_lines)
+      target_row = _visible_lines - 1u;
 
     size_t pos = _view_top_byte;
     VisualLine line{};
