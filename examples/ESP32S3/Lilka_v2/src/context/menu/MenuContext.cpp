@@ -10,6 +10,7 @@
 #include "./res/settings.h"
 #include "./res/wifi_ico.h"
 #include "context/apps/AppsContext.h"
+#include "context/editor/EditorContext.h"
 #include "context/files/FilesContext.h"
 #include "context/firmware/FirmwareContext.h"
 #include "context/games/GameListContext.h"
@@ -32,6 +33,7 @@ static const char STR_FILES_ITEM[] = "Файли";
 static const char STR_GAME_ITEM[] = "Ігри";
 static const char STR_WIFI_ITEM[] = "Підключення";
 static const char STR_FIRMWARE_ITEM[] = "Прошивка";
+static const char STR_EDITOR_ITEM[] = "Редактор";
 
 uint8_t MenuContext::_last_sel_item_pos;
 
@@ -168,6 +170,14 @@ MenuContext::MenuContext()
 
   Label* firm_lbl = WidgetCreator::getItemLabel(STR_FIRMWARE_ITEM, font_10x20);
   firm_item->setLabel(firm_lbl);
+
+  // // Редактор
+  // MenuItem* editor_item = WidgetCreator::getMenuItem(ID_ITEM_EDITOR);
+  // _menu->addItem(editor_item);
+
+  // Label* editor_lbl = WidgetCreator::getItemLabel(STR_EDITOR_ITEM, font_10x20);
+  // editor_item->setLabel(editor_lbl);
+
   //
   _scrollbar->setMax(_menu->getSize());
 
@@ -295,6 +305,9 @@ void MenuContext::ok()
     case ID_ITEM_FIRMWARE:
       context = new FirmwareContext();
       break;
+    case ID_ITEM_EDITOR:
+      context = new EditorContext();
+      break;
     default:
       log_e("Невідомий ідентифікатор контексту: %u", id);
       break;
@@ -306,7 +319,7 @@ void MenuContext::ok()
 
 /**
  * Нижче приклад переходу в наступнйи контекст зі звільненням пам'яті, зайнятою стеком клавіатури, в поточному.
- * 
+ *
  */
 // void MenuContext::ok()
 // {

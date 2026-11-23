@@ -36,6 +36,7 @@ private:
     ID_ITEM_WIFI,
     ID_ITEM_PREF_SEL,
     ID_ITEM_FIRMWARE,
+    ID_ITEM_EDITOR,
   };
 
   FixedMenu* _menu;
