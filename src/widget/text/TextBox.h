@@ -4,11 +4,12 @@
  * @details Успадкований від Label з приховуванням частини його методів,
  * та перевизначеним малюванням віджета.
  * Підтримує два режима відображення тексту - поле для звичайного тексту та поле для вводу пароля.
- * Підтримує додавання та видалення одного символу з кінця.
+ * Підтримує додавання та видалення одного символу з кінця, а також hint-підказку.
  */
 
 #pragma once
 #pragma GCC optimize("O3")
+
 #include "../IWidget.h"
 #include "Label.h"
 
@@ -69,6 +70,58 @@ namespace pixeler
     FieldType getType() const;
 
     /**
+     * @brief Встановлює текст підказки (hint), яка відображається коли поле порожнє.
+     * Якщо передати порожній рядок або nullptr, використовується підказка за замовчуванням відповідно до типу поля.
+     *
+     * @param hint Нуль-термінований рядок UTF-8.
+     */
+    void setHint(const char* hint);
+
+    /**
+     * @brief Встановлює текст підказки (hint), яка відображається коли поле порожнє.
+     * Якщо передати порожній рядок, використовується підказка за замовчуванням відповідно до типу поля.
+     *
+     * @param hint Рядок UTF-8.
+     */
+    void setHint(const String& hint);
+
+    /**
+     * @brief Повертає заданий користувачем текст підказки (порожній рядок, якщо використовується підказка за замовчуванням).
+     *
+     * @return const String&
+     */
+    const String& getHint() const;
+
+    /**
+     * @brief Встановлює колір тексту підказки (hint).
+     *
+     * @param color Колір у форматі RGB565.
+     */
+    void setHintColor(uint16_t color);
+
+    /**
+     * @brief Повертає колір тексту підказки (hint).
+     *
+     * @return uint16_t
+     */
+    uint16_t getHintColor() const;
+
+    /**
+     * @brief Вмикає або вимикає відображення підказки (hint) у порожньому полі.
+     *
+     * @param state true - показувати підказку, false - повністю приховати.
+     */
+    void setHintEnabled(bool state);
+
+    /**
+     * @brief Повертає стан відображення підказки (hint).
+     *
+     * @return true - Якщо підказку увімкнено.
+     * @return false - Інакше.
+     */
+    bool isHintEnabled() const;
+
+    /**
      * @brief Видаляє останній символ з рядка, що знаходиться в текстовому полі.
      *
      * @return true
@@ -112,9 +165,12 @@ namespace pixeler
 
     uint16_t getFitStr(String& ret_str) const;
     String getSubStr(const String& str, uint16_t start, uint16_t length) const;
+    void drawHint(uint16_t abs_x, uint16_t abs_y, uint16_t txt_y_pos) const;
 
   private:
+    String _hint;
+    uint16_t _hint_color{COLOR_LIGHTGREY};
     FieldType _type{TYPE_TEXT};
+    bool _is_hint_enabled{true};
   };
-
 }  // namespace pixeler
