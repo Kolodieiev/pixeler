@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "BmpLoader.h"
 
 #include "manager/FileManager.h"

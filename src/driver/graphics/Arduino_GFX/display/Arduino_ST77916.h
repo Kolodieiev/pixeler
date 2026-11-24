@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_ST77916_H_
 #define _ARDUINO_ST77916_H_
 #include "../Arduino_GFX.h"

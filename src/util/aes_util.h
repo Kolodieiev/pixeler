@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC optimize("O3")
+
 #include <esp_system.h>
 #include <psa/crypto.h>
 

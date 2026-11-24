@@ -3,7 +3,6 @@
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  * https://github.com/daumemo/IPS_LCD_NT35310_FT6236_Arduino_eSPI_Test
  */
-#pragma GCC optimize("O3")
 #include "Arduino_NT35310.h"
 
 Arduino_NT35310::Arduino_NT35310(

@@ -3,9 +3,6 @@
 ** Tag methods
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define ltm_c
 #define LUA_CORE
 

@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_GFX_LIBRARIES_H_
 #define _ARDUINO_GFX_LIBRARIES_H_
 

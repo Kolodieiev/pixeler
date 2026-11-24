@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_SPD2010.h"
 
 #include "SPI.h"

@@ -5,7 +5,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 #include "i2c_config.h"
 #include "defines.h"
 

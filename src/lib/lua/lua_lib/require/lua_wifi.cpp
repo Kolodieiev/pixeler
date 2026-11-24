@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_wifi.h"
 
 #include "../helper/lua_helper.h"

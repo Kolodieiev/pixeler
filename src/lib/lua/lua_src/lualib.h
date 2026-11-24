@@ -3,9 +3,6 @@
 ** Lua standard libraries
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef lualib_h
 #define lualib_h
 

@@ -3,9 +3,6 @@
 ** Standard mathematical library
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lmathlib_c
 #define LUA_LIB
 

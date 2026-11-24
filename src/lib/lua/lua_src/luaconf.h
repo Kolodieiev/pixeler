@@ -3,9 +3,6 @@
 ** Configuration file for Lua
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef luaconf_h
 #define luaconf_h
 

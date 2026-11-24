@@ -7,7 +7,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "../IWidgetContainer.h"
 #include "item/MenuItem.h"

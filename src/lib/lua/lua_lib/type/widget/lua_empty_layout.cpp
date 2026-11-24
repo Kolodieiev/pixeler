@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_empty_layout.h"
 
 #include "./lua_iwidget_cont.h"

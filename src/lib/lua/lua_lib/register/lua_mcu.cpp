@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_mcu.h"
 
 #include <stdint.h>

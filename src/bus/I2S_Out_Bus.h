@@ -6,7 +6,6 @@
  * Піни, до яких підключено аудіовихід, налаштовуються в файлі "i2s_config.h"
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include <driver/i2s_std.h>
 

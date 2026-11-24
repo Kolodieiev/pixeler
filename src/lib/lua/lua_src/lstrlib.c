@@ -3,9 +3,6 @@
 ** Standard library for string operations and pattern-matching
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lstrlib_c
 #define LUA_LIB
 

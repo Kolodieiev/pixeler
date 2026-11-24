@@ -81,7 +81,6 @@
     U8X8_MSG_DELAY_100NANO
     U8X8_MSG_DELAY_NANO
 */
-#pragma GCC optimize("O3")
 #ifndef U8X8_H
 #define U8X8_H
 

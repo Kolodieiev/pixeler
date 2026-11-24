@@ -3,9 +3,6 @@
 ** Code generator for Lua
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef lcode_h
 #define lcode_h
 

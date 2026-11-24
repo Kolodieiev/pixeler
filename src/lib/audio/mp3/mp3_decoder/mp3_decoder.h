@@ -1,6 +1,5 @@
 // based om helix mp3 decoder
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "Arduino.h"
 #include "assert.h"

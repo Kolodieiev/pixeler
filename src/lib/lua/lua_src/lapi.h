@@ -3,9 +3,6 @@
 ** Auxiliary functions from Lua API
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef lapi_h
 #define lapi_h
 

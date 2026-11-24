@@ -3,9 +3,6 @@
 ** Standard library for UTF-8 manipulation
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lutf8lib_c
 #define LUA_LIB
 

@@ -9,7 +9,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include <vector>
 
 #include "IWidget.h"

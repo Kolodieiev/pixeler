@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "I2S_Out_Bus.h"
 
 #include "i2s_config.h"

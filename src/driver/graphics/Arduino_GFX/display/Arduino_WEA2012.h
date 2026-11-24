@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/modi12jin/Arduino-ESP32-WEA2012.git
  */
-#pragma GCC optimize("O3")
 #pragma once
 
 #include "../Arduino_GFX.h"

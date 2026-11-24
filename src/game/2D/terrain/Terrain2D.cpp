@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Terrain2D.h"
 
 namespace pixeler

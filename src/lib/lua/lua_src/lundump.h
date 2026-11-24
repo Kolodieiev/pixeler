@@ -3,9 +3,6 @@
 ** load precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef lundump_h
 #define lundump_h
 

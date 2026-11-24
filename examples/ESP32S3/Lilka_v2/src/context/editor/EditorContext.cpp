@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "EditorContext.h"
 
 #include <cstring>

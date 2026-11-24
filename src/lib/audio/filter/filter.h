@@ -1,5 +1,4 @@
 #pragma once
-#pragma GCC optimize("O3")
 #include "defines.h"
 
 void downsampleX2(const int16_t* in_buff, int16_t* out_buff, size_t in_size);

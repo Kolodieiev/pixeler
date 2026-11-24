@@ -3,9 +3,6 @@
 ** Library for Table Manipulation
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define ltablib_c
 #define LUA_LIB
 

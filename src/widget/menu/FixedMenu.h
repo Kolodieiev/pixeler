@@ -8,7 +8,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include "IMenu.h"
 
 namespace pixeler
@@ -88,22 +88,22 @@ namespace pixeler
 
     /**
      * @brief Повертає кількість сторінок, які містить меню з поточною кількістю елементів.
-     * 
-     * @return uint16_t 
+     *
+     * @return uint16_t
      */
     uint16_t getPagesCount() const;
 
     /**
      * @brief Повертає номер поточної сторінки меню.
-     * 
-     * @return uint16_t 
+     *
+     * @return uint16_t
      */
     uint16_t getPageNum() const;
 
     /**
      * @brief Встановлює номер поточної сторінки меню.
-     * 
-     * @param page_pos 
+     *
+     * @param page_pos
      */
     void setPageNum(uint16_t page_pos);
 

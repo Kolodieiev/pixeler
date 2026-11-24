@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/hi631/LCD_NT35510-MRB3971.git
  */
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_NT35510_H_
 #define _ARDUINO_NT35510_H_
 

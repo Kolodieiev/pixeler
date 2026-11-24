@@ -3,9 +3,6 @@
 ** Lua Parser
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lparser_c
 #define LUA_CORE
 

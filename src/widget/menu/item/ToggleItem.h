@@ -8,7 +8,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include "../../toggle/ToggleSwitch.h"
 #include "MenuItem.h"
 

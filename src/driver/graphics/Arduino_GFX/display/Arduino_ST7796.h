@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  */
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_ST7796_H_
 #define _ARDUINO_ST7796_H_
 

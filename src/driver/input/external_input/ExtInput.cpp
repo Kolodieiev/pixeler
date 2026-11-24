@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "ExtInput.h"
 
 #include "manager/CoprocessorManager.h"

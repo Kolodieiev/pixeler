@@ -9,7 +9,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include <memory>
 #include <unordered_map>
 

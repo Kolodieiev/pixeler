@@ -3,9 +3,6 @@
 ** Some generic functions over Lua objects
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lobject_c
 #define LUA_CORE
 

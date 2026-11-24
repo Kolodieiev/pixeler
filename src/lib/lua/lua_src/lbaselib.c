@@ -3,9 +3,6 @@
 ** Basic library
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lbaselib_c
 #define LUA_LIB
 

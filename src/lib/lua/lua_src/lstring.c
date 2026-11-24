@@ -3,9 +3,6 @@
 ** String table (keeps all strings handled by Lua)
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lstring_c
 #define LUA_CORE
 

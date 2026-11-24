@@ -3,7 +3,6 @@
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  * https://github.com/adafruit/Adafruit_ILI9331.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_ILI9331.h"
 
 #include "SPI.h"

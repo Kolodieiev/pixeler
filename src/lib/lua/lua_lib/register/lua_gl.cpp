@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_gl.h"
 
 #include <stdint.h>

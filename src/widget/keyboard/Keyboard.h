@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include "../IWidgetContainer.h"
 #include "KeyboardRow.h"
 

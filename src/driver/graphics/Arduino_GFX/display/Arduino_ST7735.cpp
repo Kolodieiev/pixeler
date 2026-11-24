@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_ST7735.h"
 
 #include "SPI.h"

@@ -1,5 +1,4 @@
 #include "QR_Gen.h"
-#pragma GCC optimize("O3")
 
 #include "./qrencode.h"
 

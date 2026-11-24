@@ -3,7 +3,7 @@
  * @brief Базовий інтерфейс для завантажувачів ресурсів різних форматів.
  */
 #pragma once
-#pragma GCC optimize("O3")
+
 #include <stdint.h>
 
 #include "IResource.h"

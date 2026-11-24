@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "string_util.h"
 
 #include <cstring>

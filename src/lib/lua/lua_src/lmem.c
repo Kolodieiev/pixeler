@@ -3,9 +3,6 @@
 ** Interface to Memory Manager
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lmem_c
 #define LUA_CORE
 

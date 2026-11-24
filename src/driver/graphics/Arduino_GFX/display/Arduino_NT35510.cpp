@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/hi631/LCD_NT35510-MRB3971.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_NT35510.h"
 
 Arduino_NT35510::Arduino_NT35510(

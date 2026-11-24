@@ -3,7 +3,6 @@
  * https://github.com/ananevilya/Arduino-AXS15231B-Library.git
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "../Arduino_GFX.h"
 #include "../Arduino_TFT.h"

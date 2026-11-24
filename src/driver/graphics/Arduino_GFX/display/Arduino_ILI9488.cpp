@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_ILI9488.h"
 
 Arduino_ILI9488::Arduino_ILI9488(Arduino_DataBus* bus, int8_t rst, uint8_t r, bool ips)

@@ -5,7 +5,6 @@
  *  Updated on: 14.01.2025
  */
 
-#pragma GCC optimize("O3")
 #include "aac_decoder.h"
 
 #include <stdbool.h>

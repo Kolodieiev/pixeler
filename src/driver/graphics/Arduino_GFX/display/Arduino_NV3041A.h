@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_NV3041A_H_
 #define _ARDUINO_NV3041A_H_
 

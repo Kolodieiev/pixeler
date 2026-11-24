@@ -3,7 +3,6 @@
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  * https://github.com/ananevilya/Arduino-ST7789-Library.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_ST7789.h"
 
 #include "SPI.h"

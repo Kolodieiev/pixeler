@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "aes_util.h"
 
 #include <esp_random.h>

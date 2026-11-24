@@ -1,5 +1,4 @@
 #pragma once
-#pragma GCC optimize("O3")
 #include <Arduino.h>
 
 #include "input_config.h"

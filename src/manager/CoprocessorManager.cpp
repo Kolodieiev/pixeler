@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "CoprocessorManager.h"
 
 #include "bus/I2C_Bus.h"

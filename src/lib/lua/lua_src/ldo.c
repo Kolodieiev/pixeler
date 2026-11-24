@@ -3,9 +3,6 @@
 ** Stack and Call structure of Lua
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define ldo_c
 #define LUA_CORE
 

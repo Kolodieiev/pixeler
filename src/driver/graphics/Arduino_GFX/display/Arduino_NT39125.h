@@ -5,7 +5,6 @@
  * Data Sheet:
  * http://read.pudn.com/downloads648/ebook/2620902/NT39125.pdf
  */
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_NT39125_H_
 #define _ARDUINO_NT39125_H_
 

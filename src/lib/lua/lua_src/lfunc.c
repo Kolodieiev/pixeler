@@ -3,9 +3,6 @@
 ** Auxiliary functions to manipulate prototypes and closures
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lfunc_c
 #define LUA_CORE
 

@@ -3,9 +3,6 @@
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lauxlib_c
 #define LUA_LIB
 

@@ -5,7 +5,6 @@
  * Data Sheet:
  * http://read.pudn.com/downloads648/ebook/2620902/R61529.pdf
  */
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_R61529_H_
 #define _ARDUINO_R61529_H_
 

@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "./ReqHandler.h"
 
 #include <MD5Builder.h>

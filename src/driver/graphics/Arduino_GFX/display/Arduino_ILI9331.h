@@ -3,7 +3,6 @@
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  * https://github.com/adafruit/Adafruit_ILI9331.git
  */
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_ILI9331_H_
 #define _ARDUINO_ILI9331_H_
 

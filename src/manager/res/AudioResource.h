@@ -3,7 +3,6 @@
  * @brief Клас звукового ресурсу, що зберігає буфер PCM-даних та його розмір.
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "IResource.h"
 

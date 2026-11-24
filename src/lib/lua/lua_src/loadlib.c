@@ -7,9 +7,6 @@
 ** that have dlfcn, an implementation for Windows, and a stub for other
 ** systems.
 */
-
-#pragma GCC optimize("O3")
-
 #define loadlib_c
 #define LUA_LIB
 

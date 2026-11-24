@@ -3,7 +3,6 @@
  * @brief Базовий абстрактний клас для всіх типів завантажуваних ресурсів.
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include <stdint.h>
 

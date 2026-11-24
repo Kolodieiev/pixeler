@@ -54,7 +54,6 @@
 
 */
 
-#pragma GCC optimize("O3")
 #ifndef U8G2_H
 #define U8G2_H
 

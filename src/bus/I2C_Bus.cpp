@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "I2C_Bus.h"
 
 #include <Wire.h>

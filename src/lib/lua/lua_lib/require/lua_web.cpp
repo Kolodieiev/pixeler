@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_web.h"
 
 #include <HTTPClient.h>

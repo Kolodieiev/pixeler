@@ -3,9 +3,6 @@
 ** Standard Operating System library
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define loslib_c
 #define LUA_LIB
 

@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_toggle_item.h"
 
 #include "./lua_menu_item.h"

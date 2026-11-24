@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_ILI9806_H_
 #define _ARDUINO_ILI9806_H_
 

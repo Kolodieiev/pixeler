@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_OTM8009A.h"
 
 Arduino_OTM8009A::Arduino_OTM8009A(

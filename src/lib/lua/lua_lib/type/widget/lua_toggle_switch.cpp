@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "lua_toggle_switch.h"
 
 #include "./lua_iwidget.h"

@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "I2S_In_Bus.h"
 
 #include <cstdint>

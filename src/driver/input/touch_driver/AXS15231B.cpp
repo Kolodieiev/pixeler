@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "AXS15231B.h"
 
 #ifdef AXS15231B_DRIVER

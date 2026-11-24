@@ -23,7 +23,6 @@
 // updated:      10.05.2025
 
 #pragma once
-#pragma GCC optimize("O3")
 
 #include <math.h>
 #include <stddef.h>

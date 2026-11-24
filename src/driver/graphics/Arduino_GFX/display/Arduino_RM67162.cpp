@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_RM67162.h"
 
 #include "SPI.h"

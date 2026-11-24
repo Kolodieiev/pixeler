@@ -9,7 +9,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 #include <stdint.h>
 
 #include "Arduino_GFX/Arduino_GFX_Library.h"

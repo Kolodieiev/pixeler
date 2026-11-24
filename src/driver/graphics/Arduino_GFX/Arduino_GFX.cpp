@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 /*
  * start rewrite from:
  * https://github.com/adafruit/Adafruit-GFX-Library.git

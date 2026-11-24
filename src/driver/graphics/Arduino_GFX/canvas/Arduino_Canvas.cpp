@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_Canvas.h"
 
 #include <hal/cache_hal.h>

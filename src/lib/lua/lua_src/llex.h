@@ -3,9 +3,6 @@
 ** Lexical Analyzer
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef llex_h
 #define llex_h
 

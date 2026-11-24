@@ -5,7 +5,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "../../image/Image.h"
 #include "../../text/Label.h"

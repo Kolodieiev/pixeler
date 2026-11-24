@@ -3,9 +3,6 @@
 ** Buffered streams
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lzio_c
 #define LUA_CORE
 

@@ -97,7 +97,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 
 #ifdef __cplusplus
 extern "C"

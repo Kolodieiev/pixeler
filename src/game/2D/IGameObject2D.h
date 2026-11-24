@@ -1,5 +1,4 @@
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "../DataStream.h"
 #include "../sound/SfxPlayer.h"

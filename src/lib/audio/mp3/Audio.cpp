@@ -14,8 +14,6 @@
 
 /* Виправлення помилок, оптимізація та адаптація для Pixeler-фреймворку by Kolodieiev */
 
-#pragma GCC optimize("O3")
-
 #include "Audio.h"
 
 #include "bus/I2S_Out_Bus.h"

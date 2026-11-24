@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 /*
   u8g2_fonts.c
 */

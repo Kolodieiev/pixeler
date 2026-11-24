@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/nopnop2002/esp-idf-parallel-tft
  */
-#pragma GCC optimize("O3")
 #ifndef _ARDUINO_ILI9488_H_
 #define _ARDUINO_ILI9488_H_
 

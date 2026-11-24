@@ -9,7 +9,6 @@
  * Author: Wolle
  *
  */
-#pragma GCC optimize("O3")
 #include "flac_decoder.h"
 
 #include <vector>

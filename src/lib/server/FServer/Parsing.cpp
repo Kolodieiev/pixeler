@@ -18,7 +18,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
   Modified 8 May 2015 by Hristo Gochkov (proper post and file upload handling)
 */
-#pragma GCC optimize("O3")
 
 #include <Arduino.h>
 #include <esp32-hal-log.h>

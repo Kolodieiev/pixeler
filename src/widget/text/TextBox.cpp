@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "TextBox.h"
 
 #define H_PADDINGS (_h_padding * 2 - 2)

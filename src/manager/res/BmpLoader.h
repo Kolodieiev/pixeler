@@ -1,6 +1,4 @@
-
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "IResLoader.h"
 #include "ImageResource.h"

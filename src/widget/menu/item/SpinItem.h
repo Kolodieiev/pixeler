@@ -9,7 +9,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include "../../spinbox/SpinBox.h"
 #include "MenuItem.h"
 

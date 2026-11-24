@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_NV3041A.h"
 
 #include "SPI.h"

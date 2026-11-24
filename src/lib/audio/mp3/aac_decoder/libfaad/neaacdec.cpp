@@ -27,7 +27,6 @@
 **
 ** $Id: bits.c,v 1.44 2007/11/01 12:33:29 menno Exp $
 **/
-#pragma GCC optimize("O3")
 #include "Arduino.h"
 #include <stdlib.h>
 #include <stdint-gcc.h>

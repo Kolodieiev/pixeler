@@ -5,7 +5,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include "../IWidgetContainer.h"
 
 namespace pixeler

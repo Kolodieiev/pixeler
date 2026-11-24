@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_ILI9481_18bit.h"
 
 Arduino_ILI9481_18bit::Arduino_ILI9481_18bit(Arduino_DataBus* bus, int8_t rst, uint8_t r, bool ips)

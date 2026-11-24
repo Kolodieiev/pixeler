@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_ST77916.h"
 
 Arduino_ST77916::Arduino_ST77916(

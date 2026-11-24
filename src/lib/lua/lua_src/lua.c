@@ -3,9 +3,6 @@
 ** Lua stand-alone interpreter
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lua_c
 
 #include "lprefix.h"

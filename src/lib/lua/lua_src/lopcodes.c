@@ -3,9 +3,6 @@
 ** Opcodes for Lua virtual machine
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lopcodes_c
 #define LUA_CORE
 

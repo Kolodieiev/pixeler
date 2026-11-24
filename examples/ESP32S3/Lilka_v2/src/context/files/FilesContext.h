@@ -1,5 +1,4 @@
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "context/IContext.h"
 #include "lib/server/FileServer.h"

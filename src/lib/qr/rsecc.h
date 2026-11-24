@@ -24,7 +24,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 
 class Rsecc
 {

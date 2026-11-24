@@ -8,7 +8,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "../lua.h"
 #include "context/IContext.h"

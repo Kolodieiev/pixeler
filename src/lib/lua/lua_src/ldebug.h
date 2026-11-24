@@ -3,9 +3,6 @@
 ** Auxiliary functions from Debug Interface module
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef ldebug_h
 #define ldebug_h
 

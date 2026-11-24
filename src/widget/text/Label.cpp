@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Label.h"
 
 constexpr static uint16_t RESERVE_PIX_WIDTH = 7;

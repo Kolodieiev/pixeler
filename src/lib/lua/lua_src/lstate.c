@@ -3,9 +3,6 @@
 ** Global State
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define lstate_c
 #define LUA_CORE
 

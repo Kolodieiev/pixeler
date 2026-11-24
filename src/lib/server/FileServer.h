@@ -7,7 +7,6 @@
  * Запускається в окремій задачі на 0-вому ядрі МК.
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include <stdint.h>
 

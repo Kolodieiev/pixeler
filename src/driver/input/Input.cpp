@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "Input.h"
 
 #include <stdexcept>

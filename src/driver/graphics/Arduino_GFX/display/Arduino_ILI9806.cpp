@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "Arduino_ILI9806.h"
 
 #include "SPI.h"

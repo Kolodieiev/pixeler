@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
+
 #include "../IWidget.h"
 #include "../text/Label.h"
 

@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "FilesContext.h"
 
 #include "lib/qr/QR_Gen.h"

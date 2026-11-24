@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "DisplayWrapper.h"
 
 #include <esp32-hal-ledc.h>

@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "Button.h"
 
 #include <driver/touch_sens.h>

@@ -3,7 +3,6 @@
  * @brief Повноекранний контекст текстового редактора на базі віджета TextArea
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "context/IContext.h"
 #include "widget/text/TextArea.h"

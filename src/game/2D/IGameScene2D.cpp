@@ -1,5 +1,4 @@
 #include "IGameScene2D.h"
-#pragma GCC optimize("O3")
 #include <algorithm>
 
 namespace pixeler

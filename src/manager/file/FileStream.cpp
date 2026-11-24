@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "FileStream.h"
 
 #include "manager/FileManager.h"

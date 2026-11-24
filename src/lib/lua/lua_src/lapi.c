@@ -4,8 +4,6 @@
 ** See Copyright Notice in lua.h
 */
 
-#pragma GCC optimize("O3")
-
 #define lapi_c
 #define LUA_CORE
 

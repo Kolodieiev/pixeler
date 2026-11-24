@@ -2,7 +2,6 @@
  * start rewrite from:
  * https://github.com/ananevilya/Arduino-AXS15231B-Library.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_AXS15231B.h"
 
 Arduino_AXS15231B::Arduino_AXS15231B(

@@ -3,9 +3,6 @@
 ** save precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define ldump_c
 #define LUA_CORE
 

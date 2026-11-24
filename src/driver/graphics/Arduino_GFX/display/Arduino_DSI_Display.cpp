@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "../Arduino_DataBus.h"
 
 #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32P4)

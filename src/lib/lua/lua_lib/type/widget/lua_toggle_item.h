@@ -1,5 +1,4 @@
 #pragma once
-#pragma GCC optimize("O3")
 #include "lib/lua/lua.h"
 
 const char STR_TYPE_NAME_TOGGLE_ITEM[] = "ToggleItem";

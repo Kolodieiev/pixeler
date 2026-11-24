@@ -3,7 +3,6 @@
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  * https://github.com/gitcnd/LCDWIKI_SPI.git
  */
-#pragma GCC optimize("O3")
 #include "Arduino_JBT6K71.h"
 
 #include "SPI.h"

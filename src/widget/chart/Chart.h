@@ -7,7 +7,6 @@
  * та оптимізоване часткове перемальовування області даних.
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include <vector>
 

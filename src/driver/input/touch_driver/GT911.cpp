@@ -1,5 +1,3 @@
-#pragma GCC optimize("O3")
-
 #include "GT911.h"
 
 #ifdef GT911_DRIVER

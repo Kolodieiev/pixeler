@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "TerrainLoader2D.h"
 
 #include "manager/FileManager.h"

@@ -3,9 +3,6 @@
 ** Limits, basic types, and some other 'installation-dependent' definitions
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #ifndef llimits_h
 #define llimits_h
 

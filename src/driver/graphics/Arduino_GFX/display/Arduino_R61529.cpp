@@ -3,7 +3,6 @@
  * https://github.com/adafruit/Adafruit-GFX-Library.git
  * https://github.com/daumemo/IPS_LCD_R61529_FT6236_Arduino_eSPI_Test
  */
-#pragma GCC optimize("O3")
 #include "Arduino_R61529.h"
 
 Arduino_R61529::Arduino_R61529(Arduino_DataBus* bus, int8_t rst, uint8_t r, bool ips)

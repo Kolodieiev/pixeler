@@ -3,9 +3,6 @@
 ** Debug Interface
 ** See Copyright Notice in lua.h
 */
-
-#pragma GCC optimize("O3")
-
 #define ldebug_c
 #define LUA_CORE
 

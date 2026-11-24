@@ -3,7 +3,6 @@
  * @brief Завантажувач звукових файлів формату WAV (16-bit PCM).
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "AudioResource.h"
 #include "IResLoader.h"

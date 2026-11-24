@@ -1,4 +1,3 @@
-#pragma GCC optimize("O3")
 #include "ScrollBar.h"
 
 namespace pixeler

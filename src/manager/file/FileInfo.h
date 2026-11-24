@@ -5,7 +5,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 
 #include <WString.h>
 

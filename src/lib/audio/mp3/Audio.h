@@ -4,7 +4,6 @@
  */
 
 #pragma once
-#pragma GCC optimize("O3")
 #include <Arduino.h>
 #include <FFat.h>
 #include <NetworkClient.h>

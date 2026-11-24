@@ -7,7 +7,6 @@
  * багатоступеневий дельта-undo, нумерацію рядків та hint-підказку.
  */
 #pragma once
-#pragma GCC optimize("O3")
 
 #include "../IWidget.h"
 
