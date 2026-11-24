@@ -280,30 +280,17 @@ namespace pixeler
               _clearResponseHeaders();
 
               _handleRequest();
-
-              if (_currentClient.isSSE())
-              {
-                _currentStatus = HC_WAIT_CLOSE;
-                _statusChange = millis();
-                keepCurrentClient = true;
-              }
             }
           }
           else
           {  // !_currentClient.available()
             if (millis() - _statusChange <= HTTP_MAX_DATA_WAIT)
-            {
               keepCurrentClient = true;
-            }
+
             callYield = true;
           }
           break;
         case HC_WAIT_CLOSE:
-          if (_currentClient.isSSE())
-          {
-            // Never close connection
-            _statusChange = millis();
-          }
           // Wait for client to close the connection
           if (millis() - _statusChange <= HTTP_MAX_CLOSE_WAIT)
           {

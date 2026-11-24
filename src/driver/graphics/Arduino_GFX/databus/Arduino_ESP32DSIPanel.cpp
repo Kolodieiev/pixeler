@@ -38,7 +38,6 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
     log_e("Помилка увімкнення живлення MIPI: %s", esp_err_to_name(ret));
     esp_restart();
   }
-
   log_i("Живлення MIPI увімкнуто");
 
   //----------------------------------------------------------------------------------------------
@@ -57,10 +56,10 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
     log_e("Помилка ініціалізації шини MIPI DSI: %s", esp_err_to_name(ret));
     esp_restart();
   }
-
   log_i("Шину MIPI DSI ініціалізовано");
 
   //----------------------------------------------------------------------------------------------
+
   const esp_lcd_dbi_io_config_t dbi_config = {
       .virtual_channel = 0,
       .lcd_cmd_bits = 8,
@@ -74,7 +73,6 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
     log_e("Помилка створення MIPI DBI: %s", esp_err_to_name(ret));
     esp_restart();
   }
-
   log_i("MIPI DBI інтерфейс створено");
 
   //----------------------------------------------------------------------------------------------
@@ -87,20 +85,21 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
       .hsync_front_porch = _hsync_front_porch,
       .vsync_pulse_width = _vsync_pulse_width,
       .vsync_back_porch = _vsync_back_porch,
-      .vsync_front_porch = _vsync_front_porch};
+      .vsync_front_porch = _vsync_front_porch,
+  };
 
   esp_lcd_dpi_panel_config_t dpi_config = {
       .virtual_channel = 0,
       .dpi_clk_src = MIPI_DSI_DPI_CLK_SRC_DEFAULT,
       .dpi_clock_freq_mhz = _bus_freq_mhz,
-      .pixel_format = LCD_COLOR_PIXEL_FORMAT_RGB565,
       .in_color_format = LCD_COLOR_FMT_RGB565,
       .out_color_format = LCD_COLOR_FMT_RGB565,
       .num_fbs = 2,
       .video_timing = video_timing,
       .flags = {
-          .use_dma2d = true,
-          .disable_lp = true}};
+          .disable_lp = true,
+      },
+  };
 
   ret = esp_lcd_new_panel_dpi(mipi_dsi_bus, &dpi_config, &_panel_handle);
   if (ret != ESP_OK)
@@ -109,6 +108,12 @@ bool Arduino_ESP32DSIPanel::begin(uint16_t w, uint16_t h, const lcd_init_cmd_t* 
     esp_restart();
   }
 
+  ret = esp_lcd_dpi_panel_enable_dma2d(_panel_handle);
+  if (ret != ESP_OK)
+  {
+    log_e("Помилка увімкнення DMA2D для MIPI DPI панелі: %s", esp_err_to_name(ret));
+    esp_restart();
+  }
   log_i("Панель MIPI DPI створена успішно");
 
   //----------------------------------------------------------------------------------------------

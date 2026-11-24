@@ -1911,38 +1911,6 @@ int Audio::read_ID3_Header(uint8_t* data, size_t len)
       latinToUTF8(m_ibuff, m_ibuffSize, false);
     }
 
-    if (encodingByte == 1 && dataLength > 1)
-    {  // UTF16 with BOM
-      bool big_endian = static_cast<unsigned char>(m_ibuff[0]) == 0xFE && static_cast<unsigned char>(m_ibuff[1]) == 0xFF;
-
-      uint8_t data_start = 2;  // skip the BOM (2 bytes)
-
-      std::u16string utf16_string;
-      for (size_t i = data_start; i < dataLength; i += 2)
-      {
-        char16_t wchar;
-        if (big_endian)
-          wchar = (static_cast<unsigned char>(m_ibuff[i]) << 8) | static_cast<unsigned char>(m_ibuff[i + 1]);
-        else
-          wchar = (static_cast<unsigned char>(m_ibuff[i + 1]) << 8) | static_cast<unsigned char>(m_ibuff[i]);
-        utf16_string.push_back(wchar);
-      }
-
-      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
-    }
-
-    if (encodingByte == 2 && dataLength > 1)
-    {  // UTF16BE
-      std::u16string utf16_string;
-      for (size_t i = 0; i < dataLength; i += 2)
-      {
-        char16_t wchar = (static_cast<unsigned char>(m_ibuff[i]) << 8) | static_cast<unsigned char>(m_ibuff[i + 1]);
-        utf16_string.push_back(wchar);
-      }
-
-      std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
-    }
-
     return fs;
   }
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

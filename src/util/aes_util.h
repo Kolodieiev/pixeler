@@ -1,8 +1,9 @@
 #pragma once
 #pragma GCC optimize("O3")
-#include "defines.h"
 #include <esp_system.h>
-#include <mbedtls/gcm.h>
+#include <psa/crypto.h>
+
+#include "defines.h"
 
 namespace pixeler
 {
