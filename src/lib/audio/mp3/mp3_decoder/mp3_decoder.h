@@ -1,4 +1,4 @@
-// based om helix mp3 decoder
+// based on helix mp3 decoder
 #pragma once
 
 #include "Arduino.h"
@@ -16,8 +16,7 @@ static const uint16_t m_MAINBUF_SIZE = 1940;
 static const uint16_t m_MAX_NSAMP = 576;  // max samples per channel, per granule
 
 /* indexing = [version][samplerate index]
- * sample rate of frame (Hz)
- */
+- sample rate of frame (Hz) */
 static const int32_t samplerateTab[3][3] = {
     {44100, 48000, 32000}, /* MPEG-1 */
     {22050, 24000, 16000}, /* MPEG-2 */
@@ -129,9 +128,9 @@ public:
   typedef struct
   {
     int32_t cbType;    /* pure long = 0, pure short = 1, mixed = 2 */
-    int32_t cbEndS[3]; /* number nonzero short cb's, per subbblock */
+    int32_t cbEndS[3]; /* number nonzero short cb's, per subblock */
     int32_t cbEndSMax; /* max of cbEndS[] */
-    int32_t cbEndL;    /* number nonzero long cb's  */
+    int32_t cbEndL;    /* number nonzero long cb's */
   } CriticalBandInfo_t;
 
   typedef struct DequantInfo
@@ -160,7 +159,7 @@ public:
   typedef struct HuffTabLookup
   {
     int32_t linBits;
-    int32_t tabType; /*HuffTabType*/
+    int32_t tabType; /* HuffTabType */
   } HuffTabLookup_t;
 
   typedef struct IMDCTInfo
@@ -199,9 +198,8 @@ public:
   } ScaleFactorJS_t;
 
   /* NOTE - could get by with smaller vbuf if memory is more important than speed
-   *  (in Subband, instead of replicating each block in FDCT32 you would do a memmove on the
-   *   last 15 blocks to shift them down one, a hardware style FIFO)
-   */
+- (in Subband, instead of replicating each block in FDCT32 you would do a memmove on the
+- last 15 blocks to shift them down one, a hardware style FIFO) */
   typedef struct SubbandInfo
   {
     int32_t vbuf[m_MAX_NCHAN * m_VBUF_LENGTH]; /* vbuf for fast DCT-based synthesis PQMF - double size for speed (no modulo indexing) */
@@ -228,6 +226,15 @@ public:
     int32_t mainDataBytes;
     int32_t part23Length[m_MAX_NGRAN][m_MAX_NCHAN];
   } MP3DecInfo_t;
+
+  MP3Decoder() = default;
+  ~MP3Decoder()
+  {
+    freeBuffers();
+  }
+
+  MP3Decoder(const MP3Decoder&) = delete;
+  MP3Decoder& operator=(const MP3Decoder&) = delete;
 
   // prototypes
   bool allocateBuffers(void);
@@ -257,7 +264,7 @@ private:
   void MidSideProc(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t nSamps, int32_t mOut[2]);
   void IntensityProcMPEG1(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t nSamps, ScaleFactorInfoSub_t* sfis, CriticalBandInfo_t* cbi, int32_t midSideFlag, int32_t mixFlag, int32_t mOut[2]);
   void IntensityProcMPEG2(int32_t x[m_MAX_NCHAN][m_MAX_NSAMP], int32_t nSamps, ScaleFactorInfoSub_t* sfis, CriticalBandInfo_t* cbi, ScaleFactorJS_t* sfjs, int32_t midSideFlag, int32_t mixFlag, int32_t mOut[2]);
-  void FDCT32(int32_t* x, int32_t* d, int32_t offset, int32_t oddBlock, int32_t gb);  // __attribute__ ((section (".data")));
+  void FDCT32(int32_t* x, int32_t* d, int32_t offset, int32_t oddBlock, int32_t gb);
   int32_t CheckPadBit();
   int32_t UnpackFrameHeader(uint8_t* buf);
   int32_t UnpackSideInfo(uint8_t* buf);
@@ -284,33 +291,30 @@ private:
   int32_t IMDCT12x3(int32_t* xCurr, int32_t* xPrev, int32_t* y, int32_t btPrev, int32_t blockIdx, int32_t gb);
   int32_t HybridTransform(int32_t* xCurr, int32_t* xPrev, int32_t y[m_BLOCK_SIZE][m_NBANDS], SideInfoSub_t* sis, BlockCount_t* bc);
 
-  inline uint64_t SAR64(uint64_t x, int32_t n)
+  static inline int64_t SAR64(int64_t x, int32_t n)
   {
     return x >> n;
   }
 
-  inline int32_t MULSHIFT32(int32_t x, int32_t y)
+  static inline int32_t MULSHIFT32(int32_t x, int32_t y)
   {
-    int32_t z;
-    z = (uint64_t)x * (uint64_t)y >> 32;
-    return z;
+    return static_cast<int32_t>((static_cast<int64_t>(x) * static_cast<int64_t>(y)) >> 32);
   }
 
-  inline uint64_t MADD64(uint64_t sum64, int32_t x, int32_t y)
+  static inline int64_t MADD64(int64_t sum64, int32_t x, int32_t y)
   {
-    sum64 += (uint64_t)x * (uint64_t)y;
-    return sum64;
-  } /* returns 64-bit value in [edx:eax] */
+    return sum64 + static_cast<int64_t>(x) * static_cast<int64_t>(y);
+  }
 
-  inline uint64_t xSAR64(uint64_t x, int32_t n)
+  static inline int64_t xSAR64(int64_t x, int32_t n)
   {
-    return x >> n;
+    return SAR64(x, n);
   }
 
 private:
-  SideInfoSub_t m_SideInfoSub[m_MAX_NGRAN][m_MAX_NCHAN]{0};
-  ScaleFactorInfoSub_t m_ScaleFactorInfoSub[m_MAX_NGRAN][m_MAX_NCHAN];
-  CriticalBandInfo_t m_CriticalBandInfo[m_MAX_NCHAN]{0}; /* filled in dequantizer, used in joint stereo reconstruction */
+  SideInfoSub_t m_SideInfoSub[m_MAX_NGRAN][m_MAX_NCHAN]{};
+  ScaleFactorInfoSub_t m_ScaleFactorInfoSub[m_MAX_NGRAN][m_MAX_NCHAN]{};
+  CriticalBandInfo_t m_CriticalBandInfo[m_MAX_NCHAN]{}; /* filled in dequantizer, used in joint stereo reconstruction */
   ScaleFactorJS_t* m_ScaleFactorJS{nullptr};
   SubbandInfo_t* m_SubbandInfo{nullptr};
   MP3DecInfo_t* m_MP3DecInfo{nullptr};
@@ -320,8 +324,8 @@ private:
   DequantInfo_t* m_DequantInfo{nullptr};
   HuffmanInfo_t* m_HuffmanInfo{nullptr};
   IMDCTInfo_t* m_IMDCTInfo{nullptr};
-  SFBandTable_t m_SFBandTable;
-  StereoMode_t m_sMode;        /* mono/stereo mode */
-  MPEGVersion_t m_MPEGVersion; /* version ID */
-  uint8_t underflowCounter;
+  SFBandTable_t m_SFBandTable{};
+  StereoMode_t m_sMode{Stereo};       /* mono/stereo mode */
+  MPEGVersion_t m_MPEGVersion{MPEG1}; /* version ID */
+  uint8_t underflowCounter{0};
 };
