@@ -1,68 +1,182 @@
 #include "WiFiManager.h"
 
+#include <esp_wifi.h>
+
 #include <algorithm>
 
 #include "SettingsManager.h"
 
+static constexpr char STR_PREF_WIFI_POWER[] = "wifipower";
+
+static constexpr char STR_ERR_WIFI_BUSY[] = "WiFi-модуль зайнятий";
+static constexpr char STR_ERR_EMPTY_SSID[] = "SSID не може бути порожній";
+static constexpr char STR_ERR_UNKNOWN_SSID[] = "Невідомий SSID:";
+
+static constexpr uint8_t MAX_WIFI_CHAN{13u};
+static constexpr uint8_t MIN_AP_PWD_LEN{8u};
+static constexpr uint8_t MAX_AP_PWD_LEN{63u};
+
+static constexpr uint32_t SCAN_TIMEOUT_MS{15000u};
+static constexpr uint32_t CONNECT_TIMEOUT_MS{15000u};
+
 namespace pixeler
 {
-  static const char STR_PREF_WIFI_POWER[] = "wifipower";
-
-  static const char STR_ERR_WIFI_BUSY[] = "WiFi-модуль зайнятий";
-  static const char STR_ERR_EMPTY_SSID[] = "SSID не може бути порожній";
-  static const char STR_ERR_UNKNOWN_SSID[] = "Невідомий SSID:";
-
-  static const uint8_t MAX_WIFI_CHAN = 10;
-
-  bool WiFiManager::tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan, bool autoreconnect)
+  WiFiManager::WiFiManager() : _mutex{xSemaphoreCreateMutex()}
   {
-    if (_is_busy)
+  }
+
+  WiFiManager::~WiFiManager()
+  {
+    if (_mutex)
     {
-      log_e("%s", STR_ERR_WIFI_BUSY);
+      vSemaphoreDelete(_mutex);
+      _mutex = nullptr;
+    }
+  }
+
+  bool WiFiManager::ensureEventsRegistered()
+  {
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
       return false;
+
+    if (!_events_registered)
+    {
+      WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
+      WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+      WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+      _events_registered = true;
     }
 
+    xSemaphoreGive(_mutex);
+    return true;
+  }
+
+  void WiFiManager::recoverIfTimedOut()
+  {
+    OperationState timed_out_state{OP_IDLE};
+
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return;
+
+    if ((_op_state == OP_SCANNING || _op_state == OP_CONNECTING) && (millis() - _op_start_ms) >= _op_timeout_ms)
+    {
+      timed_out_state = _op_state;
+      _op_state = OP_IDLE;
+    }
+
+    xSemaphoreGive(_mutex);
+
+    if (timed_out_state == OP_SCANNING)
+    {
+      log_e("Перевищено час очікування сканування WiFi");
+      esp_wifi_scan_stop();
+      WiFi.scanDelete();
+    }
+    else if (timed_out_state == OP_CONNECTING)
+    {
+      log_e("Перевищено час очікування підключення WiFi");
+      WiFi.disconnect(false);
+    }
+  }
+
+  void WiFiManager::resetOpState(const OperationState expected_state)
+  {
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return;
+
+    if (_op_state == expected_state)
+      _op_state = OP_IDLE;
+
+    xSemaphoreGive(_mutex);
+  }
+
+  bool WiFiManager::tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan, const bool autoreconnect)
+  {
     if (ssid.isEmpty())
     {
       log_e("%s", STR_ERR_EMPTY_SSID);
       return false;
     }
 
-    if (isConnected())
-      disconnect();
+    recoverIfTimedOut();
+
+    if (!ensureEventsRegistered())
+      return false;
+
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return false;
+
+    if (_op_state != OP_IDLE)
+    {
+      xSemaphoreGive(_mutex);
+      log_e("%s", STR_ERR_WIFI_BUSY);
+      return false;
+    }
+
+    // OP_PREPARING блокує паралельні операції та ігнорує події розриву попереднього з'єднання
+    _op_state = OP_PREPARING;
+    xSemaphoreGive(_mutex);
+
+    if (isApEnabled())
+      WiFi.softAPdisconnect(false);
+
+    if (WiFi.getMode() == WIFI_MODE_STA)
+    {
+      const bool was_connected = isConnected();
+      WiFi.disconnect(false);
+      if (was_connected)
+        delay(100);
+    }
+    else
+    {
+      WiFi.persistent(false);
+      if (!WiFi.mode(WIFI_MODE_STA))
+      {
+        resetOpState(OP_PREPARING);
+        log_e("Помилка увімкнення режиму WiFi STA");
+        return false;
+      }
+
+      setPower(readPowerSettings());
+    }
 
     if (wifi_chan > MAX_WIFI_CHAN)
       wifi_chan = MAX_WIFI_CHAN;
 
-    _last_ssid = ssid;
-    _is_busy = true;
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return false;
 
-    WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-    WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
+    if (_op_state != OP_PREPARING)
+    {
+      xSemaphoreGive(_mutex);
+      return false;
+    }
+
+    _last_ssid = ssid;
+    _op_state = OP_CONNECTING;
+    _op_start_ms = millis();
+    _op_timeout_ms = CONNECT_TIMEOUT_MS;
+    xSemaphoreGive(_mutex);
+
     WiFi.setAutoReconnect(autoreconnect);
     WiFi.persistent(false);
-    const wl_status_t status = WiFi.begin(ssid, pwd, wifi_chan);
+    const wl_status_t status = WiFi.begin(ssid.c_str(), pwd.isEmpty() ? nullptr : pwd.c_str(), wifi_chan);
 
-    if (status != WL_DISCONNECTED)
+    if (status == WL_CONNECT_FAILED)
     {
       log_e("Помилка приєднання до: %s", ssid.c_str());
-      WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-      WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
-      _is_busy = false;
+      resetOpState(OP_CONNECTING);
       return false;
     }
 
     return true;
   }
 
-  bool WiFiManager::tryConnectToKnown(const String& ssid, uint8_t wifi_chan, bool autoreconnect)
+  bool WiFiManager::tryConnectToKnown(const String& ssid, const uint8_t wifi_chan, const bool autoreconnect)
   {
-    String pwd = getSSIDKey(ssid);
+    const String pwd = getSSIDKey(ssid);
     if (pwd.isEmpty())
-    {
-      log_e("%s %s", STR_ERR_UNKNOWN_SSID, ssid.c_str());
       return false;
-    }
 
     return tryConnectTo(ssid, pwd, wifi_chan, autoreconnect);
   }
@@ -111,65 +225,146 @@ namespace pixeler
 
     String pwd = SettingsManager::get(ssid, STR_WIFI_SUBDIR);
     if (pwd.isEmpty())
-      log_e("Невідомий SSID: %s", ssid.c_str());
+      log_e("%s %s", STR_ERR_UNKNOWN_SSID, ssid.c_str());
 
     return pwd;
   }
 
-  bool WiFiManager::createAP(const String& ssid, const String& pwd, uint8_t max_connection, uint8_t wifi_chan, bool is_hidden)
+  bool WiFiManager::createAP(const String& ssid, const String& pwd, const uint8_t max_connection, uint8_t wifi_chan, const bool is_hidden)
   {
-    if (_is_busy)
+    if (ssid.isEmpty())
     {
+      log_e("%s", STR_ERR_EMPTY_SSID);
+      return false;
+    }
+
+    if (!pwd.isEmpty() && (pwd.length() < MIN_AP_PWD_LEN || pwd.length() > MAX_AP_PWD_LEN))
+    {
+      log_e("Пароль точки доступу має містити від %u до %u символів", MIN_AP_PWD_LEN, MAX_AP_PWD_LEN);
+      return false;
+    }
+
+    recoverIfTimedOut();
+
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return false;
+
+    if (_op_state != OP_IDLE)
+    {
+      xSemaphoreGive(_mutex);
       log_e("%s", STR_ERR_WIFI_BUSY);
       return false;
     }
 
+    _op_state = OP_PREPARING;
+    xSemaphoreGive(_mutex);
+
     if (isConnected())
-      disconnect();
+      WiFi.disconnect(false);
 
-    if (wifi_chan > MAX_WIFI_CHAN)
-      wifi_chan = MAX_WIFI_CHAN;
+    WiFi.persistent(false);
+    if (!WiFi.mode(WIFI_MODE_AP))
+    {
+      resetOpState(OP_PREPARING);
+      log_e("Помилка переходу в режим точки доступу");
+      return false;
+    }
 
-    bool result = WiFi.softAP(ssid, pwd, wifi_chan, is_hidden, std::clamp<uint8_t>(max_connection, 1, MAX_WIFI_CONNECTION));
+    wifi_chan = std::clamp<uint8_t>(wifi_chan, 1u, MAX_WIFI_CHAN);
+    const uint8_t clamped_conn = std::clamp<uint8_t>(max_connection, 1u, MAX_WIFI_CONNECTION);
+    const bool result = WiFi.softAP(ssid.c_str(), pwd.isEmpty() ? nullptr : pwd.c_str(), wifi_chan, is_hidden, clamped_conn);
     delay(100);
 
-    if (!result)
+    if (result)
+      setPower(readPowerSettings());
+    else
       log_e("Помилка створення точки доступу");
 
+    resetOpState(OP_PREPARING);
     return result;
   }
 
   void WiFiManager::onConnectComplete(ConnectCompleteHandler handler, void* arg)
   {
-    _connect_complete_handler = handler;
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return;
+
+    _connect_complete_handler = std::move(handler);
     _connect_complete_handler_arg = arg;
+    xSemaphoreGive(_mutex);
   }
 
   void WiFiManager::onScanComplete(ScanCompleteHandler handler, void* arg)
   {
-    _scan_complete_handler = handler;
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return;
+
+    _scan_complete_handler = std::move(handler);
     _scan_complete_handler_arg = arg;
+    xSemaphoreGive(_mutex);
   }
 
   bool WiFiManager::startScan()
   {
-    if (_is_busy)
+    recoverIfTimedOut();
+
+    if (!ensureEventsRegistered())
+      return false;
+
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return false;
+
+    if (_op_state != OP_IDLE)
     {
+      xSemaphoreGive(_mutex);
       log_e("%s", STR_ERR_WIFI_BUSY);
       return false;
     }
 
-    if (WiFi.getMode() != WIFI_MODE_STA && !enable())
+    _op_state = OP_PREPARING;
+    xSemaphoreGive(_mutex);
+
+    if (WiFi.getMode() != WIFI_MODE_STA)
+    {
+      if (isApEnabled())
+        WiFi.softAPdisconnect(false);
+
+      WiFi.persistent(false);
+      if (!WiFi.mode(WIFI_MODE_STA))
+      {
+        resetOpState(OP_PREPARING);
+        return false;
+      }
+
+      setPower(readPowerSettings());
+    }
+    else if (!isConnected())
+    {
+      // Зупиняємо можливу фонову спробу перепідключення, яка блокує esp_wifi_scan_start()
+      WiFi.disconnect(false);
+    }
+
+    WiFi.scanDelete();
+
+    if (xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
       return false;
 
-    _is_busy = true;
-    WiFi.onEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
-    const int16_t result_code = WiFi.scanNetworks(true);
-    if (result_code == WIFI_SCAN_FAILED)
+    if (_op_state != OP_PREPARING)
     {
-      log_e("Помилка запуску сканера Wi-Fi");
-      WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
-      _is_busy = false;
+      xSemaphoreGive(_mutex);
+      return false;
+    }
+
+    _op_state = OP_SCANNING;
+    _op_start_ms = millis();
+    _op_timeout_ms = SCAN_TIMEOUT_MS;
+    xSemaphoreGive(_mutex);
+
+    const int16_t result_code = WiFi.scanNetworks(true);
+    if (result_code != WIFI_SCAN_RUNNING)
+    {
+      log_e("Помилка запуску сканера Wi-Fi: %d", result_code);
+      resetOpState(OP_SCANNING);
       return false;
     }
 
@@ -180,38 +375,46 @@ namespace pixeler
   {
     std::vector<String> out_vector;
 
-    if (_is_busy)
+    recoverIfTimedOut();
+
+    if (isBusy())
     {
       log_e("%s", STR_ERR_WIFI_BUSY);
       return out_vector;
     }
 
-    int16_t scan_result = WiFi.scanComplete();
+    const int16_t scan_result = WiFi.scanComplete();
 
-    if (scan_result == -1)
+    if (scan_result == WIFI_SCAN_RUNNING)
     {
       log_e("Сканування ще не завершено");
       return out_vector;
     }
-    else if (scan_result == -2)
+    else if (scan_result == WIFI_SCAN_FAILED)
     {
       log_e("Сканування не було запущено");
       return out_vector;
     }
+    else if (scan_result < 0)
+    {
+      log_e("Помилка отримання результатів сканування: %d", scan_result);
+      return out_vector;
+    }
 
-    out_vector.reserve(scan_result);
-
-    for (uint16_t i = 0; i < scan_result; ++i)
-      out_vector.emplace_back(WiFi.SSID(i));
+    if (scan_result > 0)
+    {
+      out_vector.reserve(static_cast<size_t>(scan_result));
+      for (int16_t i{0}; i < scan_result; ++i)
+        out_vector.emplace_back(WiFi.SSID(i));
+    }
 
     WiFi.scanDelete();
-
     return out_vector;
   }
 
-  bool WiFiManager::setPower(WiFiPowerLevel power_lvl)
+  bool WiFiManager::setPower(const WiFiPowerLevel power_lvl)
   {
-    bool result = false;
+    bool result{false};
     switch (power_lvl)
     {
       case WIFI_POWER_MIN:
@@ -232,15 +435,23 @@ namespace pixeler
     return result;
   }
 
-  bool WiFiManager::savePower(WiFiPowerLevel power_lvl)
+  bool WiFiManager::savePower(const WiFiPowerLevel power_lvl)
   {
-    setPower(power_lvl);
+    if (power_lvl > WIFI_POWER_MAX)
+    {
+      log_e("Отримано некоректний рівень потужності WiFi");
+      return false;
+    }
+
+    if (isEnabled())
+      setPower(power_lvl);
+
     return savePowerSettings(power_lvl);
   }
 
   WiFiManager::WiFiPowerLevel WiFiManager::getPower() const
   {
-    wifi_power_t power = WiFi.getTxPower();
+    const wifi_power_t power = WiFi.getTxPower();
 
     if (power > WIFI_POWER_15dBm)
       return WIFI_POWER_MAX;
@@ -268,12 +479,12 @@ namespace pixeler
       return WIFI_POWER_MIN;
     }
 
-    return static_cast<WiFiManager::WiFiPowerLevel>(power);
+    return static_cast<WiFiPowerLevel>(power);
   }
 
-  bool WiFiManager::savePowerSettings(WiFiPowerLevel power_lvl) const
+  bool WiFiManager::savePowerSettings(const WiFiPowerLevel power_lvl) const
   {
-    return SettingsManager::set(STR_PREF_WIFI_POWER, String(power_lvl).c_str(), STR_WIFI_SUBDIR);
+    return SettingsManager::set(STR_PREF_WIFI_POWER, String(power_lvl), STR_WIFI_SUBDIR);
   }
 
   bool WiFiManager::isConnected() const
@@ -283,20 +494,21 @@ namespace pixeler
 
   bool WiFiManager::isApEnabled() const
   {
-    return WiFi.getMode() & WIFI_AP;
+    return (WiFi.getMode() & WIFI_MODE_AP) != 0;
   }
 
   String WiFiManager::getSSID() const
   {
     if (isConnected())
       return WiFi.SSID();
-    else
-      return emptyString;
+
+    return emptyString;
   }
 
   void WiFiManager::disconnect()
   {
-    WiFi.disconnect();
+    resetOpState(OP_CONNECTING);
+    WiFi.disconnect(false);
     delay(100);
   }
 
@@ -307,44 +519,64 @@ namespace pixeler
 
   bool WiFiManager::enable()
   {
-    bool result = WiFi.mode(WIFI_MODE_STA);
+    if (!ensureEventsRegistered())
+      return false;
+
+    if (WiFi.getMode() == WIFI_MODE_STA)
+      return true;
+
+    if (isApEnabled())
+      WiFi.softAPdisconnect(false);
+
+    WiFi.persistent(false);
+    const bool result = WiFi.mode(WIFI_MODE_STA);
     if (result)
-    {
-      WiFiPowerLevel power = readPowerSettings();
-      setPower(power);
-    }
+      setPower(readPowerSettings());
 
     return result;
   }
 
   void WiFiManager::disable()
   {
-    WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
-    WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-    WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
-    WiFi.scanDelete();
-    disconnect();
+    OperationState prev_state{OP_IDLE};
+
+    if (_mutex && xSemaphoreTake(_mutex, portMAX_DELAY) == pdTRUE)
+    {
+      prev_state = _op_state;
+      _op_state = OP_IDLE;
+      xSemaphoreGive(_mutex);
+    }
+
+    if (prev_state == OP_SCANNING)
+      esp_wifi_scan_stop();
+
+    WiFi.setAutoReconnect(false);
+
+    if (isApEnabled())
+      WiFi.softAPdisconnect(false);
+
+    WiFi.disconnect(false);
     WiFi.mode(WIFI_OFF);
-    _is_busy = false;
+    WiFi.scanDelete();
   }
 
   bool WiFiManager::toggle()
   {
-    if (_is_busy)
-    {
-      log_e("Модуль зайнятий");
-      return false;
-    }
-
     if (isEnabled())
     {
       disable();
       return true;
     }
-    else
+
+    recoverIfTimedOut();
+
+    if (isBusy())
     {
-      return enable();
+      log_e("%s", STR_ERR_WIFI_BUSY);
+      return false;
     }
+
+    return enable();
   }
 
   String WiFiManager::getIP() const
@@ -359,50 +591,86 @@ namespace pixeler
 
   bool WiFiManager::isBusy() const
   {
-    return _is_busy;
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return false;
+
+    bool busy = _op_state != OP_IDLE;
+    if (busy && (_op_state == OP_SCANNING || _op_state == OP_CONNECTING) && (millis() - _op_start_ms) >= _op_timeout_ms)
+      busy = false;
+
+    xSemaphoreGive(_mutex);
+    return busy;
   }
 
-  void WiFiManager::invokeConnDoneHandler()
+  void WiFiManager::handleConnDone(const wl_status_t conn_status)
   {
-    log_i("WiFi.status: %d", WiFi.status());
+    ConnectCompleteHandler handler{nullptr};
+    void* arg{nullptr};
+    String ssid;
 
-    if (_connect_complete_handler)
-      _connect_complete_handler(_connect_complete_handler_arg, _last_ssid, WiFi.status());
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return;
+
+    if (_op_state != OP_CONNECTING)
+    {
+      xSemaphoreGive(_mutex);
+      return;
+    }
+
+    _op_state = OP_IDLE;
+    handler = _connect_complete_handler;
+    arg = _connect_complete_handler_arg;
+    ssid = _last_ssid;
+    xSemaphoreGive(_mutex);
+
+    log_i("WiFi.status: %d", conn_status);
+
+    if (handler)
+      handler(arg, ssid, conn_status);
   }
 
-  void WiFiManager::invokeScanDoneHandler()
+  void WiFiManager::handleScanDone()
   {
-    if (_scan_complete_handler)
-      _scan_complete_handler(_scan_complete_handler_arg);
+    ScanCompleteHandler handler{nullptr};
+    void* arg{nullptr};
+
+    if (!_mutex || xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE)
+      return;
+
+    if (_op_state != OP_SCANNING)
+    {
+      xSemaphoreGive(_mutex);
+      return;
+    }
+
+    _op_state = OP_IDLE;
+    handler = _scan_complete_handler;
+    arg = _scan_complete_handler_arg;
+    xSemaphoreGive(_mutex);
+
+    if (handler)
+      handler(arg);
     else
       WiFi.scanDelete();
   }
 
-  void WiFiManager::onEvent(WiFiEvent_t event)
+  void WiFiManager::onEvent(const WiFiEvent_t event)
   {
     switch (event)
     {
       case ARDUINO_EVENT_WIFI_SCAN_DONE:
-        WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_SCAN_DONE);
-        _wifi._is_busy = false;
-        _wifi.invokeScanDoneHandler();
+        _wifi.handleScanDone();
+        break;
+      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+        _wifi.handleConnDone(WL_CONNECTED);
         break;
       case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-      case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-        WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-        WiFi.removeEvent(onEvent, ARDUINO_EVENT_WIFI_STA_GOT_IP);
-
-        if (event == ARDUINO_EVENT_WIFI_STA_GOT_IP)
-        {
-          long unsigned got_ip_time = millis();
-          while (millis() - got_ip_time < 2000 && WiFi.status() != WL_CONNECTED)
-            delay(50);
-        }
-        _wifi._is_busy = false;
-        _wifi.invokeConnDoneHandler();
+      {
+        const wl_status_t status = WiFi.status();
+        _wifi.handleConnDone(status == WL_CONNECTED ? WL_DISCONNECTED : status);
         break;
+      }
       default:
-        log_e("Unknown wifi event: %u", event);
         break;
     }
   }

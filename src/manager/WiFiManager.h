@@ -36,25 +36,25 @@ namespace pixeler
      * @brief Запускає асинхронну спробу підключення до точки доступу із заданими параметрами.
      *
      * @param ssid Ім'я точки доступу
-     * @param pwd Пароль точки доступу
-     * @param wifi_chan Канал WiFi (менше 11)
+     * @param pwd Пароль точки доступу (порожній рядок для відкритої мережі)
+     * @param wifi_chan Канал WiFi (0 - автовибір, 1..13 - фіксований канал)
      * @param autoreconnect Прапор, що вказує, чи потрібно виконувати автоматичну повторну спробу підключення
      * до точки доступу у разі невдачі або втрати з'єднання
      * @return true - Якщо запуск спроби підключення виконано успішно. false - Якщо не вдалося розпочати підключення
      */
-    bool tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan = 6, bool autoreconnect = false);
+    bool tryConnectTo(const String& ssid, const String& pwd, uint8_t wifi_chan = 0u, bool autoreconnect = false);
 
     /**
      * @brief Запускає асинхронну спробу підключення до відомої точки доступу із заданими параметрами.
      *
      * @param ssid Ім'я точки доступу
-     * @param wifi_chan Канал WiFi (менше 11)
+     * @param wifi_chan Канал WiFi (0 - автовибір, 1..13 - фіксований канал)
      * @param autoreconnect Прапор, що вказує, чи потрібно виконувати автоматичну повторну спробу підключення
      * до точки доступу у разі невдачі або втрати з'єднання
      * @return true - Якщо запуск спроби підключення виконано успішно. false - Якщо не вдалося розпочати підключення,
      * або точка доступу не є відомою
      */
-    bool tryConnectToKnown(const String& ssid, uint8_t wifi_chan = 6, bool autoreconnect = false);
+    bool tryConnectToKnown(const String& ssid, uint8_t wifi_chan = 0u, bool autoreconnect = false);
 
     /**
      * @brief Зберігає ім'я точки доступу та пароль до неї без шифрування на карту пам'яті.
@@ -74,7 +74,7 @@ namespace pixeler
     bool forgetSSID(const String& ssid) const;
 
     /**
-     * @brief Повертає значення яке вказує, чи збережено пароль до точки на карті пам'яті.
+     * @brief Повертає значення, яке вказує, чи збережено пароль до точки на карті пам'яті.
      *
      * @param ssid Ім'я точки доступу
      * @return true - Якщо пароль до точки доступу збережено на карті пам'яті. false - Інакше
@@ -94,21 +94,20 @@ namespace pixeler
      * @brief Створює точку доступу WiFi, до якої можуть приєднуватися WiFi-клієнти.
      *
      * @param ssid Ім'я точки доступу
-     * @param pwd Пароль точки доступу
-     * @param max_connection Максимальна кількість підключень (більше 0, але менше 10).
+     * @param pwd Пароль точки доступу (порожній рядок або від 8 до 63 символів)
+     * @param max_connection Максимальна кількість підключень (від 1 до 10).
      * Рекомендується встановлювати менше 5 одночасних підключень
-     * @param wifi_chan Канал WiFi (менше 11)
+     * @param wifi_chan Канал WiFi (від 1 до 13)
      * @param is_hidden Якщо true - точку доступу буде створено прихованою
      * @return true - Якщо точку доступу створено успішно. false - Інакше
-     * @return
      */
-    bool createAP(const String& ssid, const String& pwd, uint8_t max_connection = 1, uint8_t wifi_chan = 1, bool is_hidden = false);
+    bool createAP(const String& ssid, const String& pwd, uint8_t max_connection = 1u, uint8_t wifi_chan = 1u, bool is_hidden = false);
 
     /**
      * @brief Встановлює обробник події, який буде викликано після завершення спроби підключення до точки доступу.
      *
      * @param handler Асинхронний обробник події завершення спроби підключення до точки доступу
-     * @param arg Аргумент, що будe передано обробнику
+     * @param arg Аргумент, що буде передано обробнику
      */
     void onConnectComplete(ConnectCompleteHandler handler, void* arg);
 
@@ -116,7 +115,7 @@ namespace pixeler
      * @brief Встановлює обробник події, який буде викликано після завершення сканування точок WiFi.
      *
      * @param handler Асинхронний обробник події завершення сканування
-     * @param args Аргумент, що будe передано обробнику
+     * @param arg Аргумент, що буде передано обробнику
      */
     void onScanComplete(ScanCompleteHandler handler, void* arg);
 
@@ -128,8 +127,8 @@ namespace pixeler
     bool startScan();
 
     /**
-     * @brief Повертає вектор з іменами всіх виявлених, під час останнього сканування, точок доступу.
-     * Після повернення вектора, результат попереднього сканування очищується автоматично.
+     * @brief Повертає вектор з іменами всіх виявлених під час останнього сканування точок доступу.
+     * Після повернення вектора результат попереднього сканування очищується автоматично.
      *
      * @return std::vector<String>
      */
@@ -142,23 +141,22 @@ namespace pixeler
      * WIFI_POWER_MIN == 5 dBm.
      * WIFI_POWER_MEDIUM == 15 dBm.
      * WIFI_POWER_MAX == 19.5 dBm
-     * @return true - Якщо потужність модуля встановлено успішно. false - інакше
+     * @return true - Якщо потужність модуля встановлено успішно. false - Інакше
      */
     bool setPower(WiFiPowerLevel power_lvl);
 
     /**
-     * @brief Тимчасово встановлює потужність передачі модуля WiFi.
-     * Зберігає налаштування потужності на карту пам'яті, якщо її встановлено та примонтовано.
+     * @brief Встановлює потужність передачі модуля WiFi (якщо модуль увімкнено)
+     * та зберігає налаштування потужності на карту пам'яті.
      * Налаштування будуть зчитані та застосовані автоматично під час наступного увімкнення модуля WiFi.
      *
-     * @param power_lvl
-     * @return true - Якщо налаштування успішно збережно на карту пам'яті.
-     * false - інакше
+     * @param power_lvl Рівень потужності WiFi
+     * @return true - Якщо налаштування успішно збережено на карту пам'яті. false - Інакше
      */
     bool savePower(WiFiPowerLevel power_lvl);
 
     /**
-     * @brief Повертає тимчасове значення потужності передавання модуля WiFi.
+     * @brief Повертає поточне значення потужності передавання модуля WiFi.
      * Значення можна вважати актуальним лише за умови, що модуль WiFi було увімкнено раніше.
      *
      * @return WiFiPowerLevel
@@ -188,7 +186,6 @@ namespace pixeler
 
     /**
      * @brief Відключається від точки доступу, якщо було встановлено з'єднання.
-     *
      */
     void disconnect();
 
@@ -200,15 +197,14 @@ namespace pixeler
     bool isEnabled() const;
 
     /**
-     * @brief Подає сигнал увімкнення на модуль WiFi.
+     * @brief Вмикає модуль WiFi у режимі STA.
      *
      * @return true - Якщо модуль WiFi було успішно увімкнено. false - Інакше
      */
     bool enable();
 
     /**
-     * @brief Відключається від точки доступу, якщо було встановлено з'єднання, та вимикає модуль WiFi.
-     *
+     * @brief Зупиняє поточні операції, відключається від точки доступу та вимикає модуль WiFi.
      */
     void disable();
 
@@ -227,41 +223,57 @@ namespace pixeler
     String getIP() const;
 
     /**
-     * @brief Повертає стан прапора, який вказує на те, чи зайнятий зараз модуль WiFi асинхронною роботою на кшталт скануваня чи підключення.
+     * @brief Повертає стан прапора, який вказує на те, чи зайнятий зараз модуль WiFi асинхронною роботою.
      *
      * @return true - Якщо модуль зайнятий. false - Інакше
      */
     bool isBusy() const;
 
-    WiFiManager() {}
+    WiFiManager();
+    ~WiFiManager();
     WiFiManager(const WiFiManager&) = delete;
     WiFiManager& operator=(const WiFiManager&) = delete;
     WiFiManager(WiFiManager&&) = delete;
     WiFiManager& operator=(WiFiManager&&) = delete;
 
   private:
+    enum OperationState : uint8_t
+    {
+      OP_IDLE = 0,
+      OP_PREPARING,
+      OP_SCANNING,
+      OP_CONNECTING,
+    };
+
+    bool ensureEventsRegistered();
+    void recoverIfTimedOut();
+    void resetOpState(OperationState expected_state);
+
     WiFiPowerLevel readPowerSettings() const;
     bool savePowerSettings(WiFiPowerLevel power_lvl) const;
-    void invokeConnDoneHandler();
-    void invokeScanDoneHandler();
+
+    void handleConnDone(wl_status_t conn_status);
+    void handleScanDone();
 
     static void onEvent(WiFiEvent_t event);
 
   private:
-    String _last_ssid;
-
     ScanCompleteHandler _scan_complete_handler{nullptr};
     ConnectCompleteHandler _connect_complete_handler{nullptr};
+    String _last_ssid;
 
+    SemaphoreHandle_t _mutex{nullptr};
     void* _scan_complete_handler_arg{nullptr};
     void* _connect_complete_handler_arg{nullptr};
+    uint32_t _op_start_ms{0u};
+    uint32_t _op_timeout_ms{0u};
 
-    volatile bool _is_busy{false};
+    OperationState _op_state{OP_IDLE};
+    bool _events_registered{false};
   };
 
   /**
    * @brief Глобальний об'єкт для роботи з модулем WiFi.
-   *
    */
   extern WiFiManager _wifi;
 }  // namespace pixeler
