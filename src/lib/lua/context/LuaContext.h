@@ -56,16 +56,20 @@ namespace pixeler
        * @param d Список залежностей (Імен інших типів).
        * @param f Функція-ініціалізатор типу.
        */
-      LuaCustomType(const char* n, std::vector<const char*> d, InitLuaTypeFunc f) : deps(d), name(n), initializer(f) {}
+      LuaCustomType(const char* n, std::vector<const char*> d, InitLuaTypeFunc f) : name(n), deps(d), initializer(f) {}
     } LuaCustomType;
 
     static void* luAlloc(void* ud, void* ptr, size_t osize, size_t nsize);
-    static void luaHook(lua_State* L, lua_Debug* ar);
     //
     bool initLua();
     void luaErrToMsg();
     bool hasLuaFunction(const char* func_name);
     int callLuaFunction(const char* func_name);
+
+    static void onLuaInterrupt(lua_State* L);
+    static void onSliceTimer(void* arg);
+    void startSliceTimer();
+    void stopSliceTimer();
 
     //---------------------------------------------------------------------------------- reg
 
@@ -118,11 +122,15 @@ namespace pixeler
     void clearInitialization(const char* type_name);
     //----------------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------------
+
   private:
     String _msg;
     std::vector<const char*> _inited_types;
     std::vector<uint32_t> _loaded_img_id;
     std::vector<IWidget*> _managed_widgets;
+
+    esp_timer_handle_t _slice_timer{nullptr};
 
     static LuaContext* _self;
     static const LuaRegisterFunc LIB_REGULAR_MODULE[];
@@ -130,11 +138,18 @@ namespace pixeler
     static const struct luaL_Reg LIB_CONTEXT[];
     static const struct luaL_Reg LIB_INPUT[];
 
+    size_t _lua_mem{0};
+    size_t _cached_free_ram{0};
+    int _update_ref{LUA_NOREF};
+
     lua_State* _lua{nullptr};
     Notification* _notification{nullptr};
 
+    uint16_t _alloc_check_cnt{0};
     uint16_t _hook_counter{0};
+    uint16_t _slice_yields{0};
 
+    bool _has_psram{false};
     bool _is_script_exec = false;
   };
 }  // namespace pixeler

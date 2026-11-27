@@ -446,6 +446,11 @@ struct lua_Debug
   struct CallInfo* i_ci; /* active function */
 };
 
+typedef void (*lua_InterruptHandler)(lua_State* L);
+LUA_API void lua_set_interrupt_handler(lua_State* L, lua_InterruptHandler handler);
+LUA_API void lua_trigger_interrupt(lua_State* L);
+LUA_API void lua_clear_interrupt(lua_State* L);
+
 /* }====================================================================== */
 
 /******************************************************************************

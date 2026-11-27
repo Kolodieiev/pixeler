@@ -3,16 +3,6 @@
 #include <esp_heap_caps.h>
 //
 #include "../lua_lib/helper/lua_helper.h"
-#include "../lua_lib/type/widget/lua_empty_layout.h"
-#include "../lua_lib/type/widget/lua_image.h"
-#include "../lua_lib/type/widget/lua_iwidget.h"
-#include "../lua_lib/type/widget/lua_iwidget_cont.h"
-#include "../lua_lib/type/widget/lua_label.h"
-#include "../lua_lib/type/widget/lua_menu.h"
-#include "../lua_lib/type/widget/lua_menu_item.h"
-#include "../lua_lib/type/widget/lua_progress.h"
-#include "../lua_lib/type/widget/lua_toggle_item.h"
-#include "../lua_lib/type/widget/lua_toggle_switch.h"
 
 //---------------------------------------------------------------------------------- Бібліотеки, що будуть доступні в скриптах завжди
 #include "../lua_lib/register/lua_gl.h"
@@ -48,6 +38,10 @@ static const char STR_LUA_STOP[] = "LuaVM зупинено";
 
 static const char STR_UPDATE_NAME[] = "update";
 //
+static constexpr uint64_t LUA_SLICE_US = 20000U;
+static constexpr size_t LUA_INTERNAL_RAM_RESERVE = 40 * 1024;
+static constexpr uint16_t LUA_MAX_YIELDS = 200U;
+
 namespace pixeler
 {
 
@@ -144,7 +138,18 @@ namespace pixeler
 
   LuaContext::~LuaContext()
   {
-    lua_close(_lua);
+    stopSliceTimer();
+    if (_slice_timer)
+    {
+      esp_timer_delete(_slice_timer);
+      _slice_timer = nullptr;
+    }
+    if (_lua)
+    {
+      lua_close(_lua);
+      _lua = nullptr;
+    }
+
     delete _notification;
 
     for (size_t i = 0; i < _loaded_img_id.size(); ++i)
@@ -158,19 +163,46 @@ namespace pixeler
 
   bool LuaContext::initLua()
   {
+    stopSliceTimer();
+
     if (_lua)
     {
       _is_script_exec = false;
+      _update_ref = LUA_NOREF;
       lua_close(_lua);
+      _lua = nullptr;
     }
 
-    _lua = lua_newstate(luAlloc, nullptr);
+    _inited_types.clear();
+    _lua_mem = 0;
+    _alloc_check_cnt = 0;
+    _has_psram = psramInit();
+    _cached_free_ram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 
+    _lua = lua_newstate(luAlloc, this);
     if (!_lua)
+    {
+      _msg = STR_NOT_ENOUGH_RAM;
       return false;
+    }
 
     luaL_openlibs(_lua);
-    lua_sethook(_lua, luaHook, LUA_MASKCOUNT, 10000);
+
+    lua_set_interrupt_handler(_lua, onLuaInterrupt);
+
+    if (!_slice_timer)
+    {
+      esp_timer_create_args_t timer_args = {};
+      timer_args.callback = &LuaContext::onSliceTimer;
+      timer_args.arg = this;
+      timer_args.name = "lua_slice";
+      esp_timer_create(&timer_args, &_slice_timer);
+    }
+
+    if (_has_psram)
+      lua_gc(_lua, LUA_GCGEN, 30, 150);
+    else
+      lua_gc(_lua, LUA_GCGEN, 20, 100);
 
     regRegularModule(_lua);
     regRequireModule(_lua);
@@ -209,16 +241,39 @@ namespace pixeler
 
     log_i("%s", STR_LUA_START);
 
-    if (luaL_loadstring(_lua, lua_script) != LUA_OK || lua_pcall(_lua, 0, LUA_MULTRET, 0) != LUA_OK)
+    if (luaL_loadstring(_lua, lua_script) != LUA_OK)
     {
       luaErrToMsg();
       return false;
     }
-    else if (!hasLuaFunction(STR_UPDATE_NAME))
+
+    startSliceTimer();
+    int res = lua_pcall(_lua, 0, LUA_MULTRET, 0);
+    stopSliceTimer();
+
+    if (res != LUA_OK)
     {
+      if (res == LUA_ERRMEM)
+      {
+        _msg = STR_NOT_ENOUGH_RAM;
+        lua_pop(_lua, 1);
+      }
+      else
+      {
+        luaErrToMsg();
+      }
+      return false;
+    }
+
+    lua_getglobal(_lua, STR_UPDATE_NAME);
+    if (!lua_isfunction(_lua, -1))
+    {
+      lua_pop(_lua, 1);
       _msg = "Скрипт повинен містити визначення функції update";
       return false;
     }
+
+    _update_ref = luaL_ref(_lua, LUA_REGISTRYINDEX);
 
     _msg = "";
     _is_script_exec = true;
@@ -232,52 +287,109 @@ namespace pixeler
 
   void* LuaContext::luAlloc(void* ud, void* ptr, size_t osize, size_t nsize)
   {
-    (void)ud;
-    (void)osize;
+    LuaContext* ctx = static_cast<LuaContext*>(ud);
+    size_t old_size = (ptr == nullptr) ? 0 : osize;
 
     if (nsize == 0)
     {
       free(ptr);
+      ctx->_lua_mem = (ctx->_lua_mem >= old_size) ? (ctx->_lua_mem - old_size) : 0;
       return nullptr;
+    }
+
+    // Зменшення блоку не вимагає перевірки вільної пам'яті і залишає блок у тій самій купі
+    if (nsize <= old_size)
+    {
+      void* new_ptr = realloc(ptr, nsize);
+      if (new_ptr)
+        ctx->_lua_mem -= (old_size - nsize);
+      return new_ptr;
+    }
+
+    size_t delta = nsize - old_size;
+    void* new_ptr = nullptr;
+
+    // Якщо блок уже лежить у PSRAM — розширюємо його там само
+    if (ctx->_has_psram && ptr != nullptr && esp_ptr_external_ram(ptr))
+    {
+      new_ptr = ps_realloc(ptr, nsize);
     }
     else
     {
-      size_t free_mem = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-
-      if (nsize < free_mem && free_mem - nsize > 40 * 1024)
+      // Оновлюємо кеш вільної ВНУТРІШНЬОЇ SRAM раз на 32 алокації або при великому запиті
+      if (++ctx->_alloc_check_cnt >= 32 || delta > 1024 ||
+          ctx->_cached_free_ram <= delta + LUA_INTERNAL_RAM_RESERVE)
       {
-        return realloc(ptr, nsize);
-      }
-      else if (psramInit())
-      {
-        free_mem = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
-
-        if (free_mem > nsize)
-          return ps_realloc(ptr, nsize);
+        ctx->_alloc_check_cnt = 0;
+        ctx->_cached_free_ram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
       }
 
-      _self->_msg = STR_NOT_ENOUGH_RAM;
-      log_e("%s", STR_NOT_ENOUGH_RAM);
-      return nullptr;
+      if (ctx->_cached_free_ram > delta + LUA_INTERNAL_RAM_RESERVE)
+      {
+        new_ptr = heap_caps_realloc(ptr, nsize, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+        if (new_ptr)
+          ctx->_cached_free_ram -= delta;
+      }
+
+      // Фолбек у PSRAM, якщо внутрішня пам'ять вичерпана або фрагментована
+      if (!new_ptr && ctx->_has_psram)
+        new_ptr = ps_realloc(ptr, nsize);
     }
+
+    if (new_ptr)
+    {
+      ctx->_lua_mem += delta;
+      return new_ptr;
+    }
+
+    // Повертаємо nullptr тихо: Lua спочатку спробує emergency GC,
+    // а якщо пам'яті дійсно недостатньо - поверне LUA_ERRMEM із lua_pcall.
+    return nullptr;
   }
 
-  void LuaContext::luaHook(lua_State* L, lua_Debug* ar)
+  void LuaContext::onSliceTimer(void* arg)
   {
-    (void)L;
-    (void)ar;
+    LuaContext* ctx = static_cast<LuaContext*>(arg);
+    if (ctx && ctx->_lua)
+      lua_trigger_interrupt(ctx->_lua);
+  }
 
-    int used_kb = lua_gc(L, LUA_GCCOUNT, 0);
-    if (used_kb > 30)
-      lua_gc(L, LUA_GCCOLLECT, 0);
+  void LuaContext::startSliceTimer()
+  {
+    _slice_yields = 0;
+    if (_lua)
+      lua_clear_interrupt(_lua);
+    if (_slice_timer)
+      esp_timer_start_once(_slice_timer, LUA_SLICE_US);
+  }
 
-    if (_self->_hook_counter > 12)
+  void LuaContext::stopSliceTimer()
+  {
+    if (_slice_timer)
+      esp_timer_stop(_slice_timer);
+    if (_lua)
+      lua_clear_interrupt(_lua);
+  }
+
+  void LuaContext::onLuaInterrupt(lua_State* L)
+  {
+    if (!_self)
+      return;
+
+    ++_self->_slice_yields;
+
+    if (LUA_MAX_YIELDS > 0 && _self->_slice_yields >= LUA_MAX_YIELDS)
     {
-      _self->_hook_counter = 0;
-      delay(1);
+      _self->stopSliceTimer();
+      lua_checkstack(L, 3);
+      luaL_error(L, "Перевищено ліміт часу виконання скрипта");
+      return;
     }
 
-    ++_self->_hook_counter;
+    delay(1);
+
+    if (_self->_slice_timer)
+      esp_timer_start_once(_self->_slice_timer, LUA_SLICE_US);
   }
 
   void LuaContext::luaErrToMsg()
@@ -288,6 +400,8 @@ namespace pixeler
       _msg = "Помилка Lua: ";
       _msg += err_msg;
     }
+
+    lua_pop(_lua, 1);
   }
 
   bool LuaContext::hasLuaFunction(const char* func_name)
@@ -311,11 +425,25 @@ namespace pixeler
 
   void LuaContext::update()
   {
-    if (_is_script_exec)
+    if (_is_script_exec && _update_ref != LUA_NOREF)
     {
-      if (callLuaFunction(STR_UPDATE_NAME) != LUA_OK)
+      lua_rawgeti(_lua, LUA_REGISTRYINDEX, _update_ref);
+
+      startSliceTimer();
+      int res = lua_pcall(_lua, 0, 0, 0);
+      stopSliceTimer();
+
+      if (res != LUA_OK)
       {
-        luaErrToMsg();
+        if (res == LUA_ERRMEM)
+        {
+          _msg = STR_NOT_ENOUGH_RAM;
+          lua_pop(_lua, 1);
+        }
+        else
+        {
+          luaErrToMsg();
+        }
         releaseContext();
       }
     }
@@ -370,6 +498,9 @@ namespace pixeler
   int LuaContext::lua_context_manage_widget(lua_State* L)
   {
     IWidget** iwidget = static_cast<IWidget**>(lua_touserdata(L, 1));
+    if (!iwidget || !*iwidget)
+      return luaL_argerror(L, 1, "очікується валідний IWidget");
+
     _self->_managed_widgets.push_back(*iwidget);
     return 0;
   }
@@ -614,13 +745,13 @@ namespace pixeler
         for (const char* dep_name : type.deps)
         {
           if (!initType(L, dep_name))
-            return false;  // Неможливо ініціалізувати одну із залежностей
+            return false;
         }
 
         if (type.initializer)
         {
-          type.initializer(L);                 // Реєструємо основний тип
-          _inited_types.push_back(type_name);  // Запам'ятали реєстрацію
+          type.initializer(L);
+          _inited_types.push_back(type.name);  // Безпечно: статичний рядок, а не тимчасовий із Lua
           return true;
         }
       }

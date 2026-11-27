@@ -286,6 +286,9 @@ typedef struct global_State
   TString* strcache[STRCACHE_N][STRCACHE_M]; /* cache for strings in API */
   lua_WarnFunction warnf;                    /* warning function */
   void* ud_warn;                             /* auxiliary data to 'warnf' */
+
+  lua_InterruptHandler interrupt_handler;
+  volatile unsigned char interrupt_flag;
 } global_State;
 
 /*
