@@ -1438,7 +1438,7 @@ returning: /* trap already set */
         TValue* upval = cl->upvals[GETARG_B(i)]->v.p;
         TValue* rc = KC(i);
         TString* key = tsvalue(rc); /* key must be a short string */
-        if (luaV_fastget(L, upval, key, slot, luaH_getshortstr))
+        if (luaV_fastget(L, upval, key, slot, luaH_getshortstr_fast))
         {
           setobj2s(L, ra, slot);
         }
@@ -1489,7 +1489,7 @@ returning: /* trap already set */
         TValue* rb = vRB(i);
         TValue* rc = KC(i);
         TString* key = tsvalue(rc); /* key must be a short string */
-        if (luaV_fastget(L, rb, key, slot, luaH_getshortstr))
+        if (luaV_fastget(L, rb, key, slot, luaH_getshortstr_fast))
         {
           setobj2s(L, ra, slot);
         }
@@ -1504,7 +1504,7 @@ returning: /* trap already set */
         TValue* rb = KB(i);
         TValue* rc = RKC(i);
         TString* key = tsvalue(rb); /* key must be a short string */
-        if (luaV_fastget(L, upval, key, slot, luaH_getshortstr))
+        if (luaV_fastget(L, upval, key, slot, luaH_getshortstr_fast))
         {
           luaV_finishfastset(L, upval, slot, rc);
         }
@@ -1555,7 +1555,7 @@ returning: /* trap already set */
         TValue* rb = KB(i);
         TValue* rc = RKC(i);
         TString* key = tsvalue(rb); /* key must be a short string */
-        if (luaV_fastget(L, s2v(ra), key, slot, luaH_getshortstr))
+        if (luaV_fastget(L, s2v(ra), key, slot, luaH_getshortstr_fast))
         {
           luaV_finishfastset(L, s2v(ra), slot, rc);
         }
@@ -1591,7 +1591,7 @@ returning: /* trap already set */
         TValue* rc = RKC(i);
         TString* key = tsvalue(rc); /* key must be a string */
         setobj2s(L, ra + 1, rb);
-        if (luaV_fastget(L, rb, key, slot, luaH_getstr))
+        if (luaV_fastget(L, rb, key, slot, luaH_getstr_fast))
         {
           setobj2s(L, ra, slot);
         }
@@ -2148,8 +2148,8 @@ returning: /* trap already set */
           last += GETARG_Ax(*pc) * (MAXARG_C + 1);
           pc++;
         }
-        if (last > luaH_realasize(h))   /* needs more space? */
-          luaH_resizearray(L, h, last); /* preallocate it at once */
+        if (last > luaH_realasize_fast(h)) /* needs more space? */
+          luaH_resizearray(L, h, last);    /* preallocate it at once */
         if (l_unlikely(isblack(obj2gco(h))))
         {
           for (; n > 0; n--)

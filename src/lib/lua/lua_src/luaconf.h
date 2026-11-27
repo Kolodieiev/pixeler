@@ -744,4 +744,7 @@
 ** without modifying the main part of the file.
 */
 
+#undef lua_getlocaledecpoint
+#define lua_getlocaledecpoint() '.'
+
 #endif
